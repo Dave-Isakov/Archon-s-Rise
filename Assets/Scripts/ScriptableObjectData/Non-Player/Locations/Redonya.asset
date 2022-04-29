@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5f8237e022339947a2f81b637ad4f07, type: 3}
+  m_Name: Redonya
+  m_EditorClassIdentifier: 
+  cardName: Rendonya
+  cardDescription: Large canyon with hidden valleys and sun-baked mountainsides.
+  exploreCost: 3
+  enemies:
+  - {fileID: 11400000, guid: 46f5d3a8bf5ea234198cf0f02b227bcf, type: 2}
+  - {fileID: 11400000, guid: 50d37205264f1b54693753f32dde8ef1, type: 2}
+  - {fileID: 11400000, guid: 7ea7f0d9b1bbfb34b90040a327829972, type: 2}
+  - {fileID: 11400000, guid: 46f5d3a8bf5ea234198cf0f02b227bcf, type: 2}
+  - {fileID: 11400000, guid: 50d37205264f1b54693753f32dde8ef1, type: 2}
+  - {fileID: 11400000, guid: 7ea7f0d9b1bbfb34b90040a327829972, type: 2}
+  - {fileID: 11400000, guid: 46f5d3a8bf5ea234198cf0f02b227bcf, type: 2}
+  - {fileID: 11400000, guid: 50d37205264f1b54693753f32dde8ef1, type: 2}
+  - {fileID: 11400000, guid: 7ea7f0d9b1bbfb34b90040a327829972, type: 2}
+  towns: []
+  bosses: []

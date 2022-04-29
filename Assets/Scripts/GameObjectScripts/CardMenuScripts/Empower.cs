@@ -47,7 +47,6 @@ public class Empower : MonoBehaviour, IPointerClickHandler
         if(empower.isOn)
         {
             onToggle_SendCardDataToCrystals.Raise(empower);
-            card.IsEmpowered = true;
         }
         else
         {

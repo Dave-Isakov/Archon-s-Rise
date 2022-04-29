@@ -79,9 +79,13 @@ public class PlayerHand : MonoBehaviour
     //     activeCard.cardSO = (CardsSO)SO;
     // }
 
-    // public void AddWound()
-    // {
-    //     AllCardObjects.InstantiateNewObject(ref playerCard, card, ref cardID, playerCardsInPlay, hand);
-    //     SetNewCardObjectData(wound);
-    // }
+    public void AddWound()
+    {
+        playerCard = Instantiate(card, new Vector3(0,0,0), Quaternion.identity);
+        playerCard.name = playerCard.name.ToString() + cardID;
+        cardID++;
+        playerCard.transform.SetParent(this.transform, false);
+        playerCardsInPlay.Add(playerCard);
+        playerCard.GetComponent<Card>().cardSO = wound;
+    }
 }

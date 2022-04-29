@@ -8,4 +8,14 @@ public class EnemiesSO : AllCards
     public int enemyHP;
     public int enemyAttack;
     public RewardLevel reward;
+    public bool canInfluence;
+    public int influenceCost;
+
+    private void Start() {
+        if(!canInfluence)
+        {
+            influenceCost = 0;
+        }
+    }
+
 }

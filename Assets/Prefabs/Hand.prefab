@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5903286814822068736}
   - component: {fileID: 8764718785447954041}
   - component: {fileID: 2075357580}
+  - component: {fileID: 5465885023524315979}
   m_Layer: 0
   m_Name: Hand
   m_TagString: Untagged
@@ -77,7 +78,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   deck: {fileID: 0}
   card: {fileID: 1123921089766303386, guid: 3b09e9aa7518fa44288db6a75f3ae120, type: 3}
-  wound: {fileID: 0}
+  wound: {fileID: 11400000, guid: d5f25e7d8e0b98f4695b5390c274f23d, type: 2}
   cardsInHand: []
   layoutAdjustment: {x: -3, y: 0}
   playerCardsInPlay: []
@@ -102,6 +103,34 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: PlayerHand, Assembly-CSharp
         m_MethodName: DrawCard
         m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &5465885023524315979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7190604752587812543}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c535778111a7302429cd5d1c303149a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameEvent: {fileID: 11400000, guid: 1f98a2d9963d87440a1598bd39b42942, type: 2}
+  unityEventResponse:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8764718785447954041}
+        m_TargetAssemblyTypeName: PlayerHand, Assembly-CSharp
+        m_MethodName: AddWound
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

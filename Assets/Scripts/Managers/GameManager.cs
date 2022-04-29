@@ -28,6 +28,9 @@ public class GameManager : MonoBehaviour
         {
             instance = this;
         }
+
+        cardCanvas.SetActive(true);
+        messageCanvas.gameObject.SetActive(true);
     }
 
     private void Start() 

@@ -23,7 +23,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
     [SerializeField] CardEvent onClick_CloseCardMenu;
     [SerializeField] CardEvent onOpenCardMenu_MaximizeCard;
     [SerializeField] CardEvent onCloseCardMenu_MinimizeCard;
-    [SerializeField] IntEvent OnPlay_SetPlayerStatsFromCard;
     [SerializeField] CardEvent onEmpower_DestroyCrystalGameObject;
     [SerializeField] CardEvent onUndo_RegenerateCrystalGameObject;
 

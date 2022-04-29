@@ -19,6 +19,7 @@ public class DataManager : MonoBehaviour
     public int improvDefendValue;
     public int improvInfluenceValue;
     public int improvExploreValue;
+    public int playerHP;
 
     private void Awake()
     {

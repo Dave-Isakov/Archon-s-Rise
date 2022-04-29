@@ -25,17 +25,17 @@ public class ImprovToggle : Improv, IPointerClickHandler
             improvButtonsText.enabled = false;
         }
         else
-            improvToggle.interactable = true;
+            DisableForWounds(_card);
     }
     
-    public void SetToggle()
+    public void SetToggle(Card card)
     {
-        if(!improvToggle.isOn && !_card.IsPlayed)
+        if(!improvToggle.isOn && !card.IsPlayed)
         {
             improvToggle.isOn = false;
             improvButtonsText.enabled = false;
         }
-        else if(improvToggle.isOn && _card.IsPlayed)
+        else if(improvToggle.isOn && card.IsPlayed)
         {
             improvToggle.isOn = true;
             improvButtonsText.enabled = false;
@@ -63,5 +63,21 @@ public class ImprovToggle : Improv, IPointerClickHandler
     {
         if(_card.IsPlayed && !improvToggle.interactable)
             GameManager.Instance.ValidationMessage($"{_card.cardSO.name} has already been played. Click Undo on the Gameboard to undo previous plays.");
+        
+        if(_card.cardSO.empowerType == EmpowerType.None)
+            GameManager.Instance.ValidationMessage($"{_card.cardSO.name} cannot be improvised.");
+    }
+
+    public void DisableForWounds(Card card)
+    {
+        if (card.cardSO.empowerType == EmpowerType.None)
+        {
+            improvToggle.interactable = false;
+            improvText.enabled = false;
+        }
+        else
+        {
+            improvToggle.interactable = true;
+        }
     }
 }

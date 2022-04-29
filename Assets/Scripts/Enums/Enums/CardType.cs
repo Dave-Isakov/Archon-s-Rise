@@ -7,5 +7,6 @@ public enum CardType
     Attack = 1,
     Defend = 2,
     Explore = 4,
-    Influence = 8
+    Influence = 8,
+    Heal = 16
 }

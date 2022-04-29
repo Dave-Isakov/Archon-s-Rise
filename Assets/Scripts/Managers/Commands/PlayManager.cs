@@ -38,4 +38,9 @@ public class PlayManager
     {
         return commandManager.Count;
     }
+
+    public void ClearStack()
+    {
+        commandManager.Clear();
+    }
 }

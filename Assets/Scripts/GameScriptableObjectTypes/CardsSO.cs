@@ -61,4 +61,10 @@ public class CardsSO : AllCards
         else
         return 0;
     }
+
+    public void GenerateCrystal()
+    {
+        var crystal = FindObjectOfType<CrystalInventory>();
+        crystal.CreateCrystal(empowerType);
+    }
 }

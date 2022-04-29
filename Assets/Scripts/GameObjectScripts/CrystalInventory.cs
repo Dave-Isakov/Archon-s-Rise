@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class CrystalInventory : MonoBehaviour
+public class CrystalInventory : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] List<GameObject> crystals = new();
     public List<Crystal> crystalsInInventory;
@@ -14,13 +15,13 @@ public class CrystalInventory : MonoBehaviour
     public Card _card;
     public Stack<Crystal> playedCrystals = new();
 
-    private void Start() 
-    {
-        foreach(EmpowerType i in Enum.GetValues(typeof(CardType)))
-        {
-            CreateCrystal(i);
-        }
-    }
+    // private void Start() 
+    // {
+    //     foreach(EmpowerType i in Enum.GetValues(typeof(EmpowerType)))
+    //     {
+    //         CreateCrystal(i);
+    //     }
+    // }
     public void CreateCrystal(EmpowerType color)
     {
         switch (color)
@@ -114,5 +115,11 @@ public class CrystalInventory : MonoBehaviour
                 return crystal;
         }
         return null;
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        EmpowerType[] i = new[] { EmpowerType.Green, EmpowerType.Yellow, EmpowerType.Red, EmpowerType.Purple, EmpowerType.None };
+        CreateCrystal(i[UnityEngine.Random.Range(0,5)]);
     }
 }

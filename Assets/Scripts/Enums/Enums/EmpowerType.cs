@@ -7,6 +7,5 @@ public enum EmpowerType
     Red = 1,
     Yellow = 2,
     Green = 4,
-    Purple = 8,
-    All = ~None
+    Purple = 8
 }

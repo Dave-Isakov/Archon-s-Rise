@@ -108,5 +108,14 @@ public class PlayButton : MonoBehaviour, IPointerClickHandler
 
         if(card.cardSO.isChoice && !playButton.interactable && !card.IsPlayed)
             GameManager.Instance.ValidationMessage($"{card.cardSO.name} requires a choice before playing.");
+
+        if (card.cardSO.cardType == CardType.None)
+            GameManager.Instance.ValidationMessage($"{card.cardSO.name} cannot be played.");
+    }
+
+    public void DisableForWounds(Card card)
+    {
+        if (card.cardSO.cardType == CardType.None)
+            playButton.interactable = false;
     }
 }

@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class Crystal : MonoBehaviour
+public class Crystal : MonoBehaviour, IPointerClickHandler
 {
     CrystalInventory inventory;
     public EmpowerType color;
@@ -16,6 +17,11 @@ public class Crystal : MonoBehaviour
     {
         inventory.crystalsInInventory.Remove(this);
         Destroy(this.gameObject);
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        this.RemoveCrystal();
     }
 
     // public void EmpowerCrystal(Card card)
@@ -41,4 +47,6 @@ public class Crystal : MonoBehaviour
     //     else
     //         inventory.CreateCrystal(crystal.color);
     // }
+
+
 }
