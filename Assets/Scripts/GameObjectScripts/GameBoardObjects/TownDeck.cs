@@ -14,13 +14,13 @@ public class TownDeck : Deck<TownsSO>, IPointerClickHandler
     private int townID;
     void Start()
     {
-        townText.text = towns.Count.ToString();
+        
     }
 
 
     void Update()
     {
-        
+        townText.text = towns.Count.ToString();
     }
 
     public void CreateTown()
@@ -39,5 +39,11 @@ public class TownDeck : Deck<TownsSO>, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         CreateTown();
+    }
+
+    public void SetTownToGrid(TownCard card)
+    {
+        card.gameObject.transform.SetParent(townLayout.transform, false);
+        card.gameObject.transform.localScale = new Vector3(1, 1, 0);
     }
 }

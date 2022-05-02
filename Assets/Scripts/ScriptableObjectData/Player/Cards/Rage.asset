@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
+  m_Name: Rage
+  m_EditorClassIdentifier: 
+  cardName: Commune with Spirits
+  cardDescription: 'Gain 3 Attack
+
+    Empower: 6 Attack.'
+  attack: 3
+  defend: 0
+  explore: 0
+  influence: 0
+  empowerAttack: 6
+  empowerDefend: 0
+  empowerExplore: 0
+  empowerInfluence: 0
+  cardType: 1
+  empowerType: 1
+  isChoice: 0

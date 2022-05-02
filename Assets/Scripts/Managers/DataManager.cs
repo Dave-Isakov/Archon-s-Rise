@@ -9,17 +9,19 @@ public class DataManager : MonoBehaviour
 
     List<GameObject> playerCardObjects = new();
 
-    public int playerAttack;
-    public int playerDefend;
-    public int playerInfluence;
-    public int playerExplore;
-    public PlayerSO player;
-    public int playerHandSize;
-    public int improvAttackValue;
-    public int improvDefendValue;
-    public int improvInfluenceValue;
-    public int improvExploreValue;
-    public int playerHP;
+    // public int playerAttack;
+    // public int playerDefend;
+    // public int playerInfluence;
+    // public int playerExplore;
+    // public PlayerSO player;
+    // public int playerHandSize;
+    // public int improvAttackValue;
+    // public int improvDefendValue;
+    // public int improvInfluenceValue;
+    // public int improvExploreValue;
+    // public int playerHP;
+    // public int playerExp;
+    public CardsSO[] allCards;
 
     private void Awake()
     {
@@ -31,7 +33,7 @@ public class DataManager : MonoBehaviour
         {
             instance = this;
         }
-        playerHandSize = player.PlayerHandSize;
+        // playerHandSize = player.PlayerHandSize;
     }
 
     // public void CardsOnGameBoardList(GameObject playerCard)
@@ -48,19 +50,19 @@ public class DataManager : MonoBehaviour
     //         Debug.Log(card.GetComponent<Card>().cardSO.cardName);
     // }
 
-    public void AssignPlayerStats(int[] stats)
-    {
-        playerAttack += stats[0];
-        playerDefend += stats[1];
-        playerInfluence += stats[2];
-        playerExplore += stats[3];
-    }
+    // public void AssignPlayerStats(int[] stats)
+    // {
+    //     playerAttack += stats[0];
+    //     playerDefend += stats[1];
+    //     playerInfluence += stats[2];
+    //     playerExplore += stats[3];
+    // }
 
-    public void UnAssignPlayerStats(int[] stats)
-    {
-        playerAttack -= stats[0];
-        playerDefend -= stats[1];
-        playerInfluence -= stats[2];
-        playerExplore -= stats[3];
-    }
+    // public void UnAssignPlayerStats(int[] stats)
+    // {
+    //     playerAttack -= stats[0];
+    //     playerDefend -= stats[1];
+    //     playerInfluence -= stats[2];
+    //     playerExplore -= stats[3];
+    // }
 }

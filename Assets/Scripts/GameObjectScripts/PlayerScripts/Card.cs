@@ -9,7 +9,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
 {
     public CardsSO cardSO;
     private bool isPlayed;
-    private bool inHand;
+    private bool isReward;
     [SerializeField] private bool isEmpowered;
     private bool isMaximized;
     private Vector2 startPosition;
@@ -23,8 +23,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
     [SerializeField] CardEvent onClick_CloseCardMenu;
     [SerializeField] CardEvent onOpenCardMenu_MaximizeCard;
     [SerializeField] CardEvent onCloseCardMenu_MinimizeCard;
-    [SerializeField] CardEvent onEmpower_DestroyCrystalGameObject;
-    [SerializeField] CardEvent onUndo_RegenerateCrystalGameObject;
+    [SerializeField] CardEvent onRewardSelect_AddCardToDeck;
 
     [Header("Empower Type Colors")]
     [SerializeField] private Color redColor;
@@ -37,6 +36,10 @@ public class Card : MonoBehaviour, IPointerClickHandler
         get
         {
             return isPlayed;
+        }
+        set
+        {
+            isPlayed = value;
         }
     }
     public bool IsEmpowered
@@ -51,6 +54,17 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
     }
 
+    public bool IsReward
+    {
+        get
+        {
+            return isReward;
+        }
+        set
+        {
+            isReward = value;
+        }
+    }
     void Start() 
     {
         cardName.text = cardSO.cardName;
@@ -111,15 +125,22 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(isMaximized)
+        if(!isReward)
         {
-            onCloseCardMenu_MinimizeCard.Raise(this);
-            onClick_CloseCardMenu.Raise(this);
+            if(isMaximized)
+            {
+                onCloseCardMenu_MinimizeCard.Raise(this);
+                onClick_CloseCardMenu.Raise(this);
+            }
+            else if(!isMaximized)
+            {
+                onClick_OpenCardMenu.Raise(this);
+                onOpenCardMenu_MaximizeCard.Raise(this);
+            }
         }
-        else if(!isMaximized)
+        else if(isReward)
         {
-            onClick_OpenCardMenu.Raise(this);
-            onOpenCardMenu_MaximizeCard.Raise(this);
+            onRewardSelect_AddCardToDeck.Raise(this);
         }
     }
 
@@ -140,146 +161,5 @@ public class Card : MonoBehaviour, IPointerClickHandler
         card.gameObject.transform.localScale = new Vector3(1, 1, 0);
         card.gameObject.tag = "Untagged";
         card.isMaximized = false;
-    }
-
-    public void PlayCard(Card card)
-    {
-        if(!card.isPlayed)
-        {
-            DataManager.Instance.AssignPlayerStats(card.cardSO.GetCardStats(card.isEmpowered));
-            if(card.isEmpowered)
-                onEmpower_DestroyCrystalGameObject.Raise(card);
-            card.isPlayed = true;
-        }
-        else if(card.isPlayed)
-        {
-            DataManager.Instance.UnAssignPlayerStats(card.cardSO.GetCardStats(card.isEmpowered));
-            if(card.isEmpowered)
-                onUndo_RegenerateCrystalGameObject.Raise(card);
-            card.isPlayed = false;
-        }
-    }
-    public void ImprovAttack(Card card)
-    {
-        if(!card.isPlayed)
-        {
-            DataManager.Instance.playerAttack += DataManager.Instance.improvAttackValue;
-            card.isPlayed = true;
-        }
-        else if(card.isPlayed)
-        {
-            DataManager.Instance.playerAttack -= DataManager.Instance.improvAttackValue;
-            card.isPlayed = false;
-        }
-    }
-    public void ImprovDefend(Card card)
-    {
-        if(!card.isPlayed)
-        {
-            DataManager.Instance.playerDefend += DataManager.Instance.improvDefendValue;
-            card.isPlayed = true;
-        }
-        else if(card.isPlayed)
-        {
-            DataManager.Instance.playerDefend -= DataManager.Instance.improvDefendValue;
-            card.isPlayed = false;
-        }
-    }
-    public void ImprovInfluence(Card card)
-    {
-        if(!card.isPlayed)
-        {
-            DataManager.Instance.playerInfluence += DataManager.Instance.improvInfluenceValue;
-            card.isPlayed = true;
-        }
-        else if(card.isPlayed)
-        {
-            DataManager.Instance.playerInfluence -= DataManager.Instance.improvInfluenceValue;
-            card.isPlayed = false;
-        }
-    }
-    public void ImprovExplore(Card card)
-    {
-        if(!card.isPlayed)
-        {
-            DataManager.Instance.playerExplore += DataManager.Instance.improvExploreValue;
-            card.isPlayed = true;
-        }
-        else if(card.isPlayed)
-        {
-            DataManager.Instance.playerExplore -= DataManager.Instance.improvExploreValue;
-            card.isPlayed = false;
-        }
-    }
-
-    public void AttackChoice(Card card)
-    {
-        if(!card.isPlayed)
-        {
-            DataManager.Instance.playerAttack += card.cardSO.ReturnAttack(card.isEmpowered);
-            if(card.isEmpowered)
-                onEmpower_DestroyCrystalGameObject.Raise(card);
-            card.isPlayed = true;
-        }
-        else if(card.isPlayed)
-        {
-            DataManager.Instance.playerAttack -= card.cardSO.ReturnAttack(card.isEmpowered);
-            if(card.isEmpowered)
-                onUndo_RegenerateCrystalGameObject.Raise(card);
-            card.isPlayed = false;
-        }
-    }
-
-    public void DefendChoice(Card card)
-    {
-        if(!card.isPlayed)
-        {
-            DataManager.Instance.playerDefend += card.cardSO.ReturnDefend(card.isEmpowered);
-            if(card.isEmpowered)
-                onEmpower_DestroyCrystalGameObject.Raise(card);
-            card.isPlayed = true;
-        }
-        else if(card.isPlayed)
-        {
-            DataManager.Instance.playerDefend -= card.cardSO.ReturnDefend(card.isEmpowered);
-            if(card.isEmpowered)
-                onUndo_RegenerateCrystalGameObject.Raise(card);
-            card.isPlayed = false;
-        }
-    }
-
-    public void InfluenceChoice(Card card)
-    {
-        if(!card.isPlayed)
-        {
-            DataManager.Instance.playerInfluence += card.cardSO.ReturnInfluence(card.isEmpowered);
-            if(card.isEmpowered)
-                onEmpower_DestroyCrystalGameObject.Raise(card);
-            card.isPlayed = true;
-        }
-        else if(card.isPlayed)
-        {
-            DataManager.Instance.playerInfluence -= card.cardSO.ReturnInfluence(card.isEmpowered);
-            if(card.isEmpowered)
-                onUndo_RegenerateCrystalGameObject.Raise(card);
-            card.isPlayed = false;
-        }
-    }
-    public void ExploreChoice(Card card)
-    {
-        if(!card.isPlayed)
-        {
-            DataManager.Instance.playerExplore += card.cardSO.ReturnExplore(card.isEmpowered);
-            if(card.isEmpowered)
-                onEmpower_DestroyCrystalGameObject.Raise(card);
-            card.isPlayed = true;
-        }
-        else if(card.isPlayed)
-        {
-            DataManager.Instance.playerExplore -= card.cardSO.ReturnExplore(card.isEmpowered);
-            if(card.isEmpowered)
-                onUndo_RegenerateCrystalGameObject.Raise(card);
-            card.isPlayed = false;
-        }
     }
 }

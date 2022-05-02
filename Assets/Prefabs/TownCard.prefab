@@ -573,6 +573,10 @@ MonoBehaviour:
   razeAmount: {fileID: 1095017149540023129}
   recruitLevel: {fileID: 9103217917826355687}
   description: {fileID: 7478450738196762875}
+  onClick_OpenTownMenu: {fileID: 11400000, guid: c29d62e8153dd004fb3e06134e5a63b0, type: 2}
+  onTownMenuOpen_MaxmizeTownCard: {fileID: 11400000, guid: e9d89d795cbc0604e853deca8a70f052, type: 2}
+  onClick_CloseTownMenu: {fileID: 11400000, guid: d45999c156ce7354a9b68010cefb7500, type: 2}
+  onTownMenuClose_MinimizeTownCard: {fileID: 11400000, guid: 930ff860c240f914fb5ce5401dd68a63, type: 2}
 --- !u!1 &5024544060433971399
 GameObject:
   m_ObjectHideFlags: 0

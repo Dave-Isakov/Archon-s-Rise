@@ -5,13 +5,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class EnemyCard : MonoBehaviour, IPointerClickHandler
+public class EnemyCard : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {   
     public EnemiesSO enemySO;
     [SerializeField] private TextMeshProUGUI enemyName;
     [SerializeField] private TextMeshProUGUI enemyHP;
     [SerializeField] private TextMeshProUGUI enemyAttack;
     [SerializeField] private EnemyCardEvent onDefeat_WoundPlayer;
+    [SerializeField] EnemyCardEvent onClick_ValidatePlayerAttackToEnemyHP;
     private bool isDefeated = false;
     private bool isMaximized;
 
@@ -22,37 +23,21 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
         enemyHP.text = "<)\n" + enemySO.enemyHP.ToString();
         Debug.Log($"{enemySO.name} ({this.gameObject.name}) has entered the battlefield.");
     }
-
-    void Update()
-    {
-
-    }
-
     public void DefeatMonster()
     {
-        if(DataManager.Instance.playerAttack >= enemySO.enemyHP)
-        {
-            DataManager.Instance.playerAttack -= enemySO.enemyHP;
-            CheckWounds();
-            DataManager.Instance.playerDefend -= enemySO.enemyAttack;
-            if (DataManager.Instance.playerDefend < 0) DataManager.Instance.playerDefend = 0;
-            //GetReward();
-            //ChooseReward();
-            //AssignReward();
-            isDefeated = true;
-            GameManager.Instance.commands.ClearStack();
-        }
-        else
-        {
-            GameManager.Instance.ValidationMessage($"You need {enemySO.enemyHP} Attack in order to defeat this monster.");
-        }
+        onClick_ValidatePlayerAttackToEnemyHP.Raise(this);     
+    //         //ChooseReward();
+    //         //AssignReward();
+    //  isDefeated = true;
+    //         GameManager.Instance.commands.ClearStack();
     }
-    private void CheckWounds()
+
+    public void CheckWounds(Player player)
     {
-        if (DataManager.Instance.playerDefend < enemySO.enemyAttack)
+        if (player.PlayerDefend < enemySO.enemyAttack)
         {
             int woundCount = 0;
-            for (var i = 0; i < enemySO.enemyAttack; i += DataManager.Instance.playerHP)
+            for (var i = 0; i < enemySO.enemyAttack; i += player.PlayerHP)
             {
                 onDefeat_WoundPlayer.Raise(this);
                 woundCount++;
@@ -70,5 +55,25 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
             Destroy(this.gameObject, 1f * Time.deltaTime);
             GameManager.Instance.ValidationMessage($"{enemySO.name} has been destroyed!");
         }
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        this.transform.localScale = new Vector3(2,2,2);
+        GetComponent<Canvas>().overrideSorting = true;
+        GetComponent<Canvas>().sortingOrder = 50;
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        this.transform.localScale = new Vector3(1,1,1);
+        GetComponent<Canvas>().overrideSorting = false;
+        GetComponent<Canvas>().sortingOrder = 0;
+    }
+
+    public void DestroyEnemyObject()
+    {
+        isDefeated = true;
+        GameManager.Instance.commands.ClearStack();
     }
 }

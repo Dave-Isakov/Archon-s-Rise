@@ -10,10 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
-  m_Name: AttackDefend
+  m_Name: Force Push
   m_EditorClassIdentifier: 
-  cardName: Attack/Defend
-  cardDescription: Can be used for both 2 attack or defend. 3 if empowered.
+  cardName: Force Push
+  cardDescription: 'Gain 2 Attack or Defend.
+
+    Empower: 3 Attack or Defend'
   attack: 2
   defend: 2
   explore: 0

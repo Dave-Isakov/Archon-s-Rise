@@ -11,7 +11,10 @@ public class GameManager : MonoBehaviour
 
     public Canvas messageCanvas;
     public GameObject enlargeCardPosition;
+    public GameObject enlargeTownCardPosition;
     public GameObject cardCanvas;
+    public GameObject cardRewardCanvas;
+    public GameObject townCanvas;
     public GameObject playerHand;
     public PlayManager commands;
 
@@ -30,7 +33,9 @@ public class GameManager : MonoBehaviour
         }
 
         cardCanvas.SetActive(true);
+        cardRewardCanvas.SetActive(true);
         messageCanvas.gameObject.SetActive(true);
+        townCanvas.SetActive(true);
     }
 
     private void Start() 

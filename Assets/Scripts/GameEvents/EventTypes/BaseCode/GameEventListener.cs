@@ -27,7 +27,6 @@ public abstract class BaseGameEventListener<T, E, UER> : MonoBehaviour, IGameEve
         if(unityEventResponse != null)
         {
             unityEventResponse.Invoke(item);
-            Debug.Log($"{unityEventResponse} Invoking {item}");
         }
     }
 }

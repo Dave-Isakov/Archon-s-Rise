@@ -25,5 +25,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 46f5d3a8bf5ea234198cf0f02b227bcf, type: 2}
   - {fileID: 11400000, guid: 50d37205264f1b54693753f32dde8ef1, type: 2}
   - {fileID: 11400000, guid: 7ea7f0d9b1bbfb34b90040a327829972, type: 2}
-  towns: []
+  towns:
+  - {fileID: 11400000, guid: 9102a8cd8f93e4e44a05be9c0c1b21cb, type: 2}
+  - {fileID: 11400000, guid: 4796ae170608b7741840843093c76437, type: 2}
+  - {fileID: 11400000, guid: 88f176c9238633842aac17a8f5ab448a, type: 2}
   bosses: []

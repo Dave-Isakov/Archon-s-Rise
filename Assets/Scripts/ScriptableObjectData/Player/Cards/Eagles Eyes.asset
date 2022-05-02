@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Eagles Eyes
   m_EditorClassIdentifier: 
   cardName: Eagles Eyes
-  cardDescription: This card grants 2 point of defend or explore. If empowered, 3
-    defend or explore.
+  cardDescription: 'Gain 2 Defend or Explore
+
+    Empower: 3 Defend or Explore'
   attack: 0
   defend: 2
   explore: 2

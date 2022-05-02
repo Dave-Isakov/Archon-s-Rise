@@ -5,15 +5,16 @@ using UnityEngine;
 
 public class StatsDisplay : MonoBehaviour
 {
+    [SerializeField] Player player;
     [SerializeField] TextMeshProUGUI attackText;
     [SerializeField] TextMeshProUGUI defendText;
     [SerializeField] TextMeshProUGUI influenceText;
     [SerializeField] TextMeshProUGUI exploreText;
     void Update()
     {
-        attackText.text = "Attack: " + DataManager.Instance.playerAttack.ToString();
-        defendText.text = "Defend: " + DataManager.Instance.playerDefend.ToString();
-        influenceText.text = "Influence: " + DataManager.Instance.playerInfluence.ToString();
-        exploreText.text = "Explore: " + DataManager.Instance.playerExplore.ToString();
+        attackText.text = "Attack: " + player.PlayerAttack.ToString();
+        defendText.text = "Defend: " + player.PlayerDefend.ToString();
+        influenceText.text = "Influence: " + player.PlayerInfluence.ToString();
+        exploreText.text = "Explore: " + player.PlayerExplore.ToString();
     }
 }

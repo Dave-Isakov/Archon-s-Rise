@@ -8,6 +8,7 @@ using UnityEditor;
 public class PlayerHand : MonoBehaviour
 {
     [SerializeField] PlayerDeck deck;
+    [SerializeField] Player player;
     [SerializeField] GameObject card;
     [SerializeField] CardsSO wound;
     // [SerializeField] MessagePopUp message;
@@ -37,7 +38,7 @@ public class PlayerHand : MonoBehaviour
     // }
     public void DrawCard(PlayerDeck deck)
     {
-        if (deck.cards.Count >= 1 && playerCardsInPlay.Count < DataManager.Instance.playerHandSize)
+        if (deck.cards.Count >= 1 && playerCardsInPlay.Count < player.PlayerHandSize)
         {
             playerCard = Instantiate(card, new Vector3(0,0,0), Quaternion.identity);
             playerCard.name = playerCard.name.ToString() + cardID;
@@ -51,7 +52,7 @@ public class PlayerHand : MonoBehaviour
         }
         else
         {
-            GameManager.Instance.ValidationMessage($"Your max hand size is {DataManager.Instance.playerHandSize}, you cannot draw anymore cards.");
+            GameManager.Instance.ValidationMessage($"Your max hand size is {player.PlayerHandSize}, you cannot draw anymore cards.");
         }
 
     }

@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class Location : Deck<LocationsSO>
+public class Location : Deck<LocationsSO>, IPointerClickHandler
 {
     [SerializeField] EnemyDeck enemyDeck;
     [SerializeField] TownDeck townDeck;
@@ -28,6 +29,23 @@ public class Location : Deck<LocationsSO>
     private void Update()
     {
         
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        GetExplore();
+    }
+
+    public void GetExplore()
+    {
+        if(enemyDeck is not null && townDeck is not null)
+        {
+            int rng = Random.Range(1,3);
+            if (rng == 1)
+                townDeck.CreateTown();
+            else if (rng == 2 || rng == 3)
+                enemyDeck.GetNewEnemyCard();
+        }
     }
 }
 

@@ -17,12 +17,12 @@ public class EnemyDeck : Deck<EnemiesSO>, IPointerClickHandler
     void Start()
     {
         Shuffle(enemies);
-        enemyText.text = enemies.Count.ToString();
+        
     }
 
     void Update()
     {
-        
+        enemyText.text = enemies.Count.ToString();
     }
 
     public void GetNewEnemyCard()

@@ -49,4 +49,14 @@ public class PlayerDeck : Deck<CardsSO>, IPointerClickHandler
         command.AddCommand(drawCommand);
         Debug.Log("Drawing from the deck.");
     }
+
+    public void AddRandomCard()
+    {
+        cards.Add(DataManager.Instance.allCards[Random.Range(0, DataManager.Instance.allCards.Length)]);
+    }
+
+    public void AddRewardToDeck(Card card)
+    {
+        cards.Add(card.cardSO);
+    }
 }

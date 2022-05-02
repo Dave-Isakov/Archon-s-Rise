@@ -10,7 +10,6 @@ public abstract class BaseGameEvent<T> : ScriptableObject
     {
         for (int i = eventListeners.Count - 1; i >= 0 ; i--)
         {
-            Debug.Log($"{eventListeners[i]} raise {item}");
             eventListeners[i].OnEventRaised(item);
         }
     }

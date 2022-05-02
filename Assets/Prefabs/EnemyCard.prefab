@@ -195,7 +195,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -304,6 +304,8 @@ GameObject:
   - component: {fileID: -491020725506114898}
   - component: {fileID: 7341265242926285509}
   - component: {fileID: -2934626997787993484}
+  - component: {fileID: 20935831461947820}
+  - component: {fileID: -8202408387953568805}
   m_Layer: 8
   m_Name: EnemyCard
   m_TagString: Untagged
@@ -423,6 +425,63 @@ MonoBehaviour:
   enemyHP: {fileID: 9103217917826355687}
   enemyAttack: {fileID: 1095017149540023129}
   onDefeat_WoundPlayer: {fileID: 11400000, guid: 1f98a2d9963d87440a1598bd39b42942, type: 2}
+  onClick_ValidatePlayerAttackToEnemyHP: {fileID: 11400000, guid: 948a5ad4721e5a244bded1fbebd80823, type: 2}
+--- !u!114 &20935831461947820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4644490986371857415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb74dc2ff431a6a419542d2ce7cb3ce7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameEvent: {fileID: 11400000, guid: 20914f240692df845b8df52dc33c180d, type: 2}
+  unityEventResponse:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: -2934626997787993484}
+        m_TargetAssemblyTypeName: EnemyCard, Assembly-CSharp
+        m_MethodName: CheckWounds
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &-8202408387953568805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4644490986371857415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c535778111a7302429cd5d1c303149a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameEvent: {fileID: 11400000, guid: bf55ca131db873b4bb4a19b6de74a6d7, type: 2}
+  unityEventResponse:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: -2934626997787993484}
+        m_TargetAssemblyTypeName: EnemyCard, Assembly-CSharp
+        m_MethodName: DestroyEnemyObject
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &5024544060433971399
 GameObject:
   m_ObjectHideFlags: 0
@@ -754,7 +813,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:

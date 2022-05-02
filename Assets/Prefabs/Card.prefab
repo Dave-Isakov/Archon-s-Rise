@@ -96,9 +96,9 @@ MonoBehaviour:
   onClick_CloseCardMenu: {fileID: 11400000, guid: 0d458dfbda854e041bb1b1f013fdd675, type: 2}
   onOpenCardMenu_MaximizeCard: {fileID: 11400000, guid: 2e79cc5ceacf4fe48be8fe6c2b851f3c, type: 2}
   onCloseCardMenu_MinimizeCard: {fileID: 11400000, guid: d081b38f20f63ab4fb863ba7311cde5c, type: 2}
-  OnPlay_SetPlayerStatsFromCard: {fileID: 0}
   onEmpower_DestroyCrystalGameObject: {fileID: 11400000, guid: 259aa8cdf370e1f488bdb4cb850895c7, type: 2}
   onUndo_RegenerateCrystalGameObject: {fileID: 11400000, guid: bd821ca14bf5a7347a223d4ff9ae05e3, type: 2}
+  onRewardSelect_AddCardToDeck: {fileID: 11400000, guid: 7d50490ae3007514390d945d5b000842, type: 2}
   redColor: {r: 0.745283, g: 0.23553754, b: 0.23553754, a: 1}
   yellowColor: {r: 0.8018868, g: 0.7607942, b: 0.22316661, a: 1}
   purpleColor: {r: 0.7077451, g: 0.24586153, b: 0.8018868, a: 1}
