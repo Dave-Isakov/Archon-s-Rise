@@ -19,3 +19,4 @@ MonoBehaviour:
   recruitLevel: 0
   razeLevel: 2
   resourceLevel: 4
+  healLevel: 1

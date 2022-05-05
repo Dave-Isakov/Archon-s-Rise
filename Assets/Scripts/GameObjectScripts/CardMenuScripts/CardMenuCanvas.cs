@@ -8,13 +8,11 @@ public class CardMenuCanvas : MonoBehaviour
     [SerializeField] Canvas menuCanvas;
     int startingSort = -100;
     int maxSort = 50;
-    // Start is called before the first frame update
     void Awake()
     {
         menuCanvas.sortingOrder = startingSort;
     }
 
-    // Update is called once per frame
     void Update()
     {
         

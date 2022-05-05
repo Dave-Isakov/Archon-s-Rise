@@ -15,11 +15,15 @@ MonoBehaviour:
   playerName: Dave
   playerHandSize: 5
   startingHand:
-  - {fileID: 11400000, guid: fee3f75200346d140802c0770ce31dbb, type: 2}
+  - {fileID: 11400000, guid: d5f25e7d8e0b98f4695b5390c274f23d, type: 2}
+  - {fileID: 11400000, guid: d5f25e7d8e0b98f4695b5390c274f23d, type: 2}
+  - {fileID: 11400000, guid: 4cf1e193565ac464989aef186a82c2a5, type: 2}
+  - {fileID: 11400000, guid: 85b6e17878e9f7341b3f38a935382b7a, type: 2}
   - {fileID: 11400000, guid: 85b6e17878e9f7341b3f38a935382b7a, type: 2}
   - {fileID: 11400000, guid: 80f3d57a6bcbc9a4db84b11291ba3701, type: 2}
-  - {fileID: 11400000, guid: f8eee066478107a4ba7867d3e89b3d64, type: 2}
+  - {fileID: 11400000, guid: 80f3d57a6bcbc9a4db84b11291ba3701, type: 2}
+  - {fileID: 11400000, guid: 33f3afbee49303641a0608041d15177a, type: 2}
+  - {fileID: 11400000, guid: 4e6b8178900aa454596e2bfa9fa43503, type: 2}
   - {fileID: 11400000, guid: 33f3afbee49303641a0608041d15177a, type: 2}
   - {fileID: 11400000, guid: dfe220ff70b72484ba9ba0b4012be5c1, type: 2}
-  - {fileID: 11400000, guid: 8af9cc7d91b76804b846b1a0a9a849d1, type: 2}
-  - {fileID: 11400000, guid: a102cb51544b67c4d87d42e30923124b, type: 2}
+  - {fileID: 11400000, guid: dfe220ff70b72484ba9ba0b4012be5c1, type: 2}

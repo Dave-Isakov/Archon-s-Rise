@@ -11,7 +11,7 @@ public abstract class ChoiceToggles  : MonoBehaviour, CardMenuInterface
     [SerializeField] Text toggleText;
     [SerializeField] ToggleEvent onToggle_SetChoiceStatForPlay;
 
-    protected CardType _cardType;
+    protected StatType _cardType;
     void Start()
     {
         
@@ -43,7 +43,7 @@ public abstract class ChoiceToggles  : MonoBehaviour, CardMenuInterface
     public void ActivateToggles(Card card)
     {   
         if (card is not null)
-        foreach(CardType type in Enum.GetValues(typeof(CardType)))
+        foreach(StatType type in Enum.GetValues(typeof(StatType)))
         {
             if (card.cardSO.isChoice && card.cardSO.cardType.HasFlag(_cardType))
                 thisToggle.interactable = true;

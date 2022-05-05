@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5567186398939274856}
   m_Layer: 5
   m_Name: YellowCrystal
-  m_TagString: Untagged
+  m_TagString: Crystal
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -120,3 +120,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: 2
+  isAll: 0

@@ -14,6 +14,7 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
     GameObject activeCrystal;
     public Card _card;
     public Stack<Crystal> playedCrystals = new();
+    public Stack<Crystal> playerCreatedCrystal = new();
 
     // private void Start() 
     // {
@@ -22,7 +23,7 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
     //         CreateCrystal(i);
     //     }
     // }
-    public void CreateCrystal(EmpowerType color)
+    public Crystal CreateCrystal(EmpowerType color)
     {
         switch (color)
         {
@@ -46,6 +47,7 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
         activeCrystal.name += crystalID;
         crystalID++;
         crystalsInInventory.Add(activeCrystal.GetComponent<Crystal>());
+        return activeCrystal.GetComponent<Crystal>();
     }
 
     public void ToggleEmpowered(Toggle empower)
@@ -100,10 +102,12 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
     public void RegenCrystal()
     {
         var crystal = playedCrystals.Pop();
-        if(crystal.isAll)
-            CreateCrystal(EmpowerType.None);
-        else
-            CreateCrystal(crystal.color);
+        crystal.gameObject.SetActive(true);
+        crystalsInInventory.Add(crystal);
+        // if(crystal.isAll)
+        //     CreateCrystal(EmpowerType.None);
+        // else
+        //     CreateCrystal(crystal.color);
         Debug.Log(crystal.color);
     }
 
@@ -121,5 +125,54 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
     {
         EmpowerType[] i = new[] { EmpowerType.Green, EmpowerType.Yellow, EmpowerType.Red, EmpowerType.Purple, EmpowerType.None };
         CreateCrystal(i[UnityEngine.Random.Range(0,5)]);
+    }
+
+    public void Crystallize(Card card)
+    {
+        if(card.cardSO.cardType == StatType.Crystal && card.IsPlayed)
+        {
+            if(!card.IsEmpowered)
+                for(var i = 0; i < card.cardSO.numCrystals; i++)
+                {
+                    var crystal = CreateCrystal(card.cardSO.empowerType);
+                    playerCreatedCrystal.Push(crystal);
+                }
+            else if(card.IsEmpowered)
+                for(var i = 0; i < card.cardSO.empowerNumCrystals; i++)
+                {
+                    var crystal = CreateCrystal(card.cardSO.empowerType);
+                    playerCreatedCrystal.Push(crystal);
+                }
+        }
+
+        else if(card.cardSO.cardType == StatType.Crystal && !card.IsPlayed)
+        {
+            if(!card.IsEmpowered)
+                for(var i = 0; i < card.cardSO.numCrystals; i++)
+                {
+                    var crystal = playerCreatedCrystal.Pop();
+                    crystal.RemoveCrystal();
+                }
+            else if(card.IsEmpowered)
+                for(var i = 0; i < card.cardSO.empowerNumCrystals; i++)
+                {
+                    var crystal = playerCreatedCrystal.Pop();
+                    crystal.RemoveCrystal();
+                }
+        }
+    }
+
+    public void PurchaseTownCrystal(EmpowerType type)
+    {
+        CreateCrystal(type);
+    }
+
+    public void CleanUp()
+    {
+        foreach(var inactiveCrystal in FindObjectsOfType<Crystal>(true))
+        {
+            if(!inactiveCrystal.gameObject.activeSelf)
+                Destroy(inactiveCrystal.gameObject);
+        }
     }
 }

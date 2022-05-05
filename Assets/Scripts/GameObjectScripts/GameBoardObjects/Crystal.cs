@@ -16,7 +16,7 @@ public class Crystal : MonoBehaviour, IPointerClickHandler
     public void RemoveCrystal()
     {
         inventory.crystalsInInventory.Remove(this);
-        Destroy(this.gameObject);
+        this.gameObject.SetActive(false);
     }
 
     public void OnPointerClick(PointerEventData eventData)

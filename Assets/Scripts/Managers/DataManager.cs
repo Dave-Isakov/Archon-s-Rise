@@ -22,6 +22,7 @@ public class DataManager : MonoBehaviour
     // public int playerHP;
     // public int playerExp;
     public CardsSO[] allCards;
+    public UnitsSO[] allUnits;
 
     private void Awake()
     {

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Heal
   m_EditorClassIdentifier: 
-  cardName: 
+  cardName: Heal
   cardDescription: 
   attack: 0
   defend: 0
@@ -22,6 +22,6 @@ MonoBehaviour:
   empowerDefend: 0
   empowerExplore: 0
   empowerInfluence: 0
-  cardType: 0
-  empowerType: 0
+  cardType: 64
+  empowerType: 1
   isChoice: 0

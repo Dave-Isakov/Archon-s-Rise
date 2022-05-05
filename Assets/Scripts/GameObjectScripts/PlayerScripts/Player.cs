@@ -9,13 +9,16 @@ public class Player : MonoBehaviour
     private int playerInfluence;
     private int playerExplore;
     [SerializeField] PlayerSO player;
-    private int playerHandSize;
+    private int playerHandSize = 5;
     private int improvAttackValue = 1;
     private int improvDefendValue = 1;
     private int improvInfluenceValue = 1;
     private int improvExploreValue = 1;
-    private int playerHP;
+    private int playerHP = 2;
     private int playerExp;
+    private bool inDungeon;
+    private bool inTown;
+    [SerializeField] private List<UnitsSO> units = new();
     public int PlayerHP { get => playerHP; }
     public int PlayerHandSize { get => playerHandSize; }
     public int PlayerAttack { get => playerAttack; }
@@ -23,9 +26,13 @@ public class Player : MonoBehaviour
     public int PlayerInfluence { get => playerInfluence; }
     public int PlayerExplore { get => playerExplore; }
     public int PlayerExp { get => playerExp; set => playerExp = value; }
+    public bool InTown { get => inTown; set => inTown = value; }
+    public bool InDungeon { get => inDungeon; set => inDungeon = value; }
+
     [SerializeField] VoidEvent onSuccessfulExploration_ExploreNextCard;
     [SerializeField] CardEvent onEmpower_DestroyCrystalGameObject;
     [SerializeField] CardEvent onUndo_RegenerateCrystalGameObject;
+    [SerializeField] CardEvent onPlay_TriggerAdditionalEffects;
     [SerializeField] PlayerEvent onEnemyDefeat_CheckPlayerDefendForWound;
     [SerializeField] EnemyCardEvent OnEnemyDefeat_GetRewards;
 
@@ -122,16 +129,14 @@ public class Player : MonoBehaviour
         if(!card.IsPlayed)
         {
             AssignPlayerStats(card.cardSO.GetCardStats(card.IsEmpowered));
-            if(card.IsEmpowered)
-                onEmpower_DestroyCrystalGameObject.Raise(card);
-            card.IsPlayed = true;
+            EmpowerCrystalCheck(card);
+            onPlay_TriggerAdditionalEffects.Raise(card);
         }
         else if(card.IsPlayed)
         {
             UnAssignPlayerStats(card.cardSO.GetCardStats(card.IsEmpowered));
-            if(card.IsEmpowered)
-                onUndo_RegenerateCrystalGameObject.Raise(card);
-            card.IsPlayed = false;
+            UndoEmpower(card);
+            onPlay_TriggerAdditionalEffects.Raise(card);
         }
     }
     public void AttackChoice(Card card)
@@ -139,16 +144,12 @@ public class Player : MonoBehaviour
         if(!card.IsPlayed)
         {
             playerAttack += card.cardSO.ReturnAttack(card.IsEmpowered);
-            if(card.IsEmpowered)
-                onEmpower_DestroyCrystalGameObject.Raise(card);
-            card.IsPlayed = true;
+            EmpowerCrystalCheck(card);
         }
         else if(card.IsPlayed)
         {
             playerAttack -= card.cardSO.ReturnAttack(card.IsEmpowered);
-            if(card.IsEmpowered)
-                onUndo_RegenerateCrystalGameObject.Raise(card);
-            card.IsPlayed = false;
+            UndoEmpower(card);
         }
     }
     public void DefendChoice(Card card)
@@ -156,16 +157,12 @@ public class Player : MonoBehaviour
         if(!card.IsPlayed)
         {
             playerDefend += card.cardSO.ReturnDefend(card.IsEmpowered);
-            if(card.IsEmpowered)
-                onEmpower_DestroyCrystalGameObject.Raise(card);
-            card.IsPlayed = true;
+            EmpowerCrystalCheck(card);
         }
         else if(card.IsPlayed)
         {
             playerDefend -= card.cardSO.ReturnDefend(card.IsEmpowered);
-            if(card.IsEmpowered)
-                onUndo_RegenerateCrystalGameObject.Raise(card);
-            card.IsPlayed = false;
+            UndoEmpower(card);
         }
     }
 
@@ -174,16 +171,12 @@ public class Player : MonoBehaviour
         if(!card.IsPlayed)
         {
             playerInfluence += card.cardSO.ReturnInfluence(card.IsEmpowered);
-            if(card.IsEmpowered)
-                onEmpower_DestroyCrystalGameObject.Raise(card);
-            card.IsPlayed = true;
+            EmpowerCrystalCheck(card);
         }
         else if(card.IsPlayed)
         {
             playerInfluence -= card.cardSO.ReturnInfluence(card.IsEmpowered);
-            if(card.IsEmpowered)
-                onUndo_RegenerateCrystalGameObject.Raise(card);
-            card.IsPlayed = false;
+            UndoEmpower(card);
         }
     }
     public void ExploreChoice(Card card)
@@ -191,17 +184,27 @@ public class Player : MonoBehaviour
         if(!card.IsPlayed)
         {
             playerExplore += card.cardSO.ReturnExplore(card.IsEmpowered);
-            if(card.IsEmpowered)
-                onEmpower_DestroyCrystalGameObject.Raise(card);
-            card.IsPlayed = true;
+            EmpowerCrystalCheck(card);
         }
         else if(card.IsPlayed)
         {
             playerExplore -= card.cardSO.ReturnExplore(card.IsEmpowered);
-            if(card.IsEmpowered)
-                onUndo_RegenerateCrystalGameObject.Raise(card);
-            card.IsPlayed = false;
+            UndoEmpower(card);
         }
+    }
+
+    private void UndoEmpower(Card card)
+    {
+        if (card.IsEmpowered)
+            onUndo_RegenerateCrystalGameObject.Raise(card);
+        card.IsPlayed = false;
+    }
+
+    private void EmpowerCrystalCheck(Card card)
+    {
+        if (card.IsEmpowered)
+            onEmpower_DestroyCrystalGameObject.Raise(card);
+        card.IsPlayed = true;
     }
 
 
@@ -216,5 +219,10 @@ public class Player : MonoBehaviour
         }
         else 
             GameManager.Instance.ValidationMessage($"You need {enemy.enemySO.enemyHP} Attack in order to defeat this monster.");
+    }
+
+    public void RecruitUnit(TownCard town)
+    {
+        units.Add(town.townSO.recruitableUnits[0]);
     }
 }

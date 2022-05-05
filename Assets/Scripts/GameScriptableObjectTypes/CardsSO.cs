@@ -11,11 +11,15 @@ public class CardsSO : AllCards
     public int defend;
     public int explore;
     public int influence;
+    public int healAmount;
+    public int numCrystals;
     public int empowerAttack;
     public int empowerDefend;
     public int empowerExplore;
     public int empowerInfluence;
-    public CardType cardType;
+    public int empowerHealAmount;
+    public int empowerNumCrystals;
+    public StatType cardType;
     public EmpowerType empowerType;
     public bool isChoice;
 
@@ -29,7 +33,7 @@ public class CardsSO : AllCards
 
     public int ReturnAttack(bool isEmpowered)
     {
-        if (cardType.HasFlag(CardType.Attack))
+        if (cardType.HasFlag(StatType.Attack))
             if(isEmpowered) return empowerAttack;
             else return attack;
         else
@@ -38,7 +42,7 @@ public class CardsSO : AllCards
 
     public int ReturnDefend(bool isEmpowered)
     {
-        if (cardType.HasFlag(CardType.Defend))
+        if (cardType.HasFlag(StatType.Defend))
             if(isEmpowered) return empowerDefend;
             else return defend;
         else
@@ -47,7 +51,7 @@ public class CardsSO : AllCards
 
     public int ReturnInfluence(bool isEmpowered)
     {
-        if (cardType.HasFlag(CardType.Influence))
+        if (cardType.HasFlag(StatType.Influence))
             if(isEmpowered) return empowerInfluence;
             else return influence;
         else
@@ -55,7 +59,7 @@ public class CardsSO : AllCards
     }
     public int ReturnExplore(bool isEmpowered)
     {
-        if (cardType.HasFlag(CardType.Explore))
+        if (cardType.HasFlag(StatType.Explore))
             if(isEmpowered) return empowerExplore;
             else return explore;
         else

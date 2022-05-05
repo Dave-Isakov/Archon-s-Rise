@@ -6,6 +6,6 @@ using UnityEngine.UI;
 public class AttackToggle : ChoiceToggles
 {
     private void Awake() {
-        _cardType = CardType.Attack;
+        _cardType = StatType.Attack;
     }
 }

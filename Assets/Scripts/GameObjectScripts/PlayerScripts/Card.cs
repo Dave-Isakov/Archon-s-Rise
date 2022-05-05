@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class Card : MonoBehaviour, IPointerClickHandler
 {
     public CardsSO cardSO;
-    private bool isPlayed;
+    public bool isPlayed;
     private bool isReward;
     [SerializeField] private bool isEmpowered;
     private bool isMaximized;
@@ -24,12 +24,12 @@ public class Card : MonoBehaviour, IPointerClickHandler
     [SerializeField] CardEvent onOpenCardMenu_MaximizeCard;
     [SerializeField] CardEvent onCloseCardMenu_MinimizeCard;
     [SerializeField] CardEvent onRewardSelect_AddCardToDeck;
-
     [Header("Empower Type Colors")]
     [SerializeField] private Color redColor;
     [SerializeField] private Color yellowColor;
     [SerializeField] private Color purpleColor;
     [SerializeField] private Color greenColor;
+    
 
     public bool IsPlayed
     {

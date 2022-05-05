@@ -12,14 +12,16 @@ public class TownsSO : AllCards
     {
         None = 0,
         Recruit = 1,
-        Raze = 2,
-        GatherIntel = 4,
-        Heal = 8,
-        Resources = 16
+        Cards = 2,
+        // Raze = 2,
+        // GatherIntel = 4,
+        Heal = 4,
+        Resources = 8
     }
     public TownActivity activity;
-
+    public List<UnitsSO> recruitableUnits;
     public int recruitLevel;
     public int razeLevel;
     public int resourceLevel;
+    public int healLevel;
 }

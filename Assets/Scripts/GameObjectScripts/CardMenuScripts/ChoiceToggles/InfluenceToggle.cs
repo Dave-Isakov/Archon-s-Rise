@@ -5,7 +5,7 @@ using UnityEngine;
 public class InfluenceToggle : ChoiceToggles
 {
     private void Awake() {
-        _cardType = CardType.Influence;
+        _cardType = StatType.Influence;
     }
 
 }

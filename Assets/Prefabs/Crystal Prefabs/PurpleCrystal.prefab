@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -2573503303322122305}
   m_Layer: 5
   m_Name: PurpleCrystal
-  m_TagString: Untagged
+  m_TagString: Crystal
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -120,3 +120,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   color: 8
+  isAll: 0

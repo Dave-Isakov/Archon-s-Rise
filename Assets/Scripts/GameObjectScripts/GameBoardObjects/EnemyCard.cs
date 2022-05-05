@@ -37,7 +37,7 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler, IPointerEnterHandl
         if (player.PlayerDefend < enemySO.enemyAttack)
         {
             int woundCount = 0;
-            for (var i = 0; i < enemySO.enemyAttack; i += player.PlayerHP)
+            for (var i = 0; i < enemySO.enemyAttack-player.PlayerDefend; i += player.PlayerHP)
             {
                 onDefeat_WoundPlayer.Raise(this);
                 woundCount++;

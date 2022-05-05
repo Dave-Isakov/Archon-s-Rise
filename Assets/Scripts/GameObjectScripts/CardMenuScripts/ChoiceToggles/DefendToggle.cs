@@ -5,7 +5,7 @@ using UnityEngine;
 public class DefendToggle : ChoiceToggles
 {
     private void Awake() {
-        _cardType = CardType.Defend;
+        _cardType = StatType.Defend;
     }
 
 }

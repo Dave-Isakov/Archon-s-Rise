@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5426049754455315911}
   m_Layer: 5
   m_Name: WildCrystal
-  m_TagString: Untagged
+  m_TagString: Crystal
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -23,6 +23,6 @@ MonoBehaviour:
   empowerDefend: 0
   empowerExplore: 0
   empowerInfluence: 0
-  cardType: 0
+  cardType: 32
   empowerType: 0
   isChoice: 0

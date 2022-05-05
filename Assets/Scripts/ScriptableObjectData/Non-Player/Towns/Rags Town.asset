@@ -16,6 +16,9 @@ MonoBehaviour:
   cardDescription: Rundown hovels constantly pillaged by bandits.
   townSize: 0
   activity: 7
+  recruitableUnits:
+  - {fileID: 11400000, guid: 0314febb45d718743b9a6b059766e06e, type: 2}
   recruitLevel: 1
   razeLevel: 1
   resourceLevel: 0
+  healLevel: 1

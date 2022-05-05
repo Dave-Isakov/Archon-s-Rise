@@ -5,7 +5,7 @@ using UnityEngine;
 public class ExploreToggle : ChoiceToggles
 {
     private void Awake() {
-        _cardType = CardType.Explore;
+        _cardType = StatType.Explore;
     }
 
 }
