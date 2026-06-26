@@ -24,9 +24,9 @@ public abstract class BaseGameEvent<T> : ScriptableObject
 
     public void UnRegisterListener(IGameEventListener<T> listener)
     {
-        if(!eventListeners.Contains(listener))
+        if(eventListeners.Contains(listener))
         {
             eventListeners.Remove(listener);
-        }    
+        }
     }
 }
