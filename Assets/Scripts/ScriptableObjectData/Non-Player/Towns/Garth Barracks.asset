@@ -16,7 +16,10 @@ MonoBehaviour:
   cardDescription: Large encampment of mercenaries, mages, and smiths looking for
     some kind of reason for a fight.
   townSize: 2
-  activity: 19
-  recruitLevel: 4
-  razeLevel: 3
+  activity: 11
+  recruitableUnits:
+  - {fileID: 11400000, guid: 35c0f88038060c945ac7a7a5c09873ea, type: 2}
+  recruitLevel: 5
+  cardLevel: 6
   resourceLevel: 2
+  healLevel: 0

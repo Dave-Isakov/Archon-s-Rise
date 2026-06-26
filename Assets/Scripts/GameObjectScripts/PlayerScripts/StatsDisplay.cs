@@ -10,11 +10,12 @@ public class StatsDisplay : MonoBehaviour
     [SerializeField] TextMeshProUGUI defendText;
     [SerializeField] TextMeshProUGUI influenceText;
     [SerializeField] TextMeshProUGUI exploreText;
+    
     void Update()
     {
-        attackText.text = "Attack: " + player.PlayerAttack.ToString();
-        defendText.text = "Defend: " + player.PlayerDefend.ToString();
-        influenceText.text = "Influence: " + player.PlayerInfluence.ToString();
-        exploreText.text = "Explore: " + player.PlayerExplore.ToString();
+        attackText.text = player.PlayerAttack.ToString();
+        defendText.text = player.PlayerDefend.ToString();
+        influenceText.text = player.PlayerInfluence.ToString();
+        exploreText.text = player.PlayerExplore.ToString();
     }
 }

@@ -28,22 +28,21 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
         switch (color)
         {
             case EmpowerType.Green:
-                activeCrystal = Instantiate(crystals[0], new Vector3(0, 0 ,0), Quaternion.identity);
+                activeCrystal = Instantiate(crystals[0], this.gameObject.transform);
                 break;
             case EmpowerType.Purple:
-                activeCrystal = Instantiate(crystals[1], new Vector3(0, 0 ,0), Quaternion.identity);
+                activeCrystal = Instantiate(crystals[1], this.gameObject.transform);
                 break;
             case EmpowerType.Red:
-                activeCrystal = Instantiate(crystals[2], new Vector3(0, 0 ,0), Quaternion.identity);
+                activeCrystal = Instantiate(crystals[2], this.gameObject.transform);
                 break;
             case EmpowerType.Yellow:
-                activeCrystal = Instantiate(crystals[3], new Vector3(0, 0 ,0), Quaternion.identity);
+                activeCrystal = Instantiate(crystals[3], this.gameObject.transform);
                 break;
             default:
-                activeCrystal = Instantiate(crystals[4], new Vector3(0, 0 ,0), Quaternion.identity);
+                activeCrystal = Instantiate(crystals[4], this.gameObject.transform);
                 break;
         }
-        activeCrystal.transform.SetParent(this.gameObject.transform);
         activeCrystal.name += crystalID;
         crystalID++;
         crystalsInInventory.Add(activeCrystal.GetComponent<Crystal>());
@@ -129,7 +128,7 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
 
     public void Crystallize(Card card)
     {
-        if(card.cardSO.cardType == StatType.Crystal && card.IsPlayed)
+        if(card.cardSO.cardType.HasFlag(StatType.Crystal) && card.IsPlayed)
         {
             if(!card.IsEmpowered)
                 for(var i = 0; i < card.cardSO.numCrystals; i++)
@@ -145,7 +144,7 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
                 }
         }
 
-        else if(card.cardSO.cardType == StatType.Crystal && !card.IsPlayed)
+        else if(card.cardSO.cardType.HasFlag(StatType.Crystal) && !card.IsPlayed)
         {
             if(!card.IsEmpowered)
                 for(var i = 0; i < card.cardSO.numCrystals; i++)

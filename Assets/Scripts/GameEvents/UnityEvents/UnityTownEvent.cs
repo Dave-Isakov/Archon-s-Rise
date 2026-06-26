@@ -3,4 +3,4 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-[System.Serializable] public class UnityTownEvent : UnityEvent<TownCard> { }
+[System.Serializable] public class UnityTownEvent : UnityEvent<TownToken> { }

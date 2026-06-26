@@ -21,7 +21,7 @@ public class TownsSO : AllCards
     public TownActivity activity;
     public List<UnitsSO> recruitableUnits;
     public int recruitLevel;
-    public int razeLevel;
+    public int cardLevel;
     public int resourceLevel;
     public int healLevel;
 }

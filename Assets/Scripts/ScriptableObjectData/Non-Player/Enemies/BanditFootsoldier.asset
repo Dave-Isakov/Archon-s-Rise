@@ -18,5 +18,8 @@ MonoBehaviour:
   enemyHP: 3
   enemyAttack: 2
   reward: 0
+  defeatRewards:
+  - {fileID: 11400000, guid: 879d999e9521d88449f93825314e7ac6, type: 2}
+  - {fileID: 11400000, guid: a974a541928f88f468e9ab70e6e1277c, type: 2}
   canInfluence: 1
   influenceCost: 5

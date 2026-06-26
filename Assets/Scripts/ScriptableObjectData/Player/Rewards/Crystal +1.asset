@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Crystal +1
   m_EditorClassIdentifier: 
   cardName: Crystal +1
-  cardDescription: 
+  cardDescription: 1 random crystal
   rewardType: 2
   rewardLevel: 0
   expAmount: 0

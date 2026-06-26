@@ -13,12 +13,15 @@ MonoBehaviour:
   m_Name: Warrior
   m_EditorClassIdentifier: 
   cardName: Warrior
-  cardDescription: 1 Attack each Round.
+  cardDescription: 1 <sprite="Sword" index=0> 1 <sprite="shield" index=0> 1xR
   attack: 1
-  defend: 0
+  defend: 1
   explore: 0
   influence: 0
   healAmount: 0
   numCrystals: 0
-  cardType: 1
+  cardType: 3
+  sprite: {fileID: 0}
+  color: {r: 0.990566, g: 0, b: 0, a: 1}
+  unitLetter: 87
   empowerType: 0

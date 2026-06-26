@@ -8,5 +8,5 @@ public class LocationsSO : AllCards
     public int exploreCost;
     public List<EnemiesSO> enemies;
     public List<TownsSO> towns;
-    public List<EnemiesSO> bosses;
+    public List<DungeonsSO> dungeons;
 }

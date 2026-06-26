@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6485159704329477891}
   - component: {fileID: 1606976251829667477}
   - component: {fileID: 3080921338879096766}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Name
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -146,7 +146,7 @@ GameObject:
   - component: {fileID: 7772143479323585872}
   - component: {fileID: 8078846938559308149}
   - component: {fileID: 2691043045495173490}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -222,7 +222,7 @@ GameObject:
   - component: {fileID: 5599735227540081902}
   - component: {fileID: 400675019544705901}
   - component: {fileID: 5553077751843793019}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: CardImage
   m_TagString: MonsterFront
   m_Icon: {fileID: 0}
@@ -302,7 +302,7 @@ GameObject:
   - component: {fileID: 2212933959379444089}
   - component: {fileID: 1535986016384541293}
   - component: {fileID: 7478450738196762875}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Description
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -438,10 +438,8 @@ GameObject:
   - component: {fileID: 8183210338038760131}
   - component: {fileID: -6123803236216922133}
   - component: {fileID: 7120907904336252032}
-  - component: {fileID: -491020725506114898}
-  - component: {fileID: 7341265242926285509}
   - component: {fileID: 5396914023009671768}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: TownCard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -457,7 +455,7 @@ RectTransform:
   m_GameObject: {fileID: 4644490986371857415}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7772143479323585872}
@@ -469,8 +467,8 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 0}
+  m_SizeDelta: {x: 694, y: 390}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8183210338038760131
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -518,44 +516,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 180, y: 180}
   m_EdgeRadius: 0
---- !u!223 &-491020725506114898
-Canvas:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4644490986371857415}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 4780944774773819229, guid: 9dd4bdc746431c3489535c3c7a3c5993, type: 3}
-  m_PlaneDistance: 99.5
-  m_PixelPerfect: 0
-  m_ReceivesEvents: 1
-  m_OverrideSorting: 0
-  m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 25
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
-  m_TargetDisplay: 0
---- !u!114 &7341265242926285509
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4644490986371857415}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!114 &5396914023009671768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -573,10 +533,7 @@ MonoBehaviour:
   razeAmount: {fileID: 1095017149540023129}
   recruitLevel: {fileID: 9103217917826355687}
   description: {fileID: 7478450738196762875}
-  onClick_OpenTownMenu: {fileID: 11400000, guid: c29d62e8153dd004fb3e06134e5a63b0, type: 2}
-  onTownMenuOpen_MaxmizeTownCard: {fileID: 11400000, guid: e9d89d795cbc0604e853deca8a70f052, type: 2}
   onClick_CloseTownMenu: {fileID: 11400000, guid: d45999c156ce7354a9b68010cefb7500, type: 2}
-  onTownMenuClose_MinimizeTownCard: {fileID: 11400000, guid: 930ff860c240f914fb5ce5401dd68a63, type: 2}
 --- !u!1 &5024544060433971399
 GameObject:
   m_ObjectHideFlags: 0
@@ -588,7 +545,7 @@ GameObject:
   - component: {fileID: 7363705739807393340}
   - component: {fileID: 49894895209538293}
   - component: {fileID: 9103217917826355687}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Recruit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -723,7 +680,7 @@ GameObject:
   - component: {fileID: 3099705617887088026}
   - component: {fileID: 7248534254720347328}
   - component: {fileID: 1997462571577899728}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Name (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -858,7 +815,7 @@ GameObject:
   - component: {fileID: 5582778484788246538}
   - component: {fileID: 6077435652139469796}
   - component: {fileID: 4246232466346898897}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: BackImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -935,7 +892,7 @@ GameObject:
   - component: {fileID: 3792833953799459149}
   - component: {fileID: 4756187885326165599}
   - component: {fileID: 1095017149540023129}
-  m_Layer: 8
+  m_Layer: 5
   m_Name: Raze
   m_TagString: Untagged
   m_Icon: {fileID: 0}

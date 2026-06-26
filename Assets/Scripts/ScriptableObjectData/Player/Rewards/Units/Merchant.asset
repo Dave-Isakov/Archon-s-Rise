@@ -13,12 +13,15 @@ MonoBehaviour:
   m_Name: Merchant
   m_EditorClassIdentifier: 
   cardName: Merchant
-  cardDescription: 1 Influence each Round.
+  cardDescription: 3 <sprite="gem" index=0> 1xR
   attack: 0
   defend: 0
   explore: 0
-  influence: 1
+  influence: 3
   healAmount: 0
   numCrystals: 0
   cardType: 8
+  sprite: {fileID: 0}
+  color: {r: 0.9245283, g: 0.76644266, b: 0.07413671, a: 1}
+  unitLetter: 77
   empowerType: 0

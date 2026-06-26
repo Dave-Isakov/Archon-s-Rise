@@ -13,17 +13,23 @@ MonoBehaviour:
   m_Name: Browbeat
   m_EditorClassIdentifier: 
   cardName: Browbeat
-  cardDescription: 'Gain 2 Attack or 2 Influence.
+  cardDescription: '<sprite="Sword" index=0>: 2 or <sprite="gem" index=0>: 2
 
-    Empowered: 3 Attack or 3 Influence.'
+
+    Empowered:
+    <sprite="Sword" index=0>: 3 or <sprite="gem" index=0>: 3'
   attack: 2
   defend: 0
   explore: 0
   influence: 2
+  healAmount: 0
+  numCrystals: 0
   empowerAttack: 3
   empowerDefend: 0
   empowerExplore: 0
   empowerInfluence: 3
+  empowerHealAmount: 0
+  empowerNumCrystals: 0
   cardType: 9
   empowerType: 1
   isChoice: 1

@@ -13,15 +13,23 @@ MonoBehaviour:
   m_Name: Explore
   m_EditorClassIdentifier: 
   cardName: Explore
-  cardDescription: This card grants 2 point of exploration or 3 if empowered.
+  cardDescription: '<sprite="scroll" index=0>: 2
+
+
+    Empower <sprite="scroll" index=0>:
+    3'
   attack: 0
   defend: 0
   explore: 2
   influence: 0
+  healAmount: 0
+  numCrystals: 0
   empowerAttack: 0
   empowerDefend: 0
   empowerExplore: 3
   empowerInfluence: 0
+  empowerHealAmount: 0
+  empowerNumCrystals: 0
   cardType: 4
   empowerType: 4
   isChoice: 0

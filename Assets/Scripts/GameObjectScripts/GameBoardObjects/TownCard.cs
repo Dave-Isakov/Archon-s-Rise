@@ -12,46 +12,42 @@ public class TownCard : MonoBehaviour, IPointerClickHandler
     [SerializeField] private TextMeshProUGUI recruitLevel;
     [SerializeField] private TextMeshProUGUI description;
 
-    [Header("Events")]
-    [SerializeField] TownEvent onClick_OpenTownMenu;
-    [SerializeField] TownEvent onTownMenuOpen_MaxmizeTownCard;
-    [SerializeField] TownEvent onClick_CloseTownMenu;
-    [SerializeField] TownEvent onTownMenuClose_MinimizeTownCard;
-    private bool isMaximized;
+    // [Header("Events")]
+    // [SerializeField] TownEvent onClick_CloseTownMenu;
+    // [SerializeField] TownEvent onTownMenuClose_MinimizeTownCard;
 
+    private void Awake()
+    {
+        // onClick_OpenTownMenu.Raise(this);
+    }
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(isMaximized)
-        {
-            onTownMenuClose_MinimizeTownCard.Raise(this);
-            onClick_CloseTownMenu.Raise(this);
-        }
-        else if(!isMaximized)
-        {
-            onClick_OpenTownMenu.Raise(this);
-            onTownMenuOpen_MaxmizeTownCard.Raise(this);
-        }
+        Destroy(this.gameObject);
+        GameManager.Instance.townCanvas.enabled = false;
+        // if(isMaximized)
+        // {
+        //     onTownMenuClose_MinimizeTownCard.Raise(this);
+        //     onClick_CloseTownMenu.Raise(this);
+        // }
+        // else if(!isMaximized)
+        // {
+
+        //     onTownMenuOpen_MaxmizeTownCard.Raise(this);
+        // }
     }
 
     void Start()
     {
         townName.text = townSO.cardName;
-        razeAmount.text = "/#\\ " + townSO.razeLevel.ToString();
+        razeAmount.text = "/#\\ " + townSO.cardLevel.ToString();
         recruitLevel.text = "(*) " + townSO.recruitLevel.ToString();
         description.text = townSO.cardDescription;
     }
-    //Maximizes the card under the card menu canvas.
+
     public void SetCardObjectToMax(TownCard card)
     {
         card.gameObject.transform.SetParent(GameManager.Instance.enlargeTownCardPosition.transform, true);
         card.gameObject.transform.position = GameManager.Instance.enlargeTownCardPosition.transform.position;
         card.gameObject.transform.localScale = new Vector3(4, 4, 0);
-        card.isMaximized = true;
-    }
-
-    //Returns the card to normal size in the player hand.
-    public void SetCardObjectToNormal(TownCard card)
-    {
-        card.isMaximized = false;
     }
 }

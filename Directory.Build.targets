@@ -1,0 +1,19 @@
+<Project>
+  <!--
+    Unity (com.unity.ide.vscode) regenerates the .csproj files with
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>, but the bundled
+    nunit.framework.dll (and Unity.Rider.Editor's dependency on it) is built
+    against .NETFramework 4.7.2. That makes OmniSharp's design-time build fail
+    reference resolution with:
+      "The primary reference 'nunit.framework' could not be resolved because it
+       was built against '.NETFramework,Version=v4.7.2' ... higher than v4.7.1".
+
+    This file is auto-imported by Microsoft.Common.targets AFTER the generated
+    csproj body, so the override below wins and survives Unity regenerating the
+    project files. It only affects MSBuild/OmniSharp tooling - Unity compiles
+    with its own reference assemblies (NoStdLib=true) and ignores this value.
+  -->
+  <PropertyGroup>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+  </PropertyGroup>
+</Project>

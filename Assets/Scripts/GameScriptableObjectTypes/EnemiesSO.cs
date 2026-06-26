@@ -8,6 +8,7 @@ public class EnemiesSO : AllCards
     public int enemyHP;
     public int enemyAttack;
     public RewardLevel reward;
+    public List<RewardsSO> defeatRewards;
     public bool canInfluence;
     public int influenceCost;
 

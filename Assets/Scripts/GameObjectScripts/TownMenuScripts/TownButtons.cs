@@ -1,20 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public abstract class TownButtons : MonoBehaviour
 {
-    [SerializeField] protected TownCard _town;
+    [SerializeField] protected TownToken _town;
     [SerializeField] protected TownEvent townEvent;
+    [SerializeField] protected IntEvent influenceCostEvent;
     [SerializeField] protected Button thisButton;
+    [SerializeField] protected TextMeshProUGUI buttonText;
+    [SerializeField] protected int currentPlayerInfluence;
 
     protected void Awake()
     {
-        thisButton.onClick.AddListener(() => townEvent.Raise(_town));
+        
     }
-    public void SetTownCard(TownCard town)
+    public void SetTownCard(TownToken town)
     {
         this._town = town;
     }
+
+    public void SetCurrentInfluence(int influence)
+    {
+        currentPlayerInfluence = influence;
+    }
+
+    public abstract void UpdateButtonText();
 }

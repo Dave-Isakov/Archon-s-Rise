@@ -13,15 +13,23 @@ MonoBehaviour:
   m_Name: Defend
   m_EditorClassIdentifier: 
   cardName: Defend
-  cardDescription: This card blocks 2 damage or 4 damage if empowered.
+  cardDescription: '<sprite="shield" index=0>: 2
+
+
+    Empower <sprite="shield" index=0>:
+    4'
   attack: 0
   defend: 2
   explore: 0
   influence: 0
+  healAmount: 0
+  numCrystals: 0
   empowerAttack: 0
   empowerDefend: 4
   empowerExplore: 0
   empowerInfluence: 0
+  empowerHealAmount: 0
+  empowerNumCrystals: 0
   cardType: 2
   empowerType: 8
   isChoice: 0

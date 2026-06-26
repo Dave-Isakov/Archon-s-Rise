@@ -13,15 +13,23 @@ MonoBehaviour:
   m_Name: Influence
   m_EditorClassIdentifier: 
   cardName: Influence
-  cardDescription: This card grants 2 point of influence or 4 if empowered.
+  cardDescription: '<sprite="gem" index=0>: 2
+
+
+    Empower <sprite="gem" index=0>:
+    4'
   attack: 0
   defend: 0
   explore: 0
   influence: 2
+  healAmount: 0
+  numCrystals: 0
   empowerAttack: 0
   empowerDefend: 0
   empowerExplore: 0
   empowerInfluence: 4
+  empowerHealAmount: 0
+  empowerNumCrystals: 0
   cardType: 8
   empowerType: 2
   isChoice: 0

@@ -4,14 +4,13 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class TownDeck : Deck<TownsSO>, IPointerClickHandler
+public class TownDeck : Deck<TownsSO>
 {
     public List<TownsSO> towns = new List<TownsSO>();
     [SerializeField] GameObject townCard;
     [SerializeField] GameObject townLayout;
     [SerializeField] TextMeshProUGUI townText;
     private GameObject town;
-    private int townID;
     void Start()
     {
         
@@ -23,22 +22,13 @@ public class TownDeck : Deck<TownsSO>, IPointerClickHandler
         townText.text = towns.Count.ToString();
     }
 
-    public void CreateTown()
+    public TownCard CreateTown(TownToken townToken)
     {
-        if(towns.Count >= 1)
-        {
-            town = Instantiate(townCard, new Vector3(0,0,0), Quaternion.identity);
-            town.name = town.name.ToString() + townID;
-            townID++;
-            town.transform.SetParent(townLayout.transform, false);
-            town.GetComponent<TownCard>().townSO = towns[0];
-            towns.Remove(towns[0]);
-        }
-    }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        CreateTown();
+        town = GameObject.Instantiate(townCard, GameManager.Instance.enlargeTownCardPosition.transform);
+        town.name = town.name.ToString();
+        var townCardComponent = town.GetComponent<TownCard>();
+        townCardComponent.townSO = townToken.townSO;
+        return townCardComponent;
     }
 
     public void SetTownToGrid(TownCard card)

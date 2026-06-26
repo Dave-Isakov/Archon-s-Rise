@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Experience +2
   m_EditorClassIdentifier: 
   cardName: Experience +2
-  cardDescription: 
+  cardDescription: 2 Experience
   rewardType: 1
   rewardLevel: 0
   expAmount: 2

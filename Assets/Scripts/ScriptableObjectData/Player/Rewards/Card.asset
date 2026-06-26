@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Card
   m_EditorClassIdentifier: 
   cardName: Card
-  cardDescription: 
+  cardDescription: 1 Card
   rewardType: 4
   rewardLevel: 0
   expAmount: 0

@@ -27,7 +27,7 @@ with deck, hand, discard, map, recruited units, crystals, position, and round/tu
   (`PlayerDeck.EndOfRoundReshuffle` / `DiscardPile.ReshuffleToDeck`). A player who ends a turn has
   cards sitting in discard, so discard must be saved.
 - **Crystals** are GameObjects tagged with an `EmpowerType` color, held in
-  `CrystalInventory.crystalsInInventory`. Persistable as a count per color.
+  `CrystalInventory.crystalsInInventory`. Persistable as a count per color. Remove the ability to destroy crystals on click.
 - **Map** (`GridGeneration.Start`) regenerates from scratch on every scene load and is **fully
   unseeded** — it calls `UnityEngine.Random` directly for terrain, town placement + type, and enemy
   placement + type. Tokens have no stable id. Defeated enemies are `Destroy`'d

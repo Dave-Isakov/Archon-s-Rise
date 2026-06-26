@@ -13,12 +13,15 @@ MonoBehaviour:
   m_Name: Scout
   m_EditorClassIdentifier: 
   cardName: Scout
-  cardDescription: 1 Explore each Round.
+  cardDescription: 2 <sprite="scroll" index=0> 1xR
   attack: 0
   defend: 0
-  explore: 1
+  explore: 2
   influence: 0
   healAmount: 0
   numCrystals: 0
   cardType: 4
+  sprite: {fileID: 0}
+  color: {r: 0.13363297, g: 0.8584906, b: 0.19617498, a: 1}
+  unitLetter: 83
   empowerType: 0

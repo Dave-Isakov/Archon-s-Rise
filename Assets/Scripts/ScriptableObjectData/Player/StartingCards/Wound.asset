@@ -13,16 +13,19 @@ MonoBehaviour:
   m_Name: Wound
   m_EditorClassIdentifier: 
   cardName: Wound
-  cardDescription: Wound cards cannot be played and only get removed from your deck
-    if healed.
+  cardDescription: Wound cards cannot be played. <sprite="Heal" index=0> 1 to remove.
   attack: 0
   defend: 0
   explore: 0
   influence: 0
+  healAmount: 0
+  numCrystals: 0
   empowerAttack: 0
   empowerDefend: 0
   empowerExplore: 0
   empowerInfluence: 0
+  empowerHealAmount: 0
+  empowerNumCrystals: 0
   cardType: 32
   empowerType: 0
   isChoice: 0

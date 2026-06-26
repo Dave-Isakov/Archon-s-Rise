@@ -15,8 +15,10 @@ MonoBehaviour:
   cardName: Merchant Village
   cardDescription: This village was founded by Merchants and continues to prosper.
   townSize: 1
-  activity: 22
-  recruitLevel: 0
-  razeLevel: 2
+  activity: 7
+  recruitableUnits:
+  - {fileID: 11400000, guid: de77732a8af282e41914baaebaf0909a, type: 2}
+  recruitLevel: 4
+  cardLevel: 0
   resourceLevel: 4
   healLevel: 1

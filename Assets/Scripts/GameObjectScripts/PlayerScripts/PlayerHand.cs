@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using UnityEditor;
+using DG.Tweening;
 
 public class PlayerHand : MonoBehaviour
 {
@@ -11,84 +11,76 @@ public class PlayerHand : MonoBehaviour
     [SerializeField] Player player;
     [SerializeField] GameObject card;
     [SerializeField] CardsSO wound;
+    [SerializeField] GameObject[] cardPositions;
+    [SerializeField] GridLayoutGroup layoutGroup;
     private List<Card> healedWounds = new();
-    // [SerializeField] MessagePopUp message;
-    public List<CardsSO> cardsInHand = new List<CardsSO>();
     [SerializeField] Vector2 layoutAdjustment = new Vector2(2, 0);
     GameObject playerCard;
     public List<Card> cardsInPlay = new();
     Card activeCard;
-    GameManager gm;
-
     [Header("Events")]
     [SerializeField] GameObjectEvent newCardDraw;
 
-    private int cardID = 0;
-
-
-    // void Awake()
-    // {
-    //     gm = FindObjectOfType<GameManager>();
-    // }
     void Start()
     {
+        // layoutGroup.enabled = false;
+        DrawCards(player.PlayerHandSize);
     }
 
-    // void Update() 
-    // {
-    // }
-    public void DrawCard(PlayerDeck deck)
+    public void DrawCard()
     {
-        if (deck.cards.Count >= 1 && cardsInPlay.Count < player.PlayerHandSize)
+        if (deck.CardsInDeck.Count >= 1 && cardsInPlay.Count < player.PlayerHandSize)
         {
-            playerCard = Instantiate(card, new Vector3(0,0,0), Quaternion.identity);
-            playerCard.name = playerCard.name.ToString() + cardID;
-            cardID++;
-            playerCard.transform.SetParent(this.transform, false);
-            cardsInPlay.Add(playerCard.GetComponent<Card>());
-            newCardDraw.Raise(playerCard);
+            var drawnCard = deck.CardsInDeck[0];
+            drawnCard.gameObject.SetActive(true);
+            cardsInPlay.Add(drawnCard);
+            deck.CardsInDeck.Remove(drawnCard);
+            drawnCard.InHand = true;
+            drawnCard.InDeck = false;
+            // AnimateCardDraw(drawnCard);
+            drawnCard.transform.SetParent(GetComponentInChildren<GridLayoutGroup>().transform);
+            // drawnCard.GetComponent<Animation>().Play();
+            // newCardDraw.Raise(playerCard);
             //adjusts spacing between the cards when drawn
-            var playerHandSizeLayout = GetComponent<GridLayoutGroup>();
-            playerHandSizeLayout.spacing += layoutAdjustment;
+            // var playerHandSizeLayout = GetComponent<GridLayoutGroup>();
+            // playerHandSizeLayout.spacing += layoutAdjustment;
         }
         else
         {
             GameManager.Instance.ValidationMessage($"Your max hand size is {player.PlayerHandSize}, you cannot draw anymore cards.");
         }
-
     }
-        // else if (deck.cards.Count == 0)
-        // {
-        //     message.ValidationMessage("Your deck is empty.");
-        // }
-        // else if (cardsInHand.Count >= gm.playerHandSize)
-        // {
-        //     message.ValidationMessage($"Your hand is too big, you can only have {gm.playerHandSize} cards in your hand.");
+    public void DrawCards(int numberOfCardstoDraw)
+    {
+        for (var i = 0; i < numberOfCardstoDraw; i++)
+        {
+            DrawCard();
+        }
+    }
 
-    // public void DrawCards(int numberOfCardstoDraw)
-    // {
-    //     for (var i = 0; i < numberOfCardstoDraw; i++)
-    //     {
-    //         DrawCards();
-    //     }
-    // }
+    public void DrawCardsAtTurnEnd()
+    {
+        var cardDiff = player.PlayerHandSize - cardsInPlay.Count;
+        DrawCards(cardDiff);
+    }
 
-    // private void SetNewCardObjectData(ScriptableObject SO)
-    // {
-    //     activeCard = playerCard.gameObject.GetComponent<Card>();
-    //     activeCard.inHand = true;
-    //     cardsInHand.Add((CardsSO)SO);
-    //     activeCard.cardSO = (CardsSO)SO;
-    // }
+    public void DrawCardsAtRoundEnd()
+    {
+        DrawCards(player.PlayerHandSize);
+    }
+
+    public void RemovePlayedCardsFromHand(Card card)
+    {
+        cardsInPlay.Remove(card);
+    }
 
     public void AddWound()
     {
-        playerCard = Instantiate(card, new Vector3(0,0,0), Quaternion.identity);
-        playerCard.name = playerCard.name.ToString() + cardID;
-        cardID++;
-        playerCard.transform.SetParent(this.transform, false);
-        cardsInPlay.Add(playerCard.GetComponent<Card>());
-        playerCard.GetComponent<Card>().cardSO = wound;
+        playerCard = Instantiate(card, this.transform);
+        var woundCard = playerCard.GetComponent<Card>();
+        cardsInPlay.Add(woundCard);
+        woundCard.cardSO = wound;
+        playerCard.name = woundCard.name;
     }
 
     public void HealWound()
@@ -141,9 +133,43 @@ public class PlayerHand : MonoBehaviour
         }
     }
 
-    public void TownHeal(TownCard town)
+    public void TownHeal(TownToken town)
     {  
         for(var i = 0; i < town.townSO.healLevel; i++)
             HealWound();
     }
+
+    //Cleans up wounds that were set inactive during the turn due to healing.
+    public void CleanUp()
+    {
+        foreach(var inactiveCard in FindObjectsOfType<Card>(true))
+        {
+            if(!inactiveCard.gameObject.activeSelf && inactiveCard.cardSO.cardType == StatType.Wound && inactiveCard.IsPlayed)
+            {
+                Destroy(inactiveCard.gameObject);
+            }
+        }
+    }
+
+    public void HandToCardList()
+    {
+        if(GameManager.Instance.cardListCanvas.enabled)
+        {
+            foreach (var card in cardsInPlay)
+                card.transform.SetParent(GameManager.Instance.cardListParent.transform);
+        }
+        else
+        {
+            foreach (var card in cardsInPlay)
+                card.transform.SetParent(GetComponentInChildren<GridLayoutGroup>().transform);
+        }
+    }
+
+    // public void AnimateCardDraw(Card card)
+    // {
+    //     var sequence = DOTween.Sequence();
+    //     sequence.Append(card.transform.DOMove(cardPositions[cardsInPlay.IndexOf(card)].transform.position, 1.25f));
+    //     sequence.Append(card.transform.DORotate(new Vector3(0, 90,0), .5f).OnComplete(() => card.GetComponentsInChildren<Image>()[3].gameObject.SetActive(false)));
+    //     sequence.Append(card.transform.DORotate(new Vector3(0, 0,0), 1f));
+    // }
 }

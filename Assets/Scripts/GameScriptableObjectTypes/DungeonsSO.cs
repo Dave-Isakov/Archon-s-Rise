@@ -7,4 +7,5 @@ public class DungeonsSO : AllCards
 {
     public int exploreCost;
     public List<EnemiesSO> enemies;
+    public List<RewardsSO> rewards;
 }

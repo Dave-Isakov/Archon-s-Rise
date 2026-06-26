@@ -13,12 +13,15 @@ MonoBehaviour:
   m_Name: Knight
   m_EditorClassIdentifier: 
   cardName: Knight
-  cardDescription: 1 Defend each Round.
+  cardDescription: 3 <sprite="shield" index=0> 1xR
   attack: 0
-  defend: 1
+  defend: 3
   explore: 0
   influence: 0
   healAmount: 0
   numCrystals: 0
   cardType: 2
+  sprite: {fileID: 0}
+  color: {r: 0, g: 0, b: 0.9372549, a: 1}
+  unitLetter: 75
   empowerType: 0

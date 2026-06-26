@@ -3,6 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Town Event", menuName = "Game Events/Town Event")]
-public class TownEvent : BaseGameEvent<TownCard>
+public class TownEvent : BaseGameEvent<TownToken>
 {
 }

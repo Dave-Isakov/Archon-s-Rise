@@ -103,9 +103,6 @@ public class PlayButton : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(card.IsPlayed && !playButton.interactable)
-            GameManager.Instance.ValidationMessage($"{card.cardSO.name} has already been played. Click Undo on the Gameboard to undo previous plays.");
-
         if(card.cardSO.isChoice && !playButton.interactable && !card.IsPlayed)
             GameManager.Instance.ValidationMessage($"{card.cardSO.name} requires a choice before playing.");
 

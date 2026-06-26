@@ -19,6 +19,6 @@ MonoBehaviour:
   recruitableUnits:
   - {fileID: 11400000, guid: 0314febb45d718743b9a6b059766e06e, type: 2}
   recruitLevel: 1
-  razeLevel: 1
+  cardLevel: 7
   resourceLevel: 0
-  healLevel: 1
+  healLevel: 2

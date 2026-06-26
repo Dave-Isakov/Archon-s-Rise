@@ -4,44 +4,63 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
 
-public class PlayerDeck : Deck<CardsSO>, IPointerClickHandler
+public class PlayerDeck : Deck<Card>, IPointerClickHandler
 {
-    public List<CardsSO> cards = new();
-    [SerializeField] private PlayerSO player;
-
-    [Header("Deck Events")]
-    [SerializeField] private PlayerDeckEvent shuffleEvent;
-    [SerializeField] private PlayerDeckEvent drawNewCardEvent;
+    public List<CardsSO> deckList = new();
+    List<Card> cardsInDeck = new();
+    [SerializeField] PlayerSO player;
     [SerializeField] TextMeshProUGUI deckCount;
-    public bool inDeck;
     PlayManager command;
     ICommands drawCommand;
-    
+    [SerializeField] GameObject cardPrefab;
+    GameObject playerCard;
+    [Header("Deck Events")]
+    [SerializeField] PlayerDeckEvent afterRoundEndShuffle_DrawCards;
+    [SerializeField] PlayerDeckEvent drawNewCardEvent;
+
+    public List<Card> CardsInDeck { get => cardsInDeck; set => cardsInDeck = value; }
+
     void Awake()
     {
         foreach(var card in player.StartingHand)
         {
-            cards.Add(card);
+            deckList.Add(card);
         }
-        Shuffle(cards);
+        foreach(var card in deckList)
+        {
+            AddCardToDecklist(card);
+        }
+        Shuffle(cardsInDeck);
         drawCommand = new CardDrawCommand(drawNewCardEvent, this);
         command = new PlayManager();
     }
 
-    void Update()
+    private Card AddCardToDecklist(CardsSO card)
     {
-        deckCount.text = cards.Count.ToString();
+        playerCard = Instantiate(cardPrefab, this.transform);
+        var cardComponent = playerCard.GetComponent<Card>();
+        CardsInDeck.Add(cardComponent);
+        cardComponent.InDeck = true;
+        cardComponent.InHand = false;
+        cardComponent.cardSO = card;
+        playerCard.name = card.cardName;
+        playerCard.SetActive(false);
+        return cardComponent;
     }
 
-    public void RemoveTopCard(CardsSO card)
+    private void Start()
     {
-        cards.Remove(card);
+    }
+
+    void Update()
+    {
+        deckCount.text = CardsInDeck.Count.ToString();
     }
 
     public void DataToDrawnCard(GameObject playerCard)
     {
-        playerCard.GetComponent<Card>().cardSO = cards[0];
-        cards.RemoveAt(0);
+        playerCard.GetComponent<Card>().cardSO = CardsInDeck[0].cardSO;
+        CardsInDeck.RemoveAt(0);
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -52,11 +71,43 @@ public class PlayerDeck : Deck<CardsSO>, IPointerClickHandler
 
     public void AddRandomCard()
     {
-        cards.Add(DataManager.Instance.allCards[Random.Range(0, DataManager.Instance.allCards.Length)]);
+        deckList.Add(DataManager.Instance.allCards[Random.Range(0, DataManager.Instance.allCards.Length)]);
     }
 
     public void AddRewardToDeck(Card card)
     {
-        cards.Add(card.cardSO);
+        CardsInDeck.Insert(0, card);
+        deckList.Add(card.cardSO);
+        AddCardToDecklist(card.cardSO);
+    }
+
+    public void EndOfRoundReshuffle()
+    {
+        foreach(var card in GameManager.Instance.cardListParent.GetComponentsInChildren<Card>())
+        {
+            CardsInDeck.Add(card);
+        }
+        Shuffle(CardsInDeck);
+        afterRoundEndShuffle_DrawCards.Raise(this);
+    }
+
+    public void DeckToCardList()
+    {
+        if(GameManager.Instance.cardListCanvas.enabled)
+        {
+            foreach (var card in cardsInDeck)
+            {
+                card.transform.SetParent(GameManager.Instance.cardListParent.transform);
+                card.gameObject.SetActive(true);
+            }
+        }
+        else
+        {
+            foreach (var card in cardsInDeck)
+            {
+                card.transform.SetParent(this.transform);
+                card.gameObject.SetActive(false);
+            }
+        }
     }
 }

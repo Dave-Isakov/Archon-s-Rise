@@ -7,7 +7,7 @@ public class CardMenuCanvas : MonoBehaviour
 {
     [SerializeField] Canvas menuCanvas;
     int startingSort = -100;
-    int maxSort = 50;
+    int maxSort = 501;
     void Awake()
     {
         menuCanvas.sortingOrder = startingSort;
