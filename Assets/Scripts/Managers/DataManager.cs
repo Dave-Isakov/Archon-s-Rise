@@ -136,6 +136,15 @@ public class DataManager : MonoBehaviour
     private void OnGameSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         SceneManager.sceneLoaded -= OnGameSceneLoaded;
+        StartCoroutine(RestoreAfterSceneInit());
+    }
+
+    private IEnumerator RestoreAfterSceneInit()
+    {
+        // sceneLoaded fires before Start(); wait one frame so GridGeneration.Start has
+        // generated the map and spawned EnemyTokens (gridPos set in their Start), and
+        // PlayerHand.Start has skipped its default draw while IsLoading is still true.
+        yield return null;
 
         var player   = FindAnyObjectByType<Player>();
         var pos      = FindAnyObjectByType<PlayerPosition>();
@@ -149,13 +158,13 @@ public class DataManager : MonoBehaviour
         {
             Debug.LogError("Loaded scene missing core objects; cannot restore save.");
             IsLoading = false;
-            return;
+            yield break;
         }
 
         var run = current.run;
 
         // Remove enemy tokens whose cell was recorded as defeated.
-        foreach (var token in FindObjectsOfType<EnemyToken>())
+        foreach (var token in FindObjectsByType<EnemyToken>())
             if (MapDelta.IsDefeated(DefeatedEnemies, new Cell(token.gridPos.x, token.gridPos.y)))
                 Destroy(token.gameObject);
 
