@@ -42,11 +42,11 @@ public class DataManager : MonoBehaviour
         else
         {
             instance = this;
+            BuildRegistries();
         }
         // playerHandSize = player.PlayerHandSize;
         savePath = Application.dataPath + Path.AltDirectorySeparatorChar + "Save.json";
         DontDestroyOnLoad(this.gameObject);
-        BuildRegistries();
     }
 
     public bool BuildRegistries()
