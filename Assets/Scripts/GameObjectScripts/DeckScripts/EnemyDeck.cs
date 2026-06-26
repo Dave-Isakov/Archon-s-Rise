@@ -19,7 +19,6 @@ public class EnemyDeck : Deck<EnemiesSO>, IPointerClickHandler
 
     void Start()
     {
-        Shuffle(enemies);
         // GetNewEnemyCard();
     }
 
@@ -39,13 +38,13 @@ public class EnemyDeck : Deck<EnemiesSO>, IPointerClickHandler
         token.cardRef = card;
     }
 
-    public void GetNewEnemyToken(Vector3Int gridPosition, Tilemap ground)
+    public void GetNewEnemyToken(Vector3Int gridPosition, Tilemap ground, int enemyIndex)
     {
         enemyToken = Instantiate(prefabEnemyToken, ground.CellToLocal(gridPosition), Quaternion.identity);
         enemyToken.name = enemyToken.name.ToString() + enemyID;
         enemyID++;
         enemyToken.transform.SetParent(inPlayEnemies.transform, false);
-        enemyToken.GetComponent<EnemyToken>().enemy = enemies[Random.Range(0,9)];
+        enemyToken.GetComponent<EnemyToken>().enemy = enemies[enemyIndex];
     }
 
     public void OnPointerClick(PointerEventData eventData)

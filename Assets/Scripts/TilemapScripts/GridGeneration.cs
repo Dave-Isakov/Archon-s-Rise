@@ -121,7 +121,7 @@ public class GridGeneration : MonoBehaviour
                 var tilePos = new Vector3Int(x,y);
                 if(ground.GetTile(tilePos) != townTile)
                 {
-                    deck.GetNewEnemyToken(tilePos, ground);
+                    deck.GetNewEnemyToken(tilePos, ground, Rng(0, deck.enemies.Count));
                 }
             }
         }
