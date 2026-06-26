@@ -71,7 +71,8 @@ public class PlayerDeck : Deck<Card>, IPointerClickHandler
 
     public void AddRandomCard()
     {
-        deckList.Add(DataManager.Instance.allCards[Random.Range(0, DataManager.Instance.allCards.Length)]);
+        var cards = DataManager.Instance.Cards.Items;
+        deckList.Add(cards[Random.Range(0, cards.Count)]);
     }
 
     public void AddRewardToDeck(Card card)

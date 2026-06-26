@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using ArchonsRise.SaveData;
 
 public class DataManager : MonoBehaviour
 {
@@ -29,6 +30,9 @@ public class DataManager : MonoBehaviour
     public CardsSO[] allCards;
     public UnitsSO[] allUnits;
 
+    public ContentRegistry<CardsSO> Cards { get; private set; }
+    public ContentRegistry<UnitsSO> Units { get; private set; }
+
     private void Awake()
     {
         if(instance != null && instance != this)
@@ -42,6 +46,22 @@ public class DataManager : MonoBehaviour
         // playerHandSize = player.PlayerHandSize;
         savePath = Application.dataPath + Path.AltDirectorySeparatorChar + "Save.json";
         DontDestroyOnLoad(this.gameObject);
+        BuildRegistries();
+    }
+
+    public bool BuildRegistries()
+    {
+        try
+        {
+            Cards = new ContentRegistry<CardsSO>(allCards, c => c.id);
+            Units = new ContentRegistry<UnitsSO>(allUnits, u => u.id);
+            return true;
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Content registry build failed (missing/duplicate id?): {e.Message}");
+            return false;
+        }
     }
 
     private void Update() {

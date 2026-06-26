@@ -15,7 +15,8 @@ public class RewardCanvas : MonoBehaviour
             var playerCard = Instantiate(cardPrefab, new Vector3(0,0,0), Quaternion.identity);
             playerCard.transform.SetParent(i.transform, false);
             playerCard.transform.localScale = new Vector3(3,3,3);
-            playerCard.GetComponent<Card>().cardSO = DataManager.Instance.allCards[Random.Range(0, DataManager.Instance.allCards.Length)];
+            var cards = DataManager.Instance.Cards.Items;
+            playerCard.GetComponent<Card>().cardSO = cards[Random.Range(0, cards.Count)];
             playerCard.GetComponent<Card>().IsReward = true;
         }
     }

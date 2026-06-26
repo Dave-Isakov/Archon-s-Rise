@@ -4,6 +4,7 @@ using UnityEngine;
 
 public abstract class AllCards : ScriptableObject
 {
+    public string id;
     public string cardName;
     [TextArea(2,4)] public string cardDescription;
 }
