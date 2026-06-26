@@ -8,6 +8,8 @@ using ArchonsRise.SaveData;
 public class DataManager : MonoBehaviour
 {
     public PlayerData playerData;
+    public SaveFile current = new SaveFile();
+    public HashSet<Cell> DefeatedEnemies { get; private set; } = new HashSet<Cell>();
     public string savePath = "";
     public bool IsLoading { get; private set; }
     public int CurrentSeed { get; set; }
@@ -158,14 +160,76 @@ public class DataManager : MonoBehaviour
         IsLoading = false;
     }
 
+    public SaveFile CaptureRunState()
+    {
+        var player    = FindAnyObjectByType<Player>();
+        var pos       = FindAnyObjectByType<PlayerPosition>();
+        var deck      = FindAnyObjectByType<PlayerDeck>();
+        var hand      = FindAnyObjectByType<PlayerHand>();
+        var discard   = FindAnyObjectByType<DiscardPile>();
+        var crystals  = FindAnyObjectByType<CrystalInventory>();
+        var game      = GameManager.Instance;
+
+        var file = new SaveFile { schemaVersion = 1 };
+        var run  = file.run;
+
+        run.player.hp            = player.PlayerHP;
+        run.player.handSize      = player.PlayerHandSize;
+        run.player.level         = player.PlayerLevel;
+        run.player.exp           = player.PlayerExp;
+        run.player.expToNextLevel = player.ExpToNextLevel;
+        run.player.attack        = player.PlayerAttack;
+        run.player.defend        = player.PlayerDefend;
+        run.player.influence     = player.PlayerInfluence;
+        run.player.explore       = player.PlayerExplore;
+        run.player.position      = pos != null
+            ? new[] { pos.transform.position.x, pos.transform.position.y, pos.transform.position.z }
+            : new float[3];
+
+        run.crystalCounts  = crystals != null ? crystals.GetCounts() : System.Array.Empty<int>();
+        run.deckCardIds    = CardIds(deck != null ? deck.CardsInDeck : new List<Card>());
+        run.handCardIds    = CardIds(hand != null ? hand.cardsInPlay : new List<Card>());
+        run.discardCardIds = DiscardIds(discard);
+        run.unitIds        = UnitIds(player);
+
+        run.map.seed            = CurrentSeed;
+        run.map.defeatedEnemies = MapDelta.ToArray(DefeatedEnemies);
+
+        run.round = game != null ? game.Round : 0;
+        run.turn  = game != null ? game.Turn  : 0;
+
+        return file;
+    }
+
+    private static string[] CardIds(List<Card> cards)
+    {
+        var ids = new List<string>(cards.Count);
+        foreach (var c in cards)
+            if (c != null && c.cardSO != null) ids.Add(c.cardSO.id);
+        return ids.ToArray();
+    }
+
+    private static string[] DiscardIds(DiscardPile discard)
+    {
+        if (discard == null) return System.Array.Empty<string>();
+        return CardIds(discard.Cards);
+    }
+
+    private static string[] UnitIds(Player player)
+    {
+        var ids = new List<string>();
+        if (player == null) return ids.ToArray();
+        foreach (var u in player.Units)
+            if (u != null) ids.Add(u.id);
+        return ids.ToArray();
+    }
+
     public void SaveGame()
     {
-        string path = savePath;
-        Debug.Log($"Saving data at {path}");
-        string json = JsonUtility.ToJson(playerData);
-        print(json);
-
-        using StreamWriter writer = new StreamWriter(path);
+        current = CaptureRunState();
+        string json = SaveSerializer.ToJson(current);
+        Debug.Log($"Saving data at {savePath}");
+        using StreamWriter writer = new StreamWriter(savePath);
         writer.Write(json);
     }
 

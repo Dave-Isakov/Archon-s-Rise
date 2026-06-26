@@ -38,6 +38,9 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
     {
         if(cardRef is not null && cardRef.IsDefeated)
         {
+            if (DataManager.Instance != null)
+                DataManager.Instance.DefeatedEnemies.Add(
+                    new ArchonsRise.SaveData.Cell(gridPos.x, gridPos.y));
             Destroy(this.gameObject);
         }
     }

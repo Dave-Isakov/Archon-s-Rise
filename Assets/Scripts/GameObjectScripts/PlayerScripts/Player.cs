@@ -36,6 +36,7 @@ public class Player : MonoBehaviour
     public bool InCombat { get => inCombat; set => inCombat = value; }
     public int ExpToNextLevel { get => expToNextLevel; }
     public int PlayerLevel { get => playerLevel; set => playerLevel = value; }
+    public IReadOnlyList<UnitsSO> Units => units;
 
     [Header("Events")]
     [SerializeField] VoidEvent onSuccessfulExploration_ExploreNextCard;
@@ -307,7 +308,6 @@ public class Player : MonoBehaviour
     private void OnApplicationQuit()
     {
         if (DataManager.Instance == null || DataManager.Instance.IsLoading) return;
-        DataManager.Instance.playerData = new PlayerData(this, playerPosition);
         DataManager.Instance.SaveGame();
     }
 }

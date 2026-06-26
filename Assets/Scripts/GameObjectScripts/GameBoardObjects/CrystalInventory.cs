@@ -125,6 +125,37 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
         // Intentionally empty: crystals are gained via cards/towns/rewards, not by clicking the inventory.
     }
 
+    /// <summary>
+    /// Returns one count per EmpowerType enum value (in enum declaration order).
+    /// EmpowerType is a [Flags] enum with non-contiguous values (None=0,Red=1,Yellow=2,Green=4,Purple=8),
+    /// so we use Array.IndexOf rather than a raw (int) cast to map color to index.
+    /// </summary>
+    public int[] GetCounts()
+    {
+        var values = Enum.GetValues(typeof(EmpowerType));
+        var counts = new int[values.Length];
+        foreach (var crystal in crystalsInInventory)
+        {
+            if (crystal == null) continue;
+            int idx = Array.IndexOf(values, crystal.color);
+            if (idx >= 0) counts[idx]++;
+        }
+        return counts;
+    }
+
+    public void SetCounts(int[] counts)
+    {
+        // Clear current inventory GameObjects, then recreate per color.
+        foreach (var c in new List<Crystal>(crystalsInInventory))
+            if (c != null) Destroy(c.gameObject);
+        crystalsInInventory.Clear();
+
+        var values = Enum.GetValues(typeof(EmpowerType));
+        for (int i = 0; i < counts.Length && i < values.Length; i++)
+            for (int n = 0; n < counts[i]; n++)
+                CreateCrystal((EmpowerType)values.GetValue(i));
+    }
+
     public void Crystallize(Card card)
     {
         if(card.cardSO.cardType.HasFlag(StatType.Crystal) && card.IsPlayed)

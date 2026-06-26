@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
     public PlayManager commands;
     private int roundNum;
     private int turnNum;
+    public int Round { get => roundNum; set => roundNum = value; }
+    public int Turn  { get => turnNum;  set => turnNum  = value; }
     public Button returnButton;
     public TextMeshProUGUI messageText;
     public TextMeshProUGUI roundTurnText;

@@ -14,6 +14,8 @@ public class DiscardPile : MonoBehaviour
         discardCount.text = cards.Count.ToString();
     }
 
+    public List<Card> Cards => cards;
+
     public void AddCardToDiscard(Card card)
     {
         cards.Add(card);
