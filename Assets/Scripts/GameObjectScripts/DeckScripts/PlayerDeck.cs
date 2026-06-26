@@ -22,6 +22,11 @@ public class PlayerDeck : Deck<Card>, IPointerClickHandler
 
     void Awake()
     {
+        drawCommand = new CardDrawCommand(drawNewCardEvent, this);
+        command = new PlayManager();
+
+        if (DataManager.Instance != null && DataManager.Instance.IsLoading) return; // deck rebuilt from save
+
         foreach(var card in player.StartingHand)
         {
             deckList.Add(card);
@@ -31,8 +36,6 @@ public class PlayerDeck : Deck<Card>, IPointerClickHandler
             AddCardToDecklist(card);
         }
         Shuffle(cardsInDeck);
-        drawCommand = new CardDrawCommand(drawNewCardEvent, this);
-        command = new PlayManager();
     }
 
     private Card AddCardToDecklist(CardsSO card)
@@ -109,6 +112,18 @@ public class PlayerDeck : Deck<Card>, IPointerClickHandler
                 card.transform.SetParent(this.transform);
                 card.gameObject.SetActive(false);
             }
+        }
+    }
+
+    public void RebuildDeck(List<CardsSO> orderedCards)
+    {
+        foreach (var c in new List<Card>(CardsInDeck)) if (c != null) Destroy(c.gameObject);
+        CardsInDeck.Clear();
+        deckList.Clear();
+        foreach (var so in orderedCards)
+        {
+            deckList.Add(so);
+            AddCardToDecklist(so); // appends in order; sets InDeck=true, inactive
         }
     }
 }

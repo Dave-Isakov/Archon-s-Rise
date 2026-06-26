@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 public class DiscardPile : MonoBehaviour
 {
     [SerializeField] TextMeshProUGUI discardCount;
+    [SerializeField] GameObject cardPrefab; // EDITOR STEP: assign the Card prefab in the Inspector
     List<Card> cards = new();
     
     void Update()
@@ -27,6 +28,22 @@ public class DiscardPile : MonoBehaviour
     public void ReshuffleToDeck()
     {
         cards.Clear();
+    }
+
+    public void RebuildDiscard(List<CardsSO> cards)
+    {
+        foreach (var c in new List<Card>(this.cards)) if (c != null) Destroy(c.gameObject);
+        this.cards.Clear();
+        foreach (var so in cards)
+        {
+            var go = Instantiate(cardPrefab, this.transform);
+            var comp = go.GetComponent<Card>();
+            comp.cardSO = so;
+            comp.InDiscard = true;
+            go.name = so.cardName;
+            go.SetActive(false);
+            this.cards.Add(comp);
+        }
     }
 
     public void SetCardList()

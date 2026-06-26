@@ -23,6 +23,7 @@ public class PlayerHand : MonoBehaviour
 
     void Start()
     {
+        if (DataManager.Instance != null && DataManager.Instance.IsLoading) return; // hand rebuilt from save
         // layoutGroup.enabled = false;
         DrawCards(player.PlayerHandSize);
     }
@@ -172,4 +173,21 @@ public class PlayerHand : MonoBehaviour
     //     sequence.Append(card.transform.DORotate(new Vector3(0, 90,0), .5f).OnComplete(() => card.GetComponentsInChildren<Image>()[3].gameObject.SetActive(false)));
     //     sequence.Append(card.transform.DORotate(new Vector3(0, 0,0), 1f));
     // }
+
+    public void RebuildHand(List<CardsSO> cards)
+    {
+        foreach (var c in new List<Card>(cardsInPlay)) if (c != null) Destroy(c.gameObject);
+        cardsInPlay.Clear();
+        foreach (var so in cards)
+        {
+            var go = Instantiate(card, GetComponentInChildren<GridLayoutGroup>().transform);
+            var comp = go.GetComponent<Card>();
+            comp.cardSO = so;
+            comp.InHand = true;
+            comp.InDeck = false;
+            go.name = so.cardName;
+            go.SetActive(true);
+            cardsInPlay.Add(comp);
+        }
+    }
 }

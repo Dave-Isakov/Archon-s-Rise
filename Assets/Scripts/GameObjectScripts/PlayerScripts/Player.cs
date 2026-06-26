@@ -34,7 +34,7 @@ public class Player : MonoBehaviour
     public bool InTown { get => inTown; set => inTown = value; }
     public bool InDungeon { get => inDungeon; set => inDungeon = value; }
     public bool InCombat { get => inCombat; set => inCombat = value; }
-    public int ExpToNextLevel { get => expToNextLevel; }
+    public int ExpToNextLevel { get => expToNextLevel; set => expToNextLevel = value; }
     public int PlayerLevel { get => playerLevel; set => playerLevel = value; }
     public IReadOnlyList<UnitsSO> Units => units;
 

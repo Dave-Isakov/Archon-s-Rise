@@ -7,7 +7,6 @@ using ArchonsRise.SaveData;
 
 public class DataManager : MonoBehaviour
 {
-    public PlayerData playerData;
     public SaveFile current = new SaveFile();
     public HashSet<Cell> DefeatedEnemies { get; private set; } = new HashSet<Cell>();
     public string savePath = "";
@@ -117,20 +116,18 @@ public class DataManager : MonoBehaviour
 
     public void LoadGame()
     {
-        if(!File.Exists(savePath))
+        if (!File.Exists(savePath))
         {
-
             Debug.LogWarning($"No save file found at {savePath}");
             return;
         }
 
         using (StreamReader reader = new(savePath))
-        {
-            playerData = JsonUtility.FromJson<PlayerData>(reader.ReadToEnd());
-        }
+            current = SaveSerializer.FromJson(reader.ReadToEnd());
 
-        // The player/position objects don't exist until the gameplay scene finishes
-        // loading, so defer restoring their state to the sceneLoaded callback.
+        CurrentSeed = current.run.map.seed;
+        DefeatedEnemies = new HashSet<Cell>(current.run.map.defeatedEnemies);
+
         IsLoading = true;
         SceneManager.sceneLoaded += OnGameSceneLoaded;
         SceneManager.LoadScene(1);
@@ -140,23 +137,47 @@ public class DataManager : MonoBehaviour
     {
         SceneManager.sceneLoaded -= OnGameSceneLoaded;
 
-        var player = FindAnyObjectByType<Player>();
-        var playerPosition = FindAnyObjectByType<PlayerPosition>();
-        if(player == null || playerPosition == null)
+        var player   = FindAnyObjectByType<Player>();
+        var pos      = FindAnyObjectByType<PlayerPosition>();
+        var deck     = FindAnyObjectByType<PlayerDeck>();
+        var hand     = FindAnyObjectByType<PlayerHand>();
+        var discard  = FindAnyObjectByType<DiscardPile>();
+        var crystals = FindAnyObjectByType<CrystalInventory>();
+        var game     = GameManager.Instance;
+
+        if (player == null || pos == null || deck == null || hand == null)
         {
-            Debug.LogError("Loaded scene is missing Player or PlayerPosition; cannot restore save.");
+            Debug.LogError("Loaded scene missing core objects; cannot restore save.");
             IsLoading = false;
             return;
         }
 
-        player.PlayerAttack = playerData.playerAttack;
-        player.PlayerDefend = playerData.playerDefend;
-        player.PlayerInfluence = playerData.playerInfluence;
-        player.PlayerExplore = playerData.playerExplore;
-        player.PlayerExp = playerData.playerExp;
-        player.PlayerHandSize = playerData.playerHandSize;
-        player.PlayerLevel = playerData.playerLevel;
-        playerPosition.transform.position = new Vector3(playerData.position[0], playerData.position[1], playerData.position[2]);
+        var run = current.run;
+
+        // Remove enemy tokens whose cell was recorded as defeated.
+        foreach (var token in FindObjectsOfType<EnemyToken>())
+            if (MapDelta.IsDefeated(DefeatedEnemies, new Cell(token.gridPos.x, token.gridPos.y)))
+                Destroy(token.gameObject);
+
+        // Restore ExpToNextLevel first so Update() doesn't fire a spurious level-up.
+        player.ExpToNextLevel  = run.player.expToNextLevel;
+        player.PlayerHP        = run.player.hp;
+        player.PlayerHandSize  = run.player.handSize;
+        player.PlayerLevel     = run.player.level;
+        player.PlayerExp       = run.player.exp;
+        player.PlayerAttack    = run.player.attack;
+        player.PlayerDefend    = run.player.defend;
+        player.PlayerInfluence = run.player.influence;
+        player.PlayerExplore   = run.player.explore;
+        pos.transform.position = new Vector3(run.player.position[0], run.player.position[1], run.player.position[2]);
+
+        if (crystals != null) crystals.SetCounts(run.crystalCounts);
+
+        deck.RebuildDeck(Cards.Resolve(run.deckCardIds));
+        hand.RebuildHand(Cards.Resolve(run.handCardIds));
+        if (discard != null) discard.RebuildDiscard(Cards.Resolve(run.discardCardIds));
+
+        if (game != null) { game.Round = run.round; game.Turn = run.turn; }
 
         IsLoading = false;
     }
