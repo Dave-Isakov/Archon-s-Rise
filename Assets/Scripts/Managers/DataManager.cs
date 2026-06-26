@@ -111,6 +111,7 @@ public class DataManager : MonoBehaviour
     public void NewGame()
     {
         CurrentSeed = new System.Random().Next(int.MinValue, int.MaxValue);
+        DefeatedEnemies = new HashSet<Cell>();
         SceneManager.LoadScene(1);
     }
 
@@ -164,6 +165,12 @@ public class DataManager : MonoBehaviour
     {
         var player    = FindAnyObjectByType<Player>();
         var pos       = FindAnyObjectByType<PlayerPosition>();
+
+        if (player == null)
+        {
+            Debug.LogWarning("CaptureRunState: no Player in scene; skipping capture.");
+            return null;
+        }
         var deck      = FindAnyObjectByType<PlayerDeck>();
         var hand      = FindAnyObjectByType<PlayerHand>();
         var discard   = FindAnyObjectByType<DiscardPile>();
@@ -226,7 +233,13 @@ public class DataManager : MonoBehaviour
 
     public void SaveGame()
     {
-        current = CaptureRunState();
+        var captured = CaptureRunState();
+        if (captured == null)
+        {
+            Debug.LogWarning("Save skipped: run state could not be captured.");
+            return;
+        }
+        current = captured;
         string json = SaveSerializer.ToJson(current);
         Debug.Log($"Saving data at {savePath}");
         using StreamWriter writer = new StreamWriter(savePath);
