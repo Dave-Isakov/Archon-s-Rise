@@ -246,6 +246,24 @@ public class Player : MonoBehaviour
         var newUnit = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.identity, GameObject.Find("Units").transform);
         newUnit.GetComponent<Unit>().unitSO = town.townSO.recruitableUnits[0];
     }
+
+    public void RebuildUnits(List<UnitsSO> unitSOs)
+    {
+        // Clear any existing Unit GameObjects (including the placeholder created in Awake) and the list.
+        foreach (var existing in FindObjectsByType<Unit>())
+            Destroy(existing.gameObject);
+        units.Clear();
+
+        var unitsParent = GameObject.Find("Units");
+        foreach (var so in unitSOs)
+        {
+            if (so == null) continue;
+            units.Add(so);
+            var newUnit = Instantiate(unitPrefab, new Vector3(0, 0, 0), Quaternion.identity,
+                unitsParent?.transform);
+            newUnit.GetComponent<Unit>().unitSO = so;
+        }
+    }
     public void PlayUnit(Unit unit)
     {
         if(!unit.IsPlayed)

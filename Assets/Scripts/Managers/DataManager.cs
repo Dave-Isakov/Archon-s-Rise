@@ -188,6 +188,8 @@ public class DataManager : MonoBehaviour
 
         if (game != null) { game.Round = run.round; game.Turn = run.turn; }
 
+        player.RebuildUnits(Units.Resolve(run.unitIds));
+
         IsLoading = false;
     }
 
