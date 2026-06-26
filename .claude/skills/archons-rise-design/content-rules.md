@@ -2,8 +2,17 @@
 
 How to author each content type so it stays consistent and works with the existing code. All
 content types inherit **`AllCards`**: `cardName` (string) and `cardDescription` (TextArea string).
-**Source of truth:** `Assets/Scripts/GameScriptableObjectTypes/`. If a field here ever disagrees
-with those scripts, the scripts win — update this file.
+**Source of truth:** `Assets/Scripts/GameScriptableObjectTypes/` and `Assets/Scripts/Enums/`. If a
+field here ever disagrees with those scripts, the scripts win — update this file.
+
+## Enums used below
+- **`StatType`** `[Flags]`: `None=0, Attack=1, Defend=2, Explore=4, Influence=8, Heal=16, Wound=32, Crystal=64`.
+  Combine with `|` (e.g. `Explore | Crystal`).
+- **`EmpowerType`** `[Flags]`: `None=0, Red=1, Yellow=2, Green=4, Purple=8`. Use `None` for a card/unit
+  that cannot be empowered.
+- **`RewardType`** `[Flags]`: `None=0, Experience=1, Crystals=2, Cards=4`.
+- **`RewardLevel`**: `Beginner, Intermediate, Advanced, Master`.
+- **`TownSize`**: `Town, Village, Fortress, City`.
 
 ---
 
@@ -21,11 +30,19 @@ with those scripts, the scripts win — update this file.
 | `isChoice` | bool | Player picks which stat to apply |
 
 **Rules:**
-- Only stats flagged in `cardType` are returned by `ReturnAttack/Defend/Influence/Explore` — an
-  unflagged stat returns 0 even if its int is set. **Always set `cardType` to match the values you fill in.**
-- For each flagged stat, set BOTH the base and the `empower*` value.
+- The four **action stats** (Attack/Defend/Explore/Influence) are gated in code by
+  `cardType.HasFlag(...)` — `ReturnAttack/Defend/Explore/Influence` return 0 unless the matching flag
+  is set, even if the int has a value. So you MUST flag every action stat you give a value to.
+- `healAmount` and `numCrystals` are read directly (not gated by a `HasFlag` check in `CardsSO`).
+  Still set the corresponding `Heal` / `Crystal` flag on `cardType` so the card's effect type is
+  self-describing. **In short: `cardType` should flag every effect the card provides.**
+- For each stat you give a value, set BOTH the base and the `empower*` value.
 - Empower values should exceed base values (pillar 3 — empowering must feel worth a crystal).
-- Set `empowerType` to the crystal color the card requires; leave default/None if it can't be empowered.
+- Set `empowerType` to the crystal color the card requires; use `None` if it can't be empowered.
+- `isChoice`: set **true** only for cards that let the player choose *which* stat to apply at play
+  time (the StatChoiceToggles flow — cards offering mutually-exclusive stat options). Set **false**
+  for cards that always apply all their effects together — even multi-effect cards (e.g. Heal+Crystal)
+  are `false` if both always apply. A single-stat card is `false`.
 
 ## Enemy — `EnemiesSO`
 **Menu:** `ScriptableObjects/Cards/EnemyCards`
