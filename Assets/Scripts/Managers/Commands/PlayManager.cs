@@ -34,6 +34,8 @@ public class PlayManager
             Debug.Log(ICommands);
     }
 
+    public bool IsEmpty => commandManager.Count == 0;
+
     public int GetStackCount()
     {
         return commandManager.Count;

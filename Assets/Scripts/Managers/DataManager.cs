@@ -261,8 +261,31 @@ public class DataManager : MonoBehaviour
         return ids.ToArray();
     }
 
+    public bool IsSettledState()
+    {
+        var game = GameManager.Instance;
+        if (game == null) return false;
+        if (IsLoading) return false;
+
+        // No modal sub-screen open.
+        if (game.combatCanvas != null && game.combatCanvas.enabled) return false;
+        if (game.townCanvas != null && game.townCanvas.enabled) return false;
+        if (game.cardRewardCanvas != null && game.cardRewardCanvas.enabled) return false;
+        if (game.cardListCanvas != null && game.cardListCanvas.enabled) return false;
+
+        // Undo/command stack empty (no card mid-play).
+        if (game.commands != null && !game.commands.IsEmpty) return false;
+
+        return true;
+    }
+
     public void SaveGame()
     {
+        if (!IsSettledState())
+        {
+            Debug.Log("Save skipped: not at a settled state.");
+            return;
+        }
         var captured = CaptureRunState();
         if (captured == null)
         {
