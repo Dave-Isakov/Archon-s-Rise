@@ -28,8 +28,9 @@ public class GridGeneration : MonoBehaviour
 
     void Start()
     {
-
-        var player = FindObjectOfType<PlayerPosition>();
+        var rngSource = new System.Random(DataManager.Instance.CurrentSeed);
+        int Rng(int minInclusive, int maxExclusive) => rngSource.Next(minInclusive, maxExclusive);
+        var player = FindAnyObjectByType<PlayerPosition>();
         for(int x = 0; x < 20; x++)
         {
             for(int y = 0; y < 20; y++)
@@ -41,7 +42,7 @@ public class GridGeneration : MonoBehaviour
                 }
                 else
                 {
-                    var rng = UnityEngine.Random.Range(0,100);
+                    var rng = Rng(0,100);
                     if(rng.IsBetween(0,45))
                     {
                         ground.SetTile(tilePos, tiles[0]);
@@ -62,7 +63,7 @@ public class GridGeneration : MonoBehaviour
                     {
                         mountains.SetTile(tilePos, tiles[4]);
                     }
-                    
+
                     if(ground.HasTile(tilePos))
                     {
                         var tile = ground.GetTile<HexRuleTile>(tilePos);
@@ -71,7 +72,7 @@ public class GridGeneration : MonoBehaviour
                             player.UpdateCompass(tilePos, compass);
                             foreach(Directions direction in Enum.GetValues(typeof(Directions)))
                             {
-                                rng = UnityEngine.Random.Range(0,10);
+                                rng = Rng(0,10);
                                 var adjTilePos = (tilePos + compass[direction]);
                                 if(rng==5)
                                 {
@@ -81,41 +82,41 @@ public class GridGeneration : MonoBehaviour
                         }
                     }
 
-                    
+
                     // if (tile.terrain == TerrainType.Water || tile.terrain == TerrainType.Mountain)
-                    
+
                     // foreach(Directions direction in Enum.GetValues(typeof(Directions)))
                     // {
                     //     var rng = UnityEngine.Random.Range(0,100);
                     //     var adjTilePos = (tilePos + compass[direction]);
                     //     if(rng > 91 && rng <= 95)
                     //     {
-                    //         
+                    //
                     //     }
                     //     else if (rng > 95 && rng <= 99 )
                     //     {
-                    //         
+                    //
                     //     }
                     // }
                 }
             }
         }
 
-        for(int x = 3; x < 18; x+=(UnityEngine.Random.Range(5,7)))
+        for(int x = 3; x < 18; x+=(Rng(5,7)))
         {
-            for(int y = 3; y < 18; y+=(UnityEngine.Random.Range(5,7)))
+            for(int y = 3; y < 18; y+=(Rng(5,7)))
             {
                 var tilePos = new Vector3Int(x,y);
                 ground.SetTile(tilePos, townTile);
                 var tile = ground.GetTile<TownRuleTile>(tilePos);
                 var townToken = Instantiate(tile.m_DefaultGameObject, ground.CellToWorld(tilePos)+ new Vector3(0,-1), Quaternion.identity, townParentObject);
-                townToken.GetComponent<TownToken>().townSO = towns.towns[UnityEngine.Random.Range(0,3)];
+                townToken.GetComponent<TownToken>().townSO = towns.towns[Rng(0,3)];
             }
         }
 
-        for(int x = 1; x < 10; x+=(UnityEngine.Random.Range(2,5)))
+        for(int x = 1; x < 10; x+=(Rng(2,5)))
         {
-            for (int y = 2; y < 10; y+=(UnityEngine.Random.Range(2,4)))
+            for (int y = 2; y < 10; y+=(Rng(2,4)))
             {
                 var tilePos = new Vector3Int(x,y);
                 if(ground.GetTile(tilePos) != townTile)

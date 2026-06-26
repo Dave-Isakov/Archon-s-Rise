@@ -10,6 +10,7 @@ public class DataManager : MonoBehaviour
     public PlayerData playerData;
     public string savePath = "";
     public bool IsLoading { get; private set; }
+    public int CurrentSeed { get; set; }
     private static DataManager instance;
     public static DataManager Instance { get { return instance; } }
 
@@ -107,6 +108,7 @@ public class DataManager : MonoBehaviour
 
     public void NewGame()
     {
+        CurrentSeed = new System.Random().Next(int.MinValue, int.MaxValue);
         SceneManager.LoadScene(1);
     }
 

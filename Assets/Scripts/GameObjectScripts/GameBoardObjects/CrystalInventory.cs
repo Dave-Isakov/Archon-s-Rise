@@ -122,8 +122,7 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        EmpowerType[] i = new[] { EmpowerType.Green, EmpowerType.Yellow, EmpowerType.Red, EmpowerType.Purple, EmpowerType.None };
-        CreateCrystal(i[UnityEngine.Random.Range(0,5)]);
+        // Intentionally empty: crystals are gained via cards/towns/rewards, not by clicking the inventory.
     }
 
     public void Crystallize(Card card)
