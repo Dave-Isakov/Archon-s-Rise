@@ -29,8 +29,8 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
     void Start()
     {
         gridPos = gameboard.LocalToCell(transform.position);
-        player = FindObjectOfType<PlayerPosition>();
-        deck = FindObjectOfType<EnemyDeck>();
+        player = FindAnyObjectByType<PlayerPosition>();
+        deck = FindAnyObjectByType<EnemyDeck>();
         player.UpdateCompass(gridPos, compass);
     }
 
@@ -86,6 +86,7 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
 
     IEnumerator StartCombat()
     {
+        GameManager.Instance.activeCombatant = this;
         GameManager.Instance.CombatCanvasActive();
         yield return new WaitUntil(() => GameManager.Instance.combatCanvas.GetComponentInChildren<TextMeshProUGUI>().enabled == false);
         deck.GetNewEnemyCard(this);

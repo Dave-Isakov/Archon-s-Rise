@@ -16,6 +16,9 @@ public class GameManager : MonoBehaviour
     public Canvas cardCanvas;
     public Canvas combatCanvas;
     public GameObject enemyCardCombatPosition;
+    // The enemy token whose combat is currently open. Set when combat starts,
+    // read by FleeCombat() to de-aggro the right token, cleared on teardown.
+    [HideInInspector] public EnemyToken activeCombatant;
     public Canvas cardRewardCanvas;
     public Canvas cardListCanvas;
     public GameObject cardListParent;
@@ -102,6 +105,32 @@ public class GameManager : MonoBehaviour
             combatCanvas.enabled = false;
             combatCanvas.GetComponentInChildren<Animator>().enabled = false;
         }
+    }
+
+    // Player gives up the current fight: take one wound, clear the enemy
+    // cards, drop the player out of combat, de-aggro the engaged token so it
+    // does not instantly re-engage, then tear down the combat canvas.
+    public void FleeCombat()
+    {
+        if (!combatCanvas.enabled) return;
+
+        playerHand.GetComponent<PlayerHand>().AddWound();
+
+        foreach (var card in enemyCardCombatPosition.GetComponentsInChildren<EnemyCard>())
+            Destroy(card.gameObject);
+
+        if (activeCombatant != null)
+        {
+            activeCombatant.isAggro = false;
+            if (activeCombatant.player != null)
+                activeCombatant.player.inCombat = false;
+            activeCombatant = null;
+        }
+
+        combatCanvas.enabled = false;
+        combatCanvas.GetComponentInChildren<Animator>().enabled = false;
+
+        ValidationMessage("You flee the battle and suffer a wound!");
     }
 
 
