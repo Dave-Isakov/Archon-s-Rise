@@ -35,6 +35,9 @@ Add a `FleeCombat()` flow, owned by `GameManager` (mirrors the existing `CombatC
 ### UI
 - Add a Flee `Button` to the combat canvas prefab/scene, wired to `GameManager.FleeCombat()`.
 
+### Preserve the influence mechanic
+The Flee button is a **new, separate** canvas-level control. The existing per-enemy `influenceButton` on `EnemyCard` and all influence-related fields (`canInfluence`, `influenceCost`, `enemyInfluence` display) are **left intact and untouched** — they are reserved for a planned future "use influence to rally an enemy card into your army" feature. Do not repurpose, remove, or rewire the influence button as part of this work. (Its current "Impossible" placeholder state stays as-is until that feature is designed.)
+
 ### Testing
 - Enter combat with an enemy whose HP exceeds the player's attack; confirm Fight shows the "need more attack" message and Flee exits.
 - After Flee: combat canvas closed, one wound card present in hand, `inCombat == false`, enemy token present but no longer instantly re-engaging when adjacent.
@@ -122,6 +125,6 @@ PlayerDeck.AddCard(CardsSO so, bool toTop)   the ONLY place an SO becomes a live
 ---
 
 ## Out of scope
-- Implementing the influence/recruit-enemy mechanic (the old influence button concept).
+- Implementing the influence/rally-enemy mechanic (the influence button concept) — preserved as-is for a future feature, see "Preserve the influence mechanic" above.
 - Converting `RewardsSO` to a polymorphic SO hierarchy.
 - Rebalancing reward contents or drop tables.
