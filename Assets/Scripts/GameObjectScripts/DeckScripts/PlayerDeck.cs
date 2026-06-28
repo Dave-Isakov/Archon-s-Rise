@@ -78,11 +78,18 @@ public class PlayerDeck : Deck<Card>, IPointerClickHandler
         deckList.Add(cards[Random.Range(0, cards.Count)]);
     }
 
-    public void AddRewardToDeck(Card card)
+    // The single path for granting a card into the deck from card data.
+    // Used by rewards (and any future grant). toTop=true makes it the next draw.
+    public Card AddCard(CardsSO so, bool toTop = false)
     {
-        CardsInDeck.Insert(0, card);
-        deckList.Add(card.cardSO);
-        AddCardToDecklist(card.cardSO);
+        var card = AddCardToDecklist(so); // instantiates, appends to CardsInDeck, sets flags, inactive
+        deckList.Add(so);
+        if (toTop)
+        {
+            CardsInDeck.Remove(card);
+            CardsInDeck.Insert(0, card);
+        }
+        return card;
     }
 
     public void EndOfRoundReshuffle()
