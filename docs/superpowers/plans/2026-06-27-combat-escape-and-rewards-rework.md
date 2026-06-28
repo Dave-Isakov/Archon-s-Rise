@@ -142,6 +142,16 @@ git commit -m "feat: add FleeCombat infrastructure and active-combatant tracking
 2. Drag the **GameManager** object into the object slot.
 3. In the function dropdown choose **GameManager → FleeCombat ()** (the no-argument runtime method).
 
+- [ ] **Step 2b: Wire the GameManager `Flee Button` reference**
+
+🖱️ UNITY EDITOR (manual):
+The combat canvas is reused to *preview* out-of-range enemy tokens, so the Flee
+button must be shown only during a real fight (driven by code via
+`CombatCanvasActive` / `EndCombat`). `FleeCombat()` also guards on
+`activeCombatant`, so clicking it during a preview does nothing.
+1. Select the **GameManager** object.
+2. Assign its new **Flee Button** field = the `FleeButton` object.
+
 - [ ] **Step 3: Play Mode verification — flee an unwinnable fight**
 
 🖱️ UNITY EDITOR (manual): Enter Play Mode and:
@@ -450,7 +460,7 @@ git commit -m "feat: guarded reward selection (Offer/Choose/SkipReward) with Ski
 
 **Interfaces:**
 - Produces: `Rewards.GetReward()`, `Rewards.GetReward(EnemyCard)`, `Rewards.GetReward(Dungeon)` (public, void — context selectors). `GetReward(EnemyCard)` stays wired to the `OnEnemyDefeat_GetRewards` event.
-- Consumes: `PlayerDeck.AddCard(CardsSO, bool)` (Task B1), `RewardCanvas.Offer(...)` (Task B3), `DataManager.Instance.Cards.Items` (`List<CardsSO>`), `CrystalInventory.CreateCrystal(EmpowerType)`, `Player.PlayerExp`, `EnemiesSO.defeatRewards`, `Dungeon.rewards`, `RewardsSO.rewardType/expAmount/cardDescription`.
+- Consumes: `PlayerDeck.AddCard(CardsSO, bool)` (Task B1), `RewardCanvas.Offer(...)` (Task B3), a curated `rewardPool` (`List<CardsSO>`, Inspector-assigned — NOT `DataManager.Cards`), `CrystalInventory.CreateCrystal(EmpowerType)`, `Player.PlayerExp`, `EnemiesSO.defeatRewards`, `Dungeon.rewards`, `RewardsSO.rewardType/expAmount/cardDescription`.
 
 - [ ] **Step 1: Rewrite Rewards**
 
@@ -471,6 +481,10 @@ public class Rewards : Deck<RewardsSO>
     [SerializeField] Player player;
     [SerializeField] PlayerDeck deck;
     [SerializeField] RewardCanvas rewardCanvas;
+    // Reward-eligible cards only (NOT starting cards or Wound). Kept separate
+    // from DataManager.Cards (the complete save/load registry) so the resolver
+    // can contain every card while rewards stay curated.
+    [SerializeField] List<CardsSO> rewardPool = new List<CardsSO>();
 
     private void Start()
     {
@@ -517,12 +531,13 @@ public class Rewards : Deck<RewardsSO>
 
     private void OfferCardChoice()
     {
-        var pool = DataManager.Instance.Cards.Items;
-        if (pool == null || pool.Count == 0) return;
+        // Draw from the curated rewardPool, NOT DataManager.Cards (which now
+        // includes starting cards + Wound for save/load resolution).
+        if (rewardPool == null || rewardPool.Count == 0) return;
 
         var candidates = new List<CardsSO>();
         for (int i = 0; i < 3; i++)
-            candidates.Add(pool[Random.Range(0, pool.Count)]);
+            candidates.Add(rewardPool[Random.Range(0, rewardPool.Count)]);
 
         rewardCanvas.Offer(candidates, so => deck.AddCard(so, toTop: true), () => { });
     }
@@ -541,6 +556,10 @@ Expected: **0 compile errors**. The `Rewards` component now shows two new empty 
 2. Confirm `Player` and `Crystals` are still assigned.
 3. Assign **Deck** = the PlayerDeck object.
 4. Assign **Reward Canvas** = the reward canvas object (the one with `RewardCanvas`).
+5. Populate **Reward Pool** with the reward-eligible cards only — the 9 cards in
+   `Assets/Scripts/ScriptableObjectData/Player/Cards/` (Browbeat, Commune with
+   Spirits, Defending Blow, Eagles Eyes, Expand Mind, Force Push, Rage, Red Bolt
+   Burn, Uncover Conspiracy). Do **not** add the StartingCards or Wound.
 
 - [ ] **Step 4: Commit**
 
@@ -662,3 +681,29 @@ No code change expected. If a verification revealed a defect, fix it in the rele
 - **Deviation from spec naming:** Spec named `RewardService`/`RewardChoiceUI`; plan keeps `Rewards`/`RewardCanvas` class names to avoid breaking Unity component links (see Global Constraints). Same responsibilities, same single-grant/guarded-selection design.
 - **Type consistency:** `AddCard(CardsSO, bool)` defined in B1, consumed in B4. `Offer(IReadOnlyList<CardsSO>, Action<CardsSO>, Action)` defined B3, consumed B4. `Bind(CardsSO, Action<CardsSO>)` defined B2, consumed B3. `FleeCombat()` defined A1, consumed A2. `activeCombatant` set in A1 step 3, read in A1 step 2. Consistent.
 - **Testing approach:** Unity recompile + Play Mode (no gameplay test harness exists). Flagged in Global Constraints.
+
+---
+
+## Discovered during execution
+
+- **Bugfix (done): incomplete/scene-dependent card registry.** The save/load
+  content registry was built from `DataManager.allCards`, only fully populated as
+  a MainMenu-scene override; starting the game from GameBoard built an incomplete
+  registry and loading a save with starting cards (e.g. `card_explore`) threw
+  `KeyNotFoundException`. Fixed by adding an editor tool (`Tools > Archon's Rise >
+  Rebuild Content Registry`, `Assets/Scripts/Editor/ContentRegistryPopulator.cs`)
+  that bakes every card/unit into the DataManager prefab, and reverting the stale
+  MainMenu override. Consequence folded into Task B4: rewards now draw from a
+  curated `rewardPool`, since `DataManager.Cards` is the complete resolver and
+  includes starting cards + Wound.
+
+## Known issues / future work (deferred)
+
+- **Hand layout when a card is added (wound from Flee; reward cards).** A card
+  added to the hand at runtime (e.g. a wound from fleeing) renders on top of the
+  existing hand cards instead of slotting into the hand layout; it only snaps into
+  its ordered position after the player clicks it to inspect and closes it. This is
+  a symptom of the current placeholder hand-display implementation, not of the
+  Flee or reward logic. Deferred to a separate hand-display refactor (re-layout the
+  hand whenever cards are added/removed, rather than relying on a click to trigger
+  re-ordering). Tracked here until that refactor is scoped.
