@@ -18,7 +18,11 @@ public class GameManager : MonoBehaviour
     public GameObject enemyCardCombatPosition;
     // The enemy token whose combat is currently open. Set when combat starts,
     // read by FleeCombat() to de-aggro the right token, cleared on teardown.
+    // Non-null ONLY during a real fight, never while merely previewing a token.
     [HideInInspector] public EnemyToken activeCombatant;
+    // Flee control. The combat canvas is reused to preview enemy tokens out of
+    // range, so the Flee button is shown only during a real fight.
+    public Button fleeButton;
     public Canvas cardRewardCanvas;
     public Canvas cardListCanvas;
     public GameObject cardListParent;
@@ -58,6 +62,7 @@ public class GameManager : MonoBehaviour
         townCanvas.enabled = false;
         combatCanvas.gameObject.SetActive(true);
         combatCanvas.enabled = false;
+        if (fleeButton != null) fleeButton.gameObject.SetActive(false);
         roundNum = 1;
         turnNum = 1;
     }
@@ -96,6 +101,7 @@ public class GameManager : MonoBehaviour
     {
         combatCanvas.enabled = true;
         combatCanvas.GetComponentInChildren<Animator>().enabled = true;
+        if (fleeButton != null) fleeButton.gameObject.SetActive(true);
     }
 
     public void CheckCombatants()
@@ -104,7 +110,15 @@ public class GameManager : MonoBehaviour
         {
             combatCanvas.enabled = false;
             combatCanvas.GetComponentInChildren<Animator>().enabled = false;
+            EndCombat();
         }
+    }
+
+    // Clears combat state shared by every way combat can end (win or flee).
+    private void EndCombat()
+    {
+        activeCombatant = null;
+        if (fleeButton != null) fleeButton.gameObject.SetActive(false);
     }
 
     // Player gives up the current fight: take one wound, clear the enemy
@@ -112,23 +126,22 @@ public class GameManager : MonoBehaviour
     // does not instantly re-engage, then tear down the combat canvas.
     public void FleeCombat()
     {
-        if (!combatCanvas.enabled) return;
+        // Guard: activeCombatant is set only by a real fight, never while the
+        // combat canvas is merely previewing an out-of-range enemy token.
+        if (activeCombatant == null) return;
 
         playerHand.GetComponent<PlayerHand>().AddWound();
 
         foreach (var card in enemyCardCombatPosition.GetComponentsInChildren<EnemyCard>())
             Destroy(card.gameObject);
 
-        if (activeCombatant != null)
-        {
-            activeCombatant.isAggro = false;
-            if (activeCombatant.player != null)
-                activeCombatant.player.inCombat = false;
-            activeCombatant = null;
-        }
+        activeCombatant.isAggro = false;
+        if (activeCombatant.player != null)
+            activeCombatant.player.inCombat = false;
 
         combatCanvas.enabled = false;
         combatCanvas.GetComponentInChildren<Animator>().enabled = false;
+        EndCombat();
 
         ValidationMessage("You flee the battle and suffer a wound!");
     }
