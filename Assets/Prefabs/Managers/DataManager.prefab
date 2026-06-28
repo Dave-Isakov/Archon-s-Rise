@@ -24,13 +24,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1431683923352114334}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 506.7685, y: 228.65071, z: -2.1919746}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1431683923352114320
 MonoBehaviour:
@@ -44,23 +44,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e086bd974343ae499a65b632be34abf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerData:
-    playerAttack: 0
-    playerDefend: 0
-    playerInfluence: 0
-    playerExplore: 0
-    playerExp: 0
-    playerHandSize: 0
-    playerLevel: 0
-    position: []
+  current:
+    schemaVersion: 1
+    run:
+      player:
+        hp: 0
+        handSize: 0
+        level: 0
+        exp: 0
+        expToNextLevel: 0
+        attack: 0
+        defend: 0
+        influence: 0
+        explore: 0
+        position:
+        - 0
+        - 0
+        - 0
+      crystalCounts: 
+      deckCardIds: []
+      handCardIds: []
+      discardCardIds: []
+      unitIds: []
+      map:
+        seed: 0
+        defeatedEnemies: []
+        revealedCells: []
+      round: 0
+      turn: 0
   savePath: 
   allCards:
-  - {fileID: 11400000, guid: 8af9cc7d91b76804b846b1a0a9a849d1, type: 2}
+  - {fileID: 11400000, guid: 85b6e17878e9f7341b3f38a935382b7a, type: 2}
+  - {fileID: 11400000, guid: 58fe6115ac0eaf345b403e7218efe5c7, type: 2}
+  - {fileID: 11400000, guid: d523a9b6adc27e84bb4e4bdea4c13626, type: 2}
+  - {fileID: 11400000, guid: 4e6b8178900aa454596e2bfa9fa43503, type: 2}
+  - {fileID: 11400000, guid: dfe220ff70b72484ba9ba0b4012be5c1, type: 2}
   - {fileID: 11400000, guid: fee3f75200346d140802c0770ce31dbb, type: 2}
   - {fileID: 11400000, guid: f8eee066478107a4ba7867d3e89b3d64, type: 2}
   - {fileID: 11400000, guid: a102cb51544b67c4d87d42e30923124b, type: 2}
-  - {fileID: 11400000, guid: 58fe6115ac0eaf345b403e7218efe5c7, type: 2}
-  - {fileID: 11400000, guid: d523a9b6adc27e84bb4e4bdea4c13626, type: 2}
-  - {fileID: 11400000, guid: 0f162ca090caa35488a1e97a7071491b, type: 2}
+  - {fileID: 11400000, guid: 80f3d57a6bcbc9a4db84b11291ba3701, type: 2}
+  - {fileID: 11400000, guid: 8af9cc7d91b76804b846b1a0a9a849d1, type: 2}
+  - {fileID: 11400000, guid: 33f3afbee49303641a0608041d15177a, type: 2}
+  - {fileID: 11400000, guid: 4cf1e193565ac464989aef186a82c2a5, type: 2}
   - {fileID: 11400000, guid: abde18bcea62c94438fe53fddbc97f57, type: 2}
-  allUnits: []
+  - {fileID: 11400000, guid: b12ead6b89a9d744598192c3828d2900, type: 2}
+  - {fileID: 11400000, guid: 0f162ca090caa35488a1e97a7071491b, type: 2}
+  - {fileID: 11400000, guid: d5f25e7d8e0b98f4695b5390c274f23d, type: 2}
+  allUnits:
+  - {fileID: 11400000, guid: 35c0f88038060c945ac7a7a5c09873ea, type: 2}
+  - {fileID: 11400000, guid: de77732a8af282e41914baaebaf0909a, type: 2}
+  - {fileID: 11400000, guid: 0314febb45d718743b9a6b059766e06e, type: 2}
+  - {fileID: 11400000, guid: bb8b162e03165924ca21a5125bc28756, type: 2}
