@@ -1,64 +1,75 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Reward-granting service. Context methods pick which RewardsSO applies, then
+// everything funnels through one Grant() that applies each reward flag once.
+// Card rewards offer a choice through RewardCanvas and grant the chosen card
+// via the single PlayerDeck.AddCard path.
 public class Rewards : Deck<RewardsSO>
 {
     public List<RewardsSO> rewards = new List<RewardsSO>();
     public CrystalInventory crystals;
     [SerializeField] Player player;
-    // [SerializeField] VoidEvent OnNewCardReward_OpenRewardScreen;
-    [SerializeField] VoidEvent GetCardRewards;
+    [SerializeField] PlayerDeck deck;
+    [SerializeField] RewardCanvas rewardCanvas;
+    // Reward-eligible cards only (NOT starting cards or Wound). Kept separate
+    // from DataManager.Cards (the complete save/load registry) so the resolver
+    // can contain every card while rewards stay curated.
+    [SerializeField] List<CardsSO> rewardPool = new List<CardsSO>();
 
     private void Start()
     {
         Shuffle(rewards);
     }
 
+    // No-context reward (legacy entry point).
     public void GetReward()
     {
-        if(rewards[0].rewardType.HasFlag(RewardType.Experience))
-            player.PlayerExp += rewards[0].expAmount;
-        if(rewards[0].rewardType.HasFlag(RewardType.Crystals))
-        {
-            EmpowerType[] i = new[] { EmpowerType.Green, EmpowerType.Yellow, EmpowerType.Red, EmpowerType.Purple, EmpowerType.None };
-            crystals.CreateCrystal(i[UnityEngine.Random.Range(0,5)]);
-        }
-        if(rewards[0].rewardType.HasFlag(RewardType.Cards))
-            GameManager.Instance.cardRewardCanvas.enabled = true;
-            GetCardRewards.Raise();
-        Debug.Log($"Your reward is: {rewards[0].cardDescription} ");
+        Grant(rewards[0]);
         Shuffle(rewards);
     }
 
+    // Wired to OnEnemyDefeat_GetRewards.
     public void GetReward(EnemyCard enemy)
     {
-        var reward = enemy.enemySO.defeatRewards[UnityEngine.Random.Range(0, enemy.enemySO.defeatRewards.Count)];
-        if(reward.rewardType.HasFlag(RewardType.Experience))
-            player.PlayerExp += reward.expAmount;
-        if(reward.rewardType.HasFlag(RewardType.Crystals))
-        {
-            EmpowerType[] i = new[] { EmpowerType.Green, EmpowerType.Yellow, EmpowerType.Red, EmpowerType.Purple, EmpowerType.None };
-            crystals.CreateCrystal(i[UnityEngine.Random.Range(0,5)]);
-        }
-        Debug.Log($"Your reward is: {reward.cardDescription} ");
+        var reward = enemy.enemySO.defeatRewards[Random.Range(0, enemy.enemySO.defeatRewards.Count)];
+        Grant(reward);
     }
 
     public void GetReward(Dungeon dungeon)
     {
-        var reward = dungeon.rewards[UnityEngine.Random.Range(0, dungeon.rewards.Count)];
-        if(reward.rewardType.HasFlag(RewardType.Experience))
-            player.PlayerExp += rewards[0].expAmount;
-        if(reward.rewardType.HasFlag(RewardType.Crystals))
-        {
-            EmpowerType[] i = new[] { EmpowerType.Green, EmpowerType.Yellow, EmpowerType.Red, EmpowerType.Purple, EmpowerType.None };
-            crystals.CreateCrystal(i[UnityEngine.Random.Range(0,5)]);
-        }
-        if(reward.rewardType.HasFlag(RewardType.Cards))
-            GameManager.Instance.cardRewardCanvas.enabled = true;
-            GetCardRewards.Raise();
-        Debug.Log($"Your reward is: {rewards[0].cardDescription} ");
+        var reward = dungeon.rewards[Random.Range(0, dungeon.rewards.Count)];
+        Grant(reward);
         dungeon.rewards.Remove(reward);
+    }
+
+    private void Grant(RewardsSO reward)
+    {
+        if (reward.rewardType.HasFlag(RewardType.Experience))
+            player.PlayerExp += reward.expAmount;
+
+        if (reward.rewardType.HasFlag(RewardType.Crystals))
+        {
+            var types = new[] { EmpowerType.Green, EmpowerType.Yellow, EmpowerType.Red, EmpowerType.Purple, EmpowerType.None };
+            crystals.CreateCrystal(types[Random.Range(0, types.Length)]);
+        }
+
+        if (reward.rewardType.HasFlag(RewardType.Cards))
+            OfferCardChoice();
+
+        Debug.Log($"Your reward is: {reward.cardDescription}");
+    }
+
+    private void OfferCardChoice()
+    {
+        // Draw from the curated rewardPool, NOT DataManager.Cards (which now
+        // includes starting cards + Wound for save/load resolution).
+        if (rewardPool == null || rewardPool.Count == 0) return;
+
+        var candidates = new List<CardsSO>();
+        for (int i = 0; i < 3; i++)
+            candidates.Add(rewardPool[Random.Range(0, rewardPool.Count)]);
+
+        rewardCanvas.Offer(candidates, so => deck.AddCard(so, toTop: true), () => { });
     }
 }
