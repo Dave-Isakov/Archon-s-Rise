@@ -126,15 +126,8 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     private void GetEmpowerTypeColor(GameObject card)
     {
-        var frontImage = card.GetComponentsInChildren<Image>()[0];
-        if(cardSO.empowerType == EmpowerType.Green)
-            frontImage.color = greenColor;
-        if(cardSO.empowerType == EmpowerType.Red)
-            frontImage.color = redColor;
-        if(cardSO.empowerType == EmpowerType.Purple)
-            frontImage.color = purpleColor;
-        if(cardSO.empowerType == EmpowerType.Yellow)
-            frontImage.color = yellowColor;
+        CardVisuals.ApplyEmpowerColor(card, cardSO.empowerType,
+            greenColor, redColor, purpleColor, yellowColor);
     }
 
     public void OnPointerClick(PointerEventData eventData)
