@@ -2,6 +2,11 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
+
+# Runtime save output (editor playthrough state); not source-controlled.
+/[Aa]ssets/Save.json
+/[Aa]ssets/Save.json.meta
+
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
