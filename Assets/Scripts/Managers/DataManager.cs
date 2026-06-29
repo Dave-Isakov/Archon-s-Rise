@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Tilemaps;
 using ArchonsRise.SaveData;
 
 public class DataManager : MonoBehaviour
@@ -109,6 +110,9 @@ public class DataManager : MonoBehaviour
 
     public void NewGame()
     {
+        // A button may target an inactive/duplicate DataManager; route to the active singleton.
+        if (instance != null && instance != this) { instance.NewGame(); return; }
+        IsLoading = false;
         CurrentSeed = new System.Random().Next(int.MinValue, int.MaxValue);
         DefeatedEnemies = new HashSet<Cell>();
         SceneManager.LoadScene(1);
@@ -116,6 +120,10 @@ public class DataManager : MonoBehaviour
 
     public void LoadGame()
     {
+        // A button may target an inactive/duplicate DataManager (its Awake never ran and
+        // StartCoroutine fails on it); route to the active singleton.
+        if (instance != null && instance != this) { instance.LoadGame(); return; }
+        savePath = Application.dataPath + Path.AltDirectorySeparatorChar + "Save.json";
         if (!File.Exists(savePath))
         {
             Debug.LogWarning($"No save file found at {savePath}");
@@ -146,6 +154,14 @@ public class DataManager : MonoBehaviour
         // PlayerHand.Start has skipped its default draw while IsLoading is still true.
         yield return null;
 
+        // try/finally guarantees IsLoading is cleared even if restore throws, so a failed
+        // load (e.g. a bad card id or missing prefab) can never permanently block saving.
+        try { RestoreNow(); }
+        finally { IsLoading = false; }
+    }
+
+    private void RestoreNow()
+    {
         var player   = FindAnyObjectByType<Player>();
         var pos      = FindAnyObjectByType<PlayerPosition>();
         var deck     = FindAnyObjectByType<PlayerDeck>();
@@ -157,8 +173,7 @@ public class DataManager : MonoBehaviour
         if (player == null || pos == null || deck == null || hand == null)
         {
             Debug.LogError("Loaded scene missing core objects; cannot restore save.");
-            IsLoading = false;
-            yield break;
+            return;
         }
 
         var run = current.run;
@@ -167,6 +182,12 @@ public class DataManager : MonoBehaviour
         foreach (var token in FindObjectsByType<EnemyToken>())
             if (MapDelta.IsDefeated(DefeatedEnemies, new Cell(token.gridPos.x, token.gridPos.y)))
                 Destroy(token.gameObject);
+
+        // Re-clear fog at the cells the player had already revealed.
+        var dir = FindAnyObjectByType<DirectionButton>();
+        if (dir != null && dir.Fog != null)
+            foreach (var c in run.map.revealedCells)
+                dir.Fog.SetTile(new Vector3Int(c.x, c.y, 0), null);
 
         // Restore ExpToNextLevel first so Update() doesn't fire a spurious level-up.
         player.ExpToNextLevel  = run.player.expToNextLevel;
@@ -189,8 +210,6 @@ public class DataManager : MonoBehaviour
         if (game != null) { game.Round = run.round; game.Turn = run.turn; }
 
         player.RebuildUnits(Units.Resolve(run.unitIds));
-
-        IsLoading = false;
     }
 
     public SaveFile CaptureRunState()
@@ -234,6 +253,10 @@ public class DataManager : MonoBehaviour
         run.map.seed            = CurrentSeed;
         run.map.defeatedEnemies = MapDelta.ToArray(DefeatedEnemies);
 
+        var dir = FindAnyObjectByType<DirectionButton>();
+        if (dir != null && dir.Fog != null)
+            run.map.revealedCells = CaptureRevealedCells(dir.Fog);
+
         run.round = game != null ? game.Round : 0;
         run.turn  = game != null ? game.Turn  : 0;
 
@@ -263,6 +286,18 @@ public class DataManager : MonoBehaviour
         return ids.ToArray();
     }
 
+    // A revealed cell is any playable cell the fog no longer covers (any terrain). Reveal is
+    // monotonic, so re-clearing this set on load reproduces the player's explored area.
+    private static Cell[] CaptureRevealedCells(Tilemap fog)
+    {
+        var revealed = new List<Cell>();
+        for (int x = 0; x < 20; x++)        // map is generated over a 20x20 grid (GridGeneration)
+            for (int y = 0; y < 20; y++)
+                if (!fog.HasTile(new Vector3Int(x, y, 0)))
+                    revealed.Add(new Cell(x, y));
+        return revealed.ToArray();
+    }
+
     public bool IsSettledState()
     {
         var game = GameManager.Instance;
@@ -283,6 +318,8 @@ public class DataManager : MonoBehaviour
 
     public void SaveGame()
     {
+        // A button may target an inactive/duplicate DataManager (savePath unset); route to the active singleton.
+        if (instance != null && instance != this) { instance.SaveGame(); return; }
         if (!IsSettledState())
         {
             Debug.Log("Save skipped: not at a settled state.");
@@ -296,6 +333,7 @@ public class DataManager : MonoBehaviour
         }
         current = captured;
         string json = SaveSerializer.ToJson(current);
+        savePath = Application.dataPath + Path.AltDirectorySeparatorChar + "Save.json";
         Debug.Log($"Saving data at {savePath}");
         using StreamWriter writer = new StreamWriter(savePath);
         writer.Write(json);

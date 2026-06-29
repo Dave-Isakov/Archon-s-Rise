@@ -9,6 +9,7 @@ public class GridGeneration : MonoBehaviour
     [SerializeField] Tilemap ground;
     [SerializeField] Tilemap water;
     [SerializeField] Tilemap mountains;
+    [SerializeField] Tilemap fog;
     [SerializeField] List<TileBase> tiles; //[0] = Plains, [1] = Forest, [2] = Desert, [3] = Water, [4] = Mountain
     [SerializeField] TileBase townTile;
     [SerializeField] GameObject enemyToken;
@@ -58,6 +59,10 @@ public class GridGeneration : MonoBehaviour
                     else if(rng.IsBetween(90, 94))
                     {
                         water.SetTile(tilePos, tiles[3]);
+                        // Only border water (the map's outer ring) is always visible; interior
+                        // water stays fogged until explored.
+                        bool onMapEdge = x == 0 || x == 19 || y == 0 || y == 19;
+                        if (fog != null && onMapEdge) fog.SetTile(tilePos, null);
                     }
                     else if(rng.IsBetween(95,99))
                     {

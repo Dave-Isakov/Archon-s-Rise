@@ -16,6 +16,12 @@ public partial class DirectionButton : MonoBehaviour
     [SerializeField] Tilemap map;
     [SerializeField] Tilemap fog;
     [SerializeField] Directions direction;
+
+    // Exposed so the save system can read/restore fog-of-war reveal state (all
+    // DirectionButtons reference the same map/fog tilemaps).
+    public Tilemap Map => map;
+    public Tilemap Fog => fog;
+
     private Vector3 position;
     [SerializeField] PlayerPositionEvent sendNewPositionOfPlayer;
     [SerializeField] IntEvent onSuccessfulExplore_AdjustPlayersExplore;

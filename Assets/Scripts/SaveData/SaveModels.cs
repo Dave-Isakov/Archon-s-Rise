@@ -44,6 +44,9 @@ namespace ArchonsRise.SaveData
     {
         public int seed;
         public Cell[] defeatedEnemies = Array.Empty<Cell>();
+        // Map cells the player has uncovered (fog cleared). Reveal is monotonic, so
+        // re-clearing these on load reproduces the explored state over the seeded map.
+        public Cell[] revealedCells = Array.Empty<Cell>();
     }
 
     [Serializable]
