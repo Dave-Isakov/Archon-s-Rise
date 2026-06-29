@@ -122,6 +122,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         if (GameManager.Instance.cardListCanvas.enabled) return;
 
         var inspector = FindAnyObjectByType<CardInspector>();
+        if (inspector == null) return;
         if (isMaximized)
         {
             onCloseCardMenu_MinimizeCard.Raise(this);
