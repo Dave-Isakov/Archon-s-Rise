@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Eagles Eyes
   m_EditorClassIdentifier: 
+  id: card_eagles_eyes
   cardName: Eagles Eyes
   cardDescription: 'Gain 2 Defend or Explore
 
@@ -20,10 +21,14 @@ MonoBehaviour:
   defend: 2
   explore: 2
   influence: 0
+  healAmount: 0
+  numCrystals: 0
   empowerAttack: 0
   empowerDefend: 3
   empowerExplore: 3
   empowerInfluence: 0
+  empowerHealAmount: 0
+  empowerNumCrystals: 0
   cardType: 6
   empowerType: 4
   isChoice: 1

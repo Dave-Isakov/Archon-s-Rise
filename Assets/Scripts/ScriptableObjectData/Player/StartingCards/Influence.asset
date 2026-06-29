@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Influence
   m_EditorClassIdentifier: 
+  id: card_influence
   cardName: Influence
   cardDescription: '<sprite="gem" index=0>: 2
 

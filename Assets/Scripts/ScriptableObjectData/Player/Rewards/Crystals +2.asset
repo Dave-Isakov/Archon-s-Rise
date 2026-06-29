@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 250d1a3cba9cfd04cacbaacf9323c43a, type: 3}
   m_Name: Crystals +2
   m_EditorClassIdentifier: 
+  id: reward_crystal_2
   cardName: Crystals +2
   cardDescription: 2 random crystals
   rewardType: 2

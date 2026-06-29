@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Uncover Conspiracy
   m_EditorClassIdentifier: 
+  id: card_uncover_conspiracy
   cardName: Uncover Conspiracy
   cardDescription: 'Gain 3 Influence.
 
@@ -20,10 +21,14 @@ MonoBehaviour:
   defend: 0
   explore: 0
   influence: 3
+  healAmount: 0
+  numCrystals: 0
   empowerAttack: 0
   empowerDefend: 0
   empowerExplore: 0
   empowerInfluence: 6
+  empowerHealAmount: 0
+  empowerNumCrystals: 0
   cardType: 8
   empowerType: 2
   isChoice: 0

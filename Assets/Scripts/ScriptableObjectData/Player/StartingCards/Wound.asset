@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Wound
   m_EditorClassIdentifier: 
+  id: card_wound
   cardName: Wound
   cardDescription: Wound cards cannot be played. <sprite="Heal" index=0> 1 to remove.
   attack: 0

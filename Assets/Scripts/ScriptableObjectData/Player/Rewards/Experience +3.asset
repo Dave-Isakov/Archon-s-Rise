@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 250d1a3cba9cfd04cacbaacf9323c43a, type: 3}
   m_Name: Experience +3
   m_EditorClassIdentifier: 
+  id: reward_experience_3
   cardName: Experience +3
   cardDescription: 3 Experience
   rewardType: 1

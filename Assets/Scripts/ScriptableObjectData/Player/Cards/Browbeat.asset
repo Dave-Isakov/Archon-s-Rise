@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Browbeat
   m_EditorClassIdentifier: 
+  id: card_browbeat
   cardName: Browbeat
   cardDescription: '<sprite="Sword" index=0>: 2 or <sprite="gem" index=0>: 2
 

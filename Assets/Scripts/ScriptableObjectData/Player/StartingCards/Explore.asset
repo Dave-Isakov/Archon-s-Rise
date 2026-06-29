@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Explore
   m_EditorClassIdentifier: 
+  id: card_explore
   cardName: Explore
   cardDescription: '<sprite="scroll" index=0>: 2
 

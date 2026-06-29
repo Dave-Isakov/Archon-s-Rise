@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Force Push
   m_EditorClassIdentifier: 
+  id: card_force_push
   cardName: Force Push
   cardDescription: 'Gain 2 Attack or Defend.
 
@@ -20,10 +21,14 @@ MonoBehaviour:
   defend: 2
   explore: 0
   influence: 0
+  healAmount: 0
+  numCrystals: 0
   empowerAttack: 3
   empowerDefend: 3
   empowerExplore: 0
   empowerInfluence: 0
+  empowerHealAmount: 0
+  empowerNumCrystals: 0
   cardType: 3
   empowerType: 8
   isChoice: 1

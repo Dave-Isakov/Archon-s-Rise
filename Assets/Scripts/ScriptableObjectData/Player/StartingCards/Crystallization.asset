@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Crystallization
   m_EditorClassIdentifier: 
+  id: card_crystallization
   cardName: Crystallization
   cardDescription: '<sprite="crystal" index=0 color=#FFFFFF>: 1
 

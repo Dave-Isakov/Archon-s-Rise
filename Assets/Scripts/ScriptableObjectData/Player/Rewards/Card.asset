@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 250d1a3cba9cfd04cacbaacf9323c43a, type: 3}
   m_Name: Card
   m_EditorClassIdentifier: 
+  id: reward_card
   cardName: Card
   cardDescription: 1 Card
   rewardType: 4

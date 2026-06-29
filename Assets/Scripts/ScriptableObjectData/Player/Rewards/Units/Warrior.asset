@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9c16f4bff67ec0745984351f5595704b, type: 3}
   m_Name: Warrior
   m_EditorClassIdentifier: 
+  id: unit_warrior
   cardName: Warrior
   cardDescription: 1 <sprite="Sword" index=0> 1 <sprite="shield" index=0> 1xR
   attack: 1

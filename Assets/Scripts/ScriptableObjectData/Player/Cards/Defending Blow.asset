@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Defending Blow
   m_EditorClassIdentifier: 
+  id: card_defending_blow
   cardName: Defending Blow
   cardDescription: 'Gain 1 Attack and 1 Defend.
 
@@ -20,10 +21,14 @@ MonoBehaviour:
   defend: 1
   explore: 0
   influence: 0
+  healAmount: 0
+  numCrystals: 0
   empowerAttack: 2
   empowerDefend: 2
   empowerExplore: 0
   empowerInfluence: 0
+  empowerHealAmount: 0
+  empowerNumCrystals: 0
   cardType: 3
   empowerType: 1
   isChoice: 0

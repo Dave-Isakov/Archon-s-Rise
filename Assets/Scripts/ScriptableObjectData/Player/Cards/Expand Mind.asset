@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Expand Mind
   m_EditorClassIdentifier: 
+  id: card_expand_mind
   cardName: Expand Mind
   cardDescription: 'Gain 2 Influence and 1 Explore.
 
@@ -20,10 +21,14 @@ MonoBehaviour:
   defend: 0
   explore: 1
   influence: 2
+  healAmount: 0
+  numCrystals: 0
   empowerAttack: 0
   empowerDefend: 0
   empowerExplore: 3
   empowerInfluence: 2
+  empowerHealAmount: 0
+  empowerNumCrystals: 0
   cardType: 12
   empowerType: 2
   isChoice: 0
