@@ -1,32 +1,64 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Owns the lifecycle of the "pick one of N cards" reward screen. It spawns
+// display-only previews, guards against double-resolution, and reports the
+// player's choice (or skip) via callbacks. It never mutates the deck itself.
 public class RewardCanvas : MonoBehaviour
 {
     [SerializeField] GameObject[] cardLocations = new GameObject[3];
-    [SerializeField] GameObject cardPrefab;
-    private List<GameObject> cardRewards = new();
+    [SerializeField] GameObject rewardCardPrefab; // root has a CardPreview
+    private readonly List<GameObject> spawned = new();
+    private bool resolved;
+    private Action<CardsSO> onChosen;
+    private Action onSkip;
 
-    public void SetCardRewards()
+    public void Offer(IReadOnlyList<CardsSO> candidates, Action<CardsSO> onChosen, Action onSkip)
     {
-        foreach (var i in cardLocations)
+        Clear();
+        resolved = false;
+        this.onChosen = onChosen;
+        this.onSkip = onSkip;
+
+        GameManager.Instance.cardRewardCanvas.enabled = true;
+
+        for (int i = 0; i < cardLocations.Length && i < candidates.Count; i++)
         {
-            var playerCard = Instantiate(cardPrefab, new Vector3(0,0,0), Quaternion.identity);
-            playerCard.transform.SetParent(i.transform, false);
-            playerCard.transform.localScale = new Vector3(3,3,3);
-            var cards = DataManager.Instance.Cards.Items;
-            playerCard.GetComponent<Card>().cardSO = cards[Random.Range(0, cards.Count)];
-            playerCard.GetComponent<Card>().IsReward = true;
+            var preview = Instantiate(rewardCardPrefab, cardLocations[i].transform, false);
+            preview.transform.localScale = new Vector3(3, 3, 3);
+            preview.GetComponent<CardPreview>().Bind(candidates[i], Choose);
+            spawned.Add(preview);
         }
     }
 
-    public void RemovePreviousRewards()
+    private void Choose(CardsSO chosen)
     {
-        foreach (var i in cardLocations)
-        {
-            if(i.GetComponentInChildren<Card>() is not null)
-                Destroy(i.GetComponentInChildren<Card>().gameObject);
-        }
+        if (resolved) return;
+        resolved = true;
+        onChosen?.Invoke(chosen);
+        Close();
+    }
+
+    // Wired to the Skip button's OnClick.
+    public void SkipReward()
+    {
+        if (resolved) return;
+        resolved = true;
+        onSkip?.Invoke();
+        Close();
+    }
+
+    private void Close()
+    {
+        Clear();
+        GameManager.Instance.cardRewardCanvas.enabled = false;
+    }
+
+    private void Clear()
+    {
+        foreach (var go in spawned)
+            if (go != null) Destroy(go);
+        spawned.Clear();
     }
 }
