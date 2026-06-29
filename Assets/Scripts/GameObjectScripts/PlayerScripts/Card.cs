@@ -119,24 +119,25 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(GameManager.Instance.cardListCanvas.enabled)
-            return;
+        if (GameManager.Instance.cardListCanvas.enabled) return;
 
-        if(isMaximized)
+        var inspector = FindAnyObjectByType<CardInspector>();
+        if (isMaximized)
         {
-            GameManager.Instance.cardCanvas.enabled = false;
             onCloseCardMenu_MinimizeCard.Raise(this);
-            onClick_CloseCardMenu.Raise(this);
+            inspector.Close();
+            isMaximized = false;
         }
-        else if(!isMaximized && !isPlayed)
+        else if (!isPlayed)
         {
-            GameManager.Instance.cardCanvas.enabled = true;
-            onClick_OpenCardMenu.Raise(this);
             onOpenCardMenu_MaximizeCard.Raise(this);
+            inspector.Open(this);
+            isMaximized = true;
         }
-        else if (isPlayed)
+        else
         {
-            GameManager.Instance.ValidationMessage($"{cardSO.name} has already been played. Click Undo on the Gameboard to undo previous plays.");
+            GameManager.Instance.ValidationMessage(
+                $"{cardSO.name} has already been played. Click Undo on the Gameboard to undo previous plays.");
         }
     }
 
