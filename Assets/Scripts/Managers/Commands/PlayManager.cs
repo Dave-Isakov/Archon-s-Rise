@@ -43,6 +43,10 @@ public class PlayManager
 
     public void ClearStack()
     {
+        // These plays can no longer be undone; commit each one (card plays move to discard).
+        foreach (var command in commandManager)
+            if (command is PlayCommand playCommand)
+                playCommand.Commit();
         commandManager.Clear();
     }
 }
