@@ -8,6 +8,16 @@ public class Crystal : MonoBehaviour, IPointerClickHandler
     CrystalInventory inventory;
     public EmpowerType color;
     public bool isAll;
+    [SerializeField] private CanvasGroup canvasGroup; // optional; for dim visual
+
+    // Display-only reservation. The crystal stays in inventory; this only signals
+    // "this crystal will be spent when the empowered card is played." Real consume
+    // is still CrystalInventory.EmpowerCrystal() at play time.
+    public void SetReserved(bool reserved)
+    {
+        if (canvasGroup != null)
+            canvasGroup.alpha = reserved ? 0.4f : 1f;
+    }
 
     void Awake()
     {

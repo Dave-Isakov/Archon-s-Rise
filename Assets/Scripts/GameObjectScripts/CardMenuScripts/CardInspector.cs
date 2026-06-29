@@ -33,15 +33,50 @@ public class CardInspector : MonoBehaviour
 
     public void Close()
     {
+        ReleaseReservation();
         GameManager.Instance.cardCanvas.enabled = false;
         Card = null;
         Selection = null;
     }
 
+    Crystal _reserved;
+
     public void SetMode(PlayMode mode)      { Selection?.SetMode(mode); Raise(); }
     public void ChooseStat(StatType stat)   { Selection?.SetChoiceStat(stat); Raise(); }
     public void ImproviseStat(StatType s)   { Selection?.SetImproviseStat(s); Raise(); }
-    public void SetEmpowered(bool value)    { Selection?.SetEmpowered(value); Raise(); }
+
+    public void SetEmpowered(bool value)
+    {
+        if (Selection == null) return;
+
+        if (value && Selection.CanEmpower())
+        {
+            var inv = FindAnyObjectByType<CrystalInventory>();
+            inv?.SetCard(Card);
+            var crystal = inv != null ? inv.SelectEmpowerCrystal() : null;
+            if (crystal == null)
+            {
+                GameManager.Instance.ValidationMessage(
+                    $"You cannot empower without {Card.cardSO.empowerType} crystals or an Allcrystal!");
+                Raise();
+                return;
+            }
+            _reserved = crystal;
+            _reserved.SetReserved(true);
+            Selection.SetEmpowered(true);
+        }
+        else
+        {
+            ReleaseReservation();
+            Selection.SetEmpowered(false);
+        }
+        Raise();
+    }
+
+    void ReleaseReservation()
+    {
+        if (_reserved != null) { _reserved.SetReserved(false); _reserved = null; }
+    }
 
     public void Play()
     {
@@ -50,6 +85,7 @@ public class CardInspector : MonoBehaviour
         var evt = EventFor(Selection);
         if (evt == null) return;
         GameManager.Instance.commands.AddCommand(new PlayCommand(evt, Card));
+        _reserved = null; // ownership passes to the real consume/undo path
         Raise();
     }
 
