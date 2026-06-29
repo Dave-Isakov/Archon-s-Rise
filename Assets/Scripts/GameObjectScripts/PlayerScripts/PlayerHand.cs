@@ -143,7 +143,7 @@ public class PlayerHand : MonoBehaviour
     //Cleans up wounds that were set inactive during the turn due to healing.
     public void CleanUp()
     {
-        foreach(var inactiveCard in FindObjectsOfType<Card>(true))
+        foreach(var inactiveCard in FindObjectsByType<Card>(FindObjectsInactive.Include))
         {
             if(!inactiveCard.gameObject.activeSelf && inactiveCard.cardSO.cardType == StatType.Wound && inactiveCard.IsPlayed)
             {

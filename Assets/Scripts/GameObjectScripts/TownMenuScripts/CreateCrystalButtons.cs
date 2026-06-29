@@ -12,7 +12,7 @@ public class CreateCrystalButtons : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        foreach(var crystal in FindObjectsOfType<CreateCrystalButtons>())
+        foreach(var crystal in FindObjectsByType<CreateCrystalButtons>(FindObjectsInactive.Include))
         {
             Destroy(crystal.gameObject);
         }

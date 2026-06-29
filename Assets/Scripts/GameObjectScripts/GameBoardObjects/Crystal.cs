@@ -11,7 +11,7 @@ public class Crystal : MonoBehaviour, IPointerClickHandler
 
     void Awake()
     {
-        inventory = FindObjectOfType<CrystalInventory>();
+        inventory = FindAnyObjectByType<CrystalInventory>();
     }
     public void RemoveCrystal()
     {

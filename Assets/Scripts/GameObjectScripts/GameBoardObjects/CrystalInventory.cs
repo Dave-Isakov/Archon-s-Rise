@@ -73,7 +73,7 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
         var crystal = SelectEmpowerCrystal();
         if(crystal is null)
         {
-            crystal = FindObjectOfType<AllCrystal>();
+            crystal = FindAnyObjectByType<AllCrystal>();
         }
         playedCrystals.Push(crystal);
         Debug.Log(crystal.color.ToString());
@@ -198,7 +198,7 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
 
     public void CleanUp()
     {
-        foreach(var inactiveCrystal in FindObjectsOfType<Crystal>(true))
+        foreach(var inactiveCrystal in FindObjectsByType<Crystal>(FindObjectsInactive.Include))
         {
             if(!inactiveCrystal.gameObject.activeSelf)
                 Destroy(inactiveCrystal.gameObject);
