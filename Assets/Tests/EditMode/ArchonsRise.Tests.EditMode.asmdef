@@ -1,0 +1,17 @@
+{
+    "name": "ArchonsRise.Tests.EditMode",
+    "rootNamespace": "",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "ArchonsRise.CardPlay",
+        "ArchonsRise.Enums"
+    ],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "autoReferenced": false,
+    "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+    "precompiledReferences": ["nunit.framework.dll"],
+    "overrideReferences": true
+}

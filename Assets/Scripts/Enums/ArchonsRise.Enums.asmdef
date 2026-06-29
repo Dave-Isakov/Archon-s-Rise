@@ -1,0 +1,9 @@
+{
+    "name": "ArchonsRise.Enums",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "autoReferenced": true
+}
