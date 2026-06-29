@@ -11,7 +11,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
     [SerializeField] bool inDeck;
     [SerializeField] bool inDiscard;
     [SerializeField] bool inHand;
-    private bool isReward;
     [SerializeField] private bool isEmpowered;
     private bool isMaximized;
     private Vector2 startPosition;
@@ -26,7 +25,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
     [SerializeField] CardEvent onClick_CloseCardMenu;
     [SerializeField] CardEvent onOpenCardMenu_MaximizeCard;
     [SerializeField] CardEvent onCloseCardMenu_MinimizeCard;
-    [SerializeField] CardEvent onRewardSelect_AddCardToDeck;
     [SerializeField] CardEvent onTurnEnd_CleanUpPlayedCard;
     [Header("Empower Type Colors")]
     [SerializeField] private Color redColor;
@@ -54,17 +52,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
         set
         {
             isEmpowered = value;
-        }
-    }
-    public bool IsReward
-    {
-        get
-        {
-            return isReward;
-        }
-        set
-        {
-            isReward = value;
         }
     }
     public bool InDeck { get => inDeck; set => inDeck = value; }
@@ -132,28 +119,24 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(!isReward && !GameManager.Instance.cardListCanvas.enabled)
+        if(GameManager.Instance.cardListCanvas.enabled)
+            return;
+
+        if(isMaximized)
         {
-            if(isMaximized)
-            {
-                GameManager.Instance.cardCanvas.enabled = false;
-                onCloseCardMenu_MinimizeCard.Raise(this);
-                onClick_CloseCardMenu.Raise(this);
-            }
-            else if(!isMaximized && !isPlayed)
-            {
-                GameManager.Instance.cardCanvas.enabled = true;
-                onClick_OpenCardMenu.Raise(this);
-                onOpenCardMenu_MaximizeCard.Raise(this);
-            }
-            else if (isPlayed)
-            {
-                GameManager.Instance.ValidationMessage($"{cardSO.name} has already been played. Click Undo on the Gameboard to undo previous plays.");
-            }
+            GameManager.Instance.cardCanvas.enabled = false;
+            onCloseCardMenu_MinimizeCard.Raise(this);
+            onClick_CloseCardMenu.Raise(this);
         }
-        else if(isReward)
+        else if(!isMaximized && !isPlayed)
         {
-            onRewardSelect_AddCardToDeck.Raise(this);
+            GameManager.Instance.cardCanvas.enabled = true;
+            onClick_OpenCardMenu.Raise(this);
+            onOpenCardMenu_MaximizeCard.Raise(this);
+        }
+        else if (isPlayed)
+        {
+            GameManager.Instance.ValidationMessage($"{cardSO.name} has already been played. Click Undo on the Gameboard to undo previous plays.");
         }
     }
 

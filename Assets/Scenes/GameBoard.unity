@@ -2751,7 +2751,18 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5846e3a981fe150408c223103523ecad, type: 2}
   crystals: {fileID: 331821658}
   player: {fileID: 1810098271}
-  GetCardRewards: {fileID: 11400000, guid: dca738322b1b9d04ab88d956301ff9c1, type: 2}
+  deck: {fileID: 7684908867119438335}
+  rewardCanvas: {fileID: 984934652}
+  rewardPool:
+  - {fileID: 11400000, guid: 58fe6115ac0eaf345b403e7218efe5c7, type: 2}
+  - {fileID: 11400000, guid: d523a9b6adc27e84bb4e4bdea4c13626, type: 2}
+  - {fileID: 11400000, guid: fee3f75200346d140802c0770ce31dbb, type: 2}
+  - {fileID: 11400000, guid: f8eee066478107a4ba7867d3e89b3d64, type: 2}
+  - {fileID: 11400000, guid: a102cb51544b67c4d87d42e30923124b, type: 2}
+  - {fileID: 11400000, guid: 8af9cc7d91b76804b846b1a0a9a849d1, type: 2}
+  - {fileID: 11400000, guid: abde18bcea62c94438fe53fddbc97f57, type: 2}
+  - {fileID: 11400000, guid: b12ead6b89a9d744598192c3828d2900, type: 2}
+  - {fileID: 11400000, guid: 0f162ca090caa35488a1e97a7071491b, type: 2}
 --- !u!114 &854467737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3399,7 +3410,6 @@ GameObject:
   - component: {fileID: 984934649}
   - component: {fileID: 984934648}
   - component: {fileID: 984934652}
-  - component: {fileID: 984934655}
   - component: {fileID: 984934656}
   - component: {fileID: 984934657}
   m_Layer: 5
@@ -3456,7 +3466,7 @@ Canvas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 984934647}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 519420031}
@@ -3512,46 +3522,6 @@ MonoBehaviour:
   - {fileID: 359594208}
   - {fileID: 1885425976}
   rewardCardPrefab: {fileID: 1123921089766303386, guid: 66ac197967915104bb61e873c19776a3, type: 3}
---- !u!114 &984934655
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 984934647}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3571130e79c1b24c904c1bbf6d42d76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gameEvent: {fileID: 11400000, guid: dca738322b1b9d04ab88d956301ff9c1, type: 2}
-  unityEventResponse:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 984934652}
-        m_TargetAssemblyTypeName: RewardCanvas, Assembly-CSharp
-        m_MethodName: RemovePreviousRewards
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 984934652}
-        m_TargetAssemblyTypeName: RewardCanvas, Assembly-CSharp
-        m_MethodName: SetCardRewards
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!114 &984934656
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42057,9 +42027,6 @@ PrefabInstance:
       addedObject: {fileID: 7684908867119438336}
     - targetCorrespondingSourceObject: {fileID: 6183298004364786765, guid: 6aa5c23f997240548a95d57c54ca30de, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 7684908867119438339}
-    - targetCorrespondingSourceObject: {fileID: 6183298004364786765, guid: 6aa5c23f997240548a95d57c54ca30de, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 7684908867119438342}
   m_SourcePrefab: {fileID: 100100000, guid: 6aa5c23f997240548a95d57c54ca30de, type: 3}
 --- !u!224 &7684908867119438332 stripped
@@ -42098,34 +42065,6 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: PlayerDeck, Assembly-CSharp
         m_MethodName: AddRandomCard
         m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
---- !u!114 &7684908867119438339
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1868925125}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e2c5400e4df069448f5dcbe8195edc4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  gameEvent: {fileID: 11400000, guid: 7d50490ae3007514390d945d5b000842, type: 2}
-  unityEventResponse:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7684908867119438335}
-        m_TargetAssemblyTypeName: PlayerDeck, Assembly-CSharp
-        m_MethodName: AddRewardToDeck
-        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
