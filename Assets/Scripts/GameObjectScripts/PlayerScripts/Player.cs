@@ -52,7 +52,6 @@ public class Player : MonoBehaviour
     void Awake()
     {
         playerHandSize = player.PlayerHandSize;
-        var newUnit = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.identity, GameObject.Find("Units").transform);
     }
 
     void Start()
