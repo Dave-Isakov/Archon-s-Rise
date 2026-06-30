@@ -38,6 +38,10 @@ public class ImprovisePanel : MonoBehaviour
 
         foreach (var seg in segments)
         {
+            // Improvise offers a flat +1 to any stat, so every segment is always
+            // selectable; make sure it's shown (parallels ChoiceBanner's activation).
+            seg.gameObject.SetActive(true);
+
             if (locked)
                 seg.SetState(StatSegment.State.Locked);
             else if (sel.Mode == PlayMode.Improvise && sel.ImproviseStat == seg.Stat)

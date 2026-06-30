@@ -132,9 +132,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         if (inspector == null) return;
         if (isMaximized)
         {
-            onCloseCardMenu_MinimizeCard.Raise(this);
-            inspector.Close();
-            isMaximized = false;
+            inspector.Close(); // Close() returns this card to the hand and clears isMaximized
         }
         else if (GameManager.Instance.cardCanvas.enabled)
         {
@@ -192,10 +190,10 @@ public class Card : MonoBehaviour, IPointerClickHandler
         t.DOLocalRotate(toLocalEuler, 0.22f).SetEase(Ease.OutCubic);
     }
 
-    // Invoked by the inspector right after this card is played from the menu. Mirrors the
-    // click-to-close path: returns the enlarged card to the hand and clears the maximized
-    // flag, so the now-played card (IsPlayed == true) can't be reopened to re-trigger Play.
-    public void MinimizeAfterPlay()
+    // Returns the enlarged card to the hand and clears the maximized flag. Invoked by the
+    // inspector on every close path (Back, click-off, Play), so a played card
+    // (IsPlayed == true) lands back in the fan and can't be reopened to re-trigger Play.
+    public void ReturnToHand()
     {
         onCloseCardMenu_MinimizeCard.Raise(this);
         isMaximized = false;

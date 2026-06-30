@@ -47,12 +47,17 @@ public class CardInspector : MonoBehaviour
 
     public void Close()
     {
+        var closing = Card; // capture before clearing so we can return it to the hand
         ReleaseReservation();
         GameManager.Instance.cardCanvas.enabled = false;
         Menu?.OffCanvas();
         SnapClosed();
         Card = null;
         Selection = null;
+        // Every close path (Back, click-off, Play) returns the focused card to the hand
+        // and clears its maximized flag. Without this, Back left the card stranded and
+        // invisible in the centre until it was clicked again.
+        closing?.ReturnToHand();
     }
 
     void FadeIn()
@@ -128,11 +133,10 @@ public class CardInspector : MonoBehaviour
         _reserved = null; // ownership passes to the real consume/undo path
 
         // Dismiss the menu so the PLAY button can't be clicked again (each extra click
-        // would push another PlayCommand and toggle the card's stats back off/on). The
-        // card is now IsPlayed, so reopening it shows the "already played" message.
-        var played = Card;
+        // would push another PlayCommand and toggle the card's stats back off/on). Close()
+        // returns the card to the hand; it's now IsPlayed, so reopening shows the
+        // "already played" message instead of replaying.
         Close();
-        played.MinimizeAfterPlay();
     }
 
     CardEvent EventFor(CardPlaySelection s)
