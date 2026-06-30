@@ -39,6 +39,29 @@ public class CardPlaySelectionTests
         Assert.AreEqual(new[] { 3, 0, 0, 0 }, s.ResolveStats());
     }
 
+    // A choice card must never resolve as "both stats". Fresh out of the constructor it
+    // starts in Choice mode on its first flag, so playing it untouched gives one stat —
+    // not the Normal-mode sum of every flag.
+    [Test]
+    public void Choice_DefaultsToChoiceModeOnFirstStat()
+    {
+        var s = new CardPlaySelection(Rally());          // Attack|Influence, isChoice
+        Assert.AreEqual(PlayMode.Choice, s.Mode);
+        Assert.AreEqual(StatType.Attack, s.ChoiceStat);  // first flag
+        Assert.AreEqual(new[] { 2, 0, 0, 0 }, s.ResolveStats());
+    }
+
+    // A non-choice multi-stat card still sums every flag in Normal mode.
+    [Test]
+    public void NonChoice_MultiStat_StartsNormalAndSums()
+    {
+        var both = new CardSnapshot(StatType.Attack | StatType.Influence, EmpowerType.None, false,
+            2, 0, 2, 0, 0, 0, 0, 0);
+        var s = new CardPlaySelection(both);
+        Assert.AreEqual(PlayMode.Normal, s.Mode);
+        Assert.AreEqual(new[] { 2, 0, 2, 0 }, s.ResolveStats());
+    }
+
     [Test]
     public void Choice_AppliesOnlyChosenStat()
     {

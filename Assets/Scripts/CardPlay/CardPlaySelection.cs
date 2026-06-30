@@ -16,8 +16,11 @@ public class CardPlaySelection
     public CardPlaySelection(CardSnapshot card)
     {
         _card = card;
-        Mode = PlayMode.Normal;
         ChoiceStat = FirstFlag(card.CardType);
+        // Choice cards must resolve to a single picked stat, never the Normal-mode sum of
+        // every flag. Start them in Choice mode on the first stat (the banner shows it
+        // selected and lets the player switch); everything else starts Normal.
+        Mode = card.IsChoice ? PlayMode.Choice : PlayMode.Normal;
         ImproviseStat = StatType.Attack;
         Empowered = false;
     }
