@@ -71,31 +71,17 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
     public void EmpowerCrystal()
     {
         var crystal = SelectEmpowerCrystal();
-        if(crystal is null)
-        {
+        if (crystal is null)
             crystal = FindAnyObjectByType<AllCrystal>();
-        }
+
         playedCrystals.Push(crystal);
         Debug.Log(crystal.color.ToString());
-        crystal.RemoveCrystal();
-        // foreach(var crystal in crystalsInInventory)
-        // {
-        //     if(!crystal.isAll)
-        //         if(crystal.color == _card.cardSO.empowerType)    
-        //         {
-        //             playedCrystals.Push(crystal);
-        //             Debug.Log(crystal.color.ToString());
-        //             crystal.RemoveCrystal();
-        //             break;
-        //         }
-        //     else if(crystal.isAll)
-        //     {
-        //         playedCrystals.Push(crystal);
-        //         Debug.Log(crystal.color.ToString());
-        //         crystal.RemoveCrystal();
-        //         break;
-        //     }
-        // }
+
+        // Same removal as RemoveCrystal() (list remove + deactivate), but the deactivate
+        // is deferred to the end of the drain flourish toward the played card.
+        crystalsInInventory.Remove(crystal);
+        Vector3 target = _card != null ? _card.transform.position : crystal.transform.position;
+        crystal.FlySpendThenHide(target);
     }
 
     public void RegenCrystal()
@@ -103,10 +89,7 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
         var crystal = playedCrystals.Pop();
         crystal.gameObject.SetActive(true);
         crystalsInInventory.Add(crystal);
-        // if(crystal.isAll)
-        //     CreateCrystal(EmpowerType.None);
-        // else
-        //     CreateCrystal(crystal.color);
+        crystal.PopIn();
         Debug.Log(crystal.color);
     }
 

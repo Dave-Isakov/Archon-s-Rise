@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using DG.Tweening;
 
 public class Crystal : MonoBehaviour, IPointerClickHandler
 {
@@ -17,6 +18,34 @@ public class Crystal : MonoBehaviour, IPointerClickHandler
     {
         if (canvasGroup != null)
             canvasGroup.alpha = reserved ? 0.4f : 1f;
+    }
+
+    // Play flourish: drain toward the played card, then hide. Restores the original
+    // local pose on complete so a later RegenCrystal shows the crystal back in its slot.
+    public void FlySpendThenHide(Vector3 worldTarget)
+    {
+        var t = transform;
+        Vector3 homePos = t.localPosition;
+        Vector3 homeScale = t.localScale;
+        t.DOKill();
+        t.DOMove(worldTarget, 0.3f).SetEase(Ease.InBack);
+        t.DOScale(Vector3.zero, 0.3f).SetEase(Ease.InBack)
+         .OnComplete(() =>
+         {
+             t.localPosition = homePos;
+             t.localScale = homeScale;
+             gameObject.SetActive(false);
+         });
+    }
+
+    // Undo flourish: pop the regenerated crystal back in at its slot.
+    public void PopIn()
+    {
+        var t = transform;
+        t.DOKill();
+        Vector3 homeScale = t.localScale == Vector3.zero ? Vector3.one : t.localScale;
+        t.localScale = Vector3.zero;
+        t.DOScale(homeScale, 0.25f).SetEase(Ease.OutBack);
     }
 
     void Awake()
