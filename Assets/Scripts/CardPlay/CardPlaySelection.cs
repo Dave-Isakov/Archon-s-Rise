@@ -62,10 +62,14 @@ public class CardPlaySelection
     public StatType ResolvedStat() =>
         Mode == PlayMode.Improvise ? ImproviseStat : ChoiceStat;
 
-    public int[] ResolveStats()
+    public int[] ResolveStats() => PreviewStats(EffectiveEmpowered());
+
+    // Read-only preview: the [atk,def,inf,exp] this selection would apply if its
+    // empower flag were `empowered`. Does not mutate. Improvise ignores `empowered`
+    // (flat +1). Used live by ResolveStats and by the Empower panel's "+N -> +N".
+    public int[] PreviewStats(bool empowered)
     {
         var result = new int[4]; // [attack, defend, influence, explore]
-        bool emp = EffectiveEmpowered();
 
         switch (Mode)
         {
@@ -74,13 +78,13 @@ public class CardPlaySelection
                 break;
 
             case PlayMode.Choice:
-                AddStat(result, ChoiceStat, emp ? _card.EmpowerOf(ChoiceStat) : _card.BaseOf(ChoiceStat));
+                AddStat(result, ChoiceStat, empowered ? _card.EmpowerOf(ChoiceStat) : _card.BaseOf(ChoiceStat));
                 break;
 
             default: // Normal — every set action flag contributes
                 foreach (var s in ActionStats)
                     if (_card.CardType.HasFlag(s))
-                        AddStat(result, s, emp ? _card.EmpowerOf(s) : _card.BaseOf(s));
+                        AddStat(result, s, empowered ? _card.EmpowerOf(s) : _card.BaseOf(s));
                 break;
         }
         return result;

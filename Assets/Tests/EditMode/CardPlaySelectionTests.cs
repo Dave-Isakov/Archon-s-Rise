@@ -126,4 +126,35 @@ public class CardPlaySelectionTests
         s.SetMode(PlayMode.Normal);                   // empower applies again
         Assert.IsTrue(s.EffectiveEmpowered());
     }
+
+    // PreviewStats reports the would-be totals for a hypothetical empower flag,
+    // independent of the live Empowered flag, and never mutates the selection.
+    [Test]
+    public void PreviewStats_ReportsBaseAndEmpoweredWithoutMutating()
+    {
+        var s = new CardPlaySelection(Strike());          // single Attack, base 2 / empower 3
+        Assert.AreEqual(new[] { 2, 0, 0, 0 }, s.PreviewStats(false));
+        Assert.AreEqual(new[] { 3, 0, 0, 0 }, s.PreviewStats(true));
+        // unchanged: still not empowered, ResolveStats still base
+        Assert.IsFalse(s.EffectiveEmpowered());
+        Assert.AreEqual(new[] { 2, 0, 0, 0 }, s.ResolveStats());
+    }
+
+    [Test]
+    public void PreviewStats_Choice_UsesChosenStatOnly()
+    {
+        var s = new CardPlaySelection(Rally());           // Attack|Influence choice, base 2/2 emp 4/4
+        s.SetChoiceStat(StatType.Influence);
+        Assert.AreEqual(new[] { 0, 0, 2, 0 }, s.PreviewStats(false));
+        Assert.AreEqual(new[] { 0, 0, 4, 0 }, s.PreviewStats(true));
+    }
+
+    [Test]
+    public void PreviewStats_Improvise_IgnoresEmpower()
+    {
+        var s = new CardPlaySelection(Rally());
+        s.SetImproviseStat(StatType.Defend);
+        Assert.AreEqual(new[] { 0, 1, 0, 0 }, s.PreviewStats(false));
+        Assert.AreEqual(new[] { 0, 1, 0, 0 }, s.PreviewStats(true)); // flat +1 regardless
+    }
 }
