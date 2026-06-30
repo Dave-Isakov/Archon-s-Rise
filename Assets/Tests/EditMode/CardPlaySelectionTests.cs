@@ -14,6 +14,14 @@ public class CardPlaySelectionTests
         new CardSnapshot(StatType.Wound, EmpowerType.None, false,
             0, 0, 0, 0, 0, 0, 0, 0);
 
+    static CardSnapshot Crystallization() => // crystal card: no action stats, makes crystals
+        new CardSnapshot(StatType.Crystal, EmpowerType.Purple, false,
+            0, 0, 0, 0, 0, 0, 0, 0);
+
+    static CardSnapshot HealCard() => // heal card: no action stats, heals wounds
+        new CardSnapshot(StatType.Heal, EmpowerType.Green, false,
+            0, 0, 0, 0, 0, 0, 0, 0);
+
     [Test]
     public void Normal_SingleStat_ResolvesPrintedValue()
     {
@@ -61,6 +69,15 @@ public class CardPlaySelectionTests
         var wound = new CardPlaySelection(Wound());
         Assert.IsFalse(wound.CanEmpower());
         Assert.IsFalse(wound.IsPlayable());
+    }
+
+    // Crystal and Heal cards have no action-stat flags but are still playable
+    // (they resolve Normal and let Player create crystals / heal). Only Wounds are unplayable.
+    [Test]
+    public void NonActionCards_ArePlayable()
+    {
+        Assert.IsTrue(new CardPlaySelection(Crystallization()).IsPlayable());
+        Assert.IsTrue(new CardPlaySelection(HealCard()).IsPlayable());
     }
 
     // The bug: choosing Improvise must not destroy the choice selection.

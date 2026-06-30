@@ -43,8 +43,14 @@ public class CardPlaySelection
 
     public bool EffectiveEmpowered() => Empowered && CanEmpower();
 
+    // Playable if the card produces any usable effect. Action-stat cards, plus
+    // Crystal and Heal cards (which carry no action flags and resolve through the
+    // Normal play route). Wounds are the only unplayable card.
     public bool IsPlayable()
     {
+        if (_card.CardType.HasFlag(StatType.Wound)) return false;
+        if (_card.CardType.HasFlag(StatType.Crystal)) return true;
+        if (_card.CardType.HasFlag(StatType.Heal)) return true;
         foreach (var s in ActionStats)
             if (_card.CardType.HasFlag(s)) return true;
         return false;

@@ -23,11 +23,17 @@ public class CardInspector : MonoBehaviour
     public Card Card { get; private set; }
     public event Action Changed;
 
+    // Same GameObject as the Canvas; flips its sorting order so the menu renders in
+    // front of the board (OnCanvas) instead of behind it (OffCanvas, the default).
+    CardMenuCanvas _menu;
+    CardMenuCanvas Menu => _menu != null ? _menu : (_menu = GetComponent<CardMenuCanvas>());
+
     public void Open(Card card)
     {
         Card = card;
         Selection = new CardPlaySelection(Snapshot(card.cardSO));
         GameManager.Instance.cardCanvas.enabled = true;
+        Menu?.OnCanvas();
         Raise();
     }
 
@@ -35,6 +41,7 @@ public class CardInspector : MonoBehaviour
     {
         ReleaseReservation();
         GameManager.Instance.cardCanvas.enabled = false;
+        Menu?.OffCanvas();
         Card = null;
         Selection = null;
     }

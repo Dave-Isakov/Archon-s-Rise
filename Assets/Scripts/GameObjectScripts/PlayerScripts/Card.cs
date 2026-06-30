@@ -129,6 +129,12 @@ public class Card : MonoBehaviour, IPointerClickHandler
             inspector.Close();
             isMaximized = false;
         }
+        else if (GameManager.Instance.cardCanvas.enabled)
+        {
+            // Another card's menu is already open. Without this guard each click
+            // maximizes a new card and pulls it out of the hand, draining the hand.
+            return;
+        }
         else if (!isPlayed)
         {
             onOpenCardMenu_MaximizeCard.Raise(this);
