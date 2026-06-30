@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [System.Serializable]
-public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+public class Card : MonoBehaviour, IPointerClickHandler
 {
     public CardsSO cardSO;
     private bool isPlayed;
@@ -152,20 +152,6 @@ public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
             GameManager.Instance.ValidationMessage(
                 $"{cardSO.name} has already been played. Click Undo on the Gameboard to undo previous plays.");
         }
-    }
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        if (isMaximized || cardSO.cardType == StatType.Wound) return;
-        if (GameManager.Instance.cardCanvas.enabled) return;
-        var hand = GameManager.Instance.playerHand.GetComponentInChildren<HandFanLayout>();
-        hand?.SetFocus(this);
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        var hand = GameManager.Instance.playerHand.GetComponentInChildren<HandFanLayout>();
-        hand?.ClearFocus(this);
     }
 
     //Maximizes the card under the card menu canvas.

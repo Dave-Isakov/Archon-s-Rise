@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Applies FanMath slots to the live hand cards. Driven by PlayerHand (which owns
-// card order). Focus lift/dim requires a CanvasGroup on each Card prefab root.
+// card order). Focus is determined each LateUpdate by checking the mouse against
+// the card's SLOT position (not its lifted position), which prevents the
+// pointer-exit feedback loop that occurs when the card moves out from under the cursor.
 public class HandFanLayout : MonoBehaviour
 {
     [SerializeField] FanSettings fan = new FanSettings();
@@ -14,20 +16,6 @@ public class HandFanLayout : MonoBehaviour
     IReadOnlyList<Card> _last;
 
     public Transform Container => transform;
-
-    public void SetFocus(Card card)
-    {
-        if (_focused == card) return;
-        _focused = card;
-        if (_last != null) Relayout(_last);
-    }
-
-    public void ClearFocus(Card card)
-    {
-        if (_focused != card) return;
-        _focused = null;
-        if (_last != null) Relayout(_last);
-    }
 
     public void Relayout(IReadOnlyList<Card> orderedCards)
     {
@@ -43,6 +31,57 @@ public class HandFanLayout : MonoBehaviour
 
         if (_focused != null && _focused.transform.parent == transform)
             _focused.transform.SetAsLastSibling();
+    }
+
+    void LateUpdate()
+    {
+        if (_last == null) return;
+
+        // When inspector is open, clear focus and stop
+        if (GameManager.Instance != null && GameManager.Instance.cardCanvas.enabled)
+        {
+            if (_focused != null) { _focused = null; Relayout(_last); }
+            return;
+        }
+
+        var container = (RectTransform)transform;
+        var cam = GetComponentInParent<Canvas>()?.worldCamera;
+
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                container, Input.mousePosition, cam, out var localMouse))
+        {
+            if (_focused != null) { _focused = null; Relayout(_last); }
+            return;
+        }
+
+        var inHand = new List<Card>();
+        foreach (var c in _last)
+            if (c != null && c.transform.parent == transform && c.gameObject.activeSelf)
+                inHand.Add(c);
+
+        var slots = FanMath.Solve(inHand.Count, fan);
+        Card newFocus = null;
+
+        // Check front-to-back so the topmost (last sibling) card wins on overlap
+        for (int i = inHand.Count - 1; i >= 0; i--)
+        {
+            if (inHand[i].cardSO.cardType == StatType.Wound) continue;
+
+            var rt = (RectTransform)inHand[i].transform;
+            var slotPos = slots[i].AnchoredPosition; // use slot, not lifted position
+            var half = rt.rect.size * 0.5f;
+
+            if (localMouse.x >= slotPos.x - half.x && localMouse.x <= slotPos.x + half.x &&
+                localMouse.y >= slotPos.y - half.y && localMouse.y <= slotPos.y + half.y)
+            {
+                newFocus = inHand[i];
+                break;
+            }
+        }
+
+        if (newFocus == _focused) return;
+        _focused = newFocus;
+        Relayout(_last);
     }
 
     void Apply(Card card, FanSlot slot, bool focused)
