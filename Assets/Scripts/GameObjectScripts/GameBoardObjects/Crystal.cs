@@ -11,6 +11,9 @@ public class Crystal : MonoBehaviour, IPointerClickHandler
     public bool isAll;
     [SerializeField] private CanvasGroup canvasGroup; // optional; for dim visual
 
+    Vector3 _homePos;
+    Vector3 _homeScale;
+
     // Display-only reservation. The crystal stays in inventory; this only signals
     // "this crystal will be spent when the empowered card is played." Real consume
     // is still CrystalInventory.EmpowerCrystal() at play time.
@@ -25,15 +28,15 @@ public class Crystal : MonoBehaviour, IPointerClickHandler
     public void FlySpendThenHide(Vector3 worldTarget)
     {
         var t = transform;
-        Vector3 homePos = t.localPosition;
-        Vector3 homeScale = t.localScale;
+        _homePos = t.localPosition;
+        _homeScale = t.localScale;
         t.DOKill();
         t.DOMove(worldTarget, 0.3f).SetEase(Ease.InBack);
         t.DOScale(Vector3.zero, 0.3f).SetEase(Ease.InBack)
          .OnComplete(() =>
          {
-             t.localPosition = homePos;
-             t.localScale = homeScale;
+             t.localPosition = _homePos;
+             t.localScale = _homeScale;
              gameObject.SetActive(false);
          });
     }
@@ -43,7 +46,8 @@ public class Crystal : MonoBehaviour, IPointerClickHandler
     {
         var t = transform;
         t.DOKill();
-        Vector3 homeScale = t.localScale == Vector3.zero ? Vector3.one : t.localScale;
+        t.localPosition = _homePos;  // restore home slot position (safe even if FlySpendThenHide was never called: Vector3.zero is fine)
+        Vector3 homeScale = _homeScale == Vector3.zero ? Vector3.one : _homeScale;
         t.localScale = Vector3.zero;
         t.DOScale(homeScale, 0.25f).SetEase(Ease.OutBack);
     }
