@@ -26,6 +26,9 @@ public class CardInspector : MonoBehaviour
     [SerializeField] float scrimAlpha = 0.6f;
     [SerializeField] float fadeTime = 0.2f;
 
+    [Header("Phase 3b juice")]
+    [SerializeField] StatEchoes echoes;
+
     public CardPlaySelection Selection { get; private set; }
     public Card Card { get; private set; }
     public event Action Changed;
@@ -129,13 +132,21 @@ public class CardInspector : MonoBehaviour
         Card.IsEmpowered = Selection.EffectiveEmpowered();
         var evt = EventFor(Selection);
         if (evt == null) return;
+
+        // Capture before the command/Close: the card is at centre and Selection is live.
+        Vector3 origin = Card.transform.position;
+        var applied = Selection.PreviewStats(Selection.EffectiveEmpowered());
+
         GameManager.Instance.commands.AddCommand(new PlayCommand(evt, Card));
         _reserved = null; // ownership passes to the real consume/undo path
 
-        // Dismiss the menu so the PLAY button can't be clicked again (each extra click
-        // would push another PlayCommand and toggle the card's stats back off/on). Close()
-        // returns the card to the hand; it's now IsPlayed, so reopening shows the
-        // "already played" message instead of replaying.
+        // Fire one "+N" per boosted stat (after Execute() so the crystal-spend flourish
+        // leads the stat echo). Echoes are play-only; undo shows the stat count-down.
+        if (echoes != null)
+            foreach (var e in StatEchoPlan.NonZero(applied))
+                echoes.Emit(origin, e.Stat, e.Amount);
+
+        // Dismiss the menu so PLAY can't be clicked again; Close() returns the card to the hand.
         Close();
     }
 
