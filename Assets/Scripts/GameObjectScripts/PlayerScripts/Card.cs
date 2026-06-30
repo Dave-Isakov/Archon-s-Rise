@@ -173,6 +173,15 @@ public class Card : MonoBehaviour, IPointerClickHandler
         GameManager.Instance.playerHand.GetComponent<PlayerHand>().Relayout();
     }
 
+    // Invoked by the inspector right after this card is played from the menu. Mirrors the
+    // click-to-close path: returns the enlarged card to the hand and clears the maximized
+    // flag, so the now-played card (IsPlayed == true) can't be reopened to re-trigger Play.
+    public void MinimizeAfterPlay()
+    {
+        onCloseCardMenu_MinimizeCard.Raise(this);
+        isMaximized = false;
+    }
+
     //Events for discarded cards due to being played
     public void PlayedCardDiscard()
     {

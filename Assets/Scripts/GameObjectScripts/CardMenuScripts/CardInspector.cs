@@ -93,7 +93,13 @@ public class CardInspector : MonoBehaviour
         if (evt == null) return;
         GameManager.Instance.commands.AddCommand(new PlayCommand(evt, Card));
         _reserved = null; // ownership passes to the real consume/undo path
-        Raise();
+
+        // Dismiss the menu so the PLAY button can't be clicked again (each extra click
+        // would push another PlayCommand and toggle the card's stats back off/on). The
+        // card is now IsPlayed, so reopening it shows the "already played" message.
+        var played = Card;
+        Close();
+        played.MinimizeAfterPlay();
     }
 
     CardEvent EventFor(CardPlaySelection s)
