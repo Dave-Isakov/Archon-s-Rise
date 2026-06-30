@@ -24,7 +24,9 @@ public class PlayBar : MonoBehaviour
     {
         var sel = inspector.Selection;
         if (sel == null) return;
-        playButton.interactable = sel.IsPlayable();
-        playLabel.text = sel.IsPlayable() ? $"PLAY · {sel.Describe()}" : "Cannot play";
+        bool playable = sel.IsPlayable();
+        playButton.interactable = playable;
+        playLabel.text = playable ? $"PLAY · {sel.Describe()}" : "Cannot play";
+        playLabel.color = playable ? StatPalette.For(sel.ResolvedStat()) : StatPalette.Muted;
     }
 }
