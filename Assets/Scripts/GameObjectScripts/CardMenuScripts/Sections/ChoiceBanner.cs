@@ -1,55 +1,54 @@
 using UnityEngine;
-using UnityEngine.UI;
 
-// Shows one button per set action-flag on a choice card. Selecting a segment sets
-// the choice stat. Hidden for non-choice cards and when Improvise is active.
+// Shows one segment per set action-flag on a choice card. Selecting a segment sets
+// the choice stat. Hidden for non-choice cards. While Improvise is active the banner
+// stays visible but locks (dim + reason) and destroys no stored choice.
 public class ChoiceBanner : MonoBehaviour
 {
     [SerializeField] CardInspector inspector;
     [SerializeField] GameObject root;          // the banner container to show/hide
-    [SerializeField] Button attackButton;
-    [SerializeField] Button defendButton;
-    [SerializeField] Button influenceButton;
-    [SerializeField] Button exploreButton;
+    [SerializeField] StatSegment[] segments;   // Attack / Defend / Influence / Explore
+    [SerializeField] GameObject lockedReason;  // "Locked while improvising"
 
-    // Subscribe for the component's whole lifetime, not per-enable: Render hides this
-    // banner by deactivating its own GameObject (root == self) for non-choice cards.
-    // With OnEnable/OnDisable that SetActive(false) would unsubscribe us, and nothing
-    // could ever re-show the banner (the only caller of Render is the event we'd have
-    // dropped). Awake/OnDestroy keep the subscription alive while self-deactivated, so
-    // a later choice card still drives Render and reactivates us.
+    // Lifetime subscription (not per-enable): Render hides this banner by deactivating
+    // its own GameObject (root == self) for non-choice cards. OnEnable/OnDisable would
+    // let that SetActive(false) unsubscribe us with no way back. Awake/OnDestroy survive
+    // self-deactivation.
     void Awake()     { inspector.Changed += Render; }
     void OnDestroy() { inspector.Changed -= Render; }
 
     void Start()
     {
-        attackButton.onClick.AddListener(() => inspector.ChooseStat(StatType.Attack));
-        defendButton.onClick.AddListener(() => inspector.ChooseStat(StatType.Defend));
-        influenceButton.onClick.AddListener(() => inspector.ChooseStat(StatType.Influence));
-        exploreButton.onClick.AddListener(() => inspector.ChooseStat(StatType.Explore));
+        foreach (var seg in segments)
+        {
+            var captured = seg; // avoid closure-over-loop-var capturing the last element
+            captured.Button.onClick.AddListener(() => inspector.ChooseStat(captured.Stat));
+        }
     }
 
     void Render()
     {
         var sel = inspector.Selection;
         var card = inspector.Card;
-        bool show = sel != null && card != null && card.cardSO.isChoice
-                    && sel.Mode != PlayMode.Improvise;
+        bool show = sel != null && card != null && card.cardSO.isChoice;
         root.SetActive(show);
         if (!show) return;
 
-        Bind(attackButton, StatType.Attack, card.cardSO.cardType, sel);
-        Bind(defendButton, StatType.Defend, card.cardSO.cardType, sel);
-        Bind(influenceButton, StatType.Influence, card.cardSO.cardType, sel);
-        Bind(exploreButton, StatType.Explore, card.cardSO.cardType, sel);
-    }
+        bool locked = sel.Mode == PlayMode.Improvise;
+        if (lockedReason != null) lockedReason.SetActive(locked);
 
-    static void Bind(Button b, StatType stat, StatType cardType, CardPlaySelection sel)
-    {
-        bool available = cardType.HasFlag(stat);
-        b.gameObject.SetActive(available);
-        if (!available) return;
-        // selected highlight: interactable=false marks the chosen one
-        b.interactable = !(sel.Mode == PlayMode.Choice && sel.ChoiceStat == stat);
+        foreach (var seg in segments)
+        {
+            bool available = card.cardSO.cardType.HasFlag(seg.Stat);
+            seg.gameObject.SetActive(available);
+            if (!available) continue;
+
+            if (locked)
+                seg.SetState(StatSegment.State.Locked);
+            else if (sel.Mode == PlayMode.Choice && sel.ChoiceStat == seg.Stat)
+                seg.SetState(StatSegment.State.Selected);
+            else
+                seg.SetState(StatSegment.State.Available);
+        }
     }
 }

@@ -1,30 +1,27 @@
 using UnityEngine;
-using UnityEngine.UI;
 
-// Four +1 stat options. Selecting one puts the selection into Improvise mode.
-// Disabled for non-empowerable cards (Wounds / EmpowerType.None).
+// Four +1 stat options. Selecting one puts the selection into Improvise mode. Hidden
+// for non-empowerable cards (Wounds / EmpowerType.None). While Empower is active the
+// panel stays visible but locks (dim + reason) and destroys no stored improvise stat.
 public class ImprovisePanel : MonoBehaviour
 {
     [SerializeField] CardInspector inspector;
     [SerializeField] GameObject root;
-    [SerializeField] Button attackButton;
-    [SerializeField] Button defendButton;
-    [SerializeField] Button influenceButton;
-    [SerializeField] Button exploreButton;
+    [SerializeField] StatSegment[] segments;   // Attack / Defend / Influence / Explore
+    [SerializeField] GameObject lockedReason;  // "Locked while empowered"
 
     // Lifetime subscription, not per-enable: Render hides this panel by deactivating
-    // its own GameObject (root == self) for non-empowerable cards. OnEnable/OnDisable
-    // would let that SetActive(false) unsubscribe us, and nothing could re-show the
-    // panel. Awake/OnDestroy survive self-deactivation. See ChoiceBanner for detail.
+    // its own GameObject (root == self) for non-empowerable cards. See ChoiceBanner for detail.
     void Awake()     { inspector.Changed += Render; }
     void OnDestroy() { inspector.Changed -= Render; }
 
     void Start()
     {
-        attackButton.onClick.AddListener(() => inspector.ImproviseStat(StatType.Attack));
-        defendButton.onClick.AddListener(() => inspector.ImproviseStat(StatType.Defend));
-        influenceButton.onClick.AddListener(() => inspector.ImproviseStat(StatType.Influence));
-        exploreButton.onClick.AddListener(() => inspector.ImproviseStat(StatType.Explore));
+        foreach (var seg in segments)
+        {
+            var captured = seg;
+            captured.Button.onClick.AddListener(() => inspector.ImproviseStat(captured.Stat));
+        }
     }
 
     void Render()
@@ -36,14 +33,17 @@ public class ImprovisePanel : MonoBehaviour
         root.SetActive(canImprovise);
         if (!canImprovise) return;
 
-        Mark(attackButton, StatType.Attack, sel);
-        Mark(defendButton, StatType.Defend, sel);
-        Mark(influenceButton, StatType.Influence, sel);
-        Mark(exploreButton, StatType.Explore, sel);
-    }
+        bool locked = sel.EffectiveEmpowered();
+        if (lockedReason != null) lockedReason.SetActive(locked);
 
-    static void Mark(Button b, StatType stat, CardPlaySelection sel)
-    {
-        b.interactable = !(sel.Mode == PlayMode.Improvise && sel.ImproviseStat == stat);
+        foreach (var seg in segments)
+        {
+            if (locked)
+                seg.SetState(StatSegment.State.Locked);
+            else if (sel.Mode == PlayMode.Improvise && sel.ImproviseStat == seg.Stat)
+                seg.SetState(StatSegment.State.Selected);
+            else
+                seg.SetState(StatSegment.State.Available);
+        }
     }
 }
