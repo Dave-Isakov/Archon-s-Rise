@@ -7,6 +7,9 @@
 /[Aa]ssets/Save.json
 /[Aa]ssets/Save.json.meta
 
+# Superpowers brainstorming visual-companion sessions/mockups; not source-controlled.
+/.superpowers/
+
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
