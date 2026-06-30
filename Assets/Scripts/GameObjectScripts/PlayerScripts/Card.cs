@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [System.Serializable]
-public class Card : MonoBehaviour, IPointerClickHandler
+public class Card : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public CardsSO cardSO;
     private bool isPlayed;
@@ -31,6 +31,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
     [SerializeField] private Color yellowColor;
     [SerializeField] private Color purpleColor;
     [SerializeField] private Color greenColor;
+    [SerializeField] private Color woundGrey = new Color(0.55f, 0.55f, 0.55f, 1f);
 
     public bool IsPlayed
     {
@@ -113,6 +114,11 @@ public class Card : MonoBehaviour, IPointerClickHandler
 
     private void GetEmpowerTypeColor(GameObject card)
     {
+        if (cardSO.cardType == StatType.Wound)
+        {
+            CardVisuals.ApplyWoundStyle(card, woundGrey);
+            return;
+        }
         CardVisuals.ApplyEmpowerColor(card, cardSO.empowerType,
             greenColor, redColor, purpleColor, yellowColor);
     }
@@ -148,6 +154,20 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
     }
 
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (isMaximized || cardSO.cardType == StatType.Wound) return;
+        if (GameManager.Instance.cardCanvas.enabled) return;
+        var hand = GameManager.Instance.playerHand.GetComponentInChildren<HandFanLayout>();
+        hand?.SetFocus(this);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        var hand = GameManager.Instance.playerHand.GetComponentInChildren<HandFanLayout>();
+        hand?.ClearFocus(this);
+    }
+
     //Maximizes the card under the card menu canvas.
     public void SetCardObjectToMax(Card card)
     {
@@ -160,10 +180,11 @@ public class Card : MonoBehaviour, IPointerClickHandler
     //Returns the card to normal size in the player hand.
     public void SetCardObjectToNormal(Card card)
     {
-        card.gameObject.transform.SetParent(GameManager.Instance.playerHand.GetComponentInChildren<GridLayoutGroup>().transform, false);
-        card.gameObject.transform.SetSiblingIndex(siblingIndex);
-        card.gameObject.transform.localScale = new Vector3(1, 1, 0);
+        var hand = GameManager.Instance.playerHand.GetComponentInChildren<HandFanLayout>();
+        card.gameObject.transform.SetParent(hand.Container, false);
+        card.gameObject.transform.localScale = Vector3.one;
         card.isMaximized = false;
+        GameManager.Instance.playerHand.GetComponent<PlayerHand>().Relayout();
     }
 
     //Events for discarded cards due to being played

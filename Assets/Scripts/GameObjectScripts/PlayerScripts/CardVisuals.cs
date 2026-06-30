@@ -17,4 +17,10 @@ public static class CardVisuals
             case EmpowerType.Yellow: frontImage.color = yellow; break;
         }
     }
+
+    public static void ApplyWoundStyle(GameObject card, Color woundGrey)
+    {
+        var frontImage = card.GetComponentsInChildren<Image>()[0];
+        frontImage.color = woundGrey;
+    }
 }

@@ -5,7 +5,8 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "ArchonsRise.CardPlay",
-        "ArchonsRise.Enums"
+        "ArchonsRise.Enums",
+        "ArchonsRise.Hand"
     ],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],

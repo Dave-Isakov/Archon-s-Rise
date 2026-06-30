@@ -13,6 +13,7 @@ public class PlayerHand : MonoBehaviour
     [SerializeField] CardsSO wound;
     [SerializeField] GameObject[] cardPositions;
     [SerializeField] GridLayoutGroup layoutGroup;
+    [SerializeField] HandFanLayout handLayout;
     private List<Card> healedWounds = new();
     [SerializeField] Vector2 layoutAdjustment = new Vector2(2, 0);
     GameObject playerCard;
@@ -39,12 +40,13 @@ public class PlayerHand : MonoBehaviour
             drawnCard.InHand = true;
             drawnCard.InDeck = false;
             // AnimateCardDraw(drawnCard);
-            drawnCard.transform.SetParent(GetComponentInChildren<GridLayoutGroup>().transform);
+            drawnCard.transform.SetParent(handLayout.Container);
             // drawnCard.GetComponent<Animation>().Play();
             // newCardDraw.Raise(playerCard);
             //adjusts spacing between the cards when drawn
             // var playerHandSizeLayout = GetComponent<GridLayoutGroup>();
             // playerHandSizeLayout.spacing += layoutAdjustment;
+            Relayout();
         }
         else
         {
@@ -70,9 +72,12 @@ public class PlayerHand : MonoBehaviour
         DrawCards(player.PlayerHandSize);
     }
 
+    public void Relayout() => handLayout.Relayout(cardsInPlay);
+
     public void RemovePlayedCardsFromHand(Card card)
     {
         cardsInPlay.Remove(card);
+        Relayout();
     }
 
     public void AddWound()
@@ -82,6 +87,7 @@ public class PlayerHand : MonoBehaviour
         cardsInPlay.Add(woundCard);
         woundCard.cardSO = wound;
         playerCard.name = woundCard.name;
+        Relayout();
     }
 
     public void HealWound()
@@ -90,6 +96,7 @@ public class PlayerHand : MonoBehaviour
         {
             var healWound = GetHealedWound();
             healWound.SetActive(false);
+            Relayout();
         }
     }
 
@@ -100,6 +107,7 @@ public class PlayerHand : MonoBehaviour
             cardsInPlay.Add(healedWounds[0]);
             healedWounds[0].gameObject.SetActive(true);
             healedWounds.RemoveAt(0);
+            Relayout();
         }
     }
 
@@ -162,7 +170,8 @@ public class PlayerHand : MonoBehaviour
         else
         {
             foreach (var card in cardsInPlay)
-                card.transform.SetParent(GetComponentInChildren<GridLayoutGroup>().transform);
+                card.transform.SetParent(handLayout.Container);
+            Relayout();
         }
     }
 
@@ -180,7 +189,7 @@ public class PlayerHand : MonoBehaviour
         cardsInPlay.Clear();
         foreach (var so in cards)
         {
-            var go = Instantiate(card, GetComponentInChildren<GridLayoutGroup>().transform);
+            var go = Instantiate(card, handLayout.Container);
             var comp = go.GetComponent<Card>();
             comp.cardSO = so;
             comp.InHand = true;
@@ -189,5 +198,6 @@ public class PlayerHand : MonoBehaviour
             go.SetActive(true);
             cardsInPlay.Add(comp);
         }
+        Relayout();
     }
 }
