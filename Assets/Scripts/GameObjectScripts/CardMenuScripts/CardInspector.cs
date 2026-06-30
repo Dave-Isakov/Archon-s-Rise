@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using DG.Tweening;
 
 // Owns the in-progress play for the focused card. Single source of truth that the
 // section views render from; replaces the old toggle-event web. Routes Play to the
@@ -19,6 +20,12 @@ public class CardInspector : MonoBehaviour
     [SerializeField] CardEvent onImprov_Influence; // OnImprovInfluence_SetPlayerStats
     [SerializeField] CardEvent onImprov_Explore;   // OnImprovExplore_SetPlayerStats
 
+    [Header("Phase 3a presentation")]
+    [SerializeField] CanvasGroup boardScrim;   // full-screen dim behind the pop-out
+    [SerializeField] CanvasGroup popoutGroup;  // CanvasGroup wrapping the four panels
+    [SerializeField] float scrimAlpha = 0.6f;
+    [SerializeField] float fadeTime = 0.2f;
+
     public CardPlaySelection Selection { get; private set; }
     public Card Card { get; private set; }
     public event Action Changed;
@@ -34,6 +41,7 @@ public class CardInspector : MonoBehaviour
         Selection = new CardPlaySelection(Snapshot(card.cardSO));
         GameManager.Instance.cardCanvas.enabled = true;
         Menu?.OnCanvas();
+        FadeIn();
         Raise();
     }
 
@@ -42,8 +50,33 @@ public class CardInspector : MonoBehaviour
         ReleaseReservation();
         GameManager.Instance.cardCanvas.enabled = false;
         Menu?.OffCanvas();
+        SnapClosed();
         Card = null;
         Selection = null;
+    }
+
+    void FadeIn()
+    {
+        if (boardScrim != null)
+        {
+            boardScrim.DOKill();
+            boardScrim.alpha = 0f;
+            boardScrim.DOFade(scrimAlpha, fadeTime);
+        }
+        if (popoutGroup != null)
+        {
+            popoutGroup.DOKill();
+            popoutGroup.alpha = 0f;
+            popoutGroup.DOFade(1f, fadeTime);
+        }
+    }
+
+    // Close is synchronous (Play()/undo rely on it), so scrim + panels clear instantly;
+    // the card's return tween carries the closing motion.
+    void SnapClosed()
+    {
+        if (boardScrim != null) { boardScrim.DOKill(); boardScrim.alpha = 0f; }
+        if (popoutGroup != null) { popoutGroup.DOKill(); popoutGroup.alpha = 0f; }
     }
 
     Crystal _reserved;

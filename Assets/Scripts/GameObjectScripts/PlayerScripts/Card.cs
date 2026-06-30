@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using DG.Tweening;
 
 [System.Serializable]
 public class Card : MonoBehaviour, IPointerClickHandler
@@ -154,23 +155,41 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    //Maximizes the card under the card menu canvas.
+    // Arcs the card from its fan slot to the centre, scaling up over ~0.25s.
     public void SetCardObjectToMax(Card card)
     {
-        card.gameObject.transform.SetParent(GameManager.Instance.enlargeCardPosition.transform, true);
-        card.gameObject.transform.position = GameManager.Instance.enlargeCardPosition.transform.position;
-        card.gameObject.transform.localScale = new Vector3(4, 4, 0);
+        var t = card.gameObject.transform;
+        t.SetParent(GameManager.Instance.enlargeCardPosition.transform, true);
+        t.DOKill();
+        Vector3 target = GameManager.Instance.enlargeCardPosition.transform.position;
+        t.DOMove(target, 0.25f).SetEase(Ease.OutBack);
+        t.DOScale(new Vector3(4f, 4f, 1f), 0.25f).SetEase(Ease.OutBack);
+        t.DOLocalRotate(Vector3.zero, 0.25f).SetEase(Ease.OutBack);
         card.isMaximized = true;
     }
 
-    //Returns the card to normal size in the player hand.
+    // Returns the card to its fan slot (tweened). Reparents first so Relayout can
+    // compute the slot pose, then animates from the remembered centre position back.
     public void SetCardObjectToNormal(Card card)
     {
+        var t = card.gameObject.transform;
+        Vector3 fromWorld = t.position;
+
         var hand = GameManager.Instance.playerHand.GetComponentInChildren<HandFanLayout>();
-        card.gameObject.transform.SetParent(hand.Container, false);
-        card.gameObject.transform.localScale = Vector3.one;
+        t.SetParent(hand.Container, false);
         card.isMaximized = false;
         GameManager.Instance.playerHand.GetComponent<PlayerHand>().Relayout();
+
+        Vector3 toWorld      = t.position;
+        Vector3 toScale      = t.localScale;
+        Vector3 toLocalEuler = t.localEulerAngles;
+
+        t.position   = fromWorld;
+        t.localScale = new Vector3(4f, 4f, 1f);
+        t.DOKill();
+        t.DOMove(toWorld, 0.22f).SetEase(Ease.OutCubic);
+        t.DOScale(toScale, 0.22f).SetEase(Ease.OutCubic);
+        t.DOLocalRotate(toLocalEuler, 0.22f).SetEase(Ease.OutCubic);
     }
 
     // Invoked by the inspector right after this card is played from the menu. Mirrors the
