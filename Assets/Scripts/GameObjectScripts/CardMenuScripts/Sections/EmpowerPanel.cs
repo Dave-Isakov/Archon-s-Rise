@@ -9,8 +9,11 @@ public class EmpowerPanel : MonoBehaviour
     [SerializeField] GameObject root;
     [SerializeField] Toggle empowerToggle;
 
-    void OnEnable()  { inspector.Changed += Render; }
-    void OnDisable() { inspector.Changed -= Render; }
+    // Lifetime subscription, not per-enable: Render toggles this panel's own GameObject
+    // (root == self). OnEnable/OnDisable would let a SetActive(false) unsubscribe us with
+    // no way back. Awake/OnDestroy survive self-deactivation. See ChoiceBanner for detail.
+    void Awake()     { inspector.Changed += Render; }
+    void OnDestroy() { inspector.Changed -= Render; }
 
     void Start()
     {

@@ -12,8 +12,12 @@ public class ImprovisePanel : MonoBehaviour
     [SerializeField] Button influenceButton;
     [SerializeField] Button exploreButton;
 
-    void OnEnable()  { inspector.Changed += Render; }
-    void OnDisable() { inspector.Changed -= Render; }
+    // Lifetime subscription, not per-enable: Render hides this panel by deactivating
+    // its own GameObject (root == self) for non-empowerable cards. OnEnable/OnDisable
+    // would let that SetActive(false) unsubscribe us, and nothing could re-show the
+    // panel. Awake/OnDestroy survive self-deactivation. See ChoiceBanner for detail.
+    void Awake()     { inspector.Changed += Render; }
+    void OnDestroy() { inspector.Changed -= Render; }
 
     void Start()
     {

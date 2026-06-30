@@ -12,8 +12,14 @@ public class ChoiceBanner : MonoBehaviour
     [SerializeField] Button influenceButton;
     [SerializeField] Button exploreButton;
 
-    void OnEnable()  { inspector.Changed += Render; }
-    void OnDisable() { inspector.Changed -= Render; }
+    // Subscribe for the component's whole lifetime, not per-enable: Render hides this
+    // banner by deactivating its own GameObject (root == self) for non-choice cards.
+    // With OnEnable/OnDisable that SetActive(false) would unsubscribe us, and nothing
+    // could ever re-show the banner (the only caller of Render is the event we'd have
+    // dropped). Awake/OnDestroy keep the subscription alive while self-deactivated, so
+    // a later choice card still drives Render and reactivates us.
+    void Awake()     { inspector.Changed += Render; }
+    void OnDestroy() { inspector.Changed -= Render; }
 
     void Start()
     {
