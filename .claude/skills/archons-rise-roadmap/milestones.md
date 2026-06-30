@@ -3,7 +3,7 @@
 Ordered path to a playable roguelike loop. Each milestone is specced and planned individually when
 it becomes the Current Focus. Mark items done rather than deleting them.
 
-## M1 — Run-based save/load  _(Current Focus)_
+## M1 — Run-based save/load  ✅ DONE (2026-06-29)
 **Goal:** persist a run in progress so the player can quit and resume.
 **Scope:**
 - Serialize deck / hand / discard as **card ids** (a stable id on `CardsSO`, NOT array index —
@@ -14,7 +14,7 @@ it becomes the Current Focus. Mark items done rather than deleting them.
 
 **Acceptance:** quit mid-run and resume with deck, map, crystals, and clock intact.
 
-## M2 — Win/lose systems
+## M2 — Win/lose systems  _(Current Focus)_
 **Goal:** make a run winnable and losable.
 **Scope:**
 - **Archon win check** — control N towns AND reach the Level/Influence target (`archons-rise-design/balance.md`).

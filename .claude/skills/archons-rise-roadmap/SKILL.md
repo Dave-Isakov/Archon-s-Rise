@@ -5,7 +5,7 @@ description: Living development roadmap for the Archon's Rise game. Use when dec
 
 # Archon's Rise — Development Roadmap
 
-**Current Focus:** M1 — Run-based save/load (see [milestones.md](milestones.md)).
+**Current Focus:** M2 — Win/lose systems (see [milestones.md](milestones.md)).
 
 ## Index
 - [status.md](status.md) — what exists vs. stubbed vs. missing.

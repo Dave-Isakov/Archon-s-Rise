@@ -14,17 +14,19 @@ Where Archon's Rise stands today. Seeded from the code review (`docs/code-review
 - **Dungeons**; **Rewards** (Experience/Crystals/Cards at Beginner→Master).
 - **Leveling** counters (exp, expToNextLevel, level).
 - ScriptableObject **GameEvent/Listener** bus.
-- JSON **save** (scalar player stats only).
+- JSON **save** — full run state: deck/hand/discard (by stable content id), fog-of-war reveal, crystals, scalar player stats. ✅ M1 complete (2026-06-29).
 - **Three Critical bugs fixed** (2026-06-25): listener-unregister inverted condition, `LoadGame`
   stale-field + scene-load race, and unsafe `OnDisable` autosave. See `docs/code-review.md`.
+- **Stable content ids** on card/unit/reward SO assets.
+- **Single `PlayerDeck.AddCard` path**; card plays committed to discard when undo stack clears.
+- **Fog-of-war reveal** persisted across save/load.
+- **SaveButton** correctly wired to `SaveGame`.
 
 ## Stubbed / partial
-- **Save persists only scalar player stats** — no deck, hand, discard, crystals, map, or world state.
 - **Leveling rewards** — the even/odd/every-3 rules are commented intent in `Player.cs`, not implemented.
-- **SaveButton prefab** is wired to call `LoadGame`, not `SaveGame` (likely a wiring bug).
 
 ## Missing
-- **Run-based save schema** (deck/map/clock state) — milestone M1.
+- **Win check** (Archon threshold) — milestone M2.
 - **Win check** (Archon threshold) — milestone M2.
 - **Doom Clock** (strategic loss) — milestone M2.
 - **Wound-out** loss condition — milestone M2.
