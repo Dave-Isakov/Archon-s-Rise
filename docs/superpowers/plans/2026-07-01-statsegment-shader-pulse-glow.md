@@ -183,7 +183,7 @@ In the Project window:
 1. Create the folder `Assets/Materials` if it does not exist (right-click → Create → Folder).
 2. Right-click `Assets/Materials` → **Create → Material**, name it `UIPulseGlow`.
 3. In its Inspector, set **Shader → UI/PulseGlow**.
-4. Set **_MainTex (Sprite Texture)** to the existing soft-glow sprite already used by the current glow (guid `efee20b64d1e73942a29ba61ce3379c3` — the same texture the `AttackButton` glow Image uses; find it via that Image or search the Project for the glow sprite).
+4. Leave **_MainTex (Sprite Texture)** empty — it is `[PerRendererData]` (greyed out by design); the sprite is supplied per-renderer by the `ShaderGlow` Image's Source Image in Task 3, not by the material.
 5. Leave `Pulse Speed = 3`, `Min Alpha = 0.55`, `Max Alpha = 1`, `Tint = white`.
 
 - [ ] **Step 4: Commit**
