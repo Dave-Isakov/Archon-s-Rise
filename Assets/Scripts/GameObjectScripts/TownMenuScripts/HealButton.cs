@@ -14,7 +14,9 @@ public class HealButton : TownButtons
         if (_town is not null)
         {
             buttonText.text = "Heal " + _town.townSO.healLevel.ToString();
-            if (_town.townSO.activity.HasFlag(TownsSO.TownActivity.Heal))
+            bool allowed = PlaceRules.AllowedServices(_town.townSO.placeType).HasFlag(PlaceService.Heal);
+            bool open = ConquestTracker.Instance.IsConquered(_town.gridPos);
+            if (allowed && open)
             {
                 thisButton.gameObject.SetActive(true);
                 if(currentPlayerInfluence < _town.townSO.healLevel)

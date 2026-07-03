@@ -4,28 +4,21 @@ using UnityEngine;
 
 public class CardButton : TownButtons
 {
-    private void Update() {
-        if (_town is not null)
-            if(currentPlayerInfluence < _town.townSO.cardLevel)
-                thisButton.interactable = false;
-    }
     public override void UpdateButtonText()
     {
         if (_town is not null)
         {
-            buttonText.text = "Card " + _town.townSO.cardLevel.ToString();
-            if (_town.townSO.activity.HasFlag(TownsSO.TownActivity.Cards))
+            bool allowed = PlaceRules.AllowedServices(_town.townSO.placeType).HasFlag(PlaceService.Cards);
+            bool open = ConquestTracker.Instance.IsConquered(_town.gridPos);
+            if (allowed && open)
             {
+                // M2 stub: the Castle card shop is a deferred follow-up. The
+                // button is present so the service slot is visible, but buying
+                // is disabled until the purchase economics land.
                 thisButton.gameObject.SetActive(true);
-                if(currentPlayerInfluence < _town.townSO.cardLevel)
-                {
-                    thisButton.interactable = false;
-                }
-                else
-                    thisButton.interactable = true;
-                    thisButton.onClick.RemoveAllListeners();
-                    thisButton.onClick.AddListener(() => townEvent.Raise(_town));
-                    thisButton.onClick.AddListener(() => influenceCostEvent.Raise(_town.townSO.cardLevel));
+                buttonText.text = "Cards (soon)";
+                thisButton.interactable = false;
+                thisButton.onClick.RemoveAllListeners();
             }
             else
             {

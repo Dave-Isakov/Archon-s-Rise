@@ -14,7 +14,9 @@ public class RecruitButton : TownButtons
         if (_town is not null)
         {
             buttonText.text = "Recruit " + _town.townSO.recruitLevel.ToString();
-            if (_town.townSO.activity.HasFlag(TownsSO.TownActivity.Recruit))
+            bool allowed = PlaceRules.AllowedServices(_town.townSO.placeType).HasFlag(PlaceService.Recruit);
+            bool open = ConquestTracker.Instance.IsConquered(_town.gridPos);
+            if (allowed && open)
             {
                 thisButton.gameObject.SetActive(true);
                 if(currentPlayerInfluence < _town.townSO.recruitLevel)
