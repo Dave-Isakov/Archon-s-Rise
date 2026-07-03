@@ -1,0 +1,14 @@
+{
+    "name": "ArchonsRise.Places",
+    "rootNamespace": "",
+    "references": ["ArchonsRise.SaveData"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

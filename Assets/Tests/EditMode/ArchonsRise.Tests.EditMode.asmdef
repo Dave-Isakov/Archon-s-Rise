@@ -6,7 +6,9 @@
         "UnityEditor.TestRunner",
         "ArchonsRise.CardPlay",
         "ArchonsRise.Enums",
-        "ArchonsRise.Hand"
+        "ArchonsRise.Hand",
+        "ArchonsRise.Places",
+        "ArchonsRise.SaveData"
     ],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],
