@@ -10,7 +10,7 @@ namespace ArchonsRise.SaveData.Tests
         {
             var original = new SaveFile
             {
-                schemaVersion = 1,
+                schemaVersion = 2,
                 run = new RunState
                 {
                     player = new PlayerState
@@ -24,6 +24,11 @@ namespace ArchonsRise.SaveData.Tests
                     handCardIds = new[] { "card_explore" },
                     discardCardIds = new[] { "card_wound" },
                     unitIds = new[] { "unit_knight" },
+                    places = new[]
+                    {
+                        new PlaceConquest { x = 5, y = 9, defeatedCount = 1 },
+                        new PlaceConquest { x = 8, y = 3, defeatedCount = 2 }
+                    },
                     map = new MapState
                     {
                         seed = 123456,

@@ -5,7 +5,8 @@ namespace ArchonsRise.SaveData
     [Serializable]
     public class SaveFile
     {
-        public int schemaVersion = 1;
+        // v2 (M2): adds RunState.places (guardian-conquest progress).
+        public int schemaVersion = 2;
         public RunState run = new RunState();
     }
 
@@ -20,6 +21,10 @@ namespace ArchonsRise.SaveData
         public string[] discardCardIds = Array.Empty<string>();
         public string[] unitIds = Array.Empty<string>();
         public MapState map = new MapState();
+        // One entry per place with defeatedCount > 0; keyed by grid cell.
+        // Guardians die in order and never respawn, so a single count fully
+        // captures a place's conquest state.
+        public PlaceConquest[] places = Array.Empty<PlaceConquest>();
         public int round;
         public int turn;
     }
@@ -60,5 +65,13 @@ namespace ArchonsRise.SaveData
         public bool Equals(Cell other) => x == other.x && y == other.y;
         public override bool Equals(object obj) => obj is Cell c && Equals(c);
         public override int GetHashCode() => unchecked((x * 397) ^ y);
+    }
+
+    [Serializable]
+    public struct PlaceConquest
+    {
+        public int x;
+        public int y;
+        public int defeatedCount;
     }
 }
