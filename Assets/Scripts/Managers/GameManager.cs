@@ -95,6 +95,9 @@ public class GameManager : MonoBehaviour
     public void RoundPlus()
     {
         roundNum++;
+        // By design, units exhausted during the round all refresh when a new round starts.
+        var player = FindAnyObjectByType<Player>();
+        if (player != null) player.RefreshUnits();
     }
 
     public void CombatCanvasActive()
@@ -121,11 +124,26 @@ public class GameManager : MonoBehaviour
         if (fleeButton != null) fleeButton.gameObject.SetActive(false);
     }
 
-    // Player gives up the current fight: take one wound, clear the enemy
-    // cards, drop the player out of combat, de-aggro the engaged token so it
-    // does not instantly re-engage, then tear down the combat canvas.
+    // Shared canvas teardown for every non-victory combat exit (token flee,
+    // assault retreat).
+    public void CloseCombatCanvas()
+    {
+        combatCanvas.enabled = false;
+        combatCanvas.GetComponentInChildren<Animator>().enabled = false;
+        EndCombat();
+    }
+
+    // Player gives up the current fight. During a guardian assault the Flee
+    // button acts as Retreat (3 wounds, conquest progress kept); in field
+    // combat it takes one wound and de-aggros the engaged token.
     public void FleeCombat()
     {
+        if (GuardianAssault.AnyInProgress)
+        {
+            GuardianAssault.Instance.Retreat();
+            return;
+        }
+
         // Guard: activeCombatant is set only by a real fight, never while the
         // combat canvas is merely previewing an out-of-range enemy token.
         if (activeCombatant == null) return;
@@ -139,9 +157,7 @@ public class GameManager : MonoBehaviour
         if (activeCombatant.player != null)
             activeCombatant.player.inCombat = false;
 
-        combatCanvas.enabled = false;
-        combatCanvas.GetComponentInChildren<Animator>().enabled = false;
-        EndCombat();
+        CloseCombatCanvas();
 
         ValidationMessage("You flee the battle and suffer a wound!");
     }

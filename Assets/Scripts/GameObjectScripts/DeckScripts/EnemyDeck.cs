@@ -9,6 +9,8 @@ public class EnemyDeck : Deck<EnemiesSO>, IPointerClickHandler
 {
     public List<EnemiesSO> enemies = new List<EnemiesSO>();
     [SerializeField] GameObject prefabEnemyCard;
+    // GuardianAssault spawns the same combat card without a scene reference.
+    public GameObject PrefabEnemyCard => prefabEnemyCard;
     [SerializeField] GameObject prefabEnemyToken;
     [SerializeField] GameObject inPlayEnemies;
     [SerializeField] TextMeshProUGUI enemyText;
