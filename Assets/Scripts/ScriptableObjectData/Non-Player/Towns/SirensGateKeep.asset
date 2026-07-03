@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d54134baae668b8449dcad6f926e2852, type: 3}
+  m_Name: SirensGateKeep
+  m_EditorClassIdentifier: Assembly-CSharp::TownsSO
+  id: 
+  cardName: Siren's Gate Keep
+  cardDescription: The gate's iconic screeching makes it a chore to open on a regular
+    basis. It doesn't open much.
+  townSize: 2
+  activity: 1
+  placeType: 1
+  guardians:
+  - {fileID: 11400000, guid: 46f5d3a8bf5ea234198cf0f02b227bcf, type: 2}
+  recruitableUnits:
+  - {fileID: 11400000, guid: bb8b162e03165924ca21a5125bc28756, type: 2}
+  recruitLevel: 4
+  cardLevel: 0
+  resourceLevel: 0
+  healLevel: 0

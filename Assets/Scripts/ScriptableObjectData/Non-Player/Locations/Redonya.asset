@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5f8237e022339947a2f81b637ad4f07, type: 3}
   m_Name: Redonya
   m_EditorClassIdentifier: 
+  id: 
   cardName: Rendonya
   cardDescription: Large canyon with hidden valleys and sun-baked mountainsides.
   exploreCost: 3
@@ -29,5 +30,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 88f176c9238633842aac17a8f5ab448a, type: 2}
   - {fileID: 11400000, guid: 4796ae170608b7741840843093c76437, type: 2}
   - {fileID: 11400000, guid: 9102a8cd8f93e4e44a05be9c0c1b21cb, type: 2}
+  - {fileID: 11400000, guid: 3ed13b013dad59f4d96ebd3e2bafd6eb, type: 2}
+  - {fileID: 11400000, guid: 2b5ba391bb99ea74285345bcd830a929, type: 2}
   dungeons:
   - {fileID: 11400000, guid: 843943e1d0558f2459d1bed3375a8b07, type: 2}

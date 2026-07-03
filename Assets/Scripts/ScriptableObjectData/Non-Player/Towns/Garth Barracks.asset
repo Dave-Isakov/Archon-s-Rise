@@ -12,14 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d54134baae668b8449dcad6f926e2852, type: 3}
   m_Name: Garth Barracks
   m_EditorClassIdentifier: 
+  id: 
   cardName: Garth Barracks
   cardDescription: Large encampment of mercenaries, mages, and smiths looking for
     some kind of reason for a fight.
   townSize: 2
   activity: 11
+  placeType: 0
+  guardians: []
   recruitableUnits:
   - {fileID: 11400000, guid: 35c0f88038060c945ac7a7a5c09873ea, type: 2}
   recruitLevel: 5
   cardLevel: 6
-  resourceLevel: 2
-  healLevel: 0
+  resourceLevel: 0
+  healLevel: 1
