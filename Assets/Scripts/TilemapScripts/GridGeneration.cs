@@ -107,6 +107,7 @@ public class GridGeneration : MonoBehaviour
             }
         }
 
+        var placedTowns = new List<TownToken>();
         for(int x = 3; x < 18; x+=(Rng(5,7)))
         {
             for(int y = 3; y < 18; y+=(Rng(5,7)))
@@ -115,8 +116,30 @@ public class GridGeneration : MonoBehaviour
                 ground.SetTile(tilePos, townTile);
                 var tile = ground.GetTile<TownRuleTile>(tilePos);
                 var townToken = Instantiate(tile.m_DefaultGameObject, ground.CellToWorld(tilePos)+ new Vector3(0,-1), Quaternion.identity, townParentObject);
-                townToken.GetComponent<TownToken>().townSO = towns.towns[Rng(0,3)];
+                var placed = townToken.GetComponent<TownToken>();
+                placed.townSO = towns.towns[Rng(0, towns.towns.Count)];
+                placed.gridPos = tilePos;
+                placedTowns.Add(placed);
             }
+        }
+
+        // M2.5's victory is "conquer 2 Castles", so the seeded map must always
+        // contain at least 2. Upgrade the last-placed non-Castle tokens if the
+        // random picks came up short. Deterministic over the seed (consumes no
+        // extra RNG draws) and runs before the tokens' Start, so conquest
+        // registration sees the final types.
+        var castleSO = towns.towns.Find(t => t.placeType == PlaceType.Castle);
+        if (castleSO != null)
+        {
+            int castles = 0;
+            foreach (var t in placedTowns)
+                if (t.townSO.placeType == PlaceType.Castle) castles++;
+            for (int i = placedTowns.Count - 1; i >= 0 && castles < 2; i--)
+                if (placedTowns[i].townSO.placeType != PlaceType.Castle)
+                {
+                    placedTowns[i].townSO = castleSO;
+                    castles++;
+                }
         }
 
         for(int x = 1; x < 10; x+=(Rng(2,5)))
