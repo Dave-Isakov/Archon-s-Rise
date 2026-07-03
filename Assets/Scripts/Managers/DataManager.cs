@@ -131,7 +131,7 @@ public class DataManager : MonoBehaviour
         }
 
         using (StreamReader reader = new(savePath))
-            current = SaveSerializer.FromJson(reader.ReadToEnd());
+            current = SaveMigrator.Migrate(SaveSerializer.FromJson(reader.ReadToEnd()));
 
         CurrentSeed = current.run.map.seed;
         DefeatedEnemies = new HashSet<Cell>(current.run.map.defeatedEnemies);
@@ -183,6 +183,11 @@ public class DataManager : MonoBehaviour
             if (MapDelta.IsDefeated(DefeatedEnemies, new Cell(token.gridPos.x, token.gridPos.y)))
                 Destroy(token.gameObject);
 
+        // Re-apply guardian-conquest progress to the regenerated places. The
+        // town tokens registered themselves (rosterSize/type) during their
+        // Start; the ledger tolerates either order regardless.
+        ConquestTracker.Instance.ApplySave(run.places);
+
         // Re-clear fog at the cells the player had already revealed.
         var dir = FindAnyObjectByType<DirectionButton>();
         if (dir != null && dir.Fog != null)
@@ -228,7 +233,7 @@ public class DataManager : MonoBehaviour
         var crystals  = FindAnyObjectByType<CrystalInventory>();
         var game      = GameManager.Instance;
 
-        var file = new SaveFile { schemaVersion = 1 };
+        var file = new SaveFile { schemaVersion = 2 };
         var run  = file.run;
 
         run.player.hp            = player.PlayerHP;
@@ -252,6 +257,7 @@ public class DataManager : MonoBehaviour
 
         run.map.seed            = CurrentSeed;
         run.map.defeatedEnemies = MapDelta.ToArray(DefeatedEnemies);
+        run.places = ConquestTracker.Instance.ExportPlaces();
 
         var dir = FindAnyObjectByType<DirectionButton>();
         if (dir != null && dir.Fog != null)
