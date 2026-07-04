@@ -10,6 +10,7 @@ public class UnitsSO : AllCards
     public int defend;
     public int explore;
     public int influence;
+    public int siege;
     public int healAmount;
     public int numCrystals;
     public StatType cardType;
@@ -20,8 +21,8 @@ public class UnitsSO : AllCards
 
     public int[] GetUnitStats()
     {
-        int[] allStats = new int[4] {attack, defend, influence, explore};
-        Debug.Log($"{allStats[0]}, {allStats[1]}, {allStats[2]}, {allStats[3]}");
+        int[] allStats = new int[5] {attack, defend, influence, explore, siege};
+        Debug.Log($"{allStats[0]}, {allStats[1]}, {allStats[2]}, {allStats[3]}, {allStats[4]}");
         return allStats;
     }
 }

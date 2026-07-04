@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
     private int playerDefend;
     public int playerInfluence;
     public int playerExplore;
+    private int playerSiege;
     private int playerHandSize = 5;
     private int improvAttackValue = 1;
     private int improvDefendValue = 1;
@@ -30,6 +31,7 @@ public class Player : MonoBehaviour
     public int PlayerDefend { get => playerDefend; set => playerDefend = value;}
     public int PlayerInfluence { get => playerInfluence; set => playerInfluence = value;}
     public int PlayerExplore { get => playerExplore; set => playerExplore = value; }
+    public int PlayerSiege { get => playerSiege; set => playerSiege = value; }
     public int PlayerExp { get => playerExp; set => playerExp = value; }
     public bool InTown { get => inTown; set => inTown = value; }
     public bool InDungeon { get => inDungeon; set => inDungeon = value; }
@@ -71,6 +73,7 @@ public class Player : MonoBehaviour
         playerDefend += stats[1];
         playerInfluence += stats[2];
         playerExplore += stats[3];
+        playerSiege += stats[4];
     }
     public void UnAssignPlayerStats(int[] stats)
     {
@@ -78,6 +81,7 @@ public class Player : MonoBehaviour
         playerDefend -= stats[1];
         playerInfluence -= stats[2];
         playerExplore -= stats[3];
+        playerSiege -= stats[4];
     }
 
     public void Exploration(int newExplore)
@@ -310,6 +314,7 @@ public class Player : MonoBehaviour
         playerDefend = 0;
         playerInfluence = 0;
         playerExplore = 0;
+        playerSiege = 0;
     }
 
     public void PlayerLevelUp()

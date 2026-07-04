@@ -11,23 +11,25 @@ public class CardsSO : AllCards
     public int defend;
     public int explore;
     public int influence;
+    public int siege;
     public int healAmount;
     public int numCrystals;
     public int empowerAttack;
     public int empowerDefend;
     public int empowerExplore;
     public int empowerInfluence;
+    public int empowerSiege;
     public int empowerHealAmount;
     public int empowerNumCrystals;
     public StatType cardType;
     public EmpowerType empowerType;
     public bool isChoice;
 
-    ///<summary> Method returns 4 values from the specific scriptable card object where attack[0], defend[1], influence[2], and explore[3] are the int values returned for each of the stats in the array position. </summary>
+    ///<summary> Returns 5 stat values: attack[0], defend[1], influence[2], explore[3], siege[4]. </summary>
     public int[] GetCardStats(bool isEmpowered)
     {
-        int[] allStats = new int[4] {ReturnAttack(isEmpowered), ReturnDefend(isEmpowered), ReturnInfluence(isEmpowered), ReturnExplore(isEmpowered)};
-        Debug.Log($"{allStats[0]}, {allStats[1]}, {allStats[2]}, {allStats[3]}");
+        int[] allStats = new int[5] {ReturnAttack(isEmpowered), ReturnDefend(isEmpowered), ReturnInfluence(isEmpowered), ReturnExplore(isEmpowered), ReturnSiege(isEmpowered)};
+        Debug.Log($"{allStats[0]}, {allStats[1]}, {allStats[2]}, {allStats[3]}, {allStats[4]}");
         return allStats;
     }
 
@@ -62,6 +64,15 @@ public class CardsSO : AllCards
         if (cardType.HasFlag(StatType.Explore))
             if(isEmpowered) return empowerExplore;
             else return explore;
+        else
+        return 0;
+    }
+
+    public int ReturnSiege(bool isEmpowered)
+    {
+        if (cardType.HasFlag(StatType.Siege))
+            if(isEmpowered) return empowerSiege;
+            else return siege;
         else
         return 0;
     }
