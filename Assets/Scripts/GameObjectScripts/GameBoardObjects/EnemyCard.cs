@@ -14,7 +14,9 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
     [SerializeField] private TextMeshProUGUI enemyAttack;
     [SerializeField] private TextMeshProUGUI enemyInfluence;
     [SerializeField] EnemyCardEvent onClick_ValidatePlayerAttackToEnemyHP;
+    [SerializeField] EnemyCardEvent onClick_SiegeEnemy;
     [SerializeField] public Button fightButton;
+    [SerializeField] public Button siegeButton;
     [SerializeField] public Button influenceButton;
     [SerializeField] TextMeshProUGUI fightButtonText;
     [SerializeField] TextMeshProUGUI influenceButtonText;
@@ -42,14 +44,20 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
         }
         Debug.Log($"{enemySO.name} ({this.gameObject.name}) has entered the battlefield.");
         fightButton.onClick.AddListener(() => DefeatMonster());
+        siegeButton.onClick.AddListener(() => SiegeMonster());
     }
     public void DefeatMonster()
     {
-        onClick_ValidatePlayerAttackToEnemyHP.Raise(this);     
+        onClick_ValidatePlayerAttackToEnemyHP.Raise(this);
     //         //ChooseReward();
     //         //AssignReward();
     //  isDefeated = true;
     //         GameManager.Instance.commands.ClearStack();
+    }
+
+    public void SiegeMonster()
+    {
+        onClick_SiegeEnemy.Raise(this);
     }
 
     // public void CheckWounds(Player player)
@@ -103,13 +111,7 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
 
     public void EnableCombat(EnemyToken token)
     {
-        if (!token.isAggro)
-        {
-            fightButton.interactable = false;
-        }
-        else
-        {
-            fightButton.interactable = true;
-        }
+        fightButton.interactable = token.isAggro;
+        siegeButton.interactable = token.isAggro;
     }
 }

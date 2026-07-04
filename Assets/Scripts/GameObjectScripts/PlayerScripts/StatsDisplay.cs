@@ -12,11 +12,12 @@ public class StatsDisplay : MonoBehaviour
     [SerializeField] TextMeshProUGUI defendText;
     [SerializeField] TextMeshProUGUI influenceText;
     [SerializeField] TextMeshProUGUI exploreText;
+    [SerializeField] TextMeshProUGUI siegeText;
     [SerializeField] Color defaultColor = Color.white;
     [SerializeField] float animTime = 0.35f;
 
-    int _atk, _def, _inf, _exp;
-    Tween _atkT, _defT, _infT, _expT;
+    int _atk, _def, _inf, _exp, _sge;
+    Tween _atkT, _defT, _infT, _expT, _sgeT;
 
     void Start()
     {
@@ -25,6 +26,7 @@ public class StatsDisplay : MonoBehaviour
         _def = player.PlayerDefend;    defendText.text    = _def.ToString();
         _inf = player.PlayerInfluence; influenceText.text = _inf.ToString();
         _exp = player.PlayerExplore;   exploreText.text   = _exp.ToString();
+        _sge = player.PlayerSiege;     siegeText.text     = _sge.ToString();
     }
 
     void Update()
@@ -33,6 +35,7 @@ public class StatsDisplay : MonoBehaviour
         if (player.PlayerDefend    != _def) Animate(defendText,    ref _def, ref _defT, player.PlayerDefend,    StatType.Defend);
         if (player.PlayerInfluence != _inf) Animate(influenceText, ref _inf, ref _infT, player.PlayerInfluence, StatType.Influence);
         if (player.PlayerExplore   != _exp) Animate(exploreText,   ref _exp, ref _expT, player.PlayerExplore,   StatType.Explore);
+        if (player.PlayerSiege     != _sge) Animate(siegeText,     ref _sge, ref _sgeT, player.PlayerSiege,     StatType.Siege);
     }
 
     void Animate(TextMeshProUGUI label, ref int cached, ref Tween handle, int newValue, StatType stat)
@@ -66,6 +69,7 @@ public class StatsDisplay : MonoBehaviour
         if (stat == StatType.Defend)    return defendText.transform;
         if (stat == StatType.Influence) return influenceText.transform;
         if (stat == StatType.Explore)   return exploreText.transform;
+        if (stat == StatType.Siege)     return siegeText.transform;
         return null;
     }
 }
