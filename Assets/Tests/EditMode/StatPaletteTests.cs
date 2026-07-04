@@ -36,6 +36,14 @@ public class StatPaletteTests
     }
 
     [Test]
+    public void For_Siege_ReturnsSiegeAccent()
+    {
+        var siege = StatPalette.For(StatType.Siege);
+        Assert.AreEqual((UnityEngine.Color)new UnityEngine.Color32(0xff, 0x9e, 0x3d, 0xff), siege); // orange
+        Assert.AreNotEqual(StatPalette.For(StatType.None), siege); // not the Muted fallback
+    }
+
+    [Test]
     public void NonActionFlagsFallBackToMuted()
     {
         Assert.AreEqual(StatPalette.Muted, StatPalette.For(StatType.Wound));

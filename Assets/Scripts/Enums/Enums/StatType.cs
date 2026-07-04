@@ -10,5 +10,6 @@ public enum StatType
     Influence = 8,
     Heal = 16,
     Wound = 32,
-    Crystal = 64
+    Crystal = 64,
+    Siege = 128
 }
