@@ -83,3 +83,15 @@ editing an old one.
   and would rewrite the assault driver + its retreat/resume guarantee mid-acceptance, (b) is a
   cleanliness refactor (the Fight button already works), and (c) is a genuinely new UI feature
   wanting its own design pass. Revisit as a focused follow-up.
+
+- **2026-07-04 — Siege: a wound-free attack type.**
+  A second attack, Siege, defeats an enemy on its own `Siege` stat pool (StatType flag 128) and
+  skips the counterattack entirely — always wound-free — for the same rewards as a normal kill.
+  Siege cannot be improvised (Improvise still only offers the four basic stats); it comes only from
+  advanced cards (base or empower line) and units, so scarcity is its cost. Advanced Siege cards
+  always also carry the Attack flag (so they pass the `CardPlaySelection.IsPlayable` gate and Siege
+  only matters in combat); Siege units need no co-flag. Resolution logic lives in the pure
+  `CombatRules` class. Spec: `docs/superpowers/specs/2026-07-04-siege-attack-type-design.md`.
+  _Why:_ turns "how do I attack this enemy" into a real decision (read the enemy's Attack, then
+  spend a scarce Siege vs risk the wound) without a separate preview screen; keeps the Wound clock
+  live because Siege is deliberately rare. Supersedes the deferred hover-preview item for this need.

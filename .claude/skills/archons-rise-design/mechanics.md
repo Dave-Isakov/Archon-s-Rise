@@ -7,7 +7,10 @@ The locked mechanics of Archon's Rise. Tuning values (counts, rates, curves) liv
 Start a run with a fresh starting deck. Explore the randomized hex map by spending **Explore**,
 revealing locations (towns, enemies, dungeons). Each turn, play cards from hand to generate the
 four action stats, then act:
-- **Fight** an enemy (your Attack vs the enemy's HP),
+- **Fight** an enemy — two forms: **Normal** (spends the Attack pool vs the enemy's HP; the enemy's
+  counterattack can wound you when Defend falls short) or **Siege** (spends the separate Siege pool
+  vs the enemy's HP; always wound-free — the counterattack is skipped). Both grant identical
+  rewards; Siege is scarce (advanced cards/units only, never improvisable),
 - **Recruit** units at a town (spending Influence),
 - **Move/explore** further (spending Explore).
 
@@ -50,7 +53,7 @@ ended — the End Turn button disables and the player must end the round. Neithe
 round can end mid-combat: both buttons disable while a fight is active.
 
 ## Stats
-Seven stat types (the `StatType` flags in code):
+Eight stat types (the `StatType` flags in code):
 - **Attack** — defeats enemies (Attack ≥ enemy HP).
 - **Defend** — absorbs enemy Attack; shortfall becomes Wounds.
 - **Explore** — moves across the hex map and into dungeons.
@@ -58,6 +61,9 @@ Seven stat types (the `StatType` flags in code):
 - **Heal** — removes Wounds.
 - **Wound** — the penalty card type added on combat loss.
 - **Crystal** — the resource that fuels Empower.
+- **Siege** — a wound-free attack; defeats an enemy (Siege ≥ enemy HP) without taking the
+  counterattack. Cannot be improvised; comes only from advanced cards and units (advanced Siege
+  cards always also carry the Attack flag, so Siege only matters in combat).
 
 ## Empower / Crystal Economy
 A card may be **Empowered** by spending one **Crystal** of the card's color
