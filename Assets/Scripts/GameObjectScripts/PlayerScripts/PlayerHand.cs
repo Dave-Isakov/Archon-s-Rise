@@ -31,33 +31,42 @@ public class PlayerHand : MonoBehaviour
 
     public void DrawCard()
     {
-        if (deck.CardsInDeck.Count >= 1 && cardsInPlay.Count < player.PlayerHandSize)
-        {
-            var drawnCard = deck.CardsInDeck[0];
-            drawnCard.gameObject.SetActive(true);
-            cardsInPlay.Add(drawnCard);
-            deck.CardsInDeck.Remove(drawnCard);
-            drawnCard.InHand = true;
-            drawnCard.InDeck = false;
-            // AnimateCardDraw(drawnCard);
-            drawnCard.transform.SetParent(handLayout.Container);
-            // drawnCard.GetComponent<Animation>().Play();
-            // newCardDraw.Raise(playerCard);
-            //adjusts spacing between the cards when drawn
-            // var playerHandSizeLayout = GetComponent<GridLayoutGroup>();
-            // playerHandSizeLayout.spacing += layoutAdjustment;
-            Relayout();
-        }
-        else
-        {
-            GameManager.Instance.ValidationMessage($"Your max hand size is {player.PlayerHandSize}, you cannot draw anymore cards.");
-        }
+        TryDrawCard();
     }
+
+    // Kept separate from DrawCard because the scene binds DrawCard to a UnityEvent,
+    // which requires a void return.
+    private bool TryDrawCard()
+    {
+        switch (DrawGate.Evaluate(deck.CardsInDeck.Count, cardsInPlay.Count, player.PlayerHandSize))
+        {
+            case DrawVerdict.HandFull:
+                GameManager.Instance.ValidationMessage($"Your max hand size is {player.PlayerHandSize}, you cannot draw anymore cards.");
+                return false;
+            case DrawVerdict.DeckEmpty:
+                GameManager.Instance.ValidationMessage("Your deck is empty. End the Round to reshuffle your discard pile and draw a new hand.");
+                return false;
+        }
+
+        var drawnCard = deck.CardsInDeck[0];
+        drawnCard.gameObject.SetActive(true);
+        cardsInPlay.Add(drawnCard);
+        deck.CardsInDeck.Remove(drawnCard);
+        drawnCard.InHand = true;
+        drawnCard.InDeck = false;
+        // AnimateCardDraw(drawnCard);
+        drawnCard.transform.SetParent(handLayout.Container);
+        // drawnCard.GetComponent<Animation>().Play();
+        // newCardDraw.Raise(playerCard);
+        Relayout();
+        return true;
+    }
+
     public void DrawCards(int numberOfCardstoDraw)
     {
         for (var i = 0; i < numberOfCardstoDraw; i++)
         {
-            DrawCard();
+            if (!TryDrawCard()) break; // one blocked-draw message, not one per missing card
         }
     }
 
@@ -70,6 +79,14 @@ public class PlayerHand : MonoBehaviour
     public void DrawCardsAtRoundEnd()
     {
         DrawCards(player.PlayerHandSize);
+    }
+
+    // Round end is a full reset: unplayed hand cards go back into the deck too,
+    // so the post-shuffle draw deals a fresh full hand.
+    public void ReturnHandToDeck()
+    {
+        deck.ReturnCardsToDeck(cardsInPlay);
+        Relayout();
     }
 
     public void Relayout() => handLayout.Relayout(cardsInPlay);
@@ -109,6 +126,17 @@ public class PlayerHand : MonoBehaviour
             healedWounds.RemoveAt(0);
             Relayout();
         }
+    }
+
+    // Healed wounds are kept only so an undo of the heal can restore them. Called
+    // when the undo stack clears: past that point they can never come back, and
+    // leaving them would let a later heal-undo resurrect a wound that was
+    // permanently healed in an earlier turn or round.
+    public void PurgeHealedWounds()
+    {
+        foreach (var wound in healedWounds)
+            if (wound != null) Destroy(wound.gameObject);
+        healedWounds.Clear();
     }
 
     private GameObject GetHealedWound()

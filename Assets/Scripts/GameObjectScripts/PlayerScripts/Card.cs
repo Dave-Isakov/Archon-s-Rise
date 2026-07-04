@@ -157,10 +157,14 @@ public class Card : MonoBehaviour, IPointerClickHandler
     public void SetCardObjectToMax(Card card)
     {
         var t = card.gameObject.transform;
+        // Reparent into the centre slot, then tween to the slot's LOCAL origin. Using the
+        // slot's world position instead would read a stale value on the first expand of a
+        // combat (the card-menu canvas hasn't laid out yet, so it reports (0,0)), landing
+        // the card off-centre until the canvas settled. Local (0,0,0) is always the slot
+        // centre regardless of layout timing.
         t.SetParent(GameManager.Instance.enlargeCardPosition.transform, true);
         t.DOKill();
-        Vector3 target = GameManager.Instance.enlargeCardPosition.transform.position;
-        t.DOMove(target, 0.25f).SetEase(Ease.OutBack);
+        t.DOLocalMove(Vector3.zero, 0.25f).SetEase(Ease.OutBack);
         t.DOScale(new Vector3(4f, 4f, 1f), 0.25f).SetEase(Ease.OutBack);
         t.DOLocalRotate(Vector3.zero, 0.25f).SetEase(Ease.OutBack);
         card.isMaximized = true;

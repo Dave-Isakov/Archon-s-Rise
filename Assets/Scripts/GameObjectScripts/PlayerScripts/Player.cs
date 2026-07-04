@@ -263,6 +263,21 @@ public class Player : MonoBehaviour
             newUnit.GetComponent<Unit>().unitSO = so;
         }
     }
+    // Round end: used units stand back up for the new round. Only the exhausted
+    // state resets — their stat contribution was already cleared by TurnEnd, so
+    // this must not go through PlayUnit (which would subtract stats again).
+    public void RefreshUnits()
+    {
+        foreach (var unit in FindObjectsByType<Unit>())
+        {
+            if (unit.IsPlayed)
+            {
+                unit.transform.Rotate(0, 0, 90);
+                unit.IsPlayed = false;
+            }
+        }
+    }
+
     public void PlayUnit(Unit unit)
     {
         if(!unit.IsPlayed)

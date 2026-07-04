@@ -48,5 +48,9 @@ public class PlayManager
             if (command is PlayCommand playCommand)
                 playCommand.Commit();
         commandManager.Clear();
+
+        // Heals can't be undone anymore either, so their healed wounds are gone for good.
+        var hand = Object.FindAnyObjectByType<PlayerHand>();
+        if (hand != null) hand.PurgeHealedWounds();
     }
 }

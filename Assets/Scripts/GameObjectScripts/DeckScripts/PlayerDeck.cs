@@ -92,14 +92,35 @@ public class PlayerDeck : Deck<Card>, IPointerClickHandler
         return card;
     }
 
+    // Round end is a full reset: discard pile and unplayed hand both return to the
+    // deck, then the shuffleEvent draws a fresh full hand. Orchestrated here in one
+    // sequence because listener order on the round-end event is not guaranteed.
     public void EndOfRoundReshuffle()
     {
-        foreach(var card in GameManager.Instance.cardListParent.GetComponentsInChildren<Card>())
-        {
-            CardsInDeck.Add(card);
-        }
+        var discard = FindAnyObjectByType<DiscardPile>();
+        if (discard != null) discard.ReshuffleToDeck();
+        var hand = FindAnyObjectByType<PlayerHand>();
+        if (hand != null) hand.ReturnHandToDeck();
         Shuffle(CardsInDeck);
         afterRoundEndShuffle_DrawCards.Raise(this);
+    }
+
+    // Single path for cards re-entering the deck from another zone. Clears per-play
+    // state so a recycled card behaves like a fresh draw (a discarded card keeps
+    // IsEmpowered set, which would otherwise replay with empowered values for free).
+    public void ReturnCardsToDeck(List<Card> cards)
+    {
+        foreach (var card in cards)
+        {
+            card.InDeck = true;
+            card.InHand = false;
+            card.InDiscard = false;
+            card.IsPlayed = false;
+            card.IsEmpowered = false;
+            card.transform.SetParent(this.transform);
+            card.gameObject.SetActive(false);
+        }
+        CardZonePlan.TransferAll(cards, CardsInDeck);
     }
 
     public void DeckToCardList()

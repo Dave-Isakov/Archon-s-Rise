@@ -71,8 +71,7 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
     public void EmpowerCrystal()
     {
         var crystal = SelectEmpowerCrystal();
-        if (crystal is null)
-            crystal = FindAnyObjectByType<AllCrystal>();
+        if (crystal is null) return; // No matching or wild crystal to spend; nothing to consume.
 
         playedCrystals.Push(crystal);
         Debug.Log(crystal.color.ToString());
@@ -95,12 +94,30 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
 
     public Crystal SelectEmpowerCrystal()
     {
+        var cardType = _card.cardSO.empowerType;
+
+        // Prefer spending a specific colored crystal, so wild (isAll) crystals stay
+        // available for cards whose color we don't otherwise hold.
         foreach(var crystal in crystalsInInventory)
         {
-            if(crystal.color == _card.cardSO.empowerType)    
+            if(!crystal.isAll && ColorSatisfies(crystal.color, cardType))
+                return crystal;
+        }
+        // Fall back to a wild crystal (color == -1, isAll), which empowers any card.
+        foreach(var crystal in crystalsInInventory)
+        {
+            if(crystal.isAll)
                 return crystal;
         }
         return null;
+    }
+
+    // A crystal satisfies a card when the card accepts any color (empowerType has
+    // all color flags set, i.e. the -1/All case) or the colors match exactly.
+    static bool ColorSatisfies(EmpowerType crystalColor, EmpowerType cardType)
+    {
+        if(cardType.IsAllColors()) return true;
+        return crystalColor == cardType;
     }
 
     public void OnPointerClick(PointerEventData eventData)

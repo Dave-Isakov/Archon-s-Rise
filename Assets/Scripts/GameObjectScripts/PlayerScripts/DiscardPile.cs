@@ -25,9 +25,15 @@ public class DiscardPile : MonoBehaviour
         card.gameObject.SetActive(false);
     }
 
+    // Hands every discarded card back to the deck (the old body only cleared the
+    // list, losing the cards). Also wired directly to the round-end event in the
+    // scene; running before or after PlayerDeck.EndOfRoundReshuffle is safe because
+    // the second call finds the list empty and does nothing.
     public void ReshuffleToDeck()
     {
-        cards.Clear();
+        var deck = FindAnyObjectByType<PlayerDeck>();
+        if (deck == null) return;
+        deck.ReturnCardsToDeck(cards);
     }
 
     public void RebuildDiscard(List<CardsSO> cards)

@@ -24,13 +24,13 @@ MonoBehaviour:
   explore: 0
   influence: 0
   healAmount: 0
-  numCrystals: 1
+  numCrystals: 2
   empowerAttack: 0
   empowerDefend: 0
   empowerExplore: 0
   empowerInfluence: 0
   empowerHealAmount: 0
-  empowerNumCrystals: 2
+  empowerNumCrystals: 4
   cardType: 64
-  empowerType: 8
+  empowerType: -1
   isChoice: 0

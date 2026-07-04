@@ -33,7 +33,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -61,7 +60,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.3207547, g: 0.17702028, b: 0.17702028, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -119,5 +118,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acfdf8718af4a7c49a01f01e47454481, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  color: 0
+  color: -1
   isAll: 1
+  canvasGroup: {fileID: 0}
