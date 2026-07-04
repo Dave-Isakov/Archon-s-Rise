@@ -15,11 +15,16 @@ Gain rewards (experience, crystals, cards) from defeating enemies and clearing d
 and grow your deck — all while the **Doom Clock** rises each round. The run ends when you meet the
 Archon threshold (**win**) or trigger a loss condition.
 
-## Win — Rise to Archon
-A run is won by a **domination threshold**, not a single boss kill: control **N towns** AND reach a
-**Level / Influence target**. The moment both are satisfied, the player is crowned Archon and the
-run is won. Exact N and targets are tuning — see [balance.md](balance.md). This pillar is why
-Influence, towns, and leveling are first-class systems.
+## Win — Conquer 2 Castles
+Map places are typed: **Town / Keep / Castle** (+ existing Dungeons). Guarded places (Keep 1
+guardian, Castle 2 — data-driven rosters) must have **all guardians defeated in order** to be
+conquered; defeated guardians never respawn, so conquest is resumable. Retreating from an assault
+in progress costs **3 wounds** (field-combat flee stays 1); closing a place's menu without
+assaulting is free. Services gate by type (Town: Recruit+Heal; Keep: Recruit; Castle:
+Recruit+Heal+Cards) and open only once the place is conquered (Towns, guardian-less, open
+immediately). Places are entered by **standing on their cell** — adjacent interaction is not
+allowed (unlike enemies). **Conquer 2 Castles to win** — territory is the sole win axis, no
+Level/Influence gate. Exact rosters and castle count are tuning — see [balance.md](balance.md).
 
 ## Lose — Wounds (tactical)
 Losing a fight (insufficient Defend vs the enemy's Attack) shuffles **Wound** cards into the deck.
@@ -35,9 +40,14 @@ lost. The Doom Clock is the strategic pressure that forces the player to *rise f
 
 ## Turn / Round Flow
 Within a **turn**, the player plays cards to build up the four stats, takes actions, then ends the
-turn — at which point the action stats reset to 0 (matches existing `Player.TurnEnd`). **Rounds**
-group turns and are the cadence on which the Doom Clock advances (matches the existing
-`GameManager` round/turn counters).
+turn — at which point the action stats reset to 0 (matches existing `Player.TurnEnd`) and the hand
+tops up to hand size from the deck. **Rounds** group turns and are the cadence on which the Doom
+Clock advances (matches the existing `GameManager` round/turn counters). Ending a round is a **full
+hand reset**: the discard pile and all unplayed hand cards return to the deck, the deck is shuffled,
+and a fresh full hand is drawn (decision 2026-07-02). Units exhaust when used (turned sideways)
+and all refresh when a new round starts. When the deck can't refill the hand, the turn cannot be
+ended — the End Turn button disables and the player must end the round. Neither the turn nor the
+round can end mid-combat: both buttons disable while a fight is active.
 
 ## Stats
 Seven stat types (the `StatType` flags in code):

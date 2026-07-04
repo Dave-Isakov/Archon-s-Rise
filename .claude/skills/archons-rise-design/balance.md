@@ -5,8 +5,10 @@ final number. [mechanics.md](mechanics.md) defines how these systems work; this 
 numbers.
 
 ## Archon Win Threshold
-- Control **3 towns** AND reach **Level 8** (alternative/additional gate: accumulate **Influence ≥ 30**).
-- _Starting values — tune in playtest._ Raise town count or level to lengthen runs; lower to shorten.
+- Conquer **2 Castles** (no Level/Influence gate — territory is the sole win axis).
+- Guardian rosters (data-driven starting counts): **Town 0, Keep 1, Castle 2**; Dungeon 2 (existing).
+- **Assault retreat penalty: 3 wounds** (`PlaceRules.RetreatWoundCount`) vs. 1 for field-combat flee.
+- _Starting values — tune in playtest._ Grow rosters or castle count to lengthen runs.
 
 ## Doom Clock
 - Starts at **0**, maximum **20**.

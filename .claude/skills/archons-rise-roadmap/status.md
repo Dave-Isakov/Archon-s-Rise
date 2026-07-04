@@ -21,15 +21,16 @@ Where Archon's Rise stands today. Seeded from the code review (`docs/code-review
 - **Single `PlayerDeck.AddCard` path**; card plays committed to discard when undo stack clears.
 - **Fog-of-war reveal** persisted across save/load.
 - **SaveButton** correctly wired to `SaveGame`.
+- **Place-type system** — Town/Keep/Castle taxonomy, guardian-conquest assaults (resumable,
+  3-wound retreat), services gated by type + conquest, conquest persisted (schema v2). ✅ M2.
 
 ## Stubbed / partial
 - **Leveling rewards** — the even/odd/every-3 rules are commented intent in `Player.cs`, not implemented.
 
 ## Missing
-- **Win check** (Archon threshold) — milestone M2.
-- **Win check** (Archon threshold) — milestone M2.
-- **Doom Clock** (strategic loss) — milestone M2.
-- **Wound-out** loss condition — milestone M2.
+- **Win check** (conquer 2 Castles) — milestone M2.5.
+- **Doom Clock** (strategic loss) — milestone M2.5.
+- **Wound-out** loss condition — milestone M2.5.
 - **Run setup / seed** and **meta-unlock pool** — milestone M3.
 - **Important-tier refactors** from `docs/code-review.md`: event-driven updates over per-frame
   `Update()`, decoupling gameplay→UI via events, the apply/revert toggle refactor, assembly

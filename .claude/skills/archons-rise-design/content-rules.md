@@ -13,6 +13,8 @@ field here ever disagrees with those scripts, the scripts win — update this fi
 - **`RewardType`** `[Flags]`: `None=0, Experience=1, Crystals=2, Cards=4`.
 - **`RewardLevel`**: `Beginner, Intermediate, Advanced, Master`.
 - **`TownSize`**: `Town, Village, Fortress, City`.
+- **`PlaceType`**: `Town=0, Keep=1, Castle=2` (source: `Assets/Scripts/Places/`).
+- **`PlaceService`** `[Flags]`: `None=0, Recruit=1, Heal=2, Cards=4` (source: `Assets/Scripts/Places/`).
 
 ---
 
@@ -65,9 +67,13 @@ field here ever disagrees with those scripts, the scripts win — update this fi
 | `activity` | `TownActivity` (flags) | None / Recruit / Cards / Heal / Resources |
 | `recruitableUnits` | List&lt;`UnitsSO`&gt; | Units available to recruit here |
 | `recruitLevel`, `cardLevel`, `resourceLevel`, `healLevel` | int | Service levels per activity |
+| `placeType` | `PlaceType` | Town / Keep / Castle — drives allowed services via `PlaceRules` |
+| `guardians` | List&lt;`EnemiesSO`&gt; | Conquest roster, fought in order; empty for a Town |
 
-**Rule:** Towns are the currency of the domination win — controlling them counts toward the Archon
-threshold, so town placement and difficulty pace the whole run.
+**Rule:** Service availability is computed from `placeType` (`PlaceRules.AllowedServices`), NOT the
+legacy `activity` flags (exception: the Crystal/Resources button still reads `activity`). Town:
+Recruit+Heal, opens unguarded. Keep: Recruit, 1 guardian. Castle: Recruit+Heal+Cards(stub), 2
+guardians. Castles are the win currency — conquering 2 wins the run (M2.5).
 
 ## Unit — `UnitsSO`
 **Menu:** `ScriptableObjects/Units`

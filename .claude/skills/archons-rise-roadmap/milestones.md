@@ -14,14 +14,23 @@ it becomes the Current Focus. Mark items done rather than deleting them.
 
 **Acceptance:** quit mid-run and resume with deck, map, crystals, and clock intact.
 
-## M2 — Win/lose systems  _(Current Focus)_
+## M2 — Place-type system  ✅ DONE (2026-07-03)
+**Goal:** typed places (Town/Keep/Castle) + resumable guardian conquest + service gating.
+**Scope:** `PlaceType` taxonomy; data-driven guardian rosters; assault/retreat (3 wounds);
+conquest persistence (save schema v2); services gate by type + conquest; Cards stub.
+Spec: `docs/superpowers/specs/2026-06-30-m2-place-type-system-design.md`.
+**Acceptance:** a Keep/Castle can be assaulted, conquered across sessions, and gates its
+services; retreat costs 3 wounds and keeps progress. ✅
+
+## M2.5 — Win/lose systems  _(Current Focus)_
 **Goal:** make a run winnable and losable.
 **Scope:**
-- **Archon win check** — control N towns AND reach the Level/Influence target (`archons-rise-design/balance.md`).
+- **Victory** — conquer **2 Castles** (`ConquestTracker.ConqueredCastleCount()`).
 - **Doom Clock** — rises each round; reaching max loses the run.
-- **Wound-out** — lose when Wounds ≥ threshold or HP hits 0.
+- **Wound-out** — lose when Wounds ≥ threshold.
+- **Game-over screen** for both outcomes.
 
-**Acceptance:** a run can be won by hitting the Archon threshold and lost by clock-max or wound-out.
+**Acceptance:** a run can be won by conquering 2 Castles and lost by clock-max or wound-out.
 
 ## M3 — Run setup & meta-unlocks
 **Goal:** framed runs plus between-run progression.
