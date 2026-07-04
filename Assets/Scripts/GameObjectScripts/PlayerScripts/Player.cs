@@ -230,17 +230,44 @@ public class Player : MonoBehaviour
             onEmpower_DestroyCrystalGameObject.Raise(card);
         card.IsPlayed = true;
     }
+    // Normal attack: spends the Attack pool, and the enemy's counterattack can wound
+    // the player when Defend falls short. Entry point wired to the Fight button.
     public void ValidatePlayerAttackToEnemyHP(EnemyCard enemy)
     {
-        if(playerAttack >= enemy.enemySO.enemyHP)
+        ResolveAttack(enemy, AttackKind.Normal);
+    }
+
+    // Siege attack: spends the Siege pool and is always wound-free. Entry point
+    // wired to the Siege button.
+    public void SiegeEnemy(EnemyCard enemy)
+    {
+        ResolveAttack(enemy, AttackKind.Siege);
+    }
+
+    void ResolveAttack(EnemyCard enemy, AttackKind kind)
+    {
+        int hp = enemy.enemySO.enemyHP;
+        if (!CombatRules.CanDefeat(kind, playerAttack, playerSiege, hp))
         {
-            playerAttack -= enemy.enemySO.enemyHP;
-            CheckWounds(enemy);
-            playerDefend -= enemy.enemySO.enemyAttack;
-            OnEnemyDefeat_GetRewards.Raise(enemy);
+            string stat = kind == AttackKind.Siege ? "Siege" : "Attack";
+            GameManager.Instance.ValidationMessage($"You need {hp} {stat} in order to defeat this monster.");
+            return;
         }
-        else 
-            GameManager.Instance.ValidationMessage($"You need {enemy.enemySO.enemyHP} Attack in order to defeat this monster.");
+
+        if (kind == AttackKind.Siege) playerSiege -= hp;
+        else                          playerAttack -= hp;
+
+        int wounds = CombatRules.WoundCount(kind, playerDefend, enemy.enemySO.enemyAttack, playerHP);
+        for (int i = 0; i < wounds; i++)
+            onDefeat_WoundPlayer.Raise(enemy);
+
+        // Only a Normal attack takes the counterattack against Defend.
+        if (kind == AttackKind.Normal) playerDefend -= enemy.enemySO.enemyAttack;
+
+        if (wounds > 0)
+            GameManager.Instance.ValidationMessage($"{enemy.enemySO.name} has been destroyed! You are wounded {wounds} times!");
+
+        OnEnemyDefeat_GetRewards.Raise(enemy);
     }
 
     public void RecruitUnit(TownToken town)
@@ -323,20 +350,6 @@ public class Player : MonoBehaviour
         expToNextLevel = expToNextLevel + playerLevel + 12;
         playerExp = 0;
         //Levelupscreen (even number levels +1 to a stat)(odd number levels HP+)(every 3 levels handsize+)(every level new skill)
-    }
-
-    public void CheckWounds(EnemyCard enemy)
-    {
-        if (playerDefend < enemy.enemySO.enemyAttack)
-        {
-            int woundCount = 0;
-            for (var i = 0; i < enemy.enemySO.enemyAttack-playerDefend; i += playerHP)
-            {
-                onDefeat_WoundPlayer.Raise(enemy);
-                woundCount++;
-            }
-            GameManager.Instance.ValidationMessage($"{enemy.enemySO.name} has been destroyed! You are wounded {woundCount} times!");
-        }
     }
 
     // Autosave on quit only. Saving from OnDisable fired on every scene
