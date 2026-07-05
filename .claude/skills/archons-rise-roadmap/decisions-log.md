@@ -95,3 +95,17 @@ editing an old one.
   _Why:_ turns "how do I attack this enemy" into a real decision (read the enemy's Attack, then
   spend a scarce Siege vs risk the wound) without a separate preview screen; keeps the Wound clock
   live because Siege is deliberately rare. Supersedes the deferred hover-preview item for this need.
+
+- **2026-07-04 — Enemy preview: information parity before combat.**
+  Hovering a map enemy token or a guarded place's Assault button previews enemy stats (name, Attack,
+  HP, Influence cost) without starting combat — the info-parity intent deferred out of M2
+  (`m2-deferred-followups` #3) and left out of scope by the Siege spec. Pure info, not feasibility
+  (no "can I beat it"). A guarded place previews all *remaining* guardians, and the panel is
+  multi-enemy from the start to front-run simultaneous-guardian fights. The trigger is input-agnostic
+  (`Focus`/`Unfocus`) so a gamepad can drive the same panel at the controller milestone. Visibility
+  passes through a single pure `PreviewRules.CanPreview` blind gate (true today) with encounter-level
+  aggregation — any blind enemy blinds the whole panel ("You cannot see the enemy/enemies you are
+  about to confront"); no real blindness source is built yet. Spec:
+  `docs/superpowers/specs/2026-07-04-enemy-preview-design.md`.
+  _Why:_ closes the "see what you're up against before you spend cards / commit to an assault" gap
+  that Siege assumed but never delivered, while leaving preview visibility itself gameable.

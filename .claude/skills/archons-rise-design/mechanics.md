@@ -65,6 +65,14 @@ Eight stat types (the `StatType` flags in code):
   counterattack. Cannot be improvised; comes only from advanced cards and units (advanced Siege
   cards always also carry the Attack flag, so Siege only matters in combat).
 
+## Enemy Preview
+- **Enemy preview** — hovering (later, controller-focusing) a map enemy token or a guarded place's
+  Assault button previews the enemy's stats (name, Attack, HP, Influence cost) before you commit to
+  combat; a guarded place previews all *remaining* guardians. Preview is read-only — it starts no
+  fight. Visibility passes through a single blind gate (`PreviewRules.CanPreview`): today every enemy
+  is visible, but a future mechanic can blind an encounter, replacing the whole panel with "You
+  cannot see the enemy/enemies you are about to confront."
+
 ## Empower / Crystal Economy
 A card may be **Empowered** by spending one **Crystal** of the card's color
 (Red / Yellow / Green / Purple — the `EmpowerType`). When empowered, the card yields its stronger
