@@ -20,6 +20,9 @@ public abstract class TownButtons : MonoBehaviour
         this._town = town;
     }
 
+    // Read-only access for the preview trigger sharing this GameObject.
+    public TownToken Town => _town;
+
     public void SetCurrentInfluence(int influence)
     {
         currentPlayerInfluence = influence;
