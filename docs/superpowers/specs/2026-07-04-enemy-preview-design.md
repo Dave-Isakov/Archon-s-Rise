@@ -86,14 +86,20 @@ it does **not** tell the player whether their current pools can defeat it.
 
 ## Architecture (components)
 
-**1. `PreviewRules` — a pure decision function (the blind gate).**
-- `static bool CanPreview(EnemiesSO enemy)` — returns `true` today; the single place future
-  blindness plugs in. Pure in the sense that matters: deterministic, side-effect-free, no scene
-  state — but it may take the `EnemiesSO` type directly for simplicity.
-- Lives beside `CombatRules` in `Assets/Scripts/CardPlay/`. Because it touches `EnemiesSO`, it is
-  verified in the **in-editor EditMode Test Runner** rather than the `mcs` CLI harness — CLI-only
-  testability is explicitly *not* a requirement here (user call). The contract ("one predicate,
-  true today, single chokepoint, encounter-level aggregation in the panel") is fixed.
+**1. `PreviewRules` — a pure rules class (the blind gate).**
+- `static bool CanPreview(bool enemyHiddenFromPreview = false)` — the single per-enemy blind hook;
+  returns `true` today (nothing sets the flag). Future blindness sources pass `true`.
+- `static bool EncounterVisible(IReadOnlyList<bool> perEnemyVisible)` — encounter-level aggregation:
+  `true` only when every enemy is visible; any blind enemy blinds the whole panel.
+- `static IReadOnlyList<T> RemainingGuardians<T>(IReadOnlyList<T> roster, int defeatedCount)` — the
+  tail of a roster after N defeats (generic, so it stays Unity-free and testable).
+- **Assembly constraint (why primitives, not `EnemiesSO`):** the EditMode test assembly
+  (`ArchonsRise.Tests.EditMode`) references only the `ArchonsRise.*` asmdefs, **not** the default
+  `Assembly-CSharp` where `EnemiesSO` lives — which is exactly why the codebase mirrors SOs with pure
+  structs like `CardSnapshot` for testing. So `PreviewRules` lives beside `CombatRules` in the
+  `ArchonsRise.CardPlay` assembly and takes primitives/generics only. Bonus: being Unity-free, it is
+  RED/GREEN-verifiable from the `mcs` CLI harness, the project's fast path. The MonoBehaviour panel
+  (in `Assembly-CSharp`) reads `EnemiesSO` and passes the primitives in.
 
 **2. `EnemyPreviewPanel` — MonoBehaviour, input-agnostic view.**
 - `void Show(IReadOnlyList<EnemiesSO> enemies, RectTransform anchor)`
@@ -139,13 +145,14 @@ No combat is started, no `EnemyCard` instantiated, no events raised.
 
 ## Implementation surface (touch points)
 
-- `Assets/Scripts/CardPlay/PreviewRules.cs` *(create)* — pure `CanPreview` blind gate.
-- `Assets/Tests/EditMode/PreviewRulesTests.cs` *(create)* — EditMode tests for the gate and the
-  whole-panel aggregation rule.
-- `Assets/Scripts/GameObjectScripts/.../EnemyPreviewPanel.cs` *(create)* — `Show`/`Hide` view.
-- `Assets/Scripts/GameObjectScripts/.../EnemyPreviewEntry.cs` *(create)* — one enemy's stat block.
-- `Assets/Scripts/GameObjectScripts/.../PreviewTrigger.cs` *(create)* — input adapter + source
-  resolution.
+- `Assets/Scripts/CardPlay/PreviewRules.cs` *(create)* — pure blind gate + aggregation + roster tail.
+- `Assets/Tests/EditMode/PreviewRulesTests.cs` *(create)* — mcs-harness tests for the three methods.
+- `Assets/Scripts/GameObjectScripts/Preview/EnemyPreviewEntry.cs` *(create)* — one enemy's stat block.
+- `Assets/Scripts/GameObjectScripts/Preview/EnemyPreviewPanel.cs` *(create)* — `Show`/`Hide` view.
+- `Assets/Scripts/GameObjectScripts/Preview/PreviewTrigger.cs` *(create)* — abstract input adapter.
+- `Assets/Scripts/GameObjectScripts/Preview/EnemyTokenPreviewTrigger.cs` *(create)* — map-token source.
+- `Assets/Scripts/GameObjectScripts/Preview/PlacePreviewTrigger.cs` *(create)* — Assault-button source.
+- `Assets/Scripts/GameObjectScripts/TownMenuScripts/TownButtons.cs` *(modify)* — expose `Town` getter.
 - Prefabs/scene *(manual Unity, handed off as steps)* — `EnemyPreviewPanel` object + blind-state
   object on the combat/HUD canvas; `EnemyPreviewEntry` prefab; `PreviewTrigger` on the enemy-token
   prefab and on the Assault button in the town menu. Do not hand-edit YAML.
@@ -162,18 +169,16 @@ No combat is started, no `EnemyCard` instantiated, no events raised.
 
 ## Testing
 
-`PreviewRules` touches `EnemiesSO`, so it is verified in the in-editor EditMode Test Runner (not the
-`mcs` CLI harness). Unity-coupled pieces are verified by compile + in-editor confirmation, since the
+`PreviewRules` is Unity-free, so it is RED/GREEN-verified from the `mcs` CLI harness (like
+`CombatRules`). Unity-coupled pieces are verified by compile + in-editor confirmation, since the
 open editor holds the project lock.
 
-- **`PreviewRules` (EditMode):** `CanPreview` returns `true` for a normal enemy today; a
-  forced-blind fixture returns `false`. Locks the hook contract for future blindness sources.
-- **Whole-panel aggregation (EditMode):** an all-previewable set yields one entry per enemy; a set
-  containing any blind enemy yields the single blind message.
-- **Remaining-guardian resolution:** all guardians for a fresh place; the tail after N defeats;
-  empty when conquered.
+- **`PreviewRules` (mcs harness):** `CanPreview()` is `true` today and `CanPreview(true)` is `false`
+  (locks the hook contract for future blindness sources); `EncounterVisible` is `true` for an
+  all-visible set and `false` when any element is blind; `RemainingGuardians` returns all for a
+  fresh roster, the tail after N defeats, and empty when the count equals the roster size.
 - **Unity-coupled (compile + play confirmation):** panel `Show`/`Hide`, trigger `Focus`/`Unfocus`,
-  multi-entry layout, anchor positioning, and the play-mode checks below.
+  multi-entry layout, screen positioning, and the play-mode checks below.
 
 Play-mode acceptance:
 1. Hover a map enemy token → its stats appear; unhover → they disappear; combat does **not** start.
