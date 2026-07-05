@@ -25,12 +25,21 @@ it does **not** tell the player whether their current pools can defeat it.
 - **Preview is gated by a single blind hook.** Visibility of the preview is itself a gameable
   property. A single `PreviewRules.CanPreview(enemy)` predicate is the one chokepoint every preview
   passes through. Today it always returns `true`. Any future source of blindness (an enemy trait, a
-  player debuff, map fog) adds its condition *there* and nothing else changes. When it returns
-  `false`, the panel shows a **"You are blind to this enemy"** state instead of the stats.
+  player debuff, map fog) adds its condition *there* and nothing else changes.
   _Why:_ the user wants room for future mechanics to withhold the preview without redesigning it;
   building only the hook + the blind visual (no real cause yet) is the cheapest way to leave that
   room. _Rejected for now:_ a per-enemy `previewable` field and a player-run "Blinded" condition —
   either can be added later behind the same hook; neither is needed today.
+
+- **Blindness hides the whole confrontation, not individual stats.** When any enemy in a preview
+  request is not previewable, the panel replaces its *entire* contents with one blind message —
+  **"You cannot see the enemy you are about to confront"** (singular) / **"...the enemies you are
+  about to confront"** (plural for a guarded place). It never blanks stats on a per-stat or
+  per-entry basis: the player learns they can't see who they face, not that one number is redacted.
+  The per-enemy `CanPreview` hook is preserved; the panel simply aggregates — *any* blind enemy in
+  the set makes the whole panel blind. Today all enemies are previewable, so this never fires.
+  _Why:_ the user's intent is "you can't see what you're about to fight," an encounter-level fog,
+  not a stat-by-stat redaction.
 
 - **Input-agnostic trigger.** The preview request is decoupled from the input event. Mouse hover
   drives it today; a gamepad focus/select will drive the identical panel at the controller
@@ -69,25 +78,31 @@ it does **not** tell the player whether their current pools can defeat it.
   Leave an unbound art slot in the entry for a future field; do not build or depend on it.
 
 ### Blind state
-- When `PreviewRules.CanPreview(enemy)` is `false`, that entry renders "You are blind to this
-  enemy" instead of stats. Today no enemy is blind (the predicate always returns `true`).
+- When any enemy in the request fails `PreviewRules.CanPreview`, the panel drops all stat entries
+  and shows a single whole-panel message: "You cannot see the enemy you are about to confront"
+  (one enemy) / "...the enemies you are about to confront" (a guarded place). Blindness is
+  encounter-level, never per-stat or per-entry. Today no enemy is blind (the predicate always
+  returns `true`).
 
 ## Architecture (components)
 
-**1. `PreviewRules` — pure C#, no Unity dependency (the blind gate).**
-- `static bool CanPreview(...)` — returns `true` today; the single place future blindness plugs in.
-- Lives beside `CombatRules` in `Assets/Scripts/CardPlay/`, unit-tested via the `mcs` CLI harness.
-- **Purity note:** `EnemiesSO` is a Unity `ScriptableObject`. To keep `PreviewRules` genuinely
-  Unity-free (so the CLI harness can build it), `CanPreview` takes the raw data / a small interface
-  it needs rather than the `EnemiesSO` type directly. The exact signature is settled in the plan;
-  the contract ("one predicate, true today, single chokepoint") is fixed here.
+**1. `PreviewRules` — a pure decision function (the blind gate).**
+- `static bool CanPreview(EnemiesSO enemy)` — returns `true` today; the single place future
+  blindness plugs in. Pure in the sense that matters: deterministic, side-effect-free, no scene
+  state — but it may take the `EnemiesSO` type directly for simplicity.
+- Lives beside `CombatRules` in `Assets/Scripts/CardPlay/`. Because it touches `EnemiesSO`, it is
+  verified in the **in-editor EditMode Test Runner** rather than the `mcs` CLI harness — CLI-only
+  testability is explicitly *not* a requirement here (user call). The contract ("one predicate,
+  true today, single chokepoint, encounter-level aggregation in the panel") is fixed.
 
 **2. `EnemyPreviewPanel` — MonoBehaviour, input-agnostic view.**
 - `void Show(IReadOnlyList<EnemiesSO> enemies, RectTransform anchor)`
 - `void Hide()`
-- Scene-level singleton (reached like `GameManager.Instance`). `Show` clears its container, then for
-  each enemy: `CanPreview` true → spawn an `EnemyPreviewEntry`; false → spawn the blind state.
-  Positions itself near `anchor`. Knows nothing about mouse vs. gamepad.
+- Scene-level singleton (reached like `GameManager.Instance`). `Show` clears its container, then
+  checks the whole set against `CanPreview`: if **every** enemy is previewable, it spawns one
+  `EnemyPreviewEntry` per enemy; if **any** is blind, it drops the entries and shows the single
+  whole-panel blind message (singular/plural by count). Positions itself near `anchor`. Knows
+  nothing about mouse vs. gamepad.
 
 **3. `EnemyPreviewEntry` — MonoBehaviour, one enemy's stat block.**
 - Renders name / Attack / HP / Influence-cost from an `EnemiesSO`, matching `EnemyCard`'s text
@@ -112,9 +127,10 @@ Map enemy token hover ─┐
 Assault button hover ──┘        │  resolves enemies (token → one; place → remaining guardians)
                                 ▼
                      EnemyPreviewPanel.Show(enemies, anchor)
-                                │  each enemy → PreviewRules.CanPreview?
-                                ├─ true  → EnemyPreviewEntry (stats)
-                                └─ false → "You are blind to this enemy"
+                                │  all enemies → PreviewRules.CanPreview?
+                                ├─ all true → one EnemyPreviewEntry per enemy
+                                └─ any blind → whole-panel "You cannot see the
+                                               enemy/enemies you are about to confront"
 
 Unhover / deselect ─► PreviewTrigger.Unfocus() ─► EnemyPreviewPanel.Hide()
 ```
@@ -124,8 +140,8 @@ No combat is started, no `EnemyCard` instantiated, no events raised.
 ## Implementation surface (touch points)
 
 - `Assets/Scripts/CardPlay/PreviewRules.cs` *(create)* — pure `CanPreview` blind gate.
-- `Assets/Tests/EditMode/PreviewRulesTests.cs` *(create)* — CLI-harness tests for the gate and
-  (where kept Unity-free) remaining-guardian resolution.
+- `Assets/Tests/EditMode/PreviewRulesTests.cs` *(create)* — EditMode tests for the gate and the
+  whole-panel aggregation rule.
 - `Assets/Scripts/GameObjectScripts/.../EnemyPreviewPanel.cs` *(create)* — `Show`/`Hide` view.
 - `Assets/Scripts/GameObjectScripts/.../EnemyPreviewEntry.cs` *(create)* — one enemy's stat block.
 - `Assets/Scripts/GameObjectScripts/.../PreviewTrigger.cs` *(create)* — input adapter + source
@@ -146,14 +162,16 @@ No combat is started, no `EnemyCard` instantiated, no events raised.
 
 ## Testing
 
-Per the project's split (pure logic via the `mcs` CLI harness; Unity-coupled via compile + in-editor
-confirmation, since the open editor holds the project lock):
+`PreviewRules` touches `EnemiesSO`, so it is verified in the in-editor EditMode Test Runner (not the
+`mcs` CLI harness). Unity-coupled pieces are verified by compile + in-editor confirmation, since the
+open editor holds the project lock.
 
-- **`PreviewRules` (CLI-testable):** `CanPreview` returns `true` for a normal enemy today; a
-  forced-blind fixture returns `false` and drives the panel's blind state. Locks the hook contract
-  for future blindness sources.
-- **Remaining-guardian resolution (CLI-testable where kept Unity-free):** all guardians for a fresh
-  place; the tail after N defeats; empty when conquered.
+- **`PreviewRules` (EditMode):** `CanPreview` returns `true` for a normal enemy today; a
+  forced-blind fixture returns `false`. Locks the hook contract for future blindness sources.
+- **Whole-panel aggregation (EditMode):** an all-previewable set yields one entry per enemy; a set
+  containing any blind enemy yields the single blind message.
+- **Remaining-guardian resolution:** all guardians for a fresh place; the tail after N defeats;
+  empty when conquered.
 - **Unity-coupled (compile + play confirmation):** panel `Show`/`Hide`, trigger `Focus`/`Unfocus`,
   multi-entry layout, anchor positioning, and the play-mode checks below.
 
