@@ -1,0 +1,12 @@
+{
+    "name": "ArchonsRise.Input",
+    "rootNamespace": "",
+    "references": ["Unity.InputSystem"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "precompiledReferences": [],
+    "overrideReferences": false
+}
