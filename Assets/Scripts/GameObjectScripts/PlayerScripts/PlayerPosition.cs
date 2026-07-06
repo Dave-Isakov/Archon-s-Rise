@@ -30,17 +30,6 @@ public class PlayerPosition : MonoBehaviour
     {
         gridPos = gameboard.LocalToCell(transform.position);
         position = transform.position;
-        // if (!player.InCombat)
-        // {
-        //     if(Input.GetAxis("Mouse ScrollWheel") < 0f && Camera.main.orthographicSize < 6f)
-        //     {
-        //         Camera.main.orthographicSize += 20 * Time.deltaTime;
-        //     }
-        //     if(Input.GetAxis("Mouse ScrollWheel") > 0f && Camera.main.orthographicSize > 1.5f)
-        //     {
-        //         Camera.main.orthographicSize -= 20 * Time.deltaTime;
-        //     }
-        // }
     }
 
     public void UpdateCompass(Vector3Int vector, Dictionary<Directions, Vector3Int> compass)

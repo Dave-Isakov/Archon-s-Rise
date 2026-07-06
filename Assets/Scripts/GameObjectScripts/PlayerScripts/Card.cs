@@ -79,38 +79,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
         {
             playedIcon.enabled = false;
         }
-        // if (Keyboard.current.spaceKey.isPressed && isMaximized && !cardSO.isChoice)
-        // {
-        //     var playButton = FindObjectOfType<PlayButton>();
-        //     playButton.PlayCard();
-        // }
-        // else if(Keyboard.current.spaceKey.isPressed && isMaximized && cardSO.isChoice)
-        // {
-        //     var button = GameObject.Find("PlayButton").GetComponent<PlayButton>();
-        //     button.CannotPlay();
-        // }
-
-        //Removes card object from the board when played and moves it to the discard pile.
-        // if(isPlayed == true)
-        // {
-        //     Toggle empowerToggle = GameObject.Find("EmpowerToggle").GetComponent<Toggle>();
-        //     Toggle improvToggle = GameObject.Find("ImprovToggle").GetComponent<Toggle>();
-        //     if(cardSO.isChoice && !improvToggle.isOn)
-        //     {
-        //         var choiceToggles = FindObjectOfType<ChoiceToggles>();
-        //         choiceToggles.SetDefaultToggle();
-        //     }
-        //     empowerToggle.isOn = false;
-        //     improvToggle.isOn = false;
-        //     playerHand.playerCardsInPlay.Remove(playerHand.playerCardsInPlay[cardIndex]);
-        //     isPlayed = false;
-        //     Destroy(card, 10f * Time.deltaTime);
-        //     gm.cardCanvas.SetActive(false);
-        // }
-        // if (isDragging)
-        // {
-        //     transform.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-        //}
     }
 
     private void GetEmpowerTypeColor(GameObject card)

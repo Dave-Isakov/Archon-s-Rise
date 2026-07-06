@@ -68,14 +68,16 @@ public class DataManager : MonoBehaviour
     }
 
     private void Update() {
-        if(Input.GetKeyDown(KeyCode.Escape) && !GameManager.Instance.mainMenuCanvas.enabled)
+        if (!GameControls.Gameplay.Menu.WasPressedThisFrame()) return;
+
+        // While the pop-out is open, Escape/Start acts as Cancel (closes the
+        // pop-out) instead of opening the main menu over it.
+        if (InputContextState.Current == InputContext.Inspector)
         {
-            GameManager.Instance.mainMenuCanvas.enabled = true;
+            FindAnyObjectByType<CardInspector>()?.Close();
+            return;
         }
-        else if(Input.GetKeyDown(KeyCode.Escape) && GameManager.Instance.mainMenuCanvas.enabled)
-        {
-            GameManager.Instance.mainMenuCanvas.enabled = false;
-        }
+        GameManager.Instance.mainMenuCanvas.enabled = !GameManager.Instance.mainMenuCanvas.enabled;
     }
 
     // public void CardsOnGameBoardList(GameObject playerCard)
