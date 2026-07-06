@@ -45,16 +45,19 @@ _Starting bands — tune in playtest._
 | Level | Reward |
 |---|---|
 | 2 | skill pick |
-| 3 | +1 HP |
+| 3 | +1 HP, card pick |
 | 4 | +1 hand size, +1 army size |
 | 5 | skill pick |
-| 6 | +1 HP |
+| 6 | +1 HP, card pick |
 | 7 | skill pick, +1 army size |
 | 8 | +1 hand size |
 | 9 | +1 HP, skill pick |
-| 10 | +1 army size, +1 hand size |
+| 10 | +1 army size, +1 hand size, card pick |
 
 - Baselines: hand size **5**, army cap **1**, HP **2**. Levels past the last entry grant nothing.
+- **Card pick** = the standard choose-1-of-3 card reward screen (same pool as enemy defeats).
+- Table entries are per-level **counts** (skill picks, card picks, bonuses) — every knob is
+  inspector-tunable per level with no code change.
 - _Starting values — tune in playtest._ Adjust the `+12` constant to speed up or slow down leveling.
 
 ## Skill Pool

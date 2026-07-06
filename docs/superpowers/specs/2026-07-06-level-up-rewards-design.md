@@ -8,12 +8,14 @@ win/lose lands.
 ## Goal
 
 Level-ups currently do nothing but raise the exp curve (`Player.PlayerLevelUp` only increments
-`playerLevel`). This milestone makes leveling pay out three reward kinds:
+`playerLevel`). This milestone makes leveling pay out four reward kinds:
 
 1. **Skills** — activatable abilities picked from a pool, usable once per turn or once per round.
 2. **Hand size** — +1 card in hand at milestone levels.
 3. **Army size** — a new cap on how many units the player can field, raised at milestone levels
    (the cap does not exist today: `RecruitButton` only checks Influence).
+4. **Card picks** — the existing "choose 1 of 3" card reward screen (`RewardCanvas`), granted at
+   milestone levels exactly like an enemy-defeat card reward (added 2026-07-06).
 
 This **replaces** the old comment-scheme (even level → +1 stat, odd → +HP, every 3rd → +hand,
 every level → skill) with a fixed, data-driven reward table.
@@ -39,6 +41,10 @@ every level → skill) with a fixed, data-driven reward table.
 - **Heal skill is in the pool** at per-round cadence (heal 1 wound), reusing the existing
   `PlayerHand.HealWound` / `RestoreHealedWound` undo-safe path. Kept rare so it pressures but does
   not undercut the Wound clock.
+- **Card picks are a level reward** (added 2026-07-06): milestone levels grant the existing
+  choose-1-of-3 card reward screen, identical to enemy-defeat card rewards (same `RewardCanvas`,
+  same curated pool, Skip allowed). Table entries use **counts, not booleans**, so every reward
+  kind is tunable per level in the inspector during playtesting.
 
 ## Data model
 
@@ -60,7 +66,9 @@ every level → skill) with a fixed, data-driven reward table.
 
 - `skillPool`: `List<SkillsSO>` — every skill in the game (M3's unlock pool can later filter this).
 - `entries`: list of `LevelRewardEntry { int level; int hpBonus; int handSizeBonus;
-  int armySizeBonus; bool grantsSkillPick; }`.
+  int armySizeBonus; int skillPicks; int cardPicks; }`. **All fields are counts, not booleans** —
+  every knob is tunable per level in the inspector with no code change (a level can grant 2 skill
+  picks or 2 card picks if playtesting wants it).
 - Levels beyond the last entry grant nothing (tune later).
 
 ### Starting reward table (tune in playtest)
@@ -68,14 +76,14 @@ every level → skill) with a fixed, data-driven reward table.
 | Level | Reward |
 |---|---|
 | 2 | skill pick |
-| 3 | +1 HP |
+| 3 | +1 HP, card pick |
 | 4 | +1 hand size, +1 army size |
 | 5 | skill pick |
-| 6 | +1 HP |
+| 6 | +1 HP, card pick |
 | 7 | skill pick, +1 army size |
 | 8 | +1 hand size |
 | 9 | +1 HP, skill pick |
-| 10 | +1 army size, +1 hand size |
+| 10 | +1 army size, +1 hand size, card pick |
 
 ### Starting skill pool (9 skills — tune in playtest)
 
@@ -100,10 +108,14 @@ that color) · **Field Medic** (heal 1 wound).
 1. `playerLevel++`; `playerExp -= expToNextLevel` (**fixes the current overflow discard**,
    `playerExp = 0`); recompute `expToNextLevel`.
 2. Apply `hpBonus` directly; hand size / army cap need no action (derived).
-3. If the entry grants a skill pick, raise a `LevelUpEvent` → the **Level-Up modal** opens on the
+3. If the entry grants skill picks, raise a `LevelUpEvent` → the **Level-Up modal** opens on the
    message canvas (existing modal-capture pattern), showing the 3 drawn skills; picking one adds it
-   to owned skills + skill bar. If exp still exceeds the next threshold, the next level-up queues
-   its modal after the current one closes.
+   to owned skills + skill bar.
+4. If the entry grants card picks, run the existing card-reward flow (`Rewards.OfferCardChoice` →
+   `RewardCanvas.Offer`, same curated `rewardPool`, same choose-1-of-3 + Skip screen) once per
+   pick, **after** any skill modal closes.
+5. Rewards queue strictly: skill pick(s) → card pick(s) → next pending level-up (if exp still
+   exceeds the next threshold).
 
 ### Skill bar
 
@@ -139,10 +151,12 @@ focus-outline/navigation conventions as the card pop-out.
 ## Testing
 
 - `LevelRules` / `ArmyRules` via the existing pure-test harness (mcs) + EditMode NUnit tests:
-  table lookup, derivation sums, skill draw exclusion/exhaustion-of-pool, cap checks.
+  table lookup (including skill/card pick counts), derivation sums, skill draw
+  exclusion/exhaustion-of-pool, cap checks.
 - Exp overflow: gaining exp past two thresholds at once yields two level-ups and carries remainder.
 - Manual acceptance: level to 2 → skill modal offers 3; picked skill appears, activates once,
-  refreshes on its cadence and undoes cleanly; level 4 → hand tops to 6 next turn and a second
+  refreshes on its cadence and undoes cleanly; level 3 → card reward screen opens after any skill
+  modal and the chosen card enters the deck; level 4 → hand tops to 6 next turn and a second
   unit can be hired; at cap, recruit opens disband flow; save/load round-trips owned + exhausted
   skills and derived sizes.
 

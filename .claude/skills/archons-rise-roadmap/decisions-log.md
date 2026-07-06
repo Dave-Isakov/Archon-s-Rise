@@ -130,3 +130,12 @@ editing an old one.
   _Why:_ the HP-to-0 clause had no code behind it and a depletable pool would overlap confusingly
   with the Wound mechanic; keeping HP as pure toughness makes the level table's +1 HP a clear,
   already-working reward.
+
+- **2026-07-06 — Level table amendment: card picks + all-count entries.**
+  Card rewards join the level table (levels 3/6/10 to start), reusing the existing choose-1-of-3
+  `RewardCanvas` screen and curated reward pool exactly as enemy-defeat card rewards do, queued
+  after any skill modal. `LevelRewardEntry` fields are all per-level **counts** (skillPicks,
+  cardPicks, hpBonus, handSizeBonus, armySizeBonus) rather than booleans.
+  _Why:_ user wants level rewards freely tunable during playtesting — counts on one SO asset make
+  every knob an inspector edit, and reusing the reward screen adds deck progression to leveling
+  with near-zero new UI.

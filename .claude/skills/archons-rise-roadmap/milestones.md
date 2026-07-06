@@ -25,7 +25,8 @@ services; retreat costs 3 wounds and keeps progress. ✅
 ## M2.4 — Level-up rewards  _(Current Focus)_
 **Goal:** make leveling pay out — the progression a win/lose loop needs to matter.
 **Scope:**
-- **Fixed reward table** (`LevelRewardsSO`): skill picks, +HP (toughness), +hand size, +army size.
+- **Fixed reward table** (`LevelRewardsSO`): skill picks, card picks (existing choose-1-of-3
+  screen), +HP (toughness), +hand size, +army size — all per-level counts, inspector-tunable.
 - **Skills** (`SkillsSO` + skill bar): pick 1 of 3 on skill levels; exhaust/refresh per turn or
   per round; undoable activation.
 - **Army cap** (starts 1) + disband-to-hire at cap; pure `LevelRules`/`ArmyRules` classes.
