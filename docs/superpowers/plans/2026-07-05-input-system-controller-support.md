@@ -1030,6 +1030,21 @@ git commit -m "feat: pure InspectorNavRules for pop-out section navigation"
 > `ClampReachable` snaps an unreachable focused section to Play. `FocusFromHover` ignores Empower/Back
 > (no longer focus targets) so the existing hover wiring stays harmless — no scene re-wire needed;
 > `empowerTarget`/`backTarget` fields simply go unused.
+>
+> **ALSO ADDED (message-canvas modal capture).** The validation-message popup was not blocking input,
+> so the hand/pop-out stayed live underneath it. New `MessageController` (on the message canvas):
+> while `messageCanvas.enabled`, Submit **or** Cancel calls `GameManager.ReturnButton()` to dismiss —
+> the sole action, no highlight. `HandFocusController`, `InspectorNavController`, `TurnFlowShortcuts`
+> (Task 8), and the `DataManager` Menu handler each early-return while `messageCanvas.enabled`; the
+> first three also swallow the frame it closes on (a `_messageWasUp` latch) so the dismiss press can't
+> double-act regardless of Update order. No new `InputContext` value — it's a modal gated by the
+> canvas flag, like `mainMenuCanvas`/`cardListCanvas`. Manual step: add **Message Controller** to a
+> scene object (e.g. the message canvas or GameManager).
+>
+> **ALSO ADDED (Back button auto-hide).** Back is redundant with Cancel (B) on a controller, so
+> `InspectorNavController` hides `backTarget` while the pad is the active device and restores it on
+> the next mouse/keyboard use (last-input-wins, `PadActuated`/`DesktopActuated`). Reuses the already-
+> wired `backTarget` field — no new wiring.
 
 **Files:**
 - Create: `Assets/Scripts/GameObjectScripts/CardMenuScripts/InspectorNavController.cs`

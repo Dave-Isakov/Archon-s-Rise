@@ -122,6 +122,12 @@ three:
   `InspectorNavController` consumes everything. Undo/EndTurn are **suppressed**
   (mid-selection undo would yank state out from under the inspector; Cancel out first).
 
+The validation-message popup is a **modal overlay**, not a context: `MessageController` owns
+input while `messageCanvas.enabled` (Submit or Cancel → `ReturnButton()`), and every gameplay
+controller early-returns while it is up (swallowing the frame it closes on so the dismiss press
+does not double-act). It is gated by the canvas flag like `mainMenuCanvas`/`cardListCanvas`
+rather than by saving/restoring the underlying context.
+
 Making the context explicit now — instead of scattered `if (cardCanvas.enabled)` checks —
 is the seam the later map/town/combat phases extend by adding a context, not by rewiring
 this one. Mouse users can click any on-screen button anytime regardless of context, exactly
@@ -170,7 +176,8 @@ kept but only travels within one section at a time.
   Left/Right cycle segments (wrap), Down → Play; Improvise (vertical) — Up/Down through the
   four stats, Down past the last → Play; Play — directions do nothing (leave via L1/R1).
 - **Submit** activates the focused option (choice/improvise stat) or Play; **Cancel** calls
-  `Close()`. Back is no longer a pad focus target (Cancel already covers it).
+  `Close()`. Back is no longer a pad focus target and is **hidden while the controller is the
+  active device** (Cancel covers it), reappearing on the next mouse/keyboard use — last-input-wins.
 - **Auto-default to Play:** each frame, if the focused section is no longer reachable — e.g.
   Improvise focused then X empowers (locking Improvise), or Choice locks while Improvise is
   active — focus snaps to Play. Generalizes "improvise unavailable → default to Play."
