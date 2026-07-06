@@ -109,3 +109,24 @@ editing an old one.
   `docs/superpowers/specs/2026-07-04-enemy-preview-design.md`.
   _Why:_ closes the "see what you're up against before you spend cards / commit to an assault" gap
   that Siege assumed but never delivered, while leaving preview visibility itself gameable.
+
+- **2026-07-06 — Level-up rewards: fixed table + skills + army cap (M2.4, before win/lose).**
+  Level-ups pay out from a fixed, data-driven table (`LevelRewardsSO`), replacing the old
+  even/odd/every-3rd comment scheme: skill picks (choose 1 of 3 unowned from a pool), +1 HP,
+  +1 hand size, +1 army size at milestone levels. Skills (`SkillsSO`) live on an exhaustible
+  skill bar — per-turn (weak stat gains) or per-round (crystals, heal 1 wound) cadence, undoable
+  via the command stack. Army cap is new (starts 1); at cap, recruiting is disband-to-hire.
+  Hand size and army cap are **derived from level + table, never saved**; schema v3 adds only
+  owned/exhausted skill ids. Exp overflow now carries over instead of resetting to 0.
+  Spec: `docs/superpowers/specs/2026-07-06-level-up-rewards-design.md`.
+  _Why:_ progression must reward before a win/lose loop (M2.5) has stakes; a fixed table is the
+  cheapest structure that still gives the player agency where it matters (which skill), and
+  deriving sizes from level keeps saves lean and migration trivial.
+
+- **2026-07-06 — HP is toughness, not a health pool.**
+  HP's only role is the wound divisor in `CombatRules.WoundCount` (Defend shortfall is split into
+  HP-sized bites, one Wound each). It never depletes; the "HP reduced to 0" loss clause is removed
+  from mechanics/balance — the tactical loss is solely Wounds ≥ threshold.
+  _Why:_ the HP-to-0 clause had no code behind it and a depletable pool would overlap confusingly
+  with the Wound mechanic; keeping HP as pure toughness makes the level table's +1 HP a clear,
+  already-working reward.

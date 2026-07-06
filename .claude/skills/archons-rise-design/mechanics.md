@@ -11,7 +11,8 @@ four action stats, then act:
   counterattack can wound you when Defend falls short) or **Siege** (spends the separate Siege pool
   vs the enemy's HP; always wound-free — the counterattack is skipped). Both grant identical
   rewards; Siege is scarce (advanced cards/units only, never improvisable),
-- **Recruit** units at a town (spending Influence),
+- **Recruit** units at a town (spending Influence) — up to the **army cap** (starts at 1, raised
+  by level-ups; at cap, hiring requires disbanding an existing unit),
 - **Move/explore** further (spending Explore).
 
 Gain rewards (experience, crystals, cards) from defeating enemies and clearing dungeons, level up,
@@ -31,9 +32,13 @@ Level/Influence gate. Exact rosters and castle count are tuning — see [balance
 
 ## Lose — Wounds (tactical)
 Losing a fight (insufficient Defend vs the enemy's Attack) shuffles **Wound** cards into the deck.
-Wounds are dead draws that clog the deck; accumulating too many — a count threshold or HP reduced
-to zero (see [balance.md](balance.md)) — ends the run. **Heal/Mend** cards remove Wounds, so wound
-management is an ongoing tactical cost.
+Wounds are dead draws that clog the deck; accumulating too many — a count threshold (see
+[balance.md](balance.md)) — ends the run. **Heal/Mend** cards remove Wounds, so wound management is
+an ongoing tactical cost.
+
+**HP is toughness, not a health pool** (decision 2026-07-06): HP divides the Defend shortfall into
+HP-sized bites, one Wound per bite (`CombatRules.WoundCount`). HP never depletes and is not a loss
+axis — raising it via level-ups means each bad fight inflicts fewer Wounds.
 
 ## Lose — Doom Clock (strategic)
 A corruption/threat value rises every round (rate in [balance.md](balance.md)); some events push it
@@ -80,10 +85,21 @@ A card may be **Empowered** by spending one **Crystal** of the card's color
 crystal-granting cards, so empowering is a deliberate tactical choice (pillar 3).
 
 ## Leveling
-Experience accrues toward `expToNextLevel`. On level-up, apply the existing code intent:
-- **Even** level → +1 to a chosen stat,
-- **Odd** level → +HP,
-- every **3rd** level → +hand size,
-- every level → a new skill/option.
+Experience accrues toward `expToNextLevel`. On level-up, rewards come from a **fixed, data-driven
+reward table** (`LevelRewardsSO` — decision 2026-07-06, replacing the older even/odd scheme).
+Three reward kinds:
+- **Skill pick** — choose 1 of 3 random unowned skills from the pool (see Skills below).
+- **+1 hand size** at milestone levels.
+- **+1 army size** at milestone levels (raises the recruit cap).
+- **+1 HP** at milestone levels (toughness — fewer Wounds per bad fight).
 
-The experience curve and per-level values are tuning — see [balance.md](balance.md).
+Hand size and army cap are **derived from level + table**, never stored in saves. The experience
+curve and the table itself are tuning — see [balance.md](balance.md).
+
+## Skills
+Level-up rewards distinct from cards: activatable abilities on a persistent **skill bar**. A skill
+is clicked to apply its effect (gain a stat, a crystal, or heal a wound), then **exhausts** until
+its cadence refreshes it — **per-turn** skills refresh at turn end (weak effects), **per-round**
+skills at round end (strong effects, e.g. crystals and healing). Activation is undoable via the
+command stack, like card plays. Skills are acquired only via level-up picks; the pool is defined
+on `LevelRewardsSO` (spec: `docs/superpowers/specs/2026-07-06-level-up-rewards-design.md`).

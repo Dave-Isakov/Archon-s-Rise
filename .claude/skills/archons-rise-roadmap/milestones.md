@@ -22,7 +22,21 @@ Spec: `docs/superpowers/specs/2026-06-30-m2-place-type-system-design.md`.
 **Acceptance:** a Keep/Castle can be assaulted, conquered across sessions, and gates its
 services; retreat costs 3 wounds and keeps progress. ✅
 
-## M2.5 — Win/lose systems  _(Current Focus)_
+## M2.4 — Level-up rewards  _(Current Focus)_
+**Goal:** make leveling pay out — the progression a win/lose loop needs to matter.
+**Scope:**
+- **Fixed reward table** (`LevelRewardsSO`): skill picks, +HP (toughness), +hand size, +army size.
+- **Skills** (`SkillsSO` + skill bar): pick 1 of 3 on skill levels; exhaust/refresh per turn or
+  per round; undoable activation.
+- **Army cap** (starts 1) + disband-to-hire at cap; pure `LevelRules`/`ArmyRules` classes.
+- **Save schema v3**: owned + exhausted skill ids (hand/army derived from level, not stored).
+- Exp overflow carries over instead of being discarded.
+
+Spec: `docs/superpowers/specs/2026-07-06-level-up-rewards-design.md`.
+**Acceptance:** leveling to 2 offers a 3-skill pick usable on its cadence with undo; level 4
+grants +1 hand and +1 army; recruit at cap forces disband-to-hire; skills survive save/load.
+
+## M2.5 — Win/lose systems
 **Goal:** make a run winnable and losable.
 **Scope:**
 - **Victory** — conquer **2 Castles** (`ConquestTracker.ConqueredCastleCount()`).
