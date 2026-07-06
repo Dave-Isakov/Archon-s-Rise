@@ -92,7 +92,11 @@ public class Card : MonoBehaviour, IPointerClickHandler
             greenColor, redColor, purpleColor, yellowColor);
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public void OnPointerClick(PointerEventData eventData) => ToggleInspect();
+
+    // Device-agnostic inspect entry point: mouse click and gamepad Submit
+    // (HandFocusController) both come through here, so the guards apply equally.
+    public void ToggleInspect()
     {
         if (GameManager.Instance.cardListCanvas.enabled) return;
 
