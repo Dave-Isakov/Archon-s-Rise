@@ -1035,9 +1035,10 @@ git commit -m "feat: pure InspectorNavRules for pop-out section navigation"
 > so the hand/pop-out stayed live underneath it. New `MessageController` (on the message canvas):
 > while `messageCanvas.enabled`, Submit **or** Cancel calls `GameManager.ReturnButton()` to dismiss —
 > the sole action, no highlight. `HandFocusController`, `InspectorNavController`, `TurnFlowShortcuts`
-> (Task 8), and the `DataManager` Menu handler each early-return while `messageCanvas.enabled`; the
-> first three also swallow the frame it closes on (a `_messageWasUp` latch) so the dismiss press can't
-> double-act regardless of Update order. No new `InputContext` value — it's a modal gated by the
+> (Task 8), and the `DataManager` Menu handler each early-return while `messageCanvas.enabled`.
+> `HandFocusController`/`InspectorNavController` additionally swallow the frame it closes on (a
+> `_messageWasUp` latch) so the dismiss A/B can't double-act regardless of Update order;
+> `TurnFlowShortcuts` and the Menu handler read only non-dismiss buttons, so the guard alone suffices. No new `InputContext` value — it's a modal gated by the
 > canvas flag, like `mainMenuCanvas`/`cardListCanvas`. Manual step: add **Message Controller** to a
 > scene object (e.g. the message canvas or GameManager).
 >
@@ -1278,6 +1279,14 @@ git commit -m "feat: gamepad navigation and shared focus outline for the card po
 ---
 
 ### Task 8: Turn-flow shortcuts (Undo, End Turn / End Round)
+
+> **ALSO ADDED (End Turn full-hand gate).** Ending a turn with a full, unplayed hand just ticks the
+> counter (played cards stay in `cardsInPlay` until commit, so the real condition is `count >= handSize
+> && no card IsPlayed`). `EndTurnButton` now blocks that on both the click and gamepad paths with
+> "You cannot end the turn with a full hand." — `Trigger()` returns `true` (handled) so the pad does
+> NOT fall back to End Round. **FOLLOW-UP (out of scope here):** the user wants a full hand of *wounds*
+> (no playable cards) to be a **game-over/loss**, checked at draw time. No loss screen exists yet, so
+> that is tracked as its own feature; until then the gate simply blocks that hand too.
 
 **Files:**
 - Modify: `Assets/Scripts/GameObjectScripts/DeckScripts/UndoButton.cs`
