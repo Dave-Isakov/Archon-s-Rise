@@ -240,6 +240,33 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Empower"",
+                    ""type"": ""Button"",
+                    ""id"": ""8a1b0000-0000-4000-8000-000000000207"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SectionChoice"",
+                    ""type"": ""Button"",
+                    ""id"": ""8a1b0000-0000-4000-8000-000000000208"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SectionImprovise"",
+                    ""type"": ""Button"",
+                    ""id"": ""8a1b0000-0000-4000-8000-000000000209"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -407,6 +434,72 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""action"": ""Menu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8a1b0000-0000-4000-8000-000000000229"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Empower"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8a1b0000-0000-4000-8000-00000000022a"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Empower"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8a1b0000-0000-4000-8000-00000000022b"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SectionChoice"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8a1b0000-0000-4000-8000-00000000022c"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SectionChoice"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8a1b0000-0000-4000-8000-00000000022d"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SectionImprovise"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8a1b0000-0000-4000-8000-00000000022e"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SectionImprovise"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -429,6 +522,9 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         m_Gameplay_Undo = m_Gameplay.FindAction("Undo", throwIfNotFound: true);
         m_Gameplay_EndTurn = m_Gameplay.FindAction("EndTurn", throwIfNotFound: true);
         m_Gameplay_Menu = m_Gameplay.FindAction("Menu", throwIfNotFound: true);
+        m_Gameplay_Empower = m_Gameplay.FindAction("Empower", throwIfNotFound: true);
+        m_Gameplay_SectionChoice = m_Gameplay.FindAction("SectionChoice", throwIfNotFound: true);
+        m_Gameplay_SectionImprovise = m_Gameplay.FindAction("SectionImprovise", throwIfNotFound: true);
     }
 
     ~@Controls()
@@ -667,6 +763,9 @@ public partial class @Controls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_Undo;
     private readonly InputAction m_Gameplay_EndTurn;
     private readonly InputAction m_Gameplay_Menu;
+    private readonly InputAction m_Gameplay_Empower;
+    private readonly InputAction m_Gameplay_SectionChoice;
+    private readonly InputAction m_Gameplay_SectionImprovise;
     /// <summary>
     /// Provides access to input actions defined in input action map "Gameplay".
     /// </summary>
@@ -702,6 +801,18 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Gameplay/Menu".
         /// </summary>
         public InputAction @Menu => m_Wrapper.m_Gameplay_Menu;
+        /// <summary>
+        /// Provides access to the underlying input action "Gameplay/Empower".
+        /// </summary>
+        public InputAction @Empower => m_Wrapper.m_Gameplay_Empower;
+        /// <summary>
+        /// Provides access to the underlying input action "Gameplay/SectionChoice".
+        /// </summary>
+        public InputAction @SectionChoice => m_Wrapper.m_Gameplay_SectionChoice;
+        /// <summary>
+        /// Provides access to the underlying input action "Gameplay/SectionImprovise".
+        /// </summary>
+        public InputAction @SectionImprovise => m_Wrapper.m_Gameplay_SectionImprovise;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -746,6 +857,15 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @Menu.started += instance.OnMenu;
             @Menu.performed += instance.OnMenu;
             @Menu.canceled += instance.OnMenu;
+            @Empower.started += instance.OnEmpower;
+            @Empower.performed += instance.OnEmpower;
+            @Empower.canceled += instance.OnEmpower;
+            @SectionChoice.started += instance.OnSectionChoice;
+            @SectionChoice.performed += instance.OnSectionChoice;
+            @SectionChoice.canceled += instance.OnSectionChoice;
+            @SectionImprovise.started += instance.OnSectionImprovise;
+            @SectionImprovise.performed += instance.OnSectionImprovise;
+            @SectionImprovise.canceled += instance.OnSectionImprovise;
         }
 
         /// <summary>
@@ -775,6 +895,15 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @Menu.started -= instance.OnMenu;
             @Menu.performed -= instance.OnMenu;
             @Menu.canceled -= instance.OnMenu;
+            @Empower.started -= instance.OnEmpower;
+            @Empower.performed -= instance.OnEmpower;
+            @Empower.canceled -= instance.OnEmpower;
+            @SectionChoice.started -= instance.OnSectionChoice;
+            @SectionChoice.performed -= instance.OnSectionChoice;
+            @SectionChoice.canceled -= instance.OnSectionChoice;
+            @SectionImprovise.started -= instance.OnSectionImprovise;
+            @SectionImprovise.performed -= instance.OnSectionImprovise;
+            @SectionImprovise.canceled -= instance.OnSectionImprovise;
         }
 
         /// <summary>
@@ -907,5 +1036,26 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMenu(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Empower" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnEmpower(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SectionChoice" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSectionChoice(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "SectionImprovise" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnSectionImprovise(InputAction.CallbackContext context);
     }
 }

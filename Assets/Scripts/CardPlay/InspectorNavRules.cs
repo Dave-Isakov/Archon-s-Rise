@@ -1,8 +1,11 @@
-// Pure navigation graph for the card pop-out. The physical layout is the map:
-// Choice banner top, Improvise panel left, Empower right, Play bar bottom.
-// A direction first cycles within the current section along its own axis; past
-// the ends (or on the cross axis) it jumps to the section that lies that way.
-// Unreachable (hidden/locked) sections are never landed on — the move stays put.
+// Pure navigation graph for the card pop-out (hybrid model). Section ENTRY is by
+// dedicated button (R1 -> Choice, L1 -> Improvise), not by direction; Empower is a
+// global toggle button, never a focus target. Direction only cycles options WITHIN
+// the focused section, or drops to Play. The physical layout still maps: Choice
+// banner top (horizontal), Improvise panel left (vertical), Play bar bottom.
+//
+// InspectorSection keeps all four values so already-wired scene references stay
+// valid, but these rules never produce Empower.
 
 public enum InspectorSection { Choice, Improvise, Empower, Play }
 
@@ -23,61 +26,58 @@ public static class InspectorNavRules
     // Initial focus when the pop-out opens: the Play button (bottom, nearest the fan).
     public static InspectorNavPosition Open() => new InspectorNavPosition(InspectorSection.Play, 0);
 
-    // dx/dy in {-1, 0, +1}; dy > 0 is up. Play options: 0 = Play, 1 = Back.
+    // R1: enter the Choice section at option 0 if it is reachable, else stay put.
+    public static InspectorNavPosition EnterChoice(InspectorNavPosition pos, bool choiceReachable)
+        => choiceReachable ? new InspectorNavPosition(InspectorSection.Choice, 0) : pos;
+
+    // L1: enter the Improvise section at option 0 if it is reachable, else stay put.
+    public static InspectorNavPosition EnterImprovise(InspectorNavPosition pos, bool improviseReachable)
+        => improviseReachable ? new InspectorNavPosition(InspectorSection.Improvise, 0) : pos;
+
+    // Direction cycles options within the focused section only. dx/dy in {-1,0,+1};
+    // dy > 0 is up. Choice is horizontal (dx cycles, wraps; down -> Play); Improvise
+    // is vertical (dy cycles, no wrap; down past the last -> Play); Play is inert.
     public static InspectorNavPosition Move(InspectorNavPosition pos, int dx, int dy,
-        bool choiceReachable, bool improviseReachable, bool empowerReachable,
         int choiceOptions, int improviseOptions)
     {
         switch (pos.Section)
         {
-            case InspectorSection.Play:
-                if (dx != 0)
-                    return new InspectorNavPosition(InspectorSection.Play, pos.Option == 0 ? 1 : 0);
-                if (dy > 0)
-                {
-                    // Up from Play reaches the first reachable section so every card
-                    // shape (non-choice, non-empowerable) can leave the Play bar.
-                    if (choiceReachable)    return new InspectorNavPosition(InspectorSection.Choice, 0);
-                    if (improviseReachable) return new InspectorNavPosition(InspectorSection.Improvise, 0);
-                    if (empowerReachable)   return new InspectorNavPosition(InspectorSection.Empower, 0);
-                }
-                return pos;
-
             case InspectorSection.Choice:
-                if (dx > 0)
-                    return pos.Option + 1 < choiceOptions
-                        ? new InspectorNavPosition(InspectorSection.Choice, pos.Option + 1)
-                        : JumpOrStay(pos, InspectorSection.Empower, empowerReachable);
-                if (dx < 0)
-                    return pos.Option > 0
-                        ? new InspectorNavPosition(InspectorSection.Choice, pos.Option - 1)
-                        : JumpOrStay(pos, InspectorSection.Improvise, improviseReachable);
-                if (dy < 0)
-                    return new InspectorNavPosition(InspectorSection.Play, 0);
+                if (dx != 0 && choiceOptions > 0)
+                {
+                    int step = dx > 0 ? 1 : -1;
+                    int next = ((pos.Option + step) % choiceOptions + choiceOptions) % choiceOptions;
+                    return new InspectorNavPosition(InspectorSection.Choice, next);
+                }
+                if (dy < 0) return new InspectorNavPosition(InspectorSection.Play, 0); // down -> Play
                 return pos;
 
             case InspectorSection.Improvise:
-                if (dy > 0)
+                if (dy > 0) // up
                     return pos.Option > 0
                         ? new InspectorNavPosition(InspectorSection.Improvise, pos.Option - 1)
-                        : JumpOrStay(pos, InspectorSection.Choice, choiceReachable);
-                if (dy < 0)
+                        : pos; // at top, stay
+                if (dy < 0) // down
                     return pos.Option + 1 < improviseOptions
                         ? new InspectorNavPosition(InspectorSection.Improvise, pos.Option + 1)
-                        : new InspectorNavPosition(InspectorSection.Play, 0);
-                if (dx > 0)
-                    return JumpOrStay(pos, InspectorSection.Empower, empowerReachable);
-                return pos;
-
-            case InspectorSection.Empower:
-                if (dx < 0) return JumpOrStay(pos, InspectorSection.Improvise, improviseReachable);
-                if (dy > 0) return JumpOrStay(pos, InspectorSection.Choice, choiceReachable);
-                if (dy < 0) return new InspectorNavPosition(InspectorSection.Play, 0);
-                return pos;
+                        : new InspectorNavPosition(InspectorSection.Play, 0); // past last -> Play
+                return pos; // left/right stay
         }
-        return pos;
+        return pos; // Play (and defensive Empower) are inert
     }
 
-    static InspectorNavPosition JumpOrStay(InspectorNavPosition from, InspectorSection to, bool reachable)
-        => reachable ? new InspectorNavPosition(to, 0) : from;
+    // Called every frame: if the focused section is no longer reachable (Choice locked
+    // while Improvise is active, or Improvise locked after empowering), or is the
+    // never-focusable Empower, snap focus back to Play.
+    public static InspectorNavPosition ClampReachable(InspectorNavPosition pos,
+        bool choiceReachable, bool improviseReachable)
+    {
+        if (pos.Section == InspectorSection.Choice && !choiceReachable)
+            return new InspectorNavPosition(InspectorSection.Play, 0);
+        if (pos.Section == InspectorSection.Improvise && !improviseReachable)
+            return new InspectorNavPosition(InspectorSection.Play, 0);
+        if (pos.Section == InspectorSection.Empower)
+            return new InspectorNavPosition(InspectorSection.Play, 0);
+        return pos;
+    }
 }

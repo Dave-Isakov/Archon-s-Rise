@@ -15,11 +15,27 @@ public class HandFocusController : MonoBehaviour
     bool _navLatched;
     int _lastPadIndex = -1;
     bool _inspectorWasOpen;
+    bool _messageWasUp;
 
     void Update()
     {
         var gm = GameManager.Instance;
         if (gm == null) return;
+
+        if (gm.messageCanvas.enabled)
+        {
+            // A validation message is a modal: MessageController owns input, we do
+            // nothing. Keep focus as-is so it resumes when the message clears.
+            _messageWasUp = true;
+            return;
+        }
+        if (_messageWasUp)
+        {
+            // Swallow the frame the message closed on so the A/B that dismissed it
+            // can't also open a card here (independent of Update ordering).
+            _messageWasUp = false;
+            return;
+        }
 
         if (gm.cardCanvas.enabled)
         {

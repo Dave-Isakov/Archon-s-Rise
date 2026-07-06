@@ -27,7 +27,10 @@
                 {"name": "Cancel", "type": "Button", "id": "8a1b0000-0000-4000-8000-000000000203", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
                 {"name": "Undo", "type": "Button", "id": "8a1b0000-0000-4000-8000-000000000204", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
                 {"name": "EndTurn", "type": "Button", "id": "8a1b0000-0000-4000-8000-000000000205", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
-                {"name": "Menu", "type": "Button", "id": "8a1b0000-0000-4000-8000-000000000206", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false}
+                {"name": "Menu", "type": "Button", "id": "8a1b0000-0000-4000-8000-000000000206", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "Empower", "type": "Button", "id": "8a1b0000-0000-4000-8000-000000000207", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "SectionChoice", "type": "Button", "id": "8a1b0000-0000-4000-8000-000000000208", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "SectionImprovise", "type": "Button", "id": "8a1b0000-0000-4000-8000-000000000209", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false}
             ],
             "bindings": [
                 {"name": "", "id": "8a1b0000-0000-4000-8000-000000000211", "path": "<Gamepad>/dpad", "interactions": "", "processors": "", "groups": "", "action": "Navigate", "isComposite": false, "isPartOfComposite": false},
@@ -44,7 +47,13 @@
                 {"name": "", "id": "8a1b0000-0000-4000-8000-000000000225", "path": "<Gamepad>/buttonWest", "interactions": "", "processors": "", "groups": "", "action": "Undo", "isComposite": false, "isPartOfComposite": false},
                 {"name": "", "id": "8a1b0000-0000-4000-8000-000000000226", "path": "<Gamepad>/buttonNorth", "interactions": "", "processors": "", "groups": "", "action": "EndTurn", "isComposite": false, "isPartOfComposite": false},
                 {"name": "", "id": "8a1b0000-0000-4000-8000-000000000227", "path": "<Gamepad>/start", "interactions": "", "processors": "", "groups": "", "action": "Menu", "isComposite": false, "isPartOfComposite": false},
-                {"name": "", "id": "8a1b0000-0000-4000-8000-000000000228", "path": "<Keyboard>/escape", "interactions": "", "processors": "", "groups": "", "action": "Menu", "isComposite": false, "isPartOfComposite": false}
+                {"name": "", "id": "8a1b0000-0000-4000-8000-000000000228", "path": "<Keyboard>/escape", "interactions": "", "processors": "", "groups": "", "action": "Menu", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "8a1b0000-0000-4000-8000-000000000229", "path": "<Gamepad>/buttonWest", "interactions": "", "processors": "", "groups": "", "action": "Empower", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "8a1b0000-0000-4000-8000-00000000022a", "path": "<Keyboard>/space", "interactions": "", "processors": "", "groups": "", "action": "Empower", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "8a1b0000-0000-4000-8000-00000000022b", "path": "<Gamepad>/rightShoulder", "interactions": "", "processors": "", "groups": "", "action": "SectionChoice", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "8a1b0000-0000-4000-8000-00000000022c", "path": "<Keyboard>/e", "interactions": "", "processors": "", "groups": "", "action": "SectionChoice", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "8a1b0000-0000-4000-8000-00000000022d", "path": "<Gamepad>/leftShoulder", "interactions": "", "processors": "", "groups": "", "action": "SectionImprovise", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "8a1b0000-0000-4000-8000-00000000022e", "path": "<Keyboard>/q", "interactions": "", "processors": "", "groups": "", "action": "SectionImprovise", "isComposite": false, "isPartOfComposite": false}
             ]
         }
     ],
