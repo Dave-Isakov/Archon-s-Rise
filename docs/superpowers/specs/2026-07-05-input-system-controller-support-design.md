@@ -5,8 +5,10 @@
 **Parent spec:** `2026-06-29-hand-and-card-play-rework-design.md` (Phase 4)
 **Scope:** Replace Unity's legacy input with the new Input System (exclusive) and make the
 hand fan + card pop-out fully playable on a gamepad, including Undo, End Turn/Round, and the
-pause menu. Board navigation (map tokens, dungeons, towns, town menus, rewards) is a later,
-separate effort.
+pause menu. The hand is only one of the player's control surfaces — the hex-grid map (tokens,
+dungeons, movement), town menus, and combat/reward card selection are later phases, but the
+foundation built here (actions asset, input contexts, focus-controller pattern) is designed
+to be the same one those phases plug into.
 
 ## Goal
 
@@ -16,7 +18,9 @@ card, undo it, end the turn, and open the menu — while a mouse player notices 
 
 ## Decisions locked during brainstorming
 
-- **Scope:** foundation + hand/inspector. Board navigation deferred.
+- **Scope:** foundation + hand/inspector. Map/board, town, and combat-card navigation are
+  deferred, but nothing in this phase may assume the hand is the only controllable surface —
+  the actions asset and context model are shared infrastructure for those later phases.
 - **Migration:** **full exclusive** — Active Input Handling = Input System (Approach C).
   Missed legacy call sites throw at runtime, failing loudly instead of silently.
 - **Architecture:** custom focus/nav controllers reading input actions directly; uGUI's
@@ -71,7 +75,12 @@ One asset, `Assets/Input/Controls.inputactions`, with two maps:
 | Map | Actions | Consumer |
 |---|---|---|
 | **UI** | Point, Click, ScrollWheel, Navigate, Submit, Cancel | `InputSystemUIInputModule` (mouse compatibility) |
-| **CardPlay** | Navigate, Submit, Cancel, Undo, EndTurn, Menu | `HandFocusController`, `InspectorNavController`, `DataManager` |
+| **Gameplay** | Navigate, Submit, Cancel, Undo, EndTurn, Menu | The context controllers (`HandFocusController`, `InspectorNavController` now; board/town/combat controllers later) and `DataManager` |
+
+The Gameplay map is deliberately **context-agnostic**: the actions are semantic
+(Navigate/Submit/Cancel), and what they *mean* is decided by whichever input context is
+active (see "Input contexts" below). Later phases add controllers, not action maps — hex-grid
+navigation, town menu selection, and combat-card picking all read these same six actions.
 
 Gamepad bindings (one set — Xbox, DualSense, and Switch Pro all normalize to the Input
 System's `Gamepad` layout; Switch mapping is positional, so "south" is always the bottom
@@ -94,15 +103,25 @@ Backspace = Cancel, Escape = Menu. Keyboard-only card play becomes possible as a
 prevents the per-frame mouse hit-test from stomping a d-pad focus change. No cursor hiding,
 no device-switch UI — only this arbitration rule.
 
-**Undo/EndTurn gating.** The pad shortcuts are live on the fan and **suppressed while the
-pop-out is open** (mid-selection undo would yank state out from under the inspector; Cancel
-out first). Mouse users can click the on-screen buttons anytime, exactly as today. The
-shortcuts invoke the same handlers the on-screen buttons use, so all existing validation and
-`interactable` gating applies.
+**Input contexts — who owns Navigate right now.** A minimal `InputContext` model (a small
+static class or enum-valued property, not a framework): exactly one context is active at a
+time, and only that context's controller consumes Navigate/Submit/Cancel. This phase defines
+three:
 
-**Menu gating.** While the pop-out is open, Escape acts as Cancel (closes the pop-out) rather
-than opening the main menu; Menu (Escape / Start) opens the menu only from the fan/board.
-This replaces today's behavior where Escape would open the main menu over the card menu.
+- **Board** — the default. No gamepad navigation yet (mouse-only this phase); this is the
+  slot where the future hex-grid/map controller, town-menu controller, and combat-card
+  controller will live. Undo/EndTurn/Menu shortcuts are live here.
+- **Fan** — entered when gamepad/keyboard navigation targets the hand (see coexistence rule);
+  `HandFocusController` consumes Navigate/Submit. Undo/EndTurn/Menu remain live.
+- **Inspector** — entered by `CardInspector.Open()`, exited by `Close()`;
+  `InspectorNavController` consumes everything. Undo/EndTurn are **suppressed**
+  (mid-selection undo would yank state out from under the inspector; Cancel out first).
+
+Making the context explicit now — instead of scattered `if (cardCanvas.enabled)` checks —
+is the seam the later map/town/combat phases extend by adding a context, not by rewiring
+this one. Mouse users can click any on-screen button anytime regardless of context, exactly
+as today; the shortcuts invoke the same handlers the on-screen buttons use, so all existing
+validation and `interactable` gating applies.
 
 ## Part 3 — Hand fan navigation
 
@@ -113,11 +132,11 @@ the focus controller. The existing "inspector open → clear focus" guard stays.
 **`HandFocusController` (new MonoBehaviour) — the single writer of focus.**
 - **Mouse path:** the same slot-based hit-test as today (front-to-back, slot position not
   lifted position), reading `Mouse.current.position`, evaluated only when the pointer moved.
-- **Pad/keyboard path:** Navigate left/right steps focus through playable cards —
-  skipping wounds (same rule the mouse applies) and **wrapping** at the ends. First navigate
-  press with nothing focused focuses the middle card.
+- **Pad/keyboard path:** the first Navigate press from the Board context enters the Fan
+  context and focuses the middle card. Left/right then steps focus through playable cards —
+  skipping wounds (same rule the mouse applies) and **wrapping** at the ends.
 - **Submit** opens the inspector for the focused card through the same path a mouse click
-  takes.
+  takes. **Cancel** clears the hand focus and drops back to the Board context.
 - On relayout (draw/discard/heal/play), focus clamps to the nearest surviving card instead of
   vanishing.
 
@@ -127,7 +146,7 @@ clamp-to-nearest-on-removal. EditMode-tested like `PreviewRules`.
 ## Part 4 — Inspector navigation
 
 **`InspectorNavController` (new MonoBehaviour).** Active only while the pop-out is open;
-reads the same CardPlay actions and drives the **existing** inspector API (`ChooseStat`,
+reads the same Gameplay actions and drives the **existing** inspector API (`ChooseStat`,
 `ImproviseStat`, `SetEmpowered`, `Play`, `Close`). No new state — the section views keep
 rendering from `CardPlaySelection` via `inspector.Changed`, so mouse and pad stay in sync by
 construction.
@@ -161,11 +180,29 @@ hover reuses the same visual so both devices feel like one system.
 - **Scene wiring** (EventSystem swap, new controller components, action-asset references) is
   done by the user in the editor from step-by-step instructions; no hand-edited scene YAML.
 
+## Looking ahead — the rest of the control surface (design constraint, not deliverables)
+
+The player's other control surfaces arrive in later phases, but this phase's foundation must
+not paint them into a corner. Known future contexts and what they already have waiting:
+
+- **Hex-grid map:** focusing and activating map hexes, enemy/town tokens, and dungeons, plus
+  moving the player. Whether that's snap-to-object navigation or a free virtual cursor is a
+  later design decision — both consume the same Vector2 `Navigate` action, so nothing here
+  pre-commits. `PreviewTrigger.Focus()/Unfocus()` was already built input-agnostic so a
+  controller focus can drive the enemy preview exactly like mouse hover does.
+- **Town menus:** recruit/crystal/reward buttons — conventional button grids; a town context
+  controller reading Navigate/Submit/Cancel.
+- **Combat and reward card rows:** picking a combat card or reward — likely a simplified
+  cousin of the fan's focus-stepping, reusing `HandNavRules`-style pure logic.
+
+Each becomes a new `InputContext` plus a controller reading the existing Gameplay map. If a
+later phase finds it needs a *new action* (e.g. a map-zoom axis), it adds it to the Gameplay
+map without touching the hand/inspector controllers.
+
 ## Out of scope / non-goals
 
-- Board navigation on controller (map movement, token/dungeon/town focus, town menus,
-  rewards, crystal inventory browsing) — later effort; `PreviewTrigger.Focus()/Unfocus()` is
-  already shaped for it.
+- Board navigation on controller (map movement, hex/token/dungeon/town focus, town menus,
+  rewards, crystal inventory browsing) — later phases, anticipated above but not built here.
 - Button-prompt glyphs / last-device HUD hints.
 - Input rebinding UI, cursor hiding, rumble.
 - Any change to `CardPlaySelection`, the command/undo system, stat math, or play juice.
