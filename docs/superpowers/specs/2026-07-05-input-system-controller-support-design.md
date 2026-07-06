@@ -75,12 +75,14 @@ One asset, `Assets/Input/Controls.inputactions`, with two maps:
 | Map | Actions | Consumer |
 |---|---|---|
 | **UI** | Point, Click, ScrollWheel, Navigate, Submit, Cancel | `InputSystemUIInputModule` (mouse compatibility) |
-| **Gameplay** | Navigate, Submit, Cancel, Undo, EndTurn, Menu | The context controllers (`HandFocusController`, `InspectorNavController` now; board/town/combat controllers later) and `DataManager` |
+| **Gameplay** | Navigate, Submit, Cancel, Undo, EndTurn, Menu, Empower, SectionChoice, SectionImprovise | The context controllers (`HandFocusController`, `InspectorNavController` now; board/town/combat controllers later) and `DataManager` |
 
 The Gameplay map is deliberately **context-agnostic**: the actions are semantic
 (Navigate/Submit/Cancel), and what they *mean* is decided by whichever input context is
 active (see "Input contexts" below). Later phases add controllers, not action maps — hex-grid
-navigation, town menu selection, and combat-card picking all read these same six actions.
+navigation, town menu selection, and combat-card picking all read these same actions. The
+pop-out adds three inspector-specific actions (Empower, SectionChoice, SectionImprovise) to
+the same map, consumed only by `InspectorNavController`.
 
 Gamepad bindings (one set — Xbox, DualSense, and Switch Pro all normalize to the Input
 System's `Gamepad` layout; Switch mapping is positional, so "south" is always the bottom
@@ -88,15 +90,18 @@ button regardless of the printed letter):
 
 | Control | Action |
 |---|---|
-| D-pad / left stick | Navigate — fan focus movement and pop-out section navigation |
+| D-pad / left stick | Navigate — fan focus movement and within-section option cycling in the pop-out |
 | South (A / Cross) | Submit — open inspector, select segment, press Play |
 | East (B / Circle) | Cancel — close the pop-out back to the fan |
-| West (X / Square) | Undo |
+| West (X / Square) | Undo (board/fan) / **toggle Empower** (inside the pop-out; Undo is context-suppressed there so both actions on the same button never collide) |
 | North (Y / Triangle) | End Turn / End Round (whichever button is currently active, respecting its `interactable` gate) |
+| L1 (LB / Left bumper) | Pop-out: enter **Improvise** section |
+| R1 (RB / Right bumper) | Pop-out: enter **Choice** section |
 | Start / Options | Menu (same as Escape) |
 
-Keyboard bindings on the same actions: arrows = navigate, Enter = Submit,
-Backspace = Cancel, Escape = Menu. Keyboard-only card play becomes possible as a side effect.
+Keyboard bindings on the same actions: arrows = navigate, Enter = Submit, Backspace = Cancel,
+Escape = Menu, `Space` = Empower, `Q` = Improvise section, `E` = Choice section. Keyboard-only
+card play becomes possible as a side effect.
 
 **Device coexistence — last input wins.** The mouse claims hand focus only when the pointer
 *moves* (delta ≠ 0 since last frame); gamepad/keyboard claims it on a navigate press. This
@@ -151,20 +156,31 @@ reads the same Gameplay actions and drives the **existing** inspector API (`Choo
 rendering from `CardPlaySelection` via `inspector.Changed`, so mouse and pad stay in sync by
 construction.
 
-- **Directional section jumps matching the physical layout:** Up = Choice banner (choice
-  cards only), Left = Improvise panel, Right = Empower panel, Down = Play bar. The layout is
-  its own tutorial.
-- Within a section, navigate cycles the options; **Submit** activates the highlighted option
-  (choice/improvise stat, Empower toggle, Play, Back); **Cancel** calls `Close()`.
-- Hidden or locked sections are skipped (non-choice card → no Choice stop; Improvise active →
-  Choice and Empower unreachable). You can never land on a locked segment.
-- **`InspectorNavRules` (new, pure):** given the card shape (isChoice, empowerable, flags)
-  and current mode, which sections exist and how focus cycles. EditMode-tested, including
-  "Improvise active → Choice/Empower unreachable".
+**Dedicated buttons over free directional navigation.** Free "focus through every option"
+felt unnatural, so section entry and Empower move to dedicated buttons; the moving outline is
+kept but only travels within one section at a time.
 
-**Focus visuals.** Segments gain a *focused* state distinct from *selected* (outline /
-brightness on `StatSegment`, plus equivalents for the Empower control and Play/Back). Mouse
-hover reuses the same visual so both devices feel like one system.
+- **Section entry is by shoulder button, not direction:** **R1** (rightShoulder / kbd `E`) →
+  Choice; **L1** (leftShoulder / kbd `Q`) → Improvise. Unreachable target → focus stays put.
+- **Empower is a global button, not a section:** **X** (`buttonWest` / kbd `Space`) toggles
+  the reservation from anywhere it is currently allowed (`CanEmpower()`), never moving focus.
+  It is no longer a directional stop (the `Empower` enum value is retained, but the rules
+  never produce it, so wired scene references stay valid).
+- **Direction cycles options *within* the focused section only:** Choice (horizontal) —
+  Left/Right cycle segments (wrap), Down → Play; Improvise (vertical) — Up/Down through the
+  four stats, Down past the last → Play; Play — directions do nothing (leave via L1/R1).
+- **Submit** activates the focused option (choice/improvise stat) or Play; **Cancel** calls
+  `Close()`. Back is no longer a pad focus target (Cancel already covers it).
+- **Auto-default to Play:** each frame, if the focused section is no longer reachable — e.g.
+  Improvise focused then X empowers (locking Improvise), or Choice locks while Improvise is
+  active — focus snaps to Play. Generalizes "improvise unavailable → default to Play."
+- **`InspectorNavRules` (new, pure):** the reduced graph above plus `EnterChoice` /
+  `EnterImprovise` section-entry helpers and `ClampReachable`. EditMode-tested, including the
+  auto-default and "unreachable section entry stays put" cases.
+
+**Focus visuals.** A single moving outline marks the focused Choice/Improvise segment or the
+Play button (Empower and Back are never focus targets). Mouse hover over a focusable element
+relays into the same outline so both devices feel like one system.
 
 ## Testing & verification
 

@@ -780,6 +780,17 @@ git commit -m "feat: HandFocusController owns fan focus for mouse and gamepad"
 
 ### Task 6: `InspectorNavRules` (pure, TDD)
 
+> **REVISED 2026-07-06 (hybrid pop-out model).** After play-testing Task 7, the free directional
+> section navigation was replaced with dedicated buttons (see updated spec Part 4). Net effect on
+> the pure rules: section **entry** is explicit (`EnterChoice`/`EnterImprovise`), not directional;
+> `Empower` is no longer a nav target (X button toggles it, handled in the controller); direction
+> only cycles options *within* a section (Choice L/R + Down→Play; Improvise U/D + Down-past-last→Play;
+> Play inert); add `ClampReachable(pos, choiceReachable, improviseReachable)` that snaps an
+> unreachable focused section to Play. The `InspectorSection` enum keeps all four values (incl.
+> `Empower`) so scene refs stay valid; the rules simply never return `Empower`. Tests below are
+> rewritten to match. The `Open()` = Play, "jump lands on option 0", and "unreachable entry stays
+> put" guarantees are retained.
+
 **Files:**
 - Create: `Assets/Scripts/CardPlay/InspectorNavRules.cs` (assembly `ArchonsRise.CardPlay`)
 - Test: `Assets/Tests/EditMode/InspectorNavRulesTests.cs`
@@ -1009,6 +1020,16 @@ git commit -m "feat: pure InspectorNavRules for pop-out section navigation"
 ---
 
 ### Task 7: `InspectorNavController` + focus outline + hover relay
+
+> **REVISED 2026-07-06 (hybrid pop-out model).** The controller now also reads three new Gameplay
+> actions added to `Controls.inputactions` (regenerate `Controls.cs` after editing the asset):
+> `Empower` (`<Gamepad>/buttonWest` + `<Keyboard>/space`), `SectionChoice` (`<Gamepad>/rightShoulder`
+> + `<Keyboard>/e`), `SectionImprovise` (`<Gamepad>/leftShoulder` + `<Keyboard>/q`). Behavior:
+> X→`SetEmpowered` toggle when `CanEmpower()`; R1/L1→`InspectorNavRules.EnterChoice/EnterImprovise`;
+> d-pad→within-section `Move`; Submit→activate focused option or Play; Cancel→`Close`. Each frame,
+> `ClampReachable` snaps an unreachable focused section to Play. `FocusFromHover` ignores Empower/Back
+> (no longer focus targets) so the existing hover wiring stays harmless — no scene re-wire needed;
+> `empowerTarget`/`backTarget` fields simply go unused.
 
 **Files:**
 - Create: `Assets/Scripts/GameObjectScripts/CardMenuScripts/InspectorNavController.cs`
