@@ -14,6 +14,14 @@ public class UndoButton : MonoBehaviour, IPointerClickHandler
             GameManager.Instance.ValidationMessage("There is nothing to undo.");
     }
 
+    // Gamepad path: same behavior as clicking the button, including the
+    // nothing-to-undo message.
+    public void Trigger()
+    {
+        if (undoButton.interactable) GameManager.Instance.commands.UndoCommand();
+        else GameManager.Instance.ValidationMessage("There is nothing to undo.");
+    }
+
     private void Start() 
     {
         undoButton.onClick.AddListener(() => GameManager.Instance.commands.UndoCommand());

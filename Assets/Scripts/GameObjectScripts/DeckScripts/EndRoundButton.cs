@@ -15,6 +15,15 @@ public class EndRoundButton : MonoBehaviour, IPointerClickHandler
         GameManager.Instance.commands.ClearStack();
     }
 
+    // Gamepad path; see EndTurnButton.Trigger.
+    public bool Trigger()
+    {
+        if (!endRoundButton.interactable) return false;
+        GameManager.Instance.commands.ClearStack();
+        endTheRound.Raise();
+        return true;
+    }
+
     private void Start()
     {
         endRoundButton.onClick.RemoveAllListeners();

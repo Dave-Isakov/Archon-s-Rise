@@ -20,10 +20,46 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
         GameManager.Instance.commands.ClearStack();
     }
 
+    // Gamepad path: commit the undo stack, then raise turn end — the same pair the
+    // click path performs (OnPointerClick ClearStack + Button onClick raise).
+    // Returns false only when gated off (combat / deck-empty) so the caller can fall
+    // back to End Round; a full-hand block is "handled" (message shown) and returns true.
+    public bool Trigger()
+    {
+        if (!endTurnButton.interactable) return false;
+        if (HandFullUnplayed())
+        {
+            GameManager.Instance.ValidationMessage("You cannot end the turn with a full hand.");
+            return true;
+        }
+        GameManager.Instance.commands.ClearStack();
+        endTheTurn.Raise();
+        return true;
+    }
+
+    // A full hand with nothing played this turn: ending the turn would draw nothing
+    // and merely tick the counter, so it is disallowed. Played cards stay in
+    // cardsInPlay (marked IsPlayed) until commit, so "count == handSize with no
+    // IsPlayed card" is exactly a full hand of unplayed cards.
+    bool HandFullUnplayed()
+    {
+        if (hand == null || player == null) return false;
+        return hand.cardsInPlay.Count >= player.PlayerHandSize
+            && !hand.cardsInPlay.Exists(c => c.IsPlayed);
+    }
+
     private void Start()
     {
         endTurnButton.onClick.RemoveAllListeners();
-        endTurnButton.onClick.AddListener(() => endTheTurn.Raise());
+        endTurnButton.onClick.AddListener(() =>
+        {
+            if (HandFullUnplayed())
+            {
+                GameManager.Instance.ValidationMessage("You cannot end the turn with a full hand.");
+                return;
+            }
+            endTheTurn.Raise();
+        });
         deck = FindAnyObjectByType<PlayerDeck>();
         hand = FindAnyObjectByType<PlayerHand>();
         player = FindAnyObjectByType<Player>();
