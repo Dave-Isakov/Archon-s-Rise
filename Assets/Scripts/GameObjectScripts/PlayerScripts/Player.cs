@@ -435,9 +435,17 @@ public class Player : MonoBehaviour
     public void PlayerLevelUp()
     {
         playerLevel++;
+        // Overflow exp carries into the next level (the old reset-to-0 discarded
+        // it). Update() keeps polling, so back-to-back level-ups fire one per
+        // frame and their reward queues chain in order.
+        playerExp = LevelRules.CarriedExp(playerExp, expToNextLevel);
         expToNextLevel = expToNextLevel + playerLevel + 12;
-        playerExp = 0;
-        //Levelupscreen (even number levels +1 to a stat)(odd number levels HP+)(every 3 levels handsize+)(every level new skill)
+
+        var entry = LevelRules.RewardsFor(playerLevel, levelRewards.Entries);
+        if (entry != null) playerHP += entry.hpBonus;
+
+        var controller = FindAnyObjectByType<LevelUpController>();
+        if (controller != null) controller.EnqueueLevelRewards(playerLevel, entry);
     }
 
     // Autosave on quit only. Saving from OnDisable fired on every scene

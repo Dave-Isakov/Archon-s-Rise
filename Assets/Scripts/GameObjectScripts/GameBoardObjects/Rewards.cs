@@ -60,16 +60,21 @@ public class Rewards : Deck<RewardsSO>
         Debug.Log($"Your reward is: {reward.cardDescription}");
     }
 
-    private void OfferCardChoice()
+    // Card pick: choose 1 of 3 from the curated pool. Public because level-ups
+    // grant the same pick (LevelUpController); onClosed lets the caller queue
+    // the next reward after the screen resolves (chosen OR skipped).
+    public void OfferCardChoice(System.Action onClosed = null)
     {
         // Draw from the curated rewardPool, NOT DataManager.Cards (which now
         // includes starting cards + Wound for save/load resolution).
-        if (rewardPool == null || rewardPool.Count == 0) return;
+        if (rewardPool == null || rewardPool.Count == 0) { onClosed?.Invoke(); return; }
 
         var candidates = new List<CardsSO>();
         for (int i = 0; i < 3; i++)
             candidates.Add(rewardPool[Random.Range(0, rewardPool.Count)]);
 
-        rewardCanvas.Offer(candidates, so => deck.AddCard(so, toTop: true), () => { });
+        rewardCanvas.Offer(candidates,
+            so => { deck.AddCard(so, toTop: true); onClosed?.Invoke(); },
+            () => onClosed?.Invoke());
     }
 }

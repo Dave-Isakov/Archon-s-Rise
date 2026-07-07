@@ -320,6 +320,12 @@ public class DataManager : MonoBehaviour
         if (game.cardRewardCanvas != null && game.cardRewardCanvas.enabled) return false;
         if (game.cardListCanvas != null && game.cardListCanvas.enabled) return false;
 
+        // No level-up payout mid-flight (skill modal open or picks queued).
+        var levelUp = FindAnyObjectByType<LevelUpController>();
+        if (levelUp != null && levelUp.Busy) return false;
+        var levelUpModal = FindAnyObjectByType<LevelUpModal>();
+        if (levelUpModal != null && levelUpModal.IsOpen) return false;
+
         // Undo/command stack empty (no card mid-play).
         if (game.commands != null && !game.commands.IsEmpty) return false;
 
