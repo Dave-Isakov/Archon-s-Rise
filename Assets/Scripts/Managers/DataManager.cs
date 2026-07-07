@@ -32,9 +32,11 @@ public class DataManager : MonoBehaviour
     // public int playerExp;
     public CardsSO[] allCards;
     public UnitsSO[] allUnits;
+    public SkillsSO[] allSkills;
 
     public ContentRegistry<CardsSO> Cards { get; private set; }
     public ContentRegistry<UnitsSO> Units { get; private set; }
+    public ContentRegistry<SkillsSO> Skills { get; private set; }
 
     private void Awake()
     {
@@ -58,6 +60,7 @@ public class DataManager : MonoBehaviour
         {
             Cards = new ContentRegistry<CardsSO>(allCards, c => c.id);
             Units = new ContentRegistry<UnitsSO>(allUnits, u => u.id);
+            Skills = new ContentRegistry<SkillsSO>(allSkills, s => s.id);
             return true;
         }
         catch (System.Exception e)
@@ -220,6 +223,8 @@ public class DataManager : MonoBehaviour
         if (game != null) { game.Round = run.round; game.Turn = run.turn; }
 
         player.RebuildUnits(Units.Resolve(run.unitIds));
+        player.RebuildSkills(Skills.Resolve(run.player.ownedSkillIds),
+            new HashSet<string>(run.player.exhaustedSkillIds));
     }
 
     public SaveFile CaptureRunState()
@@ -258,6 +263,8 @@ public class DataManager : MonoBehaviour
         run.handCardIds    = CardIds(hand != null ? hand.cardsInPlay : new List<Card>());
         run.discardCardIds = DiscardIds(discard);
         run.unitIds        = UnitIds(player);
+        run.player.ownedSkillIds     = SkillIds(player);
+        run.player.exhaustedSkillIds = ExhaustedSkillIds();
 
         run.map.seed            = CurrentSeed;
         run.map.defeatedEnemies = MapDelta.ToArray(DefeatedEnemies);
@@ -293,6 +300,25 @@ public class DataManager : MonoBehaviour
         if (player == null) return ids.ToArray();
         foreach (var u in player.Units)
             if (u != null) ids.Add(u.id);
+        return ids.ToArray();
+    }
+
+    private static string[] SkillIds(Player player)
+    {
+        var ids = new List<string>();
+        if (player == null) return ids.ToArray();
+        foreach (var s in player.Skills)
+            if (s != null) ids.Add(s.id);
+        return ids.ToArray();
+    }
+
+    // Exhaust state lives on the tokens (mirrors how unit exhaustion lives on
+    // Unit); saving happens only at settled states, so tokens are authoritative.
+    private static string[] ExhaustedSkillIds()
+    {
+        var ids = new List<string>();
+        foreach (var token in FindObjectsByType<SkillToken>())
+            if (token.IsUsed && token.skillSO != null) ids.Add(token.skillSO.id);
         return ids.ToArray();
     }
 
