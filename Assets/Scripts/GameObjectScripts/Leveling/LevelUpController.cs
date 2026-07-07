@@ -31,9 +31,15 @@ public class LevelUpController : MonoBehaviour
     void TryNext()
     {
         if (resolving || pending.Count == 0) return;
-        // Wait for the level-up announcement (or any other message) to be
-        // dismissed before opening a pick screen on top of it.
-        if (GameManager.Instance.messageCanvas.enabled) { Invoke(nameof(TryNext), 0.25f); return; }
+        // Wait until the screen is clear before opening a pick: the level-up
+        // announcement (or any other message) must be dismissed, and any card
+        // reward already up must resolve first. An enemy defeat opens its card
+        // reward synchronously while the exp it granted levels the player a
+        // frame later — without this check the skill modal opens underneath it.
+        var gm = GameManager.Instance;
+        bool screenBusy = gm.messageCanvas.enabled
+            || (gm.cardRewardCanvas != null && gm.cardRewardCanvas.enabled);
+        if (screenBusy) { Invoke(nameof(TryNext), 0.25f); return; }
         resolving = true;
         pending.Dequeue().Invoke();
     }
