@@ -5,8 +5,10 @@ namespace ArchonsRise.SaveData
     [Serializable]
     public class SaveFile
     {
-        // v2 (M2): adds RunState.places (guardian-conquest progress).
-        public int schemaVersion = 2;
+        // v3 (M2.4): adds PlayerState.ownedSkillIds/exhaustedSkillIds; removes
+        // PlayerState.handSize (hand size and army cap derive from level via
+        // the LevelRewardsSO table, so storing them could only drift).
+        public int schemaVersion = 3;
         public RunState run = new RunState();
     }
 
@@ -33,7 +35,6 @@ namespace ArchonsRise.SaveData
     public class PlayerState
     {
         public int hp;
-        public int handSize;
         public int level;
         public int exp;
         public int expToNextLevel;
@@ -41,6 +42,8 @@ namespace ArchonsRise.SaveData
         public int defend;
         public int influence;
         public int explore;
+        public string[] ownedSkillIds = Array.Empty<string>();
+        public string[] exhaustedSkillIds = Array.Empty<string>();
         public float[] position = new float[3];
     }
 

@@ -203,7 +203,6 @@ public class DataManager : MonoBehaviour
         // Restore ExpToNextLevel first so Update() doesn't fire a spurious level-up.
         player.ExpToNextLevel  = run.player.expToNextLevel;
         player.PlayerHP        = run.player.hp;
-        player.PlayerHandSize  = run.player.handSize;
         player.PlayerLevel     = run.player.level;
         player.PlayerExp       = run.player.exp;
         player.PlayerAttack    = run.player.attack;
@@ -239,11 +238,10 @@ public class DataManager : MonoBehaviour
         var crystals  = FindAnyObjectByType<CrystalInventory>();
         var game      = GameManager.Instance;
 
-        var file = new SaveFile { schemaVersion = 2 };
+        var file = new SaveFile { schemaVersion = 3 };
         var run  = file.run;
 
         run.player.hp            = player.PlayerHP;
-        run.player.handSize      = player.PlayerHandSize;
         run.player.level         = player.PlayerLevel;
         run.player.exp           = player.PlayerExp;
         run.player.expToNextLevel = player.ExpToNextLevel;

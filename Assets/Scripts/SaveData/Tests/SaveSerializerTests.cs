@@ -10,13 +10,15 @@ namespace ArchonsRise.SaveData.Tests
         {
             var original = new SaveFile
             {
-                schemaVersion = 2,
+                schemaVersion = 3,
                 run = new RunState
                 {
                     player = new PlayerState
                     {
-                        hp = 2, handSize = 5, level = 3, exp = 7, expToNextLevel = 20,
+                        hp = 2, level = 3, exp = 7, expToNextLevel = 20,
                         attack = 1, defend = 2, influence = 3, explore = 4,
+                        ownedSkillIds = new[] { "skill-envoy", "skill-field-medic" },
+                        exhaustedSkillIds = new[] { "skill-envoy" },
                         position = new float[] { 1.5f, -2.5f, 0f }
                     },
                     crystalCounts = new[] { 1, 0, 2, 0, 1 },
