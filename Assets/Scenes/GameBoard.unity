@@ -19786,6 +19786,10 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
+      propertyPath: allSkills.Array.size
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
       propertyPath: 'allUnits.Array.data[4]'
       value: 
       objectReference: {fileID: 11400000, guid: bb8b162e03165924ca21a5125bc28756, type: 2}
@@ -19793,6 +19797,42 @@ PrefabInstance:
       propertyPath: 'allCards.Array.data[16]'
       value: 
       objectReference: {fileID: 11400000, guid: cd1247f5ec0e04d4bb9e7cbc84bfcd5a, type: 2}
+    - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
+      propertyPath: 'allSkills.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: a230376f3091d9b4ea0fc865b3c29dad, type: 2}
+    - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
+      propertyPath: 'allSkills.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 685994ae9ea51504490ea4ee827c454b, type: 2}
+    - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
+      propertyPath: 'allSkills.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: bbeecc9efeee5d942b70986be229bc60, type: 2}
+    - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
+      propertyPath: 'allSkills.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 4d821699280727b428054bb4e51b487e, type: 2}
+    - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
+      propertyPath: 'allSkills.Array.data[4]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 4f74fbb4095856f4bb5cd3eea2d3c09a, type: 2}
+    - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
+      propertyPath: 'allSkills.Array.data[5]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 756d86e73b4780e41b6dd38816dfd7df, type: 2}
+    - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
+      propertyPath: 'allSkills.Array.data[6]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 7adef2dd6cc00b64e9f72a0eac22a939, type: 2}
+    - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
+      propertyPath: 'allSkills.Array.data[7]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 70934f8d70ab08542ab694bbd56b5d83, type: 2}
+    - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
+      propertyPath: 'allSkills.Array.data[8]'
+      value: 
+      objectReference: {fileID: 11400000, guid: f54287a1c3d0e6e44bc4a5be511e1c06, type: 2}
     - target: {fileID: 1431683923352114323, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
       propertyPath: m_RootOrder
       value: 2

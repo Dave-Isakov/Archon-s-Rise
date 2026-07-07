@@ -12,5 +12,68 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cd9764d6afded641a06422f13d70bac, type: 3}
   m_Name: LevelRewards
   m_EditorClassIdentifier: Assembly-CSharp::LevelRewardsSO
-  skillPool: []
-  entries: []
+  skillPool:
+  - {fileID: 11400000, guid: a230376f3091d9b4ea0fc865b3c29dad, type: 2}
+  - {fileID: 11400000, guid: 685994ae9ea51504490ea4ee827c454b, type: 2}
+  - {fileID: 11400000, guid: bbeecc9efeee5d942b70986be229bc60, type: 2}
+  - {fileID: 11400000, guid: 4d821699280727b428054bb4e51b487e, type: 2}
+  - {fileID: 11400000, guid: 4f74fbb4095856f4bb5cd3eea2d3c09a, type: 2}
+  - {fileID: 11400000, guid: 756d86e73b4780e41b6dd38816dfd7df, type: 2}
+  - {fileID: 11400000, guid: 7adef2dd6cc00b64e9f72a0eac22a939, type: 2}
+  - {fileID: 11400000, guid: 70934f8d70ab08542ab694bbd56b5d83, type: 2}
+  - {fileID: 11400000, guid: f54287a1c3d0e6e44bc4a5be511e1c06, type: 2}
+  entries:
+  - level: 2
+    hpBonus: 0
+    handSizeBonus: 0
+    armySizeBonus: 0
+    skillPicks: 1
+    cardPicks: 0
+  - level: 3
+    hpBonus: 1
+    handSizeBonus: 0
+    armySizeBonus: 1
+    skillPicks: 0
+    cardPicks: 0
+  - level: 4
+    hpBonus: 0
+    handSizeBonus: 1
+    armySizeBonus: 0
+    skillPicks: 0
+    cardPicks: 1
+  - level: 5
+    hpBonus: 0
+    handSizeBonus: 0
+    armySizeBonus: 0
+    skillPicks: 1
+    cardPicks: 0
+  - level: 6
+    hpBonus: 0
+    handSizeBonus: 0
+    armySizeBonus: 1
+    skillPicks: 0
+    cardPicks: 1
+  - level: 7
+    hpBonus: 0
+    handSizeBonus: 0
+    armySizeBonus: 0
+    skillPicks: 1
+    cardPicks: 0
+  - level: 8
+    hpBonus: 0
+    handSizeBonus: 1
+    armySizeBonus: 0
+    skillPicks: 0
+    cardPicks: 1
+  - level: 9
+    hpBonus: 1
+    handSizeBonus: 0
+    armySizeBonus: 1
+    skillPicks: 0
+    cardPicks: 0
+  - level: 10
+    hpBonus: 0
+    handSizeBonus: 0
+    armySizeBonus: 0
+    skillPicks: 1
+    cardPicks: 1
