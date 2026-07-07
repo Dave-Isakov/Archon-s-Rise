@@ -7,6 +7,7 @@
         "ArchonsRise.CardPlay",
         "ArchonsRise.Enums",
         "ArchonsRise.Hand",
+        "ArchonsRise.Leveling",
         "ArchonsRise.Places",
         "ArchonsRise.SaveData"
     ],
