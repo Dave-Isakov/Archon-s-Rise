@@ -12,7 +12,6 @@ public class Player : MonoBehaviour
     public int playerInfluence;
     public int playerExplore;
     private int playerSiege;
-    private int playerHandSize = 5;
     private int improvAttackValue = 1;
     private int improvDefendValue = 1;
     private int improvInfluenceValue = 1;
@@ -25,8 +24,12 @@ public class Player : MonoBehaviour
     private bool inCombat;
     private bool inTown;
     [SerializeField] private List<UnitsSO> units = new();
+    [SerializeField] LevelRewardsSO levelRewards;
+    [SerializeField] List<SkillsSO> skills = new();
     public int PlayerHP { get => playerHP; set => playerHP = value;}
-    public int PlayerHandSize { get => playerHandSize; set => playerHandSize = value;}
+    // Derived, never stored: base size from PlayerSO plus every table bonus at
+    // or below the current level. Same derivation on load, so saves can't drift.
+    public int PlayerHandSize => LevelRules.DerivedHandSize(player.PlayerHandSize, playerLevel, levelRewards.Entries);
     public int PlayerAttack { get => playerAttack; set => playerAttack = value; }
     public int PlayerDefend { get => playerDefend; set => playerDefend = value;}
     public int PlayerInfluence { get => playerInfluence; set => playerInfluence = value;}
@@ -39,6 +42,9 @@ public class Player : MonoBehaviour
     public int ExpToNextLevel { get => expToNextLevel; set => expToNextLevel = value; }
     public int PlayerLevel { get => playerLevel; set => playerLevel = value; }
     public IReadOnlyList<UnitsSO> Units => units;
+    public int ArmyCap => LevelRules.DerivedArmyCap(playerLevel, levelRewards.Entries);
+    public LevelRewardsSO LevelRewards => levelRewards;
+    public IReadOnlyList<SkillsSO> Skills => skills;
 
     [Header("Events")]
     [SerializeField] VoidEvent onSuccessfulExploration_ExploreNextCard;
@@ -50,11 +56,6 @@ public class Player : MonoBehaviour
     [SerializeField] IntEvent onInfluenceEvent_GetCurrentInfluence;
     [SerializeField] IntEvent OnExploreEvent_GetCurrentExplore;
     [SerializeField] EnemyCardEvent onDefeat_WoundPlayer;
-
-    void Awake()
-    {
-        playerHandSize = player.PlayerHandSize;
-    }
 
     void Start()
     {
@@ -324,7 +325,93 @@ public class Player : MonoBehaviour
             unit.IsPlayed = false;
         }
     }
-    
+
+    // SkillEvent listener target. Toggles like PlayUnit: the same event fires on
+    // command Execute and Undo, so IsUsed decides apply vs revert.
+    public void PerformSkillAction(SkillToken token)
+    {
+        if (!token.IsUsed)
+        {
+            ApplySkillEffect(token.skillSO, +1);
+            token.SetUsed(true);
+        }
+        else
+        {
+            ApplySkillEffect(token.skillSO, -1);
+            token.SetUsed(false);
+        }
+    }
+
+    private void ApplySkillEffect(SkillsSO skill, int sign)
+    {
+        switch (skill.effect)
+        {
+            case SkillEffect.GainAttack:    playerAttack    += sign * skill.magnitude; break;
+            case SkillEffect.GainDefend:    playerDefend    += sign * skill.magnitude; break;
+            case SkillEffect.GainInfluence: playerInfluence += sign * skill.magnitude; GetCurrentInfluence(); break;
+            case SkillEffect.GainExplore:   playerExplore   += sign * skill.magnitude; GetCurrentExplore(); break;
+            case SkillEffect.GainCrystal:
+            {
+                var crystals = FindAnyObjectByType<CrystalInventory>();
+                for (int i = 0; i < skill.magnitude; i++)
+                {
+                    if (sign > 0) crystals.SkillCrystallize(skill.crystalColor);
+                    else          crystals.UndoSkillCrystallize();
+                }
+                break;
+            }
+            case SkillEffect.HealWound:
+            {
+                var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
+                for (int i = 0; i < skill.magnitude; i++)
+                {
+                    if (sign > 0) hand.HealWound();
+                    else          hand.RestoreHealedWound();
+                }
+                break;
+            }
+        }
+    }
+
+    public void AddSkill(SkillsSO skill)
+    {
+        skills.Add(skill);
+        var bar = FindAnyObjectByType<SkillBar>();
+        if (bar != null) bar.AddToken(skill);
+    }
+
+    // Save/load path (mirrors RebuildUnits): wipe tokens + list, re-add each
+    // owned skill, restore exhausted state by id.
+    public void RebuildSkills(List<SkillsSO> skillSOs, HashSet<string> exhaustedIds)
+    {
+        var bar = FindAnyObjectByType<SkillBar>();
+        if (bar != null) bar.Clear();
+        skills.Clear();
+
+        foreach (var so in skillSOs)
+        {
+            if (so == null) continue;
+            skills.Add(so);
+            var token = bar != null ? bar.AddToken(so) : null;
+            if (token != null && exhaustedIds.Contains(so.id))
+                token.SetUsed(true);
+        }
+    }
+
+    // Cadence refresh. Turn end refreshes per-turn skills; round end refreshes
+    // everything. Safe against the undo stack: End Turn / End Round clear the
+    // command stack before their events fire, so no skill command is undoable
+    // by the time this runs.
+    public void RefreshSkills(bool includePerRound)
+    {
+        foreach (var token in FindObjectsByType<SkillToken>())
+        {
+            if (!token.IsUsed) continue;
+            if (token.skillSO.cadence == SkillCadence.PerTurn || includePerRound)
+                token.SetUsed(false);
+        }
+    }
+
     public void GetCurrentInfluence()
     {
         onInfluenceEvent_GetCurrentInfluence.Raise(playerInfluence);
@@ -342,6 +429,7 @@ public class Player : MonoBehaviour
         playerInfluence = 0;
         playerExplore = 0;
         playerSiege = 0;
+        RefreshSkills(false);
     }
 
     public void PlayerLevelUp()

@@ -98,6 +98,7 @@ public class GameManager : MonoBehaviour
         // By design, units exhausted during the round all refresh when a new round starts.
         var player = FindAnyObjectByType<Player>();
         if (player != null) player.RefreshUnits();
+        if (player != null) player.RefreshSkills(true);
     }
 
     public void CombatCanvasActive()

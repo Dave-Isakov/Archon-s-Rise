@@ -15,6 +15,10 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
     public Card _card;
     public Stack<Crystal> playedCrystals = new();
     public Stack<Crystal> playerCreatedCrystal = new();
+    // Crystals granted by skill activations, so a skill undo removes exactly
+    // the crystals it created (mirrors playerCreatedCrystal for Crystallize
+    // cards; command-stack LIFO order keeps push/pop pairs matched).
+    public Stack<Crystal> skillCreatedCrystals = new();
 
     // private void Start() 
     // {
@@ -194,6 +198,17 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
     public void PurchaseTownCrystal(EmpowerType type)
     {
         CreateCrystal(type);
+    }
+
+    public void SkillCrystallize(EmpowerType color)
+    {
+        skillCreatedCrystals.Push(CreateCrystal(color));
+    }
+
+    public void UndoSkillCrystallize()
+    {
+        if (skillCreatedCrystals.Count == 0) return;
+        skillCreatedCrystals.Pop().RemoveCrystal();
     }
 
     public void CleanUp()
