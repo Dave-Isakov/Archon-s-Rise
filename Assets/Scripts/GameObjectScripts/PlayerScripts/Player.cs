@@ -278,6 +278,16 @@ public class Player : MonoBehaviour
         newUnit.GetComponent<Unit>().unitSO = town.townSO.recruitableUnits[0];
     }
 
+    // Disband-to-hire: removes one unit to make room at the army cap. A played
+    // unit keeps its stat contribution for this turn (it fought its last
+    // battle); pools reset at turn end anyway. The town flow clears the undo
+    // stack right after hiring, so no stale UnitCommand can reference it.
+    public void DisbandUnit(Unit unit)
+    {
+        units.Remove(unit.unitSO);
+        Destroy(unit.gameObject);
+    }
+
     public void RebuildUnits(List<UnitsSO> unitSOs)
     {
         // Clear any existing Unit GameObjects (including the placeholder created in Awake) and the list.
