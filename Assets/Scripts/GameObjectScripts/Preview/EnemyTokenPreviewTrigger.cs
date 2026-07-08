@@ -11,10 +11,10 @@ public class EnemyTokenPreviewTrigger : PreviewTrigger
 
     void Awake() => token = GetComponent<EnemyToken>();
 
-    protected override IReadOnlyList<EnemiesSO> ResolveEnemies()
+    protected override IReadOnlyList<EnemyPreviewData> ResolveEntries()
         => token.enemy != null
-            ? new List<EnemiesSO> { token.enemy }
-            : new List<EnemiesSO>();
+            ? new List<EnemyPreviewData> { new EnemyPreviewData(token.enemy, token.bonusAttack, token.bonusHP) }
+            : new List<EnemyPreviewData>();
 
     protected override Vector3 ScreenPosition()
     {

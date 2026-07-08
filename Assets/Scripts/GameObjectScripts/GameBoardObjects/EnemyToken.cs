@@ -14,6 +14,13 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
     public EnemyCard cardRef;
     public bool isAggro;
     public bool inCombat;
+    // Doom scaling applied at spawn time. Lives on the token — the shared
+    // EnemiesSO asset is NEVER mutated.
+    public int bonusHP;
+    public int bonusAttack;
+    // Mid-run spawns are saved explicitly (schema v4); only map-gen tokens
+    // use the seed-derived defeatedEnemies cell mechanism.
+    public bool isMidRunSpawn;
     public Vector3Int gridPos;
     private Dictionary<Directions, Vector3Int> compass = new()
     {
@@ -38,7 +45,7 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
     {
         if(cardRef is not null && cardRef.IsDefeated)
         {
-            if (DataManager.Instance != null)
+            if (!isMidRunSpawn && DataManager.Instance != null)
                 DataManager.Instance.DefeatedEnemies.Add(
                     new ArchonsRise.SaveData.Cell(gridPos.x, gridPos.y));
             Destroy(this.gameObject);

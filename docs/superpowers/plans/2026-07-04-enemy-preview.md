@@ -587,6 +587,47 @@ git commit -m "docs: document enemy preview in mechanics and decisions log"
 
 ---
 
+## Implementation notes — panel placement (added post-build)
+
+The panel's on-screen positioning was reworked after the initial wiring. Notes for the next
+person (and for the controller-focus pass, which will drive the same `Show`/`Hide`):
+
+- **Screen Space - Camera, not Overlay.** Every canvas in this project is Screen Space - Camera.
+  That breaks two Overlay assumptions: a UI element's `transform.position` is *world* space (not
+  screen pixels), and a canvas's world corners are not screen pixels. So `PlacePreviewTrigger` now
+  converts the button's world position with `RectTransformUtility.WorldToScreenPoint(uiCam, …)`, and
+  `EnemyPreviewPanel` does **all** anchoring/clamping in screen pixels, then projects the result onto
+  the canvas plane with `ScreenPointToWorldPointInRectangle(canvasRect, …, canvas.worldCamera)`.
+  Passing `canvas.worldCamera` is what makes it correct for SS-Camera; it is `null` for Overlay, which
+  the same call handles — so the code is render-mode-agnostic. **The canvas's Render Camera must be
+  assigned.**
+
+- **`panelRect` must be a movable child, never the root Canvas.** A root Canvas's `RectTransform` is
+  driven every frame by the canvas system, so assigning `.position` to it is silently overwritten
+  (the panel stayed dead-centre). The movable object is `PreviewRoot`, a child of the canvas.
+
+- **Measure the content, not the root.** The clamp measures `entryContainer` (the actual card stack),
+  not `panelRect` — the root can be a zero-size anchor. `entryContainer` carries the
+  `VerticalLayoutGroup` + `ContentSizeFitter` (Control Child Size **off**) so it hugs the card(s);
+  `PreviewRoot` has **no** layout components (a layout group there fought the container and shoved it
+  off by the canvas size). Content is a descendant of `panelRect`, so translating the root moves it
+  rigidly and the clamp delta stays valid.
+
+- **The preview must not block its own raycast.** It is drawn over the hovered token, so a
+  raycast-blocking graphic steals the hover and flips the token's `OnPointerEnter/Exit` every frame
+  (violent flicker + hundreds of `Show` calls). `Awake` puts a `CanvasGroup { blocksRaycasts = false,
+  interactable = false }` on `root`, making the whole subtree transparent to the pointer.
+
+- **`centerBias` pulls the card toward the player for guaranteed visibility.** Edge-clamping alone
+  pins the card against a screen edge (and the card art overhangs its measured rect, so it can still
+  look clipped). Since the Main Camera is parented under `PlayerPosition`, the player sits at screen
+  centre, so the anchor is lerped from the icon toward screen centre by `centerBias` (default 0.5) —
+  seating the card in the band between the token and the player. `ClampAxis` remains the safety net.
+
+- **Pure vs. Unity split held.** Only the edge-clamp math is pure (`PreviewRules.ClampAxis`,
+  CLI-tested via the mcs harness); everything camera/canvas-coupled lives in the MonoBehaviour and is
+  verified in play mode.
+
 ## Self-Review notes
 
 - **Spec coverage:** purpose = info parity (whole plan); surfaces map token + Assault button (T3 sources, T5 wiring); input-agnostic `Focus`/`Unfocus` (T4 `PreviewTrigger`); multi-enemy + remaining guardians (T1 `RemainingGuardians`, T4 `PlacePreviewTrigger`); blind hook + whole-panel visual + encounter aggregation (T1 `CanPreview`/`EncounterVisible`, T3 panel branch); content mirrors combat card, no art (T2 `EnemyPreviewEntry`); read-only/zero side effects (no events/`EnemyCard` anywhere — verified in T5 play test); assembly rule — pure class in `CardPlay`, MonoBehaviours in default assembly (T1 vs T2–4); docs (T6). Out-of-scope items (real blindness source, gamepad implementation, art, in-combat-card enrichment, simultaneous-guardian combat) are absent by design.

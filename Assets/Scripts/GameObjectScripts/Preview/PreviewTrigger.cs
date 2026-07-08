@@ -10,15 +10,15 @@ using UnityEngine.EventSystems;
 public abstract class PreviewTrigger : MonoBehaviour,
     IPointerEnterHandler, IPointerExitHandler
 {
-    protected abstract IReadOnlyList<EnemiesSO> ResolveEnemies();
+    protected abstract IReadOnlyList<EnemyPreviewData> ResolveEntries();
     protected abstract Vector3 ScreenPosition();
 
     public void Focus()
     {
         if (EnemyPreviewPanel.Instance == null) return;
-        var enemies = ResolveEnemies();
-        if (enemies == null || enemies.Count == 0) return;
-        EnemyPreviewPanel.Instance.Show(enemies, ScreenPosition());
+        var entries = ResolveEntries();
+        if (entries == null || entries.Count == 0) return;
+        EnemyPreviewPanel.Instance.Show(entries, ScreenPosition());
     }
 
     public void Unfocus()
