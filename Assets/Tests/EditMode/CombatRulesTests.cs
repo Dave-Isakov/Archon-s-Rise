@@ -6,7 +6,28 @@ public class CombatRulesTests
     public void Normal_Defeats_When_Attack_Covers_HP()
     {
         Assert.IsTrue(CombatRules.CanDefeat(AttackKind.Normal, 5, 0, 5));
-        Assert.IsFalse(CombatRules.CanDefeat(AttackKind.Normal, 4, 99, 5)); // Siege pool must not help Normal
+    }
+
+    [Test]
+    public void Normal_Defeats_When_Attack_Plus_Siege_Cover_HP()
+    {
+        // Siege makes up an Attack shortfall for a Normal attack.
+        Assert.IsTrue(CombatRules.CanDefeat(AttackKind.Normal, 4, 1, 5));
+        Assert.IsTrue(CombatRules.CanDefeat(AttackKind.Normal, 0, 5, 5));
+        // Combined pool still falls short.
+        Assert.IsFalse(CombatRules.CanDefeat(AttackKind.Normal, 2, 2, 5));
+    }
+
+    [Test]
+    public void Normal_Drains_Attack_Before_Siege()
+    {
+        // Attack covers it: borrow no Siege.
+        Assert.AreEqual(0, CombatRules.SiegeSpentOnNormal(5, 5));
+        Assert.AreEqual(0, CombatRules.SiegeSpentOnNormal(9, 5));
+        // Attack shortfall of 3 is covered by Siege.
+        Assert.AreEqual(3, CombatRules.SiegeSpentOnNormal(2, 5));
+        // No Attack at all: Siege pays the whole cost.
+        Assert.AreEqual(5, CombatRules.SiegeSpentOnNormal(0, 5));
     }
 
     [Test]

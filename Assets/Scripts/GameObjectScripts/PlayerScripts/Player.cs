@@ -75,6 +75,9 @@ public class Player : MonoBehaviour
         playerInfluence += stats[2];
         playerExplore += stats[3];
         playerSiege += stats[4];
+        // Push the new explore total to the map's arrow buttons; they cache it
+        // via OnExploreEvent and won't see a unit/card gain otherwise.
+        GetCurrentExplore();
     }
     public void UnAssignPlayerStats(int[] stats)
     {
@@ -83,6 +86,7 @@ public class Player : MonoBehaviour
         playerInfluence -= stats[2];
         playerExplore -= stats[3];
         playerSiege -= stats[4];
+        GetCurrentExplore();
     }
 
     public void Exploration(int newExplore)
@@ -149,6 +153,7 @@ public class Player : MonoBehaviour
             playerExplore -= improvExploreValue;
             card.IsPlayed = false;
         }
+        GetCurrentExplore();
     }
     public void PlayCard(Card card)
     {
@@ -216,6 +221,7 @@ public class Player : MonoBehaviour
             playerExplore -= card.cardSO.ReturnExplore(card.IsEmpowered);
             UndoEmpower(card);
         }
+        GetCurrentExplore();
     }
 
     private void UndoEmpower(Card card)
@@ -250,13 +256,22 @@ public class Player : MonoBehaviour
         int hp = enemy.enemySO.enemyHP;
         if (!CombatRules.CanDefeat(kind, playerAttack, playerSiege, hp))
         {
-            string stat = kind == AttackKind.Siege ? "Siege" : "Attack";
-            GameManager.Instance.ValidationMessage($"You need {hp} {stat} in order to defeat this monster.");
+            string need = kind == AttackKind.Siege ? "Siege" : "Attack (Siege counts)";
+            GameManager.Instance.ValidationMessage($"You need {hp} {need} in order to defeat this monster.");
             return;
         }
 
-        if (kind == AttackKind.Siege) playerSiege -= hp;
-        else                          playerAttack -= hp;
+        if (kind == AttackKind.Siege)
+        {
+            playerSiege -= hp;
+        }
+        else
+        {
+            // Attack drains first; Siege covers only the shortfall.
+            int fromSiege = CombatRules.SiegeSpentOnNormal(playerAttack, hp);
+            playerAttack -= hp - fromSiege;
+            playerSiege  -= fromSiege;
+        }
 
         int wounds = CombatRules.WoundCount(kind, playerDefend, enemy.enemySO.enemyAttack, playerHP);
         for (int i = 0; i < wounds; i++)
@@ -439,6 +454,7 @@ public class Player : MonoBehaviour
         playerInfluence = 0;
         playerExplore = 0;
         playerSiege = 0;
+        GetCurrentExplore(); // clear the arrow buttons' cached explore too
         RefreshSkills(false);
     }
 
