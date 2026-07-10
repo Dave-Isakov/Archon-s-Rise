@@ -14,9 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_rage
   cardName: Rage
-  cardDescription: 'Gain 3 Attack
-
-    Empower: 6 Attack.'
+  cardDescription: "<sprite=\"Sword\" index=0>: 3\n\nEmpower <sprite=\"Sword\" index=0>: 6"
   attack: 3
   defend: 0
   explore: 0

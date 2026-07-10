@@ -12,13 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d54134baae668b8449dcad6f926e2852, type: 3}
   m_Name: Merchant Village
   m_EditorClassIdentifier: 
+  id: 
   cardName: Merchant Village
   cardDescription: This village was founded by Merchants and continues to prosper.
   townSize: 1
   activity: 7
+  placeType: 0
+  guardians: []
   recruitableUnits:
   - {fileID: 11400000, guid: de77732a8af282e41914baaebaf0909a, type: 2}
-  recruitLevel: 4
+  - {fileID: 11400000, guid: 0314febb45d718743b9a6b059766e06e, type: 2}
+  - {fileID: 11400000, guid: bb8b162e03165924ca21a5125bc28756, type: 2}
   cardLevel: 0
   resourceLevel: 4
   healLevel: 1

@@ -12,13 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d1b2ea550f080147a7e32918142ea1b, type: 3}
   m_Name: CorruptTreekin
   m_EditorClassIdentifier: 
+  id: enemy-corrupt-treekin
   cardName: Corrupt Treekin
-  cardDescription: One of the treefolk who succumbed to a mind-rotting fungus.
-  enemyHP: 4
-  enemyAttack: 1
-  reward: 0
+  cardDescription: "One of the treefolk who succumbed to a mind-rotting fungus.\t"
+  enemyHP: 6
+  enemyAttack: 2
   defeatRewards:
   - {fileID: 11400000, guid: 879d999e9521d88449f93825314e7ac6, type: 2}
   - {fileID: 11400000, guid: a974a541928f88f468e9ab70e6e1277c, type: 2}
+  - {fileID: 11400000, guid: 5846e3a981fe150408c223103523ecad, type: 2}
+  - {fileID: 11400000, guid: 60082c4714a288346891b5faadba901a, type: 2}
   canInfluence: 0
   influenceCost: 0
+  recruitedUnit: {fileID: 0}
+  tier: 2

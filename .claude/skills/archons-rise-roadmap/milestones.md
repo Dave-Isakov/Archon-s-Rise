@@ -49,6 +49,36 @@ level-up picks queue behind any open card reward canvas. Unified reward arbiter 
 
 **Acceptance:** a run can be won by conquering 2 Castles and lost by clock-max or wound-out.
 
+## M2.75 — Unit gameplay & recruitment
+**Goal:** units become meaningful, configurable board pieces and recruiting becomes a real choice.
+**Scope:**
+- **Units as option-lists** — `UnitsSO.options` (`UnitOption`) played through a card-style pop-out,
+  including **crystal-costed options** (color-matched, wild counts); legacy flat unit stats retired.
+- **Enemy influence** — pay a `canInfluence` enemy off (wound-free + rewards), or **recruit** it with
+  the **Charismatic** passive (`recruitedUnit`).
+- **Town recruit panel** — pick which unit at **per-unit influence prices** (`recruitLevel` retired).
+- **Passive skills** — new `SkillCadence.Passive`; Charismatic is the first.
+- **Save schema v5** — persist exhausted units (`unitExhausted`, parallel to `unitIds`).
+
+**Acceptance:** units play through the option pop-out incl. crystal-costed options; enemies can be
+paid off / recruited with Charismatic; towns recruit via panel at per-unit prices.
+Spec: `docs/superpowers/specs/2026-07-09-unit-gameplay-and-recruitment-design.md`.
+
+## M2.9 — Dungeons
+**Goal:** dungeons become a playable encounter type — enter, clear a sequence of enemies, earn
+tiered completion rewards. (Content/data exist — `DungeonsSO`, Derelict Tower, DungeonEnemies —
+but the flow isn't wired.)
+**Scope:**
+- Enter a dungeon by spending **Explore** (`DungeonsSO.exploreCost`); fight its `enemies` in order.
+- **Completion rewards** from `DungeonsSO.rewards`, selected by **tier via `RewardsSO.rewardLevel`**
+  (the field kept alive for exactly this — higher-tier dungeons roll higher-tier rewards, instead of
+  today's flat-random pick).
+- Design pass still needed: dungeon entry/clear UI, failure/retreat handling, tier→reward mapping.
+
+**Acceptance:** the player can enter a dungeon, clear its enemies in sequence, and receive
+tier-appropriate completion rewards. **Precedes M3** — dungeons are core-loop content; meta-unlocks
+come after.
+
 ## M3 — Run setup & meta-unlocks
 **Goal:** framed runs plus between-run progression.
 **Scope:**

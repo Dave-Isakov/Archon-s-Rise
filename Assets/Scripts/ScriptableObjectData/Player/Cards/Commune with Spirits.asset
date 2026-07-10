@@ -14,9 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_commune_with_spirits
   cardName: Commune with Spirits
-  cardDescription: 'Gain 3 Explore.
-
-    Empower: 5 Explore.'
+  cardDescription: "<sprite=\"scroll\" index=0>: 3\n\nEmpower <sprite=\"scroll\" index=0>: 5"
   attack: 0
   defend: 0
   explore: 3

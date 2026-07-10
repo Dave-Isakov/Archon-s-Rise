@@ -14,9 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_uncover_conspiracy
   cardName: Uncover Conspiracy
-  cardDescription: 'Gain 3 Influence.
-
-    Empower: 6 Influence.'
+  cardDescription: "<sprite=\"gem\" index=0>: 3\n\nEmpower <sprite=\"gem\" index=0>: 6"
   attack: 0
   defend: 0
   explore: 0

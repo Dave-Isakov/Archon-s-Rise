@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d1b2ea550f080147a7e32918142ea1b, type: 3}
+  m_Name: CorruptedTroll
+  m_EditorClassIdentifier: 
+  id: enemy-corrupted-troll
+  cardName: Corrupted Troll
+  cardDescription: Normally reclusive, this creature's mind has been altered to be
+    violent and agressive.
+  enemyHP: 9
+  enemyAttack: 6
+  defeatRewards:
+  - {fileID: 11400000, guid: a1cb957134a14fb40b7e088653b837f6, type: 2}
+  - {fileID: 11400000, guid: 801808a54bf0af149a951360447b236b, type: 2}
+  - {fileID: 11400000, guid: f2938072afcf12849ac8627270fc4512, type: 2}
+  - {fileID: 11400000, guid: 5b04350b69bdeb747b132895ad7a86b4, type: 2}
+  - {fileID: 11400000, guid: f2938072afcf12849ac8627270fc4512, type: 2}
+  - {fileID: 11400000, guid: d66c121b4ed097c4899e402c8266e7af, type: 2}
+  - {fileID: 11400000, guid: 5363adeb3deb22540a958fd3648bfbfe, type: 2}
+  canInfluence: 0
+  influenceCost: 0
+  recruitedUnit: {fileID: 0}
+  tier: 3

@@ -25,15 +25,35 @@ numbers.
 - Per-card cost can be raised via `empowerNumCrystals` for premium effects.
 - _Starting rule — tune per card._
 
-## Reward Tiers
-Map `RewardLevel` to rising payouts (`expAmount` / `numCrystals` / card rarity):
+## Crystal Purchase (at Places)
+- Every conquered Place sells crystals; the buyer picks the color, one crystal per purchase.
+- **Price is the Place's `resourceLevel`** (Influence per crystal) — per-place, so stronger/rarer
+  Places can charge more. `0` means free, so every selling Place needs a non-zero value.
+- Starting band: **Town 2–4, Keep 3, Castle 4** (Influence per crystal). Merchant-flavoured Towns
+  can sit at the top of the Town band.
+- _Starting values — tune in playtest._ Influence is the sole limiter on crystal count (per the
+  2026-07-10 decision), so this price trades Influence pressure against Empower power (pillar 3).
 
-| Tier | expAmount | numCrystals | Card rarity |
-|------|-----------|-------------|-------------|
-| Beginner | 1–2 | 0–1 | common |
-| Intermediate | 3–4 | 1–2 | common/uncommon |
-| Advanced | 5–7 | 2–3 | uncommon/rare |
-| Master | 8–12 | 3–4 | rare |
+## Reward Tiers
+Combat/dungeon rewards derive from a **tier** (1–3, = enemy `tier`, gated by
+`DoomRules.MaxTier`) on the shared `RewardTuningSO`. Experience is **always** granted,
+bell-curve sampled (`RewardRules.SampleExp` — average of `expBellSamples` uniform draws,
+so results centre on the range's middle). Crystals and cards are **independent bonus
+rolls** against per-tier chances (crystals common, cards rare).
+
+| Tier | exp range (centre-weighted) | crystalChance | cardChance |
+|------|-----------------------------|---------------|------------|
+| 1 Beginner     | 1–5  (mostly 2–4) | 0.50 | 0.08 |
+| 2 Intermediate | 3–7  (mostly 4–6) | 0.60 | 0.12 |
+| 3 Advanced     | 6–10 (mostly 7–9) | 0.70 | 0.18 |
+
+- `expBellSamples = 3` (raise to tighten the bell; 1 = flat/uniform).
+- On a crystal roll: **1 crystal, random color** (per-tier count/color weighting is a
+  future pass). On a card roll: choose-1-of-3 from that **tier's card pool** — pool
+  membership is the card's rarity, so stronger cards simply live only in higher tiers.
+- **Level-up card picks** scale with player level: tier 2 at level ≥ `levelTier2` (4),
+  tier 3 at level ≥ `levelTier3` (7). Same "strength tracks progress" story as enemy drops.
+- Dungeons carry their own `tier` + `rewardCount` (number of reward events).
 
 _Starting bands — tune in playtest._
 
@@ -60,12 +80,21 @@ _Starting bands — tune in playtest._
   inspector-tunable per level with no code change.
 - _Starting values — tune in playtest._ Adjust the `+12` constant to speed up or slow down leveling.
 
+## Unit Recruit Costs
+- Per-unit **Influence** price bands: **cheap 2–3** (single-effect / utility), **standard 3–4**
+  (two solid options), **premium 5+** (strong or dual costed options).
+- A **crystal-costed option** delivers roughly **2× its free sibling's amount** (paying a crystal
+  must feel worth it — pillar 3). E.g. Knight: Defend 3 free / Defend 6 for 1 Red.
+- _Starting values — tune in playtest._
+
 ## Skill Pool
 - Skill pick offers **3** random unowned skills; a pick is skipped if the pool is exhausted.
-- Starting pool (9): per-turn — Drillmaster +1 Attack, Shieldwall +1 Defend, Envoy +1 Influence,
+- Starting pool (10): per-turn — Drillmaster +1 Attack, Shieldwall +1 Defend, Envoy +1 Influence,
   Pathfinder +1 Explore; per-round — Crystallize Red/Yellow/Green/Purple (1 crystal of that
-  color), Field Medic (heal 1 wound).
-- Cadence is the balance lever: strong effects (crystals, healing) are per-round only.
+  color), Field Medic (heal 1 wound); passive — **Charismatic** (recruit influenced enemies that
+  have a `recruitedUnit`).
+- Cadence is the balance lever: strong effects (crystals, healing) are per-round only; passives are
+  always-on gates with no activation.
 - _Starting pool — tune in playtest._ M3's unlock pool can add skills to future runs.
 
 ## Unlock Pool (meta-progression)

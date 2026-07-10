@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(bash \"C:/Users/Dave's Comp/.claude/plugins/cache/superpowers-dev/superpowers/6.0.3/skills/subagent-driven-development/scripts/review-package\" 8f868ed HEAD)",
+      "Bash(bash \"C:/Users/Dave's Comp/.claude/plugins/cache/superpowers-dev/superpowers/6.0.3/skills/subagent-driven-development/scripts/task-brief\" \"docs/superpowers/plans/2026-06-30-card-play-rework-phase3b.md\" 2)",
+      "Bash(bash \"C:/Users/Dave's Comp/.claude/plugins/cache/superpowers-dev/superpowers/6.0.3/skills/subagent-driven-development/scripts/review-package\" e6bb0ef HEAD)",
+      "Bash(git commit -q -m 'docs: M2 place-type system design spec *)",
+      "Bash(git commit -m 'chore: wire Siege button, HUD label, and SiegeEnemy event in editor *)",
+      "Bash(git commit docs/superpowers/specs/2026-07-04-siege-attack-type-design.md docs/superpowers/plans/2026-07-04-siege-attack-type.md -m 'docs: Siege attack type design spec and implementation plan *)",
+      "Edit(/.claude/skills/archons-rise-roadmap/**)",
+      "Edit(/.claude/skills/archons-rise-design/**)"
     ]
   }
 }

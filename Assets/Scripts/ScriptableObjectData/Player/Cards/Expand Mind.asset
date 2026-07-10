@@ -14,19 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_expand_mind
   cardName: Expand Mind
-  cardDescription: 'Gain 2 Influence and 1 Explore.
+  cardDescription: '<sprite="scroll" index=0>: 1 <sprite="gem" index=0>: 2
 
-    Empower: +2 Explore'
+
+    Empower
+    <sprite="scroll" index=0>: 3 <sprite="gem" index=0>: 3'
   attack: 0
   defend: 0
   explore: 1
   influence: 2
+  siege: 0
   healAmount: 0
   numCrystals: 0
   empowerAttack: 0
   empowerDefend: 0
   empowerExplore: 3
-  empowerInfluence: 2
+  empowerInfluence: 3
+  empowerSiege: 0
   empowerHealAmount: 0
   empowerNumCrystals: 0
   cardType: 12

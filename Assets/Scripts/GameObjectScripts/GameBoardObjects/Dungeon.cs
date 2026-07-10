@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 public class Dungeon : MonoBehaviour, IPointerClickHandler
 {
     public List<EnemiesSO> dungeonEnemies;
-    public List<RewardsSO> rewards;
+    private int rewardsRemaining;
     private int enemyIndex = 0;
     public DungeonsSO dungeonSO;
     private int exploreCost;
@@ -32,14 +32,22 @@ public class Dungeon : MonoBehaviour, IPointerClickHandler
         foreach (var enemy in dungeonSO.enemies)
             dungeonEnemies.Add(enemy);
 
-        foreach (var reward in dungeonSO.rewards)
-            rewards.Add(reward);
+        rewardsRemaining = dungeonSO.rewardCount;
+    }
+
+    // Reward tier every reward event in this dungeon pays out at.
+    public int RewardTier => dungeonSO.tier;
+
+    // Spend one of the dungeon's reward events (called after Rewards.Grant).
+    public void ConsumeReward()
+    {
+        if (rewardsRemaining > 0) rewardsRemaining--;
     }
 
     public void NextDungeonEvent()
     {
         var rng = Random.Range(0,2);
-        if (rng == 0 && rewards.Count !=0)
+        if (rng == 0 && rewardsRemaining != 0)
         {
             onDungeonReward_RewardPlayer.Raise(this);
         }
@@ -59,10 +67,5 @@ public class Dungeon : MonoBehaviour, IPointerClickHandler
         enemyCard.transform.SetParent(this.transform.parent, false);
         enemyCard.GetComponent<EnemyCard>().enemySO = dungeonEnemies[EnemyIndex];
         enemyIndex++;
-    }
-
-    public void RemoveReward(int index)
-    {
-        rewards.RemoveAt(index);
     }
 }

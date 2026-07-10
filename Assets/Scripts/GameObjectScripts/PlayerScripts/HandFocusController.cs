@@ -8,6 +8,7 @@ using UnityEngine.InputSystem;
 public class HandFocusController : MonoBehaviour
 {
     [SerializeField] HandFanLayout layout;
+    [SerializeField] UnitsLane unitsLane;
 
     enum FocusOwner { None, Mouse, Pad }
     FocusOwner _owner = FocusOwner.None;
@@ -37,7 +38,7 @@ public class HandFocusController : MonoBehaviour
             return;
         }
 
-        if (gm.cardCanvas.enabled)
+        if (gm.cardCanvas.enabled || gm.unitCanvas.enabled)
         {
             // Pop-out open: the fan shows no focus and this controller consumes no
             // input. _owner is kept so pad focus can be restored on close.
@@ -56,6 +57,9 @@ public class HandFocusController : MonoBehaviour
         }
 
         if (gm.mainMenuCanvas.enabled || gm.cardListCanvas.enabled) return;
+
+        // The units lane owns input while active (entered by crossing up from the fan).
+        if (unitsLane != null && unitsLane.IsActive) return;
 
         if (_owner == FocusOwner.Pad) KeepPadFocusValid();
         HandleMouse();
@@ -91,9 +95,20 @@ public class HandFocusController : MonoBehaviour
     {
         Vector2 nav = GameControls.Gameplay.Navigate.ReadValue<Vector2>();
         // Latch so one press = one step (sticks and held d-pads report every frame).
-        if (Mathf.Abs(nav.x) < 0.5f) { _navLatched = false; return; }
+        if (nav.magnitude < 0.5f) { _navLatched = false; return; }
         if (_navLatched) return;
         _navLatched = true;
+
+        // Up from the fan crosses into the units lane (when any units exist).
+        if (Mathf.Abs(nav.y) > Mathf.Abs(nav.x))
+        {
+            if (nav.y > 0 && _owner == FocusOwner.Pad && unitsLane != null && unitsLane.HasUnits)
+            {
+                layout.ClearFocus();
+                unitsLane.Enter();
+            }
+            return;
+        }
 
         var cards = layout.InHand();
         var wounds = new bool[cards.Count];
@@ -159,5 +174,12 @@ public class HandFocusController : MonoBehaviour
         _lastPadIndex = next;
         layout.SetFocus(cards[next]);
         InputContextState.Current = InputContext.Fan;
+    }
+
+    // UnitsLane hands focus back when the player navigates down out of the lane.
+    public void EnterFromUnits()
+    {
+        _owner = FocusOwner.Pad;
+        RestorePadFocus();
     }
 }

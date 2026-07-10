@@ -74,11 +74,13 @@ public class PlayerHand : MonoBehaviour
     {
         var cardDiff = player.PlayerHandSize - cardsInPlay.Count;
         DrawCards(cardDiff);
+        CheckWoundHand();
     }
 
     public void DrawCardsAtRoundEnd()
     {
         DrawCards(player.PlayerHandSize);
+        CheckWoundHand();
     }
 
     // Round end is a full reset: unplayed hand cards go back into the deck too,
@@ -99,12 +101,48 @@ public class PlayerHand : MonoBehaviour
 
     public void AddWound()
     {
-        playerCard = Instantiate(card, this.transform);
+        // Parent to the fan container (like drawn/rebuilt cards) — HandFanLayout
+        // only lays out cards whose parent is the container, so a wound parented
+        // elsewhere stays stacked at the origin until something reparents it.
+        playerCard = Instantiate(card, handLayout.Container);
         var woundCard = playerCard.GetComponent<Card>();
+        woundCard.InHand = true;
+        woundCard.InDeck = false;
         cardsInPlay.Add(woundCard);
         woundCard.cardSO = wound;
         playerCard.name = woundCard.name;
         Relayout();
+        // Wound adds are not undoable commands, so a threshold crossed here
+        // can never be un-done back under it — check at the moment of add.
+        if (RunEndRules.IsWoundOut(TotalWoundCount()))
+            RunEndController.RequestEnd(RunOutcome.WoundOutLoss);
+    }
+
+    // Wound-out counts every Wound card the run owns: hand + deck + discard.
+    // healedWounds are excluded — they're out of the run unless an undo
+    // restores them, and every wound ADD re-runs this check anyway.
+    public int TotalWoundCount()
+    {
+        int count = 0;
+        foreach (var c in cardsInPlay)
+            if (c != null && c.cardSO != null && c.cardSO.cardType == StatType.Wound) count++;
+        foreach (var c in deck.CardsInDeck)
+            if (c != null && c.cardSO != null && c.cardSO.cardType == StatType.Wound) count++;
+        var discardPile = FindAnyObjectByType<DiscardPile>();
+        if (discardPile != null)
+            foreach (var c in discardPile.Cards)
+                if (c != null && c.cardSO != null && c.cardSO.cardType == StatType.Wound) count++;
+        return count;
+    }
+
+    // A hand that tops up to full holding nothing but wounds is unplayable — loss.
+    private void CheckWoundHand()
+    {
+        int wounds = 0;
+        foreach (var c in cardsInPlay)
+            if (c != null && c.cardSO != null && c.cardSO.cardType == StatType.Wound) wounds++;
+        if (RunEndRules.IsWoundHand(cardsInPlay.Count, wounds, player.PlayerHandSize))
+            RunEndController.RequestEnd(RunOutcome.WoundHandLoss);
     }
 
     public void HealWound()

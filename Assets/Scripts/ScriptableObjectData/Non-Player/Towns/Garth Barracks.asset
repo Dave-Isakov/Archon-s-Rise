@@ -18,11 +18,13 @@ MonoBehaviour:
     some kind of reason for a fight.
   townSize: 2
   activity: 11
-  placeType: 0
-  guardians: []
+  placeType: 1
+  guardians:
+  - {fileID: 11400000, guid: 256d8eda38889d84c8b72ff62bcbfdee, type: 2}
   recruitableUnits:
   - {fileID: 11400000, guid: 35c0f88038060c945ac7a7a5c09873ea, type: 2}
-  recruitLevel: 5
+  - {fileID: 11400000, guid: 89b1af18d3c43da44ba8ca698a2a941d, type: 2}
+  - {fileID: 11400000, guid: 01a9990fd166e094d9b6d2ed4cbe52c7, type: 2}
   cardLevel: 6
-  resourceLevel: 0
+  resourceLevel: 3
   healLevel: 1

@@ -14,15 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: unit_scout
   cardName: Scout
-  cardDescription: 2 <sprite="scroll" index=0> 1xR
-  attack: 0
-  defend: 0
-  explore: 2
-  influence: 0
-  healAmount: 0
-  numCrystals: 0
-  cardType: 4
+  cardDescription: Explore 2 / Explore 4 (1G)
+  options:
+  - effect: 2
+    amount: 2
+    grantColor: 0
+    crystalCost: 0
+  - effect: 2
+    amount: 4
+    grantColor: 0
+    crystalCost: 4
+  influenceCost: 2
   sprite: {fileID: 0}
   color: {r: 0.13363297, g: 0.8584906, b: 0.19617498, a: 1}
   unitLetter: 83
-  empowerType: 0

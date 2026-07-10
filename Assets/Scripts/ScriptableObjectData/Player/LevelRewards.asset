@@ -22,6 +22,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7adef2dd6cc00b64e9f72a0eac22a939, type: 2}
   - {fileID: 11400000, guid: 70934f8d70ab08542ab694bbd56b5d83, type: 2}
   - {fileID: 11400000, guid: f54287a1c3d0e6e44bc4a5be511e1c06, type: 2}
+  - {fileID: 11400000, guid: 0b69646ee78111740acd73bfe213b808, type: 2}
   entries:
   - level: 2
     hpBonus: 0

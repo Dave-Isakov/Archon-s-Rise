@@ -14,8 +14,9 @@ public class CrystalButton : TownButtons
         if (_town is not null)
         {
             buttonText.text = "Crystal " + _town.townSO.resourceLevel.ToString();
-            if (_town.townSO.activity.HasFlag(TownsSO.TownActivity.Resources)
-                && ConquestTracker.Instance.IsConquered(_town.gridPos))
+            bool allowed = PlaceRules.AllowedServices(_town.townSO.placeType).HasFlag(PlaceService.Crystal);
+            bool open = ConquestTracker.Instance.IsConquered(_town.gridPos);
+            if (allowed && open)
             {
                 thisButton.gameObject.SetActive(true);
                 if(currentPlayerInfluence < _town.townSO.resourceLevel)

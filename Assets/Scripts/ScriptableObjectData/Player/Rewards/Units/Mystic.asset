@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c16f4bff67ec0745984351f5595704b, type: 3}
+  m_Name: Mystic
+  m_EditorClassIdentifier:
+  id: unit_mystic
+  cardName: Mystic
+  cardDescription: Heal 1 / Crystallize Purple (1 any)
+  options:
+  - effect: 5
+    amount: 1
+    grantColor: 0
+    crystalCost: 0
+  - effect: 6
+    amount: 1
+    grantColor: 8
+    crystalCost: 15
+  influenceCost: 5
+  sprite: {fileID: 0}
+  color: {r: 0.6, g: 0.3, b: 0.8, a: 1}
+  unitLetter: 89

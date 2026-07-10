@@ -79,6 +79,16 @@ public partial class DirectionButton : MonoBehaviour
 
     public void Explore()
     {
+        // A visible enemy standing on the destination blocks the move outright —
+        // the player must fight it (step adjacent to trigger combat), never walk
+        // over it. Checked before spending explore so a blocked click costs nothing.
+        var target = player.gridPos + player.compass[direction];
+        if(EnemyOccupies(target))
+        {
+            GameManager.Instance.ValidationMessage("An enemy blocks the way — attack it instead!");
+            return;
+        }
+
         if(playerExplore >= explore)
         {
             playerExplore -= explore;
@@ -111,8 +121,25 @@ public partial class DirectionButton : MonoBehaviour
     {
         var gridPos = gameboard.LocalToCell(player.transform.position);
         gridPos += player.compass[direction];
+        // Defense in depth: never let the player land on an enemy's cell, even if
+        // Move is invoked directly. Combat is entered by standing adjacent, not on top.
+        if(EnemyOccupies(gridPos))
+        {
+            GameManager.Instance.ValidationMessage("An enemy blocks the way — attack it instead!");
+            return;
+        }
         player.transform.position = gameboard.CellToWorld(gridPos);
         sendNewPositionOfPlayer.Raise(player);
+    }
+
+    // True when a visible enemy token stands on this cell. Enemies hidden under fog
+    // don't block — the player is only revealing fog there, not moving onto it.
+    private bool EnemyOccupies(Vector3Int cell)
+    {
+        if(MapFog.IsHidden(cell)) return false;
+        foreach(var token in FindObjectsByType<EnemyToken>())
+            if(token.gridPos == cell) return true;
+        return false;
     }
 
     public void SetExplore(int explore)

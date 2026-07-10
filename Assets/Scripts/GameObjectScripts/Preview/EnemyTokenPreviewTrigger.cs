@@ -12,7 +12,7 @@ public class EnemyTokenPreviewTrigger : PreviewTrigger
     void Awake() => token = GetComponent<EnemyToken>();
 
     protected override IReadOnlyList<EnemyPreviewData> ResolveEntries()
-        => token.enemy != null
+        => token.enemy != null && !MapFog.IsHidden(token.gridPos)   // fogged tokens are not previewable
             ? new List<EnemyPreviewData> { new EnemyPreviewData(token.enemy, token.bonusAttack, token.bonusHP) }
             : new List<EnemyPreviewData>();
 

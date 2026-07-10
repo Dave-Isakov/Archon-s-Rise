@@ -53,6 +53,9 @@ public class GuardianAssault : MonoBehaviour
             {
                 GameManager.Instance.ValidationMessage(
                     $"{place.townSO.cardName} is conquered! Its services are now open to you.");
+                // M2.5 win check: territory is the sole win axis.
+                if (RunEndRules.IsVictory(ConquestTracker.Instance.ConqueredCastleCount()))
+                    RunEndController.RequestEnd(RunOutcome.Victory);
                 place = null; // combat canvas closes via CheckCombatants on card click
                 activeCard = null;
             }

@@ -14,15 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: unit_knight
   cardName: Knight
-  cardDescription: 3 <sprite="shield" index=0> 1xR
-  attack: 0
-  defend: 3
-  explore: 0
-  influence: 0
-  healAmount: 0
-  numCrystals: 0
-  cardType: 2
+  cardDescription: Defend 3 / Defend 6 (1R)
+  options:
+  - effect: 1
+    amount: 3
+    grantColor: 0
+    crystalCost: 0
+  - effect: 1
+    amount: 6
+    grantColor: 0
+    crystalCost: 1
+  influenceCost: 4
   sprite: {fileID: 0}
   color: {r: 0, g: 0, b: 0.9372549, a: 1}
   unitLetter: 75
-  empowerType: 0

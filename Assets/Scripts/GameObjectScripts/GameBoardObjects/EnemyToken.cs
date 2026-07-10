@@ -80,6 +80,8 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (MapFog.IsHidden(gridPos)) return; // hidden by fog → not interactable
+
         if(this.isAggro)
         {
             StartCoroutine(StartCombat());

@@ -54,7 +54,7 @@ public class LevelUpController : MonoBehaviour
 
     void OfferCardPick()
     {
-        rewards.OfferCardChoice(Done);
+        rewards.OfferCardChoiceForLevel(player.PlayerLevel, Done);
     }
 
     void Done()

@@ -36,17 +36,24 @@ public class EnemyDeck : Deck<EnemiesSO>, IPointerClickHandler
         enemyCard.name = enemyCard.name.ToString();
         var card = enemyCard.GetComponent<EnemyCard>();
         card.enemySO = token.enemy;
+        card.bonusHP = token.bonusHP;         // set before the card's Start runs
+        card.bonusAttack = token.bonusAttack;
         card.EnableCombat(token);
         token.cardRef = card;
     }
 
-    public void GetNewEnemyToken(Vector3Int gridPosition, Tilemap ground, int enemyIndex)
+    public void GetNewEnemyToken(Vector3Int gridPosition, Tilemap ground, int enemyIndex,
+        int bonusHP = 0, int bonusAttack = 0, bool isMidRunSpawn = false)
     {
         enemyToken = Instantiate(prefabEnemyToken, ground.CellToLocal(gridPosition), Quaternion.identity);
         enemyToken.name = enemyToken.name.ToString() + enemyID;
         enemyID++;
         enemyToken.transform.SetParent(inPlayEnemies.transform, false);
-        enemyToken.GetComponent<EnemyToken>().enemy = enemies[enemyIndex];
+        var token = enemyToken.GetComponent<EnemyToken>();
+        token.enemy = enemies[enemyIndex];
+        token.bonusHP = bonusHP;
+        token.bonusAttack = bonusAttack;
+        token.isMidRunSpawn = isMidRunSpawn;
     }
 
     public void OnPointerClick(PointerEventData eventData)

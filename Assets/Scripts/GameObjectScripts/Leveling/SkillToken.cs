@@ -30,6 +30,11 @@ public class SkillToken : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (skillSO.cadence == SkillCadence.Passive)
+        {
+            GameManager.Instance.ValidationMessage($"{skillSO.cardName} is always active.");
+            return;
+        }
         if (!IsUsed)
         {
             GameManager.Instance.commands.AddCommand(new SkillCommand(onClick_PerformSkillAction, this));

@@ -17,4 +17,5 @@ description: Living development roadmap for the Archon's Rise game. Use when dec
 - When priorities shift, reorder [milestones.md](milestones.md); do not delete history — mark items done.
 - When a milestone completes, update [status.md](status.md) to reflect reality and advance Current Focus.
 - Record every design/dev decision (and its why) in [decisions-log.md](decisions-log.md) — append-only.
+- Don't overcomment on the code base, this is a solo development project and the documentation is here to help you remember what you were thinking when you made a decision.
 - Game-design questions are answered by the `archons-rise-design` skill; this skill is the *plan*.

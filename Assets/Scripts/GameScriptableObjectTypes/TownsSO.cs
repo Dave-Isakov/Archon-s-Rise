@@ -27,7 +27,6 @@ public class TownsSO : AllCards
     // data-driven: assault logic reads guardians.Count, never a constant.
     public List<EnemiesSO> guardians = new List<EnemiesSO>();
     public List<UnitsSO> recruitableUnits;
-    public int recruitLevel;
     public int cardLevel;
     public int resourceLevel;
     public int healLevel;

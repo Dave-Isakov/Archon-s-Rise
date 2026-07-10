@@ -12,14 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d1b2ea550f080147a7e32918142ea1b, type: 3}
   m_Name: BanditFootsoldier
   m_EditorClassIdentifier: 
+  id: enemy-bandit-footsoldier
   cardName: Bandit Footsoldier
   cardDescription: One of the many Bandit soldiers from various gangs that roam the
     land.
-  enemyHP: 3
+  enemyHP: 4
   enemyAttack: 2
-  reward: 0
   defeatRewards:
   - {fileID: 11400000, guid: 879d999e9521d88449f93825314e7ac6, type: 2}
   - {fileID: 11400000, guid: a974a541928f88f468e9ab70e6e1277c, type: 2}
+  - {fileID: 11400000, guid: 5846e3a981fe150408c223103523ecad, type: 2}
   canInfluence: 1
-  influenceCost: 5
+  influenceCost: 4
+  recruitedUnit: {fileID: 11400000, guid: 89b1af18d3c43da44ba8ca698a2a941d, type: 2}
+  tier: 1

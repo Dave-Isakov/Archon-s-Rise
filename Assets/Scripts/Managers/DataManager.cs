@@ -33,10 +33,12 @@ public class DataManager : MonoBehaviour
     public CardsSO[] allCards;
     public UnitsSO[] allUnits;
     public SkillsSO[] allSkills;
+    public EnemiesSO[] allEnemies;
 
     public ContentRegistry<CardsSO> Cards { get; private set; }
     public ContentRegistry<UnitsSO> Units { get; private set; }
     public ContentRegistry<SkillsSO> Skills { get; private set; }
+    public ContentRegistry<EnemiesSO> Enemies { get; private set; }
 
     private void Awake()
     {
@@ -61,6 +63,7 @@ public class DataManager : MonoBehaviour
             Cards = new ContentRegistry<CardsSO>(allCards, c => c.id);
             Units = new ContentRegistry<UnitsSO>(allUnits, u => u.id);
             Skills = new ContentRegistry<SkillsSO>(allSkills, s => s.id);
+            Enemies = new ContentRegistry<EnemiesSO>(allEnemies, e => e.id);
             return true;
         }
         catch (System.Exception e)
@@ -76,6 +79,9 @@ public class DataManager : MonoBehaviour
         // A validation message modally captures input; Menu is suppressed so it can't
         // open the main menu over the message (dismiss it with A/B first).
         if (GameManager.Instance.messageCanvas.enabled) return;
+
+        // The run-end screen is terminal; the menu key must not open UI over it.
+        if (RunEndController.HasEnded) return;
 
         // While the pop-out is open, Escape/Start acts as Cancel (closes the
         // pop-out) instead of opening the main menu over it.
@@ -221,8 +227,14 @@ public class DataManager : MonoBehaviour
         if (discard != null) discard.RebuildDiscard(Cards.Resolve(run.discardCardIds));
 
         if (game != null) { game.Round = run.round; game.Turn = run.turn; }
+        if (DoomClock.Instance != null) DoomClock.Instance.SetLoaded(run.doom);
+        if (EnemySpawner.Instance != null)
+        {
+            EnemySpawner.Instance.RoundsSinceSpawn = run.roundsSinceSpawn;
+            EnemySpawner.Instance.RestoreSpawned(run.spawnedEnemies, Enemies);
+        }
 
-        player.RebuildUnits(Units.Resolve(run.unitIds));
+        player.RebuildUnits(Units.Resolve(run.unitIds), run.unitExhausted);
         player.RebuildSkills(Skills.Resolve(run.player.ownedSkillIds),
             new HashSet<string>(run.player.exhaustedSkillIds));
     }
@@ -243,7 +255,7 @@ public class DataManager : MonoBehaviour
         var crystals  = FindAnyObjectByType<CrystalInventory>();
         var game      = GameManager.Instance;
 
-        var file = new SaveFile { schemaVersion = 3 };
+        var file = new SaveFile { schemaVersion = 5 };
         var run  = file.run;
 
         run.player.hp            = player.PlayerHP;
@@ -262,7 +274,11 @@ public class DataManager : MonoBehaviour
         run.deckCardIds    = CardIds(deck != null ? deck.CardsInDeck : new List<Card>());
         run.handCardIds    = CardIds(hand != null ? hand.cardsInPlay : new List<Card>());
         run.discardCardIds = DiscardIds(discard);
-        run.unitIds        = UnitIds(player);
+        // Single-source capture so unitIds[i] and unitExhausted[i] always pair:
+        // both come from the same Unit-object iteration.
+        var unitObjs = FindObjectsByType<Unit>();
+        run.unitIds       = System.Array.ConvertAll(unitObjs, u => u.unitSO.id);
+        run.unitExhausted = System.Array.ConvertAll(unitObjs, u => u.IsPlayed);
         run.player.ownedSkillIds     = SkillIds(player);
         run.player.exhaustedSkillIds = ExhaustedSkillIds();
 
@@ -276,6 +292,10 @@ public class DataManager : MonoBehaviour
 
         run.round = game != null ? game.Round : 0;
         run.turn  = game != null ? game.Turn  : 0;
+        run.doom  = DoomClock.Instance != null ? DoomClock.Instance.Doom : 0;
+        run.roundsSinceSpawn = EnemySpawner.Instance != null ? EnemySpawner.Instance.RoundsSinceSpawn : 0;
+        run.spawnedEnemies   = EnemySpawner.Instance != null ? EnemySpawner.Instance.ExportAlive()
+                                                             : System.Array.Empty<SpawnedEnemy>();
 
         return file;
     }
@@ -292,15 +312,6 @@ public class DataManager : MonoBehaviour
     {
         if (discard == null) return System.Array.Empty<string>();
         return CardIds(discard.Cards);
-    }
-
-    private static string[] UnitIds(Player player)
-    {
-        var ids = new List<string>();
-        if (player == null) return ids.ToArray();
-        foreach (var u in player.Units)
-            if (u != null) ids.Add(u.id);
-        return ids.ToArray();
     }
 
     private static string[] SkillIds(Player player)
@@ -339,6 +350,9 @@ public class DataManager : MonoBehaviour
         var game = GameManager.Instance;
         if (game == null) return false;
         if (IsLoading) return false;
+
+        // A finished run must never be re-saved (the run-end screen deleted it).
+        if (RunEndController.HasEnded) return false;
 
         // No modal sub-screen open.
         if (game.combatCanvas != null && game.combatCanvas.enabled) return false;
@@ -379,6 +393,15 @@ public class DataManager : MonoBehaviour
         Debug.Log($"Saving data at {savePath}");
         using StreamWriter writer = new StreamWriter(savePath);
         writer.Write(json);
+    }
+
+    // Called by RunEndController when a run ends: the save must not be resumable.
+    public void DeleteSave()
+    {
+        if (instance != null && instance != this) { instance.DeleteSave(); return; }
+        savePath = Application.dataPath + Path.AltDirectorySeparatorChar + "Save.json";
+        if (File.Exists(savePath)) File.Delete(savePath);
+        current = new SaveFile();
     }
 
     public void Quit()

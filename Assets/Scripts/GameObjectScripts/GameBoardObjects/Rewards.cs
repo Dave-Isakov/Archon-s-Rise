@@ -1,80 +1,62 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Reward-granting service. Context methods pick which RewardsSO applies, then
-// everything funnels through one Grant() that applies each reward flag once.
-// Card rewards offer a choice through RewardCanvas and grant the chosen card
-// via the single PlayerDeck.AddCard path.
-public class Rewards : Deck<RewardsSO>
+// Reward-granting service. Every enemy/dungeon reward derives from a tier
+// (spec 2026-07-10): Experience is granted every time (bell-curve sampled from
+// the tier's range), then a crystal and a card are rolled independently against
+// the tier's odds. Card rewards offer a choice from that tier's pool through
+// RewardCanvas and grant the chosen card via the single PlayerDeck.AddCard path.
+public class Rewards : MonoBehaviour
 {
-    public List<RewardsSO> rewards = new List<RewardsSO>();
     public CrystalInventory crystals;
     [SerializeField] Player player;
     [SerializeField] PlayerDeck deck;
     [SerializeField] RewardCanvas rewardCanvas;
-    // Reward-eligible cards only (NOT starting cards or Wound). Kept separate
-    // from DataManager.Cards (the complete save/load registry) so the resolver
-    // can contain every card while rewards stay curated.
-    [SerializeField] List<CardsSO> rewardPool = new List<CardsSO>();
-
-    private void Start()
-    {
-        Shuffle(rewards);
-    }
-
-    // No-context reward (legacy entry point).
-    public void GetReward()
-    {
-        Grant(rewards[0]);
-        Shuffle(rewards);
-    }
+    [SerializeField] RewardTuningSO tuning;
 
     // Wired to OnEnemyDefeat_GetRewards.
-    public void GetReward(EnemyCard enemy)
-    {
-        var reward = enemy.enemySO.defeatRewards[Random.Range(0, enemy.enemySO.defeatRewards.Count)];
-        Grant(reward);
-    }
+    public void GetReward(EnemyCard enemy) => Grant(enemy.enemySO.tier);
 
+    // Wired to onDungeonReward_RewardPlayer. Each dungeon reward event grants a
+    // tier reward and consumes one of the dungeon's remaining reward events.
     public void GetReward(Dungeon dungeon)
     {
-        var reward = dungeon.rewards[Random.Range(0, dungeon.rewards.Count)];
-        Grant(reward);
-        dungeon.rewards.Remove(reward);
+        Grant(dungeon.RewardTier);
+        dungeon.ConsumeReward();
     }
 
-    private void Grant(RewardsSO reward)
+    void Grant(int tier)
     {
-        if (reward.rewardType.HasFlag(RewardType.Experience))
-            player.PlayerExp += reward.expAmount;
+        player.PlayerExp += RewardRules.SampleExp(tier, tuning.Data, max => Random.Range(0, max));
 
-        if (reward.rewardType.HasFlag(RewardType.Crystals))
+        if (RewardRules.Roll(tuning.CrystalChance(tier), () => Random.value))
         {
             var types = new[] { EmpowerType.Green, EmpowerType.Yellow, EmpowerType.Red, EmpowerType.Purple, EmpowerType.None };
             crystals.CreateCrystal(types[Random.Range(0, types.Length)]);
         }
 
-        if (reward.rewardType.HasFlag(RewardType.Cards))
-            OfferCardChoice();
-
-        Debug.Log($"Your reward is: {reward.cardDescription}");
+        if (RewardRules.Roll(tuning.CardChance(tier), () => Random.value))
+            OfferCardChoice(tier);
     }
 
-    // Card pick: choose 1 of 3 from the curated pool. Public because level-ups
+    // Card pick: choose 1 of 3 from the tier's pool. Public because level-ups
     // grant the same pick (LevelUpController); onClosed lets the caller queue
     // the next reward after the screen resolves (chosen OR skipped).
-    public void OfferCardChoice(System.Action onClosed = null)
+    public void OfferCardChoice(int tier, System.Action onClosed = null)
     {
-        // Draw from the curated rewardPool, NOT DataManager.Cards (which now
-        // includes starting cards + Wound for save/load resolution).
-        if (rewardPool == null || rewardPool.Count == 0) { onClosed?.Invoke(); return; }
+        var pool = tuning.CardPool(tier);
+        if (pool == null || pool.Count == 0) { onClosed?.Invoke(); return; }
 
         var candidates = new List<CardsSO>();
         for (int i = 0; i < 3; i++)
-            candidates.Add(rewardPool[Random.Range(0, rewardPool.Count)]);
+            candidates.Add(pool[Random.Range(0, pool.Count)]);
 
         rewardCanvas.Offer(candidates,
             so => { deck.AddCard(so, toTop: true); onClosed?.Invoke(); },
             () => onClosed?.Invoke());
     }
+
+    // Level-up card pick: pool tier scales with player level (spec 2026-07-10).
+    public void OfferCardChoiceForLevel(int level, System.Action onClosed = null)
+        => OfferCardChoice(RewardRules.CardTierForLevel(level, tuning.Data), onClosed);
 }

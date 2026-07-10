@@ -10,9 +10,16 @@ four action stats, then act:
 - **Fight** an enemy — two forms: **Normal** (spends the Attack pool vs the enemy's HP; the enemy's
   counterattack can wound you when Defend falls short) or **Siege** (spends the separate Siege pool
   vs the enemy's HP; always wound-free — the counterattack is skipped). Both grant identical
-  rewards; Siege is scarce (advanced cards/units only, never improvisable),
-- **Recruit** units at a town (spending Influence) — up to the **army cap** (starts at 1, raised
-  by level-ups; at cap, hiring requires disbanding an existing unit),
+  rewards; Siege is scarce (advanced cards/units only, never improvisable). A third resolution,
+  **Influence**, applies to enemies flagged `canInfluence`: paying the enemy's Influence cost ends
+  the fight **wound-free and still grants the defeat rewards** (no counterattack runs). If the enemy
+  has a `recruitedUnit` **and** the player owns the **Charismatic** passive, the same payment also
+  adds that unit to the army (rewards + unit); otherwise influence is pay-to-leave only. At the army
+  cap a recruit-influence opens the disband picker first; cancelling spends nothing,
+- **Recruit** units at a town (spending Influence) — a **recruit panel** lists the town's units,
+  each at **its own Influence price** (per-unit, not a flat town rate); unaffordable entries show
+  disabled. Recruiting is capped by the **army cap** (starts at 1, raised by level-ups; at cap,
+  hiring first opens the disband picker to make room — cancelling it spends nothing),
 - **Move/explore** further (spending Explore).
 
 Gain rewards (experience, crystals, cards) from defeating enemies and clearing dungeons, level up,
@@ -25,8 +32,9 @@ guardian, Castle 2 — data-driven rosters) must have **all guardians defeated i
 conquered; defeated guardians never respawn, so conquest is resumable. Retreating from an assault
 in progress costs **3 wounds** (field-combat flee stays 1); closing a place's menu without
 assaulting is free. Services gate by type (Town: Recruit+Heal; Keep: Recruit; Castle:
-Recruit+Heal+Cards) and open only once the place is conquered (Towns, guardian-less, open
-immediately). Places are entered by **standing on their cell** — adjacent interaction is not
+Recruit+Heal+Cards) plus **Crystal purchase, offered at every Place** (decision 2026-07-10 —
+Influence, not place type, limits how many crystals you buy), and open only once the place is
+conquered (Towns, guardian-less, open immediately). Places are entered by **standing on their cell** — adjacent interaction is not
 allowed (unlike enemies). **Conquer 2 Castles to win** — territory is the sole win axis, no
 Level/Influence gate. Exact rosters and castle count are tuning — see [balance.md](balance.md).
 
@@ -57,6 +65,19 @@ and all refresh when a new round starts. When the deck can't refill the hand, th
 ended — the End Turn button disables and the player must end the round. Neither the turn nor the
 round can end mid-combat: both buttons disable while a fight is active.
 
+## Units
+Recruited units are **configurable option-lists**, not fixed stat blocks. Each unit (`UnitsSO`)
+carries an authored list of **options** (`UnitOption`); clicking or focusing a unit opens a
+card-style **pop-out** rendering exactly those options. Each option is one effect — Attack, Defend,
+Explore, Influence, Siege, Heal, or Crystallize — at an authored amount, and may carry a **crystal
+cost**. A costed option requires spending one crystal that satisfies the cost (exact color, or a
+wild crystal — the same matching rule as card Empower; an all-colors cost accepts any crystal). The
+pop-out shows unaffordable options as **locked** (dimmed): they are still focusable so the player
+can read the cost, but Use refuses them. Using **any** option applies its effect and **exhausts**
+the unit for the round (turned sideways). Costed options reserve/spend the crystal exactly like card
+empower, and the whole use is a single undoable command (undo reverts the stat/heal/crystallize and
+refunds the crystal). Units all refresh at round start.
+
 ## Stats
 Eight stat types (the `StatType` flags in code):
 - **Attack** — defeats enemies (Attack ≥ enemy HP).
@@ -81,8 +102,10 @@ Eight stat types (the `StatType` flags in code):
 ## Empower / Crystal Economy
 A card may be **Empowered** by spending one **Crystal** of the card's color
 (Red / Yellow / Green / Purple — the `EmpowerType`). When empowered, the card yields its stronger
-`empower*` values instead of its base values. Crystals are limited and gained from rewards and
-crystal-granting cards, so empowering is a deliberate tactical choice (pillar 3).
+`empower*` values instead of its base values. Crystals are limited and gained from rewards,
+crystal-granting cards, and **purchase at any conquered Place** (spend Influence, pick the color;
+per-crystal price is the Place's `resourceLevel` — decision 2026-07-10), so empowering is a
+deliberate tactical choice (pillar 3).
 
 ## Leveling
 Experience accrues toward `expToNextLevel`. On level-up, rewards come from a **fixed, data-driven
@@ -101,5 +124,8 @@ Level-up rewards distinct from cards: activatable abilities on a persistent **sk
 is clicked to apply its effect (gain a stat, a crystal, or heal a wound), then **exhausts** until
 its cadence refreshes it — **per-turn** skills refresh at turn end (weak effects), **per-round**
 skills at round end (strong effects, e.g. crystals and healing). Activation is undoable via the
-command stack, like card plays. Skills are acquired only via level-up picks; the pool is defined
-on `LevelRewardsSO` (spec: `docs/superpowers/specs/2026-07-06-level-up-rewards-design.md`).
+command stack, like card plays. A third cadence, **passive**, has no activatable effect: passive
+skills are never clicked or exhausted — their state is simply *queried* by the systems they gate
+(e.g. **Charismatic** = `SkillEffect.RecruitEnemies`, which lets influenced enemies be recruited).
+Skills are acquired only via level-up picks; the pool is defined on `LevelRewardsSO`
+(spec: `docs/superpowers/specs/2026-07-06-level-up-rewards-design.md`).

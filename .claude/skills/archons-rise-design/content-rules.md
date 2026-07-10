@@ -9,9 +9,11 @@ field here ever disagrees with those scripts, the scripts win — update this fi
 - **`StatType`** `[Flags]`: `None=0, Attack=1, Defend=2, Explore=4, Influence=8, Heal=16, Wound=32, Crystal=64`.
   Combine with `|` (e.g. `Explore | Crystal`).
 - **`EmpowerType`** `[Flags]`: `None=0, Red=1, Yellow=2, Green=4, Purple=8`. Use `None` for a card/unit
-  that cannot be empowered.
-- **`RewardType`** `[Flags]`: `None=0, Experience=1, Crystals=2, Cards=4`.
-- **`RewardLevel`**: `Beginner, Intermediate, Advanced, Master`.
+  that cannot be empowered. All-colors (any-crystal cost / wild crystal) = all four flags set = `15`.
+- **`UnitEffect`**: `Attack=0, Defend=1, Explore=2, Influence=3, Siege=4, Heal=5, Crystallize=6`. One
+  unit option's effect (append-only — new members go at the end).
+- **`SkillCadence`**: `PerTurn=0, PerRound=1, Passive=2`. `SkillEffect` (append-only) now also has
+  `RecruitEnemies` (the Charismatic passive gate).
 - **`TownSize`**: `Town, Village, Fortress, City`.
 - **`PlaceType`**: `Town=0, Keep=1, Castle=2` (source: `Assets/Scripts/Places/`).
 - **`PlaceService`** `[Flags]`: `None=0, Recruit=1, Heal=2, Cards=4` (source: `Assets/Scripts/Places/`).
@@ -53,10 +55,10 @@ field here ever disagrees with those scripts, the scripts win — update this fi
 |-------|------|-------|
 | `enemyHP` | int | Player needs Attack ≥ this to defeat it |
 | `enemyAttack` | int | Player Defend < this → Wounds |
-| `reward` | `RewardLevel` | Reward tier on defeat |
-| `defeatRewards` | List&lt;`RewardsSO`&gt; | Rewards granted on defeat |
 | `canInfluence` | bool | Can be dealt with via Influence |
 | `influenceCost` | int | Forced to 0 when `canInfluence` is false |
+| `recruitedUnit` | `UnitsSO` | Optional. When set AND the player owns Charismatic, paying the influence cost recruits this unit (rewards + unit). Null = pay-to-leave only. |
+| `tier` | int | Doom-gated difficulty tier (1–3) |
 
 ## Town — `TownsSO`
 **Menu:** `ScriptableObjects/Cards/TownCards`
@@ -80,26 +82,41 @@ guardians. Castles are the win currency — conquering 2 wins the run (M2.5).
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `attack`, `defend`, `explore`, `influence` | int | Stats added when played |
-| `healAmount`, `numCrystals` | int | Heal / crystals |
-| `cardType` | `StatType` (flags) | Which stats this unit provides |
+| `options` | List&lt;`UnitOption`&gt; | The unit's authored options; the pop-out renders exactly these |
+| `influenceCost` | int | Recruit price at towns (per-unit) |
 | `sprite` | Sprite | Unit art |
 | `color` | Color | Unit tint |
 | `unitLetter` | char | Display letter |
-| `empowerType` | `EmpowerType` | Crystal affinity |
 
-**Rule:** Recruited at towns with Influence; played to add stats. Units have no per-card empower
-toggle like cards (`GetUnitStats` returns base values).
+**`UnitOption` fields:** `effect` (`UnitEffect`), `amount` (int), `grantColor` (`EmpowerType` — only
+used by `Crystallize`), `crystalCost` (`EmpowerType` — `None` = free; a color = 1 crystal of that
+color, wild satisfies; all-colors/`15` = any 1 crystal).
 
-## Reward — `RewardsSO`
-**Menu:** `ScriptableObjects/Cards/RewardCards`
+**Rules:** Recruited at towns for `influenceCost` (or via enemy influence + Charismatic). The pop-out
+lets the player pick one option; using it applies the effect and exhausts the unit for the round.
+A crystal-costed option ≈ twice its free sibling's amount (see [balance.md](balance.md)). The legacy
+flat-stat fields (`attack`/`defend`/…/`empowerType`, `GetUnitStats`) are retired.
+
+## Reward tuning — `RewardTuningSO`
+**Menu:** `ScriptableObjects/RewardTuning` — one shared asset, wired onto the `Rewards` component.
+
+Combat/dungeon rewards derive entirely from a **tier** (1–3), not per-enemy bundles
+(spec 2026-07-10). On defeat: Experience is always granted (bell-curve sampled from the
+tier's exp range), then a crystal and a card are rolled **independently** against the
+tier's odds. The pure math lives in `RewardRules`; the numeric knobs live in the nested
+`RewardTuning`; the card pools live on the SO (card refs are Unity objects).
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `rewardType` | `RewardType` (flags) | Experience / Crystals / Cards |
-| `rewardLevel` | `RewardLevel` | Beginner / Intermediate / Advanced / Master |
-| `expAmount` | int | Experience granted |
-| `numCrystals` | int | Crystals granted |
+| `tuning.expBellSamples` | int | Uniform draws averaged for the exp bell (higher = tighter centre) |
+| `tuning.tier1/2/3` | `RewardTierTuning` | Per-tier `expMin`, `expMax`, `crystalChance`, `cardChance` |
+| `tuning.levelTier2`, `levelTier3` | int | Player level at which level-up card picks step up a pool tier |
+| `tier1Cards` / `tier2Cards` / `tier3Cards` | List&lt;`CardsSO`&gt; | Per-tier card reward pools — **pool membership IS a card's rarity** (a card may appear in several tiers) |
+
+**Rules:** an enemy/dungeon's `tier` selects the config. Crystals are the common bonus,
+cards the rare one — tune `crystalChance` > `cardChance`. There is **no per-enemy reward
+authoring**: set the enemy's `tier` and the reward falls out. See [balance.md](balance.md)
+for the starting bands.
 
 ## Dungeon — `DungeonsSO`
 **Menu:** `ScriptableObjects/Dungeons`
@@ -108,7 +125,8 @@ toggle like cards (`GetUnitStats` returns base values).
 |-------|------|-------|
 | `exploreCost` | int | Explore to enter |
 | `enemies` | List&lt;`EnemiesSO`&gt; | Enemies inside |
-| `rewards` | List&lt;`RewardsSO`&gt; | Clear rewards |
+| `tier` | int | Reward tier (1–3) every reward event pays out at |
+| `rewardCount` | int | Number of reward events the dungeon offers before rewards are exhausted |
 
 ## Location — `LocationsSO`
 **Menu:** `ScriptableObjects/LocationsSO`

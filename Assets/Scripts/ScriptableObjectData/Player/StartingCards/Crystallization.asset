@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_crystallization
   cardName: Crystallization
-  cardDescription: '<sprite="crystal" index=0 color=#FFFFFF>: 1
+  cardDescription: '<sprite="crystal" index=0 color=#522D2D>: 2
 
 
     Empower: <sprite="crystal"
-    index=0 color=#FFFFFF>: 2'
+    index=0 color=#522D2D>: 4'
   attack: 0
   defend: 0
   explore: 0

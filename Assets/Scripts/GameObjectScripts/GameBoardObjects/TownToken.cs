@@ -23,6 +23,8 @@ public class TownToken : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (MapFog.IsHidden(gridPos)) return; // hidden by fog → not interactable
+
         // Places are entered, not reached into: the player must be standing on
         // this cell (adjacency is enough for enemies, not for places).
         if (gameboard.LocalToCell(player.transform.position) != gridPos)
@@ -34,6 +36,11 @@ public class TownToken : MonoBehaviour, IPointerClickHandler
 
         GameManager.Instance.townCanvas.enabled = true;
         deck.CreateTown(this);
+        // Revive any button that hid itself on a previous open, so its listener
+        // re-registers before the events below drive UpdateButtonText. Without
+        // this, buttons that went inactive (e.g. Recruit on a not-yet-conquered
+        // Keep) never re-appear once conditions change (the Keep is conquered).
+        TownMenu.Instance.PrepareButtons();
         onClick_GetTownData.Raise(this);
         onClick_OpenTownMenu.Raise(this);
     }

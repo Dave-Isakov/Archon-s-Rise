@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a087a0eea4237bb45bb4199e8623a16f, type: 3}
+  m_Name: RewardTuning
+  m_EditorClassIdentifier: Assembly-CSharp::RewardTuningSO
+  tuning:
+    expBellSamples: 3
+    levelTier2: 4
+    levelTier3: 7
+    tier1:
+      expMin: 1
+      expMax: 5
+      crystalChance: 0.5
+      cardChance: 0.08
+    tier2:
+      expMin: 3
+      expMax: 7
+      crystalChance: 0.6
+      cardChance: 0.12
+    tier3:
+      expMin: 6
+      expMax: 10
+      crystalChance: 0.7
+      cardChance: 0.18
+  tier1Cards:
+  - {fileID: 11400000, guid: 58fe6115ac0eaf345b403e7218efe5c7, type: 2}
+  - {fileID: 11400000, guid: d523a9b6adc27e84bb4e4bdea4c13626, type: 2}
+  - {fileID: 11400000, guid: fee3f75200346d140802c0770ce31dbb, type: 2}
+  - {fileID: 11400000, guid: f8eee066478107a4ba7867d3e89b3d64, type: 2}
+  - {fileID: 11400000, guid: b12ead6b89a9d744598192c3828d2900, type: 2}
+  - {fileID: 11400000, guid: 0f162ca090caa35488a1e97a7071491b, type: 2}
+  - {fileID: 11400000, guid: 1424ca425c474a8e8bad357dfd629943, type: 2}
+  - {fileID: 11400000, guid: 55f2ece5b9824e40a75c203b48901a90, type: 2}
+  - {fileID: 11400000, guid: 8af9cc7d91b76804b846b1a0a9a849d1, type: 2}
+  - {fileID: 11400000, guid: b2dc06c4392945eb9ffb847f5af46af7, type: 2}
+  tier2Cards:
+  - {fileID: 11400000, guid: fc9bc6d5c1c1493680a53217db38434e, type: 2}
+  - {fileID: 11400000, guid: 93b1634c88144c2da4e8f9ceb09ab2da, type: 2}
+  - {fileID: 11400000, guid: 815e09b3ff4e4ccdada412c09f980287, type: 2}
+  - {fileID: 11400000, guid: a102cb51544b67c4d87d42e30923124b, type: 2}
+  - {fileID: 11400000, guid: 6026b04044c04af8ad8bac7c32b278a0, type: 2}
+  - {fileID: 11400000, guid: 68828276266644389eef08104cf626ff, type: 2}
+  - {fileID: 11400000, guid: abde18bcea62c94438fe53fddbc97f57, type: 2}
+  - {fileID: 11400000, guid: 9e2e8678ea3b457b804115ef8dd6afd5, type: 2}
+  - {fileID: 11400000, guid: 0f162ca090caa35488a1e97a7071491b, type: 2}
+  - {fileID: 11400000, guid: 8dcef2da0e6b45bcadc2364527ae7000, type: 2}
+  tier3Cards:
+  - {fileID: 11400000, guid: 6a0030b41a885b2419098c937175ae8d, type: 2}
+  - {fileID: 11400000, guid: 504ab97706ed35f4393a0154b5ca946e, type: 2}

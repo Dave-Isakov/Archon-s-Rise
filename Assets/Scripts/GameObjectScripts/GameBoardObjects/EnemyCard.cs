@@ -9,6 +9,12 @@ using UnityEngine.UI;
 public class EnemyCard : MonoBehaviour, IPointerClickHandler
 {   
     public EnemiesSO enemySO;
+    // Doom-scaling bonuses copied from the spawning token (zero for guardians
+    // and map-gen enemies). Display and combat both use Effective values.
+    public int bonusHP;
+    public int bonusAttack;
+    public int EffectiveHP => enemySO.enemyHP + bonusHP;
+    public int EffectiveAttack => enemySO.enemyAttack + bonusAttack;
     [SerializeField] private TextMeshProUGUI enemyName;
     [SerializeField] private TextMeshProUGUI enemyHP;
     [SerializeField] private TextMeshProUGUI enemyAttack;
@@ -28,14 +34,18 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
     void Start() 
     {
         enemyName.text = enemySO.cardName;
-        enemyAttack.text = "<sprite=\"Sword\" index=0> \n" + enemySO.enemyAttack.ToString();
-        enemyHP.text = "<sprite=\"shield\" index=0> \n" + enemySO.enemyHP.ToString();
-        if(enemySO.canInfluence)
+        enemyAttack.text = "<sprite=\"Sword\" index=0> \n" + EffectiveAttack.ToString();
+        enemyHP.text = "<sprite=\"shield\" index=0> \n" + EffectiveHP.ToString();
+        var player = FindAnyObjectByType<Player>();
+        if (enemySO.canInfluence)
         {
+            bool recruit = enemySO.recruitedUnit != null && player != null && player.HasCharismatic;
             enemyInfluence.gameObject.SetActive(true);
             enemyInfluence.text = "<sprite=\"gem\" index=0> \n" + enemySO.influenceCost.ToString();
-            influenceButtonText.text = "<sprite=\"gem\" index=0>" + enemySO.influenceCost.ToString();
+            influenceButtonText.text = (recruit ? "Recruit " : "Pay ")
+                + "<sprite=\"gem\" index=0>" + enemySO.influenceCost.ToString();
             influenceButton.interactable = true;
+            influenceButton.onClick.AddListener(() => player.InfluenceEnemy(this));
         }
         else
         {
@@ -113,5 +123,6 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
     {
         fightButton.interactable = token.isAggro;
         siegeButton.interactable = token.isAggro;
+        influenceButton.interactable = token.isAggro && enemySO.canInfluence;
     }
 }

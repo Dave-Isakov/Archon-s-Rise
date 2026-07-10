@@ -11,20 +11,17 @@ public class Unit : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     [SerializeField] public UnitsSO unitSO;
     [SerializeField] TextMeshProUGUI unitLetter;
     [SerializeField] TextMeshProUGUI unitText;
-    [SerializeField] UnitEvent onClick_PerformUnitAction;
-    ICommands unitCommand;
     private bool isPlayed = false;
     public bool IsPlayed { get => isPlayed; set => isPlayed = value; }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(!isPlayed)
+        if (isPlayed)
         {
-            unitCommand = new UnitCommand(onClick_PerformUnitAction, this);
-            GameManager.Instance.commands.AddCommand(unitCommand);
-        }
-        else
             GameManager.Instance.ValidationMessage($"{unitSO.cardName} has already been played, undo to revert action.");
+            return;
+        }
+        FindAnyObjectByType<UnitInspector>().Open(this);
     }
 
     void Start()
@@ -34,18 +31,21 @@ public class Unit : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         unitText.text = unitSO.cardDescription;
     }
 
+    // Mouse hover shows the same moving outline the controller lane uses (the
+    // token no longer scales). The lane owns the outline; while it's driving
+    // focus with the pad, the mouse leaves it alone.
     public void OnPointerEnter(PointerEventData eventData)
     {
-        this.transform.localScale = new Vector3(2,2,2);
-        GetComponent<Canvas>().overrideSorting = true;
-        GetComponent<Canvas>().sortingOrder = 50;
+        var lane = FindAnyObjectByType<UnitsLane>();
+        if (lane != null && !lane.IsActive)
+            lane.FocusOutlineOver((RectTransform)transform);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        this.transform.localScale = new Vector3(1,1,1);
-        GetComponent<Canvas>().overrideSorting = false;
-        GetComponent<Canvas>().sortingOrder = 0;
+        var lane = FindAnyObjectByType<UnitsLane>();
+        if (lane != null && !lane.IsActive)
+            lane.HideOutline();
     }
 
 }

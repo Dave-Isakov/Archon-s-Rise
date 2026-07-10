@@ -14,9 +14,12 @@ public class PlayerIcon : MonoBehaviour
             iconAnimator.SetTrigger(trigger);
     }
 
-    public void AnimateIcon(Unit unit)
+    // Unit options apply a single effect through the pop-out (no Card), so the
+    // pop-out flow pulses icons by StatType. Same gate as AnimateIcon(Card):
+    // only the icon whose stat matches the applied effect fires.
+    public void AnimateStat(StatType stat)
     {
-        if(unit.unitSO.cardType.HasFlag(type))
+        if(stat.HasFlag(type))
             iconAnimator.SetTrigger(trigger);
     }
 }

@@ -22,12 +22,14 @@ MonoBehaviour:
   defend: 0
   explore: 0
   influence: 0
+  siege: 0
   healAmount: 0
   numCrystals: 1
   empowerAttack: 5
   empowerDefend: 0
   empowerExplore: 0
   empowerInfluence: 0
+  empowerSiege: 0
   empowerHealAmount: 0
   empowerNumCrystals: 0
   cardType: 65

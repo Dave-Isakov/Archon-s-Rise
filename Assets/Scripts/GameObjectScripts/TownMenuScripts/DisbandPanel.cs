@@ -12,10 +12,8 @@ public class DisbandPanel : MonoBehaviour
     [SerializeField] Transform entryContainer;    // vertical layout for unit buttons
     [SerializeField] GameObject entryButtonPrefab; // Button + TMP label
     [SerializeField] Button cancelButton;
-    [SerializeField] TownEvent townEvent;          // same asset RecruitButton raises
-    [SerializeField] IntEvent influenceCostEvent;  // same asset RecruitButton raises
 
-    TownToken _town;
+    System.Action _onDisbanded;
     readonly List<GameObject> spawned = new();
 
     void Start()
@@ -25,9 +23,11 @@ public class DisbandPanel : MonoBehaviour
         panel.SetActive(false);
     }
 
-    public void Open(TownToken town)
+    // Generic "make room, then continue": combat recruiting and the town panel
+    // both pass their own continuation. Cancel never runs it.
+    public void OpenForHire(System.Action onDisbanded)
     {
-        _town = town;
+        _onDisbanded = onDisbanded;
         ClearEntries();
         panel.SetActive(true);
 
@@ -36,26 +36,24 @@ public class DisbandPanel : MonoBehaviour
             var go = Instantiate(entryButtonPrefab, entryContainer);
             go.GetComponentInChildren<TextMeshProUGUI>().text = unit.unitSO.cardName;
             var captured = unit;
-            go.GetComponent<Button>().onClick.AddListener(() => DisbandAndHire(captured));
+            go.GetComponent<Button>().onClick.AddListener(() => DisbandAndContinue(captured));
             spawned.Add(go);
         }
     }
 
-    void DisbandAndHire(Unit unit)
+    void DisbandAndContinue(Unit unit)
     {
         var player = FindAnyObjectByType<Player>();
         player.DisbandUnit(unit);
-        // Same two events the normal Recruit click raises: hire + spend.
-        townEvent.Raise(_town);
-        influenceCostEvent.Raise(_town.townSO.recruitLevel);
+        _onDisbanded?.Invoke();
         Close();
     }
 
     void Close()
     {
         ClearEntries();
+        _onDisbanded = null;
         panel.SetActive(false);
-        _town = null;
     }
 
     void ClearEntries()

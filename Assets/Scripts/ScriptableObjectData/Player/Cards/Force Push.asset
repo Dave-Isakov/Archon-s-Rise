@@ -14,9 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_force_push
   cardName: Force Push
-  cardDescription: 'Gain 2 Attack or Defend.
-
-    Empower: 3 Attack or Defend'
+  cardDescription: "<sprite=\"Sword\" index=0>: 2 or <sprite=\"shield\" index=0>: 2\n\nEmpowered:\n<sprite=\"Sword\" index=0>: 3 or <sprite=\"shield\" index=0>: 3"
   attack: 2
   defend: 2
   explore: 0

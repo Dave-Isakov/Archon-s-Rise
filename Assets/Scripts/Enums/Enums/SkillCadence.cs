@@ -4,4 +4,7 @@ public enum SkillCadence
 {
     PerTurn,
     PerRound,
+    // Passive skills are never activated/exhausted; their effect is queried
+    // (e.g. Charismatic gates enemy recruiting). Appended for serialized ints.
+    Passive,
 }

@@ -45,6 +45,8 @@ public class Player : MonoBehaviour
     public int ArmyCap => LevelRules.DerivedArmyCap(playerLevel, levelRewards.Entries);
     public LevelRewardsSO LevelRewards => levelRewards;
     public IReadOnlyList<SkillsSO> Skills => skills;
+    // Charismatic passive: influenced enemies with a recruitedUnit join the army.
+    public bool HasCharismatic => skills.Exists(s => s.effect == SkillEffect.RecruitEnemies);
 
     [Header("Events")]
     [SerializeField] VoidEvent onSuccessfulExploration_ExploreNextCard;
@@ -253,7 +255,7 @@ public class Player : MonoBehaviour
 
     void ResolveAttack(EnemyCard enemy, AttackKind kind)
     {
-        int hp = enemy.enemySO.enemyHP;
+        int hp = enemy.EffectiveHP;
         if (!CombatRules.CanDefeat(kind, playerAttack, playerSiege, hp))
         {
             string need = kind == AttackKind.Siege ? "Siege" : "Attack (Siege counts)";
@@ -273,12 +275,12 @@ public class Player : MonoBehaviour
             playerSiege  -= fromSiege;
         }
 
-        int wounds = CombatRules.WoundCount(kind, playerDefend, enemy.enemySO.enemyAttack, playerHP);
+        int wounds = CombatRules.WoundCount(kind, playerDefend, enemy.EffectiveAttack, playerHP);
         for (int i = 0; i < wounds; i++)
             onDefeat_WoundPlayer.Raise(enemy);
 
         // Only a Normal attack takes the counterattack against Defend.
-        if (kind == AttackKind.Normal) playerDefend -= enemy.enemySO.enemyAttack;
+        if (kind == AttackKind.Normal) playerDefend -= enemy.EffectiveAttack;
 
         if (wounds > 0)
             GameManager.Instance.ValidationMessage($"{enemy.enemySO.name} has been destroyed! You are wounded {wounds} times!");
@@ -286,11 +288,45 @@ public class Player : MonoBehaviour
         OnEnemyDefeat_GetRewards.Raise(enemy);
     }
 
-    public void RecruitUnit(TownToken town)
+    // Influence resolution (spec 2026-07-09): pay the cost to end the fight
+    // wound-free WITH defeat rewards; with Charismatic and a recruitedUnit the
+    // same payment also adds the unit (rewards + unit). At the army cap the
+    // disband picker runs first; cancelling it spends nothing.
+    public void InfluenceEnemy(EnemyCard enemy)
     {
-        units.Add(town.townSO.recruitableUnits[0]);
-        var newUnit = Instantiate(unitPrefab, new Vector3(0,0,0), Quaternion.identity, GameObject.Find("Units").transform);
-        newUnit.GetComponent<Unit>().unitSO = town.townSO.recruitableUnits[0];
+        if (!enemy.enemySO.canInfluence) return;
+        int cost = enemy.enemySO.influenceCost;
+        if (playerInfluence < cost)
+        {
+            GameManager.Instance.ValidationMessage($"You need {cost} Influence to sway {enemy.enemySO.cardName}.");
+            return;
+        }
+
+        bool recruit = enemy.enemySO.recruitedUnit != null && HasCharismatic;
+        if (recruit && ArmyRules.NeedsDisband(units.Count, ArmyCap))
+        {
+            FindAnyObjectByType<DisbandPanel>().OpenForHire(() => CompleteInfluence(enemy, true));
+            return;
+        }
+        CompleteInfluence(enemy, recruit);
+    }
+
+    void CompleteInfluence(EnemyCard enemy, bool recruit)
+    {
+        if (recruit) AddUnit(enemy.enemySO.recruitedUnit);
+        GameManager.Instance.ValidationMessage(recruit
+            ? $"{enemy.enemySO.cardName} joins your army!"
+            : $"{enemy.enemySO.cardName} departs peacefully.");
+        Influence(enemy.enemySO.influenceCost); // spend + clear undo stack (standard for influence spends)
+        OnEnemyDefeat_GetRewards.Raise(enemy);  // rewards + the defeat/cleanup chain; no counterattack ran = wound-free
+    }
+
+    public void AddUnit(UnitsSO so)
+    {
+        units.Add(so);
+        var newUnit = Instantiate(unitPrefab, new Vector3(0, 0, 0), Quaternion.identity,
+            GameObject.Find("Units").transform);
+        newUnit.GetComponent<Unit>().unitSO = so;
     }
 
     // Disband-to-hire: removes one unit to make room at the army cap. A played
@@ -303,7 +339,7 @@ public class Player : MonoBehaviour
         Destroy(unit.gameObject);
     }
 
-    public void RebuildUnits(List<UnitsSO> unitSOs)
+    public void RebuildUnits(List<UnitsSO> unitSOs, bool[] exhausted = null)
     {
         // Clear any existing Unit GameObjects (including the placeholder created in Awake) and the list.
         foreach (var existing in FindObjectsByType<Unit>())
@@ -311,13 +347,20 @@ public class Player : MonoBehaviour
         units.Clear();
 
         var unitsParent = GameObject.Find("Units");
-        foreach (var so in unitSOs)
+        for (int i = 0; i < unitSOs.Count; i++)
         {
+            var so = unitSOs[i];
             if (so == null) continue;
             units.Add(so);
             var newUnit = Instantiate(unitPrefab, new Vector3(0, 0, 0), Quaternion.identity,
                 unitsParent?.transform);
-            newUnit.GetComponent<Unit>().unitSO = so;
+            var unit = newUnit.GetComponent<Unit>();
+            unit.unitSO = so;
+            if (exhausted != null && i < exhausted.Length && exhausted[i])
+            {
+                unit.transform.Rotate(0, 0, -90);
+                unit.IsPlayed = true;
+            }
         }
     }
     // Round end: used units stand back up for the new round. Only the exhausted
@@ -335,20 +378,82 @@ public class Player : MonoBehaviour
         }
     }
 
-    public void PlayUnit(Unit unit)
+    // Applies ONE authored option (spec 2026-07-09). Crystal cost consumption
+    // lives in UnitCommand (which owns the reserved crystal); this method only
+    // applies the option's effect and the exhaust state.
+    public void ApplyUnitOption(Unit unit, UnitOption option)
     {
-        if(!unit.IsPlayed)
+        switch (option.effect)
         {
-            AssignPlayerStats(unit.unitSO.GetUnitStats());
-            unit.transform.Rotate(0 ,0 , -90);
-            unit.IsPlayed = true;
+            case UnitEffect.Attack:    playerAttack    += option.amount; break;
+            case UnitEffect.Defend:    playerDefend    += option.amount; break;
+            case UnitEffect.Siege:     playerSiege     += option.amount; break;
+            case UnitEffect.Explore:   playerExplore   += option.amount; GetCurrentExplore();   break;
+            case UnitEffect.Influence: playerInfluence += option.amount; GetCurrentInfluence(); break;
+            case UnitEffect.Heal:
+            {
+                var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
+                for (int i = 0; i < option.amount; i++) hand.HealWound();
+                break;
+            }
+            case UnitEffect.Crystallize:
+            {
+                var crystals = FindAnyObjectByType<CrystalInventory>();
+                for (int i = 0; i < option.amount; i++) crystals.UnitCrystallize(option.grantColor);
+                break;
+            }
         }
-        else if(unit.IsPlayed)
+        PulseStatIcon(option.effect);
+        unit.transform.Rotate(0, 0, -90);
+        unit.IsPlayed = true;
+    }
+
+    // Unit options apply a single effect through the pop-out (no Card), so pulse
+    // the matching HUD stat icon directly — the card flow does the same via its
+    // play event. Fires on apply only; undo doesn't re-pulse. Effects with no HUD
+    // icon (e.g. Heal/Crystallize/Siege if none is wired) simply match nothing.
+    void PulseStatIcon(UnitEffect effect)
+    {
+        StatType stat;
+        switch (effect)
         {
-            UnAssignPlayerStats(unit.unitSO.GetUnitStats());
-            unit.transform.Rotate(0 ,0 , 90);
-            unit.IsPlayed = false;
+            case UnitEffect.Attack:      stat = StatType.Attack;    break;
+            case UnitEffect.Defend:      stat = StatType.Defend;    break;
+            case UnitEffect.Explore:     stat = StatType.Explore;   break;
+            case UnitEffect.Influence:   stat = StatType.Influence; break;
+            case UnitEffect.Siege:       stat = StatType.Siege;     break;
+            case UnitEffect.Heal:        stat = StatType.Heal;      break;
+            case UnitEffect.Crystallize: stat = StatType.Crystal;   break;
+            default:                     return;
         }
+        foreach (var icon in FindObjectsByType<PlayerIcon>())
+            icon.AnimateStat(stat);
+    }
+
+    public void RevertUnitOption(Unit unit, UnitOption option)
+    {
+        switch (option.effect)
+        {
+            case UnitEffect.Attack:    playerAttack    -= option.amount; break;
+            case UnitEffect.Defend:    playerDefend    -= option.amount; break;
+            case UnitEffect.Siege:     playerSiege     -= option.amount; break;
+            case UnitEffect.Explore:   playerExplore   -= option.amount; GetCurrentExplore();   break;
+            case UnitEffect.Influence: playerInfluence -= option.amount; GetCurrentInfluence(); break;
+            case UnitEffect.Heal:
+            {
+                var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
+                for (int i = 0; i < option.amount; i++) hand.RestoreHealedWound();
+                break;
+            }
+            case UnitEffect.Crystallize:
+            {
+                var crystals = FindAnyObjectByType<CrystalInventory>();
+                for (int i = 0; i < option.amount; i++) crystals.UndoUnitCrystallize();
+                break;
+            }
+        }
+        unit.transform.Rotate(0, 0, 90);
+        unit.IsPlayed = false;
     }
 
     // SkillEvent listener target. Toggles like PlayUnit: the same event fires on
@@ -395,6 +500,7 @@ public class Player : MonoBehaviour
                 }
                 break;
             }
+            case SkillEffect.RecruitEnemies: break; // passive — no activatable effect
         }
     }
 

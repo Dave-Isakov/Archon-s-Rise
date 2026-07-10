@@ -5,10 +5,9 @@ namespace ArchonsRise.SaveData
     [Serializable]
     public class SaveFile
     {
-        // v3 (M2.4): adds PlayerState.ownedSkillIds/exhaustedSkillIds; removes
-        // PlayerState.handSize (hand size and army cap derive from level via
-        // the LevelRewardsSO table, so storing them could only drift).
-        public int schemaVersion = 3;
+        // v5: adds RunState.unitExhausted (parallel to unitIds; mid-round saves
+        // keep used units turned).
+        public int schemaVersion = 5;
         public RunState run = new RunState();
     }
 
@@ -22,6 +21,8 @@ namespace ArchonsRise.SaveData
         public string[] handCardIds = Array.Empty<string>();
         public string[] discardCardIds = Array.Empty<string>();
         public string[] unitIds = Array.Empty<string>();
+        // Parallel to unitIds: true = the unit was already used this round.
+        public bool[] unitExhausted = Array.Empty<bool>();
         public MapState map = new MapState();
         // One entry per place with defeatedCount > 0; keyed by grid cell.
         // Guardians die in order and never respawn, so a single count fully
@@ -29,6 +30,10 @@ namespace ArchonsRise.SaveData
         public PlaceConquest[] places = Array.Empty<PlaceConquest>();
         public int round;
         public int turn;
+        public int doom;             // current doom-clock value
+        public int roundsSinceSpawn; // spawn-cadence counter (EnemySpawner)
+        // Alive mid-run spawns only; defeated ones simply drop out at save time.
+        public SpawnedEnemy[] spawnedEnemies = Array.Empty<SpawnedEnemy>();
     }
 
     [Serializable]
@@ -76,5 +81,15 @@ namespace ArchonsRise.SaveData
         public int x;
         public int y;
         public int defeatedCount;
+    }
+
+    [Serializable]
+    public struct SpawnedEnemy
+    {
+        public int x;
+        public int y;
+        public string enemyId;
+        public int bonusHP;
+        public int bonusAttack;
     }
 }

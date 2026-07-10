@@ -66,7 +66,6 @@ public class Card : MonoBehaviour, IPointerClickHandler
         cardName.text = cardSO.cardName;
         cardDescription.text = cardSO.cardDescription;
         GetEmpowerTypeColor(this.gameObject);
-        Debug.Log(cardSO.cardName + " (" + this.gameObject.name + ")");
     }
 
     void Update()

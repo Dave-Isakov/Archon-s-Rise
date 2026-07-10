@@ -19,8 +19,17 @@ namespace ArchonsRise.SaveData
             if (file.run.player.exhaustedSkillIds == null)
                 file.run.player.exhaustedSkillIds = Array.Empty<string>();
 
-            if (file.schemaVersion < 3)
-                file.schemaVersion = 3;
+            // v3 -> v4: doom/spawn fields did not exist; absent means doom 0
+            // and no mid-run spawns (ints already default to 0 via JsonUtility).
+            if (file.run.spawnedEnemies == null)
+                file.run.spawnedEnemies = Array.Empty<SpawnedEnemy>();
+
+            // v4 -> v5: unitExhausted did not exist; absent means all units fresh.
+            if (file.run.unitExhausted == null)
+                file.run.unitExhausted = Array.Empty<bool>();
+
+            if (file.schemaVersion < 5)
+                file.schemaVersion = 5;
             return file;
         }
     }

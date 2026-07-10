@@ -32,21 +32,27 @@ public static class ContentRegistryPopulator
 
         var cards = LoadAll<CardsSO>().OrderBy(c => c.id).ToArray();
         var units = LoadAll<UnitsSO>().OrderBy(u => u.id).ToArray();
+        var skills = LoadAll<SkillsSO>().OrderBy(s => s.id).ToArray();
+        var enemies = LoadAll<EnemiesSO>().OrderBy(e => e.id).ToArray();
 
         // Duplicate ids would make ContentRegistry throw at runtime; surface them now.
         WarnDuplicateIds(cards.Select(c => c.id), "card");
         WarnDuplicateIds(units.Select(u => u.id), "unit");
+        WarnDuplicateIds(skills.Select(s => s.id), "skill");
+        WarnDuplicateIds(enemies.Select(e => e.id), "enemy");
 
         var so = new SerializedObject(dm);
         AssignArray(so, "allCards", cards);
         AssignArray(so, "allUnits", units);
+        AssignArray(so, "allSkills", skills);
+        AssignArray(so, "allEnemies", enemies);
         so.ApplyModifiedPropertiesWithoutUndo();
 
         EditorUtility.SetDirty(prefab);
         PrefabUtility.SavePrefabAsset(prefab);
         AssetDatabase.SaveAssets();
 
-        Debug.Log($"Rebuild Content Registry: baked {cards.Length} cards and {units.Length} units into {DataManagerPrefabPath}.");
+        Debug.Log($"Rebuild Content Registry: baked {cards.Length} cards, {units.Length} units, {skills.Length} skills, and {enemies.Length} enemies into {DataManagerPrefabPath}.");
     }
 
     private static T[] LoadAll<T>() where T : Object

@@ -96,24 +96,56 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
         Debug.Log(crystal.color);
     }
 
-    public Crystal SelectEmpowerCrystal()
-    {
-        var cardType = _card.cardSO.empowerType;
+    public Crystal SelectEmpowerCrystal() => SelectPayCrystal(_card.cardSO.empowerType);
 
-        // Prefer spending a specific colored crystal, so wild (isAll) crystals stay
-        // available for cards whose color we don't otherwise hold.
-        foreach(var crystal in crystalsInInventory)
-        {
-            if(!crystal.isAll && ColorSatisfies(crystal.color, cardType))
+    // Generalized "find a crystal that satisfies this cost" — same preference
+    // order as card empower: exact color first, wild as the fallback.
+    public Crystal SelectPayCrystal(EmpowerType cost)
+    {
+        foreach (var crystal in crystalsInInventory)
+            if (!crystal.isAll && ColorSatisfies(crystal.color, cost))
                 return crystal;
-        }
-        // Fall back to a wild crystal (color == -1, isAll), which empowers any card.
-        foreach(var crystal in crystalsInInventory)
-        {
-            if(crystal.isAll)
+        foreach (var crystal in crystalsInInventory)
+            if (crystal.isAll)
                 return crystal;
-        }
         return null;
+    }
+
+    public bool CanPay(EmpowerType cost)
+        => cost == EmpowerType.None || SelectPayCrystal(cost) != null;
+
+    // Unit option costs/grants get their own LIFO stacks (mirroring
+    // playedCrystals / skillCreatedCrystals) so undo pops exactly what the
+    // command pushed.
+    public Stack<Crystal> unitSpentCrystals = new();
+    public Stack<Crystal> unitCreatedCrystals = new();
+
+    public void SpendUnitCrystal(Crystal crystal, Vector3 flyTarget)
+    {
+        unitSpentCrystals.Push(crystal);
+        crystalsInInventory.Remove(crystal);
+        crystal.SetReserved(false);
+        crystal.FlySpendThenHide(flyTarget);
+    }
+
+    public void RefundUnitCrystal()
+    {
+        if (unitSpentCrystals.Count == 0) return;
+        var crystal = unitSpentCrystals.Pop();
+        crystal.gameObject.SetActive(true);
+        crystalsInInventory.Add(crystal);
+        crystal.PopIn();
+    }
+
+    public void UnitCrystallize(EmpowerType color)
+    {
+        unitCreatedCrystals.Push(CreateCrystal(color));
+    }
+
+    public void UndoUnitCrystallize()
+    {
+        if (unitCreatedCrystals.Count == 0) return;
+        unitCreatedCrystals.Pop().RemoveCrystal();
     }
 
     // A crystal satisfies a card when the card accepts any color (empowerType has

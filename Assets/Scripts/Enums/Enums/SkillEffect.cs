@@ -8,4 +8,7 @@ public enum SkillEffect
     GainExplore,
     GainCrystal,
     HealWound,
+    // Passive gate (Charismatic): no activatable effect; queried by
+    // Player.HasCharismatic to allow recruiting influenced enemies. Appended.
+    RecruitEnemies,
 }

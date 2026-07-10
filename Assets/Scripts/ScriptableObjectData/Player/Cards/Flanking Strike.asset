@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
+  m_Name: Flanking Strike
+  m_EditorClassIdentifier:
+  id: card_flanking_strike
+  cardName: Flanking Strike
+  cardDescription: "<sprite=\"Sword\" index=0>: 2 or <sprite=\"scroll\" index=0>: 2\n\nEmpowered:\n<sprite=\"Sword\" index=0>: 3 or <sprite=\"scroll\" index=0>: 3"
+  attack: 2
+  defend: 0
+  explore: 2
+  influence: 0
+  siege: 0
+  healAmount: 0
+  numCrystals: 0
+  empowerAttack: 3
+  empowerDefend: 0
+  empowerExplore: 3
+  empowerInfluence: 0
+  empowerSiege: 0
+  empowerHealAmount: 0
+  empowerNumCrystals: 0
+  cardType: 5
+  empowerType: 4
+  isChoice: 1

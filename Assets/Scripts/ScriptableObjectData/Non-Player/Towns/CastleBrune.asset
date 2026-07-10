@@ -22,8 +22,9 @@ MonoBehaviour:
   guardians:
   - {fileID: 11400000, guid: 0965c728631f4cf4f96a727e56419d2b, type: 2}
   - {fileID: 11400000, guid: 5e1e6b87496053548b95c311db7fc5da, type: 2}
-  recruitableUnits: []
-  recruitLevel: 6
+  recruitableUnits:
+  - {fileID: 11400000, guid: 0b10e160bfd81de448cd27690a82ab6b, type: 2}
+  - {fileID: 11400000, guid: 32856202ef3b67a45bfe137df8f52fc1, type: 2}
   cardLevel: 5
-  resourceLevel: 0
+  resourceLevel: 4
   healLevel: 3

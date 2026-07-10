@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c16f4bff67ec0745984351f5595704b, type: 3}
+  m_Name: Aeromancer
+  m_EditorClassIdentifier: 
+  id: unit_Aeromancer
+  cardName: Aeromancer
+  cardDescription: 1 Green Crystal / 1 Yellow Crystal / Siege 4 (1 GR)
+  options:
+  - effect: 6
+    amount: 1
+    grantColor: 2
+    crystalCost: 0
+  - effect: 6
+    amount: 1
+    grantColor: 4
+    crystalCost: 0
+  - effect: 4
+    amount: 4
+    grantColor: 0
+    crystalCost: 4
+  influenceCost: 6
+  sprite: {fileID: 0}
+  color: {r: 0.45113918, g: 0.67781395, b: 0.6981132, a: 1}
+  unitLetter: 65

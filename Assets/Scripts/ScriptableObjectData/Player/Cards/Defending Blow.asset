@@ -14,9 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_defending_blow
   cardName: Defending Blow
-  cardDescription: 'Gain 1 Attack and 1 Defend.
-
-    Empowered: 2 Attack and 2 Defend'
+  cardDescription: "<sprite=\"Sword\" index=0>: 1 <sprite=\"shield\" index=0>: 1\n\nEmpower <sprite=\"Sword\" index=0>: 2 <sprite=\"shield\" index=0>: 2"
   attack: 1
   defend: 1
   explore: 0

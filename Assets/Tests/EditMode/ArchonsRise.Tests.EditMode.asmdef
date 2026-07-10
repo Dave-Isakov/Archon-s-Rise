@@ -5,11 +5,14 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "ArchonsRise.CardPlay",
+        "ArchonsRise.Doom",
         "ArchonsRise.Enums",
         "ArchonsRise.Hand",
         "ArchonsRise.Leveling",
         "ArchonsRise.Places",
-        "ArchonsRise.SaveData"
+        "ArchonsRise.Rewards",
+        "ArchonsRise.SaveData",
+        "ArchonsRise.UnitPlay"
     ],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],

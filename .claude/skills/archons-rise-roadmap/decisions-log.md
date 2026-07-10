@@ -139,3 +139,97 @@ editing an old one.
   _Why:_ user wants level rewards freely tunable during playtesting — counts on one SO asset make
   every knob an inspector edit, and reusing the reward screen adds deck progression to leveling
   with near-zero new UI.
+
+- **2026-07-09 — Units become option-lists (M2.75).**
+  A unit (`UnitsSO`) is an authored list of `UnitOption`s (effect + amount + optional per-option
+  crystal cost), played through a card-style pop-out; the legacy flat unit stats and unit
+  `empowerType` are retired. Crystal costs match the card-empower rule (exact color or wild; an
+  all-colors cost accepts any crystal), and `Crystallize` options grant a per-option authored color.
+  Using any option applies it and exhausts the unit for the round; the whole use is one undoable
+  command (reverts the effect and refunds any crystal). Spec:
+  `docs/superpowers/specs/2026-07-09-unit-gameplay-and-recruitment-design.md`.
+  _Why:_ fixed single-stat units were the least interesting board piece; option-lists give each unit
+  a real in-combat decision and reuse the crystal economy without a new resource.
+
+- **2026-07-09 — Unit use always opens the pop-out (single interaction model).**
+  There is no "quick-play" path; every unit interaction routes through the pop-out.
+  _Why:_ one model to learn, and it is the only place per-option costs and locked rows can read.
+
+- **2026-07-09 — Enemy influence: pay-to-leave (rewards) / recruit (Charismatic).**
+  Paying a `canInfluence` enemy's Influence cost ends the fight wound-free AND grants the normal
+  defeat rewards (no counterattack runs). If the enemy has a `recruitedUnit` and the player owns the
+  Charismatic passive, the same payment also adds the unit (rewards + unit). At the army cap the
+  disband picker opens first; cancelling spends nothing.
+  _Why:_ makes Influence a real third combat resolution alongside Attack/Siege, and gives Charismatic
+  a concrete payoff without a bespoke capture minigame.
+
+- **2026-07-09 — Town recruiting: choice panel at per-unit prices.**
+  Recruiting opens a panel listing the town's units, each at its own `influenceCost`; `recruitLevel`
+  is retired as the recruit price. Unaffordable entries show disabled; at cap the disband picker
+  chains; cancel is free.
+  _Why:_ the old flow silently hired `recruitableUnits[0]` at a flat town rate — players couldn't see
+  or choose what they were buying.
+
+- **2026-07-09 — Skills gain a passive cadence; Charismatic is the first passive.**
+  `SkillCadence.Passive` skills are never clicked or exhausted — their effect is a queried gate
+  (`SkillEffect.RecruitEnemies` → `Player.HasCharismatic`). Enum members are appended (serialized
+  ints).
+  _Why:_ some rewards should be always-on modifiers rather than activatable stat bursts; a queried
+  passive needs no command-stack or refresh handling.
+
+- **2026-07-09 — Save schema v5: persist exhausted units.**
+  `RunState.unitExhausted` (a bool array parallel to `unitIds`) records which units were already used
+  this round so a mid-round save reloads them still turned; migration from v4 defaults it to empty
+  (all units fresh). Capture is single-source (both arrays from the same Unit-object iteration) so
+  the parallel indexing can't drift.
+  _Why:_ without it, saving mid-round and reloading refreshed every used unit for free.
+
+- **2026-07-10 — Retired `EnemiesSO.reward`; kept `RewardsSO.rewardLevel` for dungeons.**
+  `EnemiesSO.reward` (`RewardLevel`) was dead — no code read it; reward grants come from the
+  `defeatRewards` list (flat-random) and difficulty from `tier`, so the field was removed.
+  `RewardsSO.rewardLevel` is *also* currently unread, but it's kept: it's the natural hook for
+  **dungeon-completion reward tiering** (higher-tier dungeons roll higher-tier rewards). The
+  `RewardLevel` enum stays alive for it.
+  _Why:_ removing genuinely-redundant clutter while preserving a deliberate design hook; the enemy
+  field duplicated the reward list, the reward field is a property of the reward itself.
+
+- **2026-07-10 — Dungeons (M2.9) prioritized ahead of meta-progression (M3).**
+  Dungeon gameplay (enter via Explore, clear enemies in sequence, tiered completion rewards using
+  `RewardsSO.rewardLevel`) is inserted as M2.9, before the M3 run-setup/meta-unlock work.
+  _Why:_ dungeons are core-loop content the map already gestures at (`DungeonsSO`, Derelict Tower,
+  DungeonEnemies all exist but aren't wired); meta-progression should layer on top of a complete
+  core loop, not before it.
+
+- **2026-07-10 — Combat rewards are tier-derived; `RewardsSO` retired.**
+  Enemy/dungeon rewards no longer come from hand-authored `RewardsSO` bundles. Every defeat derives
+  from a **tier** (1–3): Experience is always granted via a **bell-curve sample** of the tier's exp
+  range (`RewardRules.SampleExp` — average of `expBellSamples` uniform draws, centre-weighted), then
+  a **crystal** and a **card** are rolled **independently** against per-tier chances (crystals common,
+  cards rare). Card rewards draw from **per-tier card pools** on `RewardTuningSO` — pool membership is
+  a card's rarity, so "stronger rewards later" needs no upgrade system, just authored cards gated to
+  higher tiers. Level-up card picks scale off player level the same way. `RewardsSO`, `RewardType`,
+  `RewardLevel`, `EnemiesSO.defeatRewards`, and `DungeonsSO.rewards` are deleted; `DungeonsSO` gains
+  `tier` + `rewardCount`. Pure math (`RewardRules`/`RewardTuning`) is TDD'd via the mcs harness in the
+  new `ArchonsRise.Rewards` asmdef, mirroring `DoomRules`.
+  _Why:_ the old path half-ignored its own data (crystal count unread, card pool flat, `rewardLevel`
+  unconsumed) so reward magnitude didn't track enemy difficulty. Tier-derivation makes Experience the
+  reliable growth spine with consumable bonuses layered on, and deletes a hollow indirection layer.
+  _Supersedes_ the dungeon-reward mechanism in the 2026-07-10 M2.9 entry (which named
+  `RewardsSO.rewardLevel`): dungeons now use `DungeonsSO.tier` + `rewardCount`.
+
+- **2026-07-10 — Crystals are sold at every Place; town-menu buttons revive on open.**
+  Two coupled changes to the place/town-menu system:
+  1. **Crystal purchase is a Place service offered at all types** (Town/Keep/Castle), not gated by the
+     legacy `TownsSO.activity` Resources flag. Added `PlaceService.Crystal`; `PlaceRules.AllowedServices`
+     grants it to every `PlaceType`; `CrystalButton` now gates on `PlaceRules` + conquest like the other
+     buttons. Price is the Place's `resourceLevel` (Influence per crystal, per-place). Influence — not
+     place type — limits how many crystals a player can buy.
+     _Why:_ crystals are the core tactical spice (pillar 3); restricting where you can buy them was an
+     unintended limitation, and `CrystalButton` was the last holdout still reading the retired `activity`
+     flags. Per-place pricing keeps stronger Places able to charge more.
+  2. **Town buttons re-activate on menu open** via a new `TownMenu` lazy-singleton controller
+     (`TownMenu.Instance.PrepareButtons()` from `TownToken.OnPointerClick`, before the open events).
+     _Why:_ each button hides itself with `SetActive(false)`, which also disabled the `GameEventListener`
+     on the same GameObject (`OnDisable` unregisters), so a button that hid once — e.g. Recruit on a
+     not-yet-conquered Keep — never received `UpdateButtonText` again and the conquered menu came up empty.
+     Reviving all buttons before raising the events re-registers their listeners. Zero scene wiring.

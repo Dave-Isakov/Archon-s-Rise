@@ -2,50 +2,37 @@ using UnityEngine;
 
 public class RecruitButton : TownButtons
 {
-    [SerializeField] DisbandPanel disbandPanel;
+    [SerializeField] RecruitPanel recruitPanel;
 
-    private void Update() {
+    // Enabled when at least one listed unit is affordable (per-unit pricing —
+    // the town's recruitLevel is retired as the price).
+    bool AnyAffordable()
+        => _town.townSO.recruitableUnits.Exists(u => u != null && u.influenceCost <= currentPlayerInfluence);
+
+    private void Update()
+    {
         if (_town is not null)
-            if(currentPlayerInfluence < _town.townSO.recruitLevel)
-                thisButton.interactable = false;
+            thisButton.interactable = AnyAffordable();
     }
+
     public override void UpdateButtonText()
     {
         if (_town is not null)
         {
-            buttonText.text = "Recruit " + _town.townSO.recruitLevel.ToString();
+            buttonText.text = "Recruit";
             bool allowed = PlaceRules.AllowedServices(_town.townSO.placeType).HasFlag(PlaceService.Recruit);
             bool open = ConquestTracker.Instance.IsConquered(_town.gridPos);
             if (allowed && open)
             {
                 thisButton.gameObject.SetActive(true);
-                if(currentPlayerInfluence < _town.townSO.recruitLevel)
-                {
-                    thisButton.interactable = false;
-                }
-                else
-                    thisButton.interactable = true;
-                    thisButton.onClick.RemoveAllListeners();
-                    thisButton.onClick.AddListener(Recruit);
+                thisButton.interactable = AnyAffordable();
+                thisButton.onClick.RemoveAllListeners();
+                thisButton.onClick.AddListener(() => recruitPanel.Open(_town));
             }
             else
             {
                 thisButton.gameObject.SetActive(false);
             }
         }
-    }
-
-    // At the army cap the hire needs a disband first; below it, the original
-    // two-event flow runs unchanged.
-    private void Recruit()
-    {
-        var player = FindAnyObjectByType<Player>();
-        if (ArmyRules.NeedsDisband(player.Units.Count, player.ArmyCap))
-        {
-            disbandPanel.Open(_town);
-            return;
-        }
-        townEvent.Raise(_town);
-        influenceCostEvent.Raise(_town.townSO.recruitLevel);
     }
 }

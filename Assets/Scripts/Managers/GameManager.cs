@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     public GameObject enlargeCardPosition;
     public GameObject enlargeTownCardPosition;
     public Canvas cardCanvas;
+    public Canvas unitCanvas;
     public Canvas combatCanvas;
     public GameObject enemyCardCombatPosition;
     // The enemy token whose combat is currently open. Set when combat starts,
@@ -50,6 +51,8 @@ public class GameManager : MonoBehaviour
 
         cardCanvas.gameObject.SetActive(true);
         cardCanvas.enabled = false;
+        unitCanvas.gameObject.SetActive(true);
+        unitCanvas.enabled = false;
         cardListCanvas.gameObject.SetActive(true);
         cardListCanvas.enabled = false;
         cardRewardCanvas.gameObject.SetActive(true);
@@ -83,6 +86,8 @@ public class GameManager : MonoBehaviour
 
     public void ValidationMessage(string message)
     {
+        // The run-end screen is terminal: no popup may appear over it.
+        if (RunEndController.HasEnded) return;
         messageCanvas.enabled = true;
         messageText.text = message;
     }
@@ -99,6 +104,12 @@ public class GameManager : MonoBehaviour
         var player = FindAnyObjectByType<Player>();
         if (player != null) player.RefreshUnits();
         if (player != null) player.RefreshSkills(true);
+
+        // Doom rises on the same cadence that refreshes units/skills.
+        if (DoomClock.Instance != null) DoomClock.Instance.Add(1);
+
+        // Spawner reads the doom value the tick above just produced.
+        if (EnemySpawner.Instance != null) EnemySpawner.Instance.OnRoundEnd();
     }
 
     public void CombatCanvasActive()
