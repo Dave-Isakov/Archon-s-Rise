@@ -7,7 +7,6 @@ public class Location : Deck<LocationsSO>
 {
     [SerializeField] EnemyDeck enemyDeck;
     [SerializeField] TownDeck townDeck;
-    [SerializeField] DungeonDeck dungeon;
     [SerializeField] Rewards rewards;
     public List<LocationsSO> locations;
 
@@ -18,9 +17,6 @@ public class Location : Deck<LocationsSO>
 
         for(int i = 0; i < locations[0].towns.Count; i++)
             townDeck.towns.Add(locations[0].towns[i]);
-
-        for(int i = 0; i < locations[0].dungeons.Count; i++)
-            dungeon.dungeons.Add(locations[0].dungeons[i]);
     }
     private void Start()
     {

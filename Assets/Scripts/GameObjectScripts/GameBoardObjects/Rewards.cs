@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Reward-granting service. Every enemy/dungeon reward derives from a tier
-// (spec 2026-07-10): Experience is granted every time (bell-curve sampled from
-// the tier's range), then a crystal and a card are rolled independently against
-// the tier's odds. Card rewards offer a choice from that tier's pool through
-// RewardCanvas and grant the chosen card via the single PlayerDeck.AddCard path.
+// Reward-granting service for enemy defeats and dungeon completions (M2.9).
+// Every reward derives from a tier (spec 2026-07-10): Experience is granted
+// every time (bell-curve sampled from the tier's range), then a crystal and a
+// card are rolled independently against the tier's odds. Card rewards offer a
+// choice from that tier's pool through RewardCanvas and grant the chosen card
+// via the single PlayerDeck.AddCard path.
 public class Rewards : MonoBehaviour
 {
     public CrystalInventory crystals;
@@ -16,14 +17,6 @@ public class Rewards : MonoBehaviour
 
     // Wired to OnEnemyDefeat_GetRewards.
     public void GetReward(EnemyCard enemy) => Grant(enemy.enemySO.tier);
-
-    // Wired to onDungeonReward_RewardPlayer. Each dungeon reward event grants a
-    // tier reward and consumes one of the dungeon's remaining reward events.
-    public void GetReward(Dungeon dungeon)
-    {
-        Grant(dungeon.RewardTier);
-        dungeon.ConsumeReward();
-    }
 
     void Grant(int tier)
     {
