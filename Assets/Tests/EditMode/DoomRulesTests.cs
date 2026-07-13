@@ -43,4 +43,11 @@ public class DoomRulesTests
         Assert.AreEqual(1, DoomRules.StatBonus(13, T()));
         Assert.AreEqual(2, DoomRules.StatBonus(14, T()));
     }
+
+    [Test]
+    public void Add_NegativeAmount_ClampsAtZero()
+    {
+        Assert.AreEqual(0, DoomRules.Add(1, -3, T()));
+        Assert.AreEqual(4, DoomRules.Add(7, -3, T()));
+    }
 }

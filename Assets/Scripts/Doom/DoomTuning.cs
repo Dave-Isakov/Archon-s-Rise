@@ -24,4 +24,12 @@ public class DoomTuning
     public int zoneMinSpacing = 4;
     public int startSafeRadius = 3;
     public int initialEnemiesPerZone = 2;
+
+    // Dungeon flagging + doom relief (M2.9, spec 2026-07-13). Flags fire once
+    // per run when doom first enters the mid/high band; completion relief is
+    // applied as a negative DoomClock.Add.
+    public int flagsOnMidBand = 1;
+    public int flagsOnHighBand = 1;
+    public int dungeonCompleteRelief = 1;
+    public int flaggedCompleteRelief = 3;
 }
