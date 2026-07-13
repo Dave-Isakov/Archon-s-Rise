@@ -23,6 +23,11 @@ M2.9 sketch (enter once, fight the authored list in order).
    until cleared, and completing a flagged dungeon grants a **larger** doom reduction.
 5. Follow the established **pure-rules + tuning + mcs-TDD** pattern (`DoomRules`,
    `RewardRules`, `SpawnRules`).
+6. **Reward modals never overlap.** Level-ups, enemy-defeat card picks, validation
+   messages, and the new dungeon bundle must resolve strictly one at a time. The dungeon
+   bundle is the third independent reward producer, so this spec **pulls the deferred
+   M2.4 "unified modal queue" follow-up into scope** instead of adding another ad-hoc
+   chaining mechanism.
 
 ## Non-Goals (explicitly deferred)
 
@@ -56,9 +61,11 @@ At the dungeon's `tier` (the 6 starting dungeons author tier 3):
 
 - **1 exp roll** — `RewardRules.SampleExp(tier, …)` (the usual bell sample).
 - **`rewardCount` crystals** — random color each (existing crystal grant).
-- **`rewardCount` card picks** — the existing choose-1-of-3 screen from that tier's pool,
-  offered **sequentially** (each pick opens after the previous closes, via the existing
-  `onClosed` chaining; the reward-arbiter busy-wait pattern from M2.4 applies).
+- **`rewardCount` card picks** — the existing choose-1-of-3 screen from that tier's pool.
+  Exp and crystals apply instantly (non-modal); the card picks are **enqueued on the
+  `RewardQueue`** (below) and resolve one at a time. If the bundle's exp levels the
+  player, the level-up's message/skill/card picks enqueue *behind* the bundle's picks —
+  deterministic order, no overlap.
 
 ### Flagging (doom-band driven)
 
@@ -172,11 +179,48 @@ revive-before-raise listener rule). Shows:
 - **Flagged banner** when flagged: "Corrupted — +1 Doom each round until cleared."
 - Cleared state: no Delve, a "Cleared" marker.
 
+### `RewardQueue` (scene singleton) — new: the unified modal arbiter
+
+Today three mechanisms coexist: `LevelUpController`'s private queue with a 0.25s
+`Invoke` poll against `messageCanvas`/`cardRewardCanvas` (the M2.4 targeted busy-wait),
+`Rewards.Grant`'s unqueued immediate card pick, and `RewardCanvas.Offer`'s documented
+double-Offer hole (a second Offer clobbers the first — its callbacks never fire, which
+would strand any chained `onClosed`). `GameManager.ValidationMessage` has the same
+clobber shape (a second message overwrites the text), and `ReturnButton` closes with no
+callback, which is why the level-up queue polls instead of chaining. The dungeon bundle
+adds a third reward producer, so the ad-hoc net gets replaced:
+
+- `RewardQueue.Enqueue(Action<Action> job)` — FIFO, one job in flight. A job opens its
+  modal and invokes the supplied `done` exactly once when the modal resolves. Empty
+  queue + idle → the job runs immediately (solo rewards keep today's instant feel).
+- `Busy => inFlight || pending > 0` — consumed by the `DataManager` save gate (replacing
+  the `LevelUpController.Busy` check) and anything else that must wait for a settled
+  screen.
+- **Run-end flush**: `RunEndController` already force-closes every canvas; the queue
+  drops all pending jobs when the run ends (no modal may open over the terminal screen).
+
+**Everything modal routes through it:**
+
+- `Rewards.OfferCardChoice(tier, onClosed)` — enqueues the `RewardCanvas` offer; `done`
+  fires on chosen *or* skip, then `onClosed`.
+- `GameManager.ValidationMessage(msg)` — enqueues the message; `done` fires on dismiss
+  (`ReturnButton`). Callers are unchanged. Two messages in one frame now show
+  sequentially instead of the second overwriting the first.
+- `LevelUpController` — keeps its ordering responsibility (message, then skill picks,
+  then card picks) but **loses its private queue and the `Invoke` poll**: it enqueues
+  each item on the `RewardQueue` and `Busy` delegates to the queue.
+- Dungeon completion bundle — enqueues its `rewardCount` card picks (above).
+- `RewardCanvas.Offer` / `ValidationMessage` gain a **defensive error log** if invoked
+  while their canvas is already up — impossible once the queue is the sole caller, so
+  any hit is a routing bug surfaced loudly instead of a silent clobber.
+
+Non-modal grants (exp, crystals, doom changes) never enter the queue.
+
 ### `Rewards` — two additions
 
 - `GrantExpOnly(int tier)` — the bell exp sample, no crystal/card rolls (per-fight grant).
 - `GrantDungeonCompletion(int tier, int rewardCount)` — the guaranteed bundle (exp roll +
-  `rewardCount` crystals + `rewardCount` sequential card picks).
+  `rewardCount` crystals instantly, then `rewardCount` card picks via the `RewardQueue`).
 
 ### Save — schema v6
 
@@ -192,6 +236,8 @@ revive-before-raise listener rule). Shows:
 - **Delete** the legacy card flow: `Dungeon.cs`, `DungeonDeck.cs`, their prefabs/scene
   objects, and the `DungeonEvent`/`DungeonListener`/`UnityDungeonEvent`/
   `onDungeonReward_RewardPlayer` event plumbing if nothing else consumes it.
+- **Delete** the `LevelUpController` busy-wait (`Invoke(nameof(TryNext), 0.25f)` poll and
+  its private `pending` queue) — subsumed by `RewardQueue`.
 - `LocationsSO.dungeons` is already-legacy; leave untouched (LocationsSO retirement is its
   own cleanup).
 - The implementation plan must verify a clean compile and that no scene/prefab still wires
@@ -224,11 +270,19 @@ DungeonEnemies where they fit, author the rest).
 - **`DoomRules.Add` negative-amount clamp** — the clamp exists; add a negative-push test
   if the suite lacks one.
 - **Save tests**: v5→v6 migration defaults; round-trip of `DungeonState[]` + fired bools.
+- **`RewardQueue` ordering** — extract the FIFO/in-flight bookkeeping into a small pure
+  class (Unity-free) so mcs tests cover: FIFO order, one-in-flight, immediate run on
+  idle+empty, `done` called twice is ignored, flush drops pending jobs.
 - **Manual Unity verification**: generate several seeds → 6 dungeons, spaced, never on
   towns/start; delve flow end-to-end (cost spend, combat, exp-only, persistence across
   save/load mid-progress); completion bundle + doom relief; band crossing flags a dungeon,
   round tick accelerates, flagged completion applies the larger relief and stops the tick;
   cleared token/panel states.
+- **Overlap stress scenario** (the reason `RewardQueue` exists): author a test dungeon
+  whose completion bundle exp is guaranteed to level the player with `rewardCount = 2`.
+  Complete it → expect, strictly in order with no clobbered screens: card pick 1, card
+  pick 2, "You reached level N!" message, skill pick, level-up card pick. Also re-verify
+  the M2.4 case (enemy defeat whose card reward and level-up land in the same frame).
 - Scene/prefab wiring (tiles, tokens, panel, listeners) delivered as **step-by-step editor
   instructions** for the user — no hand-edited scene YAML.
 
@@ -243,7 +297,8 @@ DungeonEnemies where they fit, author the rest).
   round tick is now `1 + flaggedCount`.
 - `.claude/skills/archons-rise-roadmap/milestones.md` — rewrite M2.9 scope/acceptance to
   this spec; `decisions-log.md` — append the decision (map dungeons, tiered delves,
-  completion-gated rewards, band-driven flags, doom relief).
+  completion-gated rewards, band-driven flags, doom relief, and the unified `RewardQueue`
+  replacing the M2.4 busy-wait).
 
 ## Open Follow-ups (not this spec)
 
@@ -251,5 +306,5 @@ DungeonEnemies where they fit, author the rest).
 - Flag effects on dungeon enemies (corruption stat bonuses / variants).
 - Per-map dungeon-count variation (map presets) — the knob exists; presets are M3
   run-setup territory.
-- Unified modal reward queue (the M2.4 arbiter follow-up) would subsume the sequential
-  card-pick chaining here.
+- ~~Unified modal reward queue~~ — **now in scope** (the `RewardQueue` section); the
+  M2.4 arbiter follow-up closes with this spec.
