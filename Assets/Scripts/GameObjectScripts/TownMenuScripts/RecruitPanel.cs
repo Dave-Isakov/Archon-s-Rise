@@ -9,9 +9,14 @@ using UnityEngine.UI;
 // DisbandPanel's build/clear pattern; unaffordable entries stay visible but
 // disabled. Standard Buttons with default navigation, so the later towns
 // controller pass needs no rework.
+//
+// Visibility convention (shared with DisbandPanel and the other modals): the
+// GameObject stays active and we toggle the Canvas component; Start() force-
+// closes it so the authored checkbox can't leave it stuck, and always runs to
+// wire the cancel button. See DisbandPanel for the full rationale.
+[RequireComponent(typeof(Canvas))]
 public class RecruitPanel : MonoBehaviour
 {
-    [SerializeField] GameObject panel;             // root, inactive by default
     [SerializeField] Transform entryContainer;
     [SerializeField] GameObject entryButtonPrefab; // Button + TMP label
     [SerializeField] Button cancelButton;
@@ -19,20 +24,20 @@ public class RecruitPanel : MonoBehaviour
 
     readonly List<GameObject> spawned = new();
 
+    Canvas _canvas;
+    Canvas Canvas => _canvas != null ? _canvas : (_canvas = GetComponent<Canvas>());
+
     void Start()
     {
         cancelButton.onClick.RemoveAllListeners();
         cancelButton.onClick.AddListener(Close);
-        // NOTE: do NOT SetActive(false) here. This component lives on the panel
-        // it toggles, which starts inactive — so Start() first runs on the frame
-        // Open() activates the panel, and hiding it here would swallow that first
-        // open. The panel is kept inactive in the editor and re-hidden by Close().
+        Canvas.enabled = false; // start closed regardless of the authored state
     }
 
     public void Open(TownToken town)
     {
         ClearEntries();
-        panel.SetActive(true);
+        Canvas.enabled = true;
         var player = FindAnyObjectByType<Player>();
 
         foreach (var unit in town.townSO.recruitableUnits)
@@ -75,7 +80,7 @@ public class RecruitPanel : MonoBehaviour
     void Close()
     {
         ClearEntries();
-        panel.SetActive(false);
+        Canvas.enabled = false;
     }
 
     void ClearEntries()

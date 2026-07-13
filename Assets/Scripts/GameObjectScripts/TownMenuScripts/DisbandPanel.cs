@@ -4,11 +4,13 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // "Your army is full" flow: pick an existing unit to disband, then the hire
-// completes through the exact same events RecruitButton fires (atomic: no
-// state where influence is spent without a unit). Cancel is free.
+// completes through the caller's continuation (atomic: no state where influence
+// is spent without a unit). Cancel is free.
+//
+
+[RequireComponent(typeof(Canvas))]
 public class DisbandPanel : MonoBehaviour
 {
-    [SerializeField] GameObject panel;            // root, inactive by default
     [SerializeField] Transform entryContainer;    // vertical layout for unit buttons
     [SerializeField] GameObject entryButtonPrefab; // Button + TMP label
     [SerializeField] Button cancelButton;
@@ -16,11 +18,14 @@ public class DisbandPanel : MonoBehaviour
     System.Action _onDisbanded;
     readonly List<GameObject> spawned = new();
 
+    Canvas _canvas;
+    Canvas Canvas => _canvas ??= GetComponent<Canvas>();
+
     void Start()
     {
         cancelButton.onClick.RemoveAllListeners();
         cancelButton.onClick.AddListener(Close);
-        panel.SetActive(false);
+        Canvas.enabled = false; // start closed regardless of the authored state
     }
 
     // Generic "make room, then continue": combat recruiting and the town panel
@@ -29,7 +34,7 @@ public class DisbandPanel : MonoBehaviour
     {
         _onDisbanded = onDisbanded;
         ClearEntries();
-        panel.SetActive(true);
+        Canvas.enabled = true;
 
         foreach (var unit in FindObjectsByType<Unit>())
         {
@@ -53,7 +58,7 @@ public class DisbandPanel : MonoBehaviour
     {
         ClearEntries();
         _onDisbanded = null;
-        panel.SetActive(false);
+        Canvas.enabled = false;
     }
 
     void ClearEntries()

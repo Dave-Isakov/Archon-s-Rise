@@ -12,10 +12,18 @@ public class CreateCrystalButtons : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        foreach(var crystal in FindObjectsByType<CreateCrystalButtons>(FindObjectsInactive.Include))
-        {
-            Destroy(crystal.gameObject);
-        }
+        HideAll();
+    }
+
+    // Hide the crystal options (and the click-off catcher) instead of destroying them, so the
+    // pop-out can be reopened for another purchase. Hidden = non-interactable; these buttons'
+    // disabled color has alpha 0, so a hidden crystal is invisible and unclickable.
+    public static void HideAll()
+    {
+        foreach (var crystal in FindObjectsByType<CreateCrystalButtons>(FindObjectsInactive.Include))
+            crystal.thisButton.interactable = false;
+        foreach (var catcher in FindObjectsByType<CrystalDismissCatcher>(FindObjectsInactive.Include))
+            catcher.Hide();
     }
 
     private void Start() 

@@ -305,7 +305,10 @@ public class Player : MonoBehaviour
         bool recruit = enemy.enemySO.recruitedUnit != null && HasCharismatic;
         if (recruit && ArmyRules.NeedsDisband(units.Count, ArmyCap))
         {
-            FindAnyObjectByType<DisbandPanel>().OpenForHire(() => CompleteInfluence(enemy, true));
+            // The panel's GameObject stays active for the session (it toggles its
+            // own Canvas, not SetActive), so a plain active-only Find locates it.
+            FindAnyObjectByType<DisbandPanel>()
+                .OpenForHire(() => CompleteInfluence(enemy, true));
             return;
         }
         CompleteInfluence(enemy, recruit);

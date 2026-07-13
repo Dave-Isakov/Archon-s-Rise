@@ -74,7 +74,7 @@ public class UnitInspector : MonoBehaviour
         var option = Selection?.Selected;
         if (option == null || option.crystalCost == EmpowerType.None || !Selection.CanUse) return;
         var inv = FindAnyObjectByType<CrystalInventory>();
-        _reserved = inv != null ? inv.SelectPayCrystal(option.crystalCost) : null;
+        _reserved = inv?.SelectPayCrystal(option.crystalCost);
         _reserved?.SetReserved(true);
     }
 

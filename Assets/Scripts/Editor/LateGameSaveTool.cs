@@ -18,7 +18,7 @@ public static class LateGameSaveTool
     const int PlayerHp        = 5;
     const int StartingDoom    = 8;    // mid band: tier-2 enemies + stat scaling active
     const int Round           = 10;
-    const int UnitCount       = 2;
+    const int UnitCount       = 3;
     const int SkillCount      = 3;
     const int TotalCards      = 16;   // split into hand (PlayerHandSize) + deck
     static readonly Vector3Int MapCenter = new Vector3Int(10, 10, 0);
@@ -59,7 +59,13 @@ public static class LateGameSaveTool
         var units = (dm.allUnits ?? new UnitsSO[0]).Where(u => u != null).Take(UnitCount).ToList();
         player.RebuildUnits(units);
 
-        var skills = (dm.allSkills ?? new SkillsSO[0]).Where(s => s != null).Take(SkillCount).ToList();
+        // Guarantee Charismatic (the RecruitEnemies passive) is granted so the
+        // enemy-recruit / disband-at-cap flow is testable from this save; fill
+        // the rest up to SkillCount from the registry.
+        var allSkills = (dm.allSkills ?? new SkillsSO[0]).Where(s => s != null).ToList();
+        var skills = allSkills.Where(s => s.effect == SkillEffect.RecruitEnemies).Take(1)
+            .Concat(allSkills.Where(s => s.effect != SkillEffect.RecruitEnemies))
+            .Take(SkillCount).ToList();
         player.RebuildSkills(skills, new HashSet<string>());
 
         var pool = (dm.allCards ?? new CardsSO[0])
