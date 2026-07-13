@@ -23,7 +23,7 @@ public class SaveMigratorV5Tests
     [Test]
     public void V4_File_Version_Bumps_To_5()
     {
-        Assert.AreEqual(5, SaveMigrator.Migrate(V4File()).schemaVersion);
+        Assert.AreEqual(6, SaveMigrator.Migrate(V4File()).schemaVersion);
     }
 
     [Test]
@@ -32,7 +32,7 @@ public class SaveMigratorV5Tests
         var f = new SaveFile { schemaVersion = 5 };
         f.run.unitExhausted = new[] { true, false };
         var m = SaveMigrator.Migrate(f);
-        Assert.AreEqual(5, m.schemaVersion);
+        Assert.AreEqual(6, m.schemaVersion);
         CollectionAssert.AreEqual(new[] { true, false }, m.run.unitExhausted);
     }
 }

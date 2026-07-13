@@ -28,8 +28,13 @@ namespace ArchonsRise.SaveData
             if (file.run.unitExhausted == null)
                 file.run.unitExhausted = Array.Empty<bool>();
 
-            if (file.schemaVersion < 5)
-                file.schemaVersion = 5;
+            // v5 -> v6: dungeon fields did not exist; absent means fresh,
+            // unflagged dungeons (bools already default false via JsonUtility).
+            if (file.run.dungeons == null)
+                file.run.dungeons = Array.Empty<DungeonState>();
+
+            if (file.schemaVersion < 6)
+                file.schemaVersion = 6;
             return file;
         }
     }

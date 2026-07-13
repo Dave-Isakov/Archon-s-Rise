@@ -12,8 +12,8 @@ public class SaveMigratorV3Tests
 
         var migrated = SaveMigrator.Migrate(file);
 
-        // v2 files migrate all the way to the current schema (now v5).
-        Assert.AreEqual(5, migrated.schemaVersion);
+        // v2 files migrate all the way to the current schema (now v6).
+        Assert.AreEqual(6, migrated.schemaVersion);
         Assert.IsNotNull(migrated.run.player.ownedSkillIds);
         Assert.IsEmpty(migrated.run.player.ownedSkillIds);
         Assert.IsNotNull(migrated.run.player.exhaustedSkillIds);
@@ -28,7 +28,7 @@ public class SaveMigratorV3Tests
         var file = new SaveFile();
         file.run.player.ownedSkillIds = new[] { "skill-envoy" };
         var migrated = SaveMigrator.Migrate(file);
-        Assert.AreEqual(5, migrated.schemaVersion);
+        Assert.AreEqual(6, migrated.schemaVersion);
         Assert.AreEqual(new[] { "skill-envoy" }, migrated.run.player.ownedSkillIds);
     }
 }

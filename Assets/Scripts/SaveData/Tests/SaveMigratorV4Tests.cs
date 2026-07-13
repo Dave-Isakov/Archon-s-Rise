@@ -9,7 +9,7 @@ public class SaveMigratorV4Tests
         var file = new SaveFile { schemaVersion = 3 };
         file.run.spawnedEnemies = null; // JsonUtility yields null for a missing array on old files
         var migrated = SaveMigrator.Migrate(file);
-        Assert.AreEqual(5, migrated.schemaVersion);
+        Assert.AreEqual(6, migrated.schemaVersion);
         Assert.IsNotNull(migrated.run.spawnedEnemies);
         Assert.AreEqual(0, migrated.run.spawnedEnemies.Length);
         Assert.AreEqual(0, migrated.run.doom);
@@ -27,7 +27,7 @@ public class SaveMigratorV4Tests
             new SpawnedEnemy { x = 3, y = 4, enemyId = "enemy.dire-wolves", bonusHP = 1, bonusAttack = 1 }
         };
         var migrated = SaveMigrator.Migrate(file);
-        Assert.AreEqual(5, migrated.schemaVersion);
+        Assert.AreEqual(6, migrated.schemaVersion);
         Assert.AreEqual(12, migrated.run.doom);
         Assert.AreEqual(1, migrated.run.spawnedEnemies.Length);
         Assert.AreEqual("enemy.dire-wolves", migrated.run.spawnedEnemies[0].enemyId);

@@ -5,9 +5,9 @@ namespace ArchonsRise.SaveData
     [Serializable]
     public class SaveFile
     {
-        // v5: adds RunState.unitExhausted (parallel to unitIds; mid-round saves
-        // keep used units turned).
-        public int schemaVersion = 5;
+        // v6: adds RunState.dungeons + the once-per-run doom-band flag bools
+        // (M2.9 map dungeons).
+        public int schemaVersion = 6;
         public RunState run = new RunState();
     }
 
@@ -34,6 +34,14 @@ namespace ArchonsRise.SaveData
         public int roundsSinceSpawn; // spawn-cadence counter (EnemySpawner)
         // Alive mid-run spawns only; defeated ones simply drop out at save time.
         public SpawnedEnemy[] spawnedEnemies = Array.Empty<SpawnedEnemy>();
+        // One entry per dungeon with progress or a flag; positions and SO
+        // assignment re-derive from the map seed, dungeonId is a content
+        // sanity check on restore (v6).
+        public DungeonState[] dungeons = Array.Empty<DungeonState>();
+        // Once-per-run doom-band flag firings (v6) — never re-fire even if
+        // doom relief drops the clock back below a band edge.
+        public bool dungeonMidFlagsFired;
+        public bool dungeonHighFlagsFired;
     }
 
     [Serializable]
@@ -91,5 +99,15 @@ namespace ArchonsRise.SaveData
         public string enemyId;
         public int bonusHP;
         public int bonusAttack;
+    }
+
+    [Serializable]
+    public struct DungeonState
+    {
+        public int x;
+        public int y;
+        public string dungeonId;
+        public int defeatedCount;
+        public bool flagged;
     }
 }
