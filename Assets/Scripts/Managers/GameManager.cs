@@ -79,17 +79,31 @@ public class GameManager : MonoBehaviour
         roundTurnText.text = "Round: " + roundNum + " Turn: " + turnNum;
     }
 
+    // Dismiss callback for the queued message currently on screen; set by the
+    // ValidationMessage job, consumed exactly once by ReturnButton.
+    private System.Action messageDone;
+
     public void ReturnButton()
     {
         messageCanvas.enabled = false;
+        var done = messageDone;
+        messageDone = null;
+        done?.Invoke();
     }
 
     public void ValidationMessage(string message)
     {
         // The run-end screen is terminal: no popup may appear over it.
         if (RunEndController.HasEnded) return;
-        messageCanvas.enabled = true;
-        messageText.text = message;
+        RewardQueue.Instance.Enqueue(done =>
+        {
+            if (RunEndController.HasEnded) { done(); return; } // run ended while queued
+            if (messageCanvas.enabled)
+                Debug.LogError("ValidationMessage: message canvas already open — modal routing bug.");
+            messageDone = done;
+            messageCanvas.enabled = true;
+            messageText.text = message;
+        });
     }
 
     public void TurnPlus()
