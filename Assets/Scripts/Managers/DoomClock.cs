@@ -19,10 +19,17 @@ public class DoomClock : MonoBehaviour
 
     public void Add(int amount)
     {
+        int before = Doom;
         Doom = DoomRules.Add(Doom, amount, Tuning);
         onDoomChanged.Raise(Doom);
         if (DoomRules.IsLoss(Doom, Tuning))
+        {
             RunEndController.RequestEnd(RunOutcome.DoomLoss);
+            return; // the run is over; no flag firing on a lost run
+        }
+        DungeonRules.BandsEntered(before, Doom, Tuning, out bool mid, out bool high);
+        if (mid) DungeonTracker.Instance.OnMidBandEntered();
+        if (high) DungeonTracker.Instance.OnHighBandEntered();
     }
 
     // Load path: restore without the loss check — a saved run is alive by

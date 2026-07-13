@@ -119,8 +119,10 @@ public class GameManager : MonoBehaviour
         if (player != null) player.RefreshUnits();
         if (player != null) player.RefreshSkills(true);
 
-        // Doom rises on the same cadence that refreshes units/skills.
-        if (DoomClock.Instance != null) DoomClock.Instance.Add(1);
+        // Doom rises on the same cadence that refreshes units/skills, plus +1
+        // per flagged, uncleared dungeon (M2.9).
+        if (DoomClock.Instance != null)
+            DoomClock.Instance.Add(DungeonRules.RoundTick(DungeonTracker.Instance.FlaggedCount));
 
         // Spawner reads the doom value the tick above just produced.
         if (EnemySpawner.Instance != null) EnemySpawner.Instance.OnRoundEnd();
