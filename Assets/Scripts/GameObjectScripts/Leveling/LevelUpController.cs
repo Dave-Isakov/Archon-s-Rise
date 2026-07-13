@@ -1,65 +1,42 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Runs the level-up payout queue. Rewards resolve strictly in order — skill
-// pick(s), then card pick(s), then whatever the next pending level enqueued —
-// one modal at a time. Fixed bonuses (HP/hand/army) never enter the queue:
-// Player applies HP directly and the sizes are derived.
+// Enqueues the level-up payout on the shared RewardQueue: announcement message,
+// then skill pick(s), then card pick(s) — strictly in order, one modal at a
+// time (spec 2026-07-13; replaces the M2.4 private queue + busy-wait poll).
+// Fixed bonuses (HP/hand/army) never enter the queue: Player applies HP
+// directly and the sizes are derived.
 public class LevelUpController : MonoBehaviour
 {
     [SerializeField] Player player;
     [SerializeField] LevelUpModal modal;
     [SerializeField] Rewards rewards;
 
-    readonly Queue<System.Action> pending = new();
     readonly System.Random rng = new System.Random();
-    bool resolving;
 
-    // Save gate: mid-payout is not a settled state.
-    public bool Busy => resolving || pending.Count > 0;
+    // Save gate: mid-payout is not a settled state. The queue owns all pending modals.
+    public bool Busy => RewardQueue.Instance.Busy;
 
     public void EnqueueLevelRewards(int level, LevelRewardEntry entry)
     {
         GameManager.Instance.ValidationMessage($"You reached level {level}!");
         if (entry == null) return;
 
-        for (int i = 0; i < entry.skillPicks; i++) pending.Enqueue(OfferSkillPick);
-        for (int i = 0; i < entry.cardPicks; i++) pending.Enqueue(OfferCardPick);
-        TryNext();
+        for (int i = 0; i < entry.skillPicks; i++)
+            RewardQueue.Instance.Enqueue(OfferSkillPick);
+        // OfferCardChoice self-enqueues; calling it here preserves order
+        // (message, skills, cards) because all enqueues happen in sequence.
+        for (int i = 0; i < entry.cardPicks; i++)
+            rewards.OfferCardChoiceForLevel(player.PlayerLevel);
     }
 
-    void TryNext()
+    void OfferSkillPick(System.Action done)
     {
-        if (resolving || pending.Count == 0) return;
-        // Wait until the screen is clear before opening a pick: the level-up
-        // announcement (or any other message) must be dismissed, and any card
-        // reward already up must resolve first. An enemy defeat opens its card
-        // reward synchronously while the exp it granted levels the player a
-        // frame later — without this check the skill modal opens underneath it.
-        var gm = GameManager.Instance;
-        bool screenBusy = gm.messageCanvas.enabled
-            || (gm.cardRewardCanvas != null && gm.cardRewardCanvas.enabled);
-        if (screenBusy) { Invoke(nameof(TryNext), 0.25f); return; }
-        resolving = true;
-        pending.Dequeue().Invoke();
-    }
-
-    void OfferSkillPick()
-    {
+        // Choices are drawn at open time so earlier picks in the same payout
+        // are excluded from later draws.
         var choices = LevelRules.DrawSkillChoices(player.LevelRewards.SkillPool,
             new List<SkillsSO>(player.Skills), rng, 3);
-        if (choices.Count == 0) { Done(); return; } // pool exhausted: skip the pick
-        modal.Offer(choices, chosen => { player.AddSkill(chosen); Done(); });
-    }
-
-    void OfferCardPick()
-    {
-        rewards.OfferCardChoiceForLevel(player.PlayerLevel, Done);
-    }
-
-    void Done()
-    {
-        resolving = false;
-        TryNext();
+        if (choices.Count == 0) { done(); return; } // pool exhausted: skip the pick
+        modal.Offer(choices, chosen => { player.AddSkill(chosen); done(); });
     }
 }

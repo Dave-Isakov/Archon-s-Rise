@@ -16,6 +16,8 @@ public class RewardCanvas : MonoBehaviour
 
     public void Offer(IReadOnlyList<CardsSO> candidates, Action<CardsSO> onChosen, Action onSkip)
     {
+        if (GameManager.Instance.cardRewardCanvas.enabled)
+            Debug.LogError("RewardCanvas.Offer: reward canvas already open — modal routing bug (route via RewardQueue).");
         Clear();
         resolved = false;
         this.onChosen = onChosen;
