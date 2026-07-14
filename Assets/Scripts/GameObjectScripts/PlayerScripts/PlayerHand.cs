@@ -226,21 +226,6 @@ public class PlayerHand : MonoBehaviour
         }
     }
 
-    public void HandToCardList()
-    {
-        if(GameManager.Instance.cardListCanvas.enabled)
-        {
-            foreach (var card in cardsInPlay)
-                card.transform.SetParent(GameManager.Instance.cardListParent.transform);
-        }
-        else
-        {
-            foreach (var card in cardsInPlay)
-                card.transform.SetParent(handLayout.Container);
-            Relayout();
-        }
-    }
-
     // public void AnimateCardDraw(Card card)
     // {
     //     var sequence = DOTween.Sequence();

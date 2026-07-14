@@ -1,0 +1,9 @@
+{
+    "name": "ArchonsRise.CardList",
+    "rootNamespace": "",
+    "references": ["ArchonsRise.Enums"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "autoReferenced": true
+}

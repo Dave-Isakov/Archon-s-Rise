@@ -4,6 +4,7 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
+        "ArchonsRise.CardList",
         "ArchonsRise.CardPlay",
         "ArchonsRise.Doom",
         "ArchonsRise.Enums",

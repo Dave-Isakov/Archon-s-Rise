@@ -51,24 +51,4 @@ public class DiscardPile : MonoBehaviour
             this.cards.Add(comp);
         }
     }
-
-    public void SetCardList()
-    {
-        if(GameManager.Instance.cardListCanvas.enabled)
-        {
-            foreach (var card in cards)
-            {
-                card.transform.SetParent(GameManager.Instance.cardListParent.transform);
-                card.gameObject.SetActive(true);
-            }
-        }
-        else
-        {
-            foreach (var card in cards)
-            {
-                card.transform.SetParent(this.transform);
-                card.gameObject.SetActive(false);
-            }
-        }
-    }
 }

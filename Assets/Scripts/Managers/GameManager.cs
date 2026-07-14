@@ -26,7 +26,6 @@ public class GameManager : MonoBehaviour
     public Button fleeButton;
     public Canvas cardRewardCanvas;
     public Canvas cardListCanvas;
-    public GameObject cardListParent;
     public Canvas townCanvas;
     public Canvas dungeonCanvas;
     public GameObject playerHand;

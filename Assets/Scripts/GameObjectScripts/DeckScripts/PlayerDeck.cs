@@ -123,26 +123,6 @@ public class PlayerDeck : Deck<Card>, IPointerClickHandler
         CardZonePlan.TransferAll(cards, CardsInDeck);
     }
 
-    public void DeckToCardList()
-    {
-        if(GameManager.Instance.cardListCanvas.enabled)
-        {
-            foreach (var card in cardsInDeck)
-            {
-                card.transform.SetParent(GameManager.Instance.cardListParent.transform);
-                card.gameObject.SetActive(true);
-            }
-        }
-        else
-        {
-            foreach (var card in cardsInDeck)
-            {
-                card.transform.SetParent(this.transform);
-                card.gameObject.SetActive(false);
-            }
-        }
-    }
-
     public void RebuildDeck(List<CardsSO> orderedCards)
     {
         foreach (var c in new List<Card>(CardsInDeck)) if (c != null) Destroy(c.gameObject);
