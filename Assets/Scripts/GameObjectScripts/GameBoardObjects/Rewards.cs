@@ -15,18 +15,44 @@ public class Rewards : MonoBehaviour
     [SerializeField] RewardCanvas rewardCanvas;
     [SerializeField] RewardTuningSO tuning;
 
-    // Wired to OnEnemyDefeat_GetRewards.
-    public void GetReward(EnemyCard enemy) => Grant(enemy.enemySO.tier);
+    // Wired to OnEnemyDefeat_GetRewards. Dungeon fights pay experience only —
+    // the dungeon's reward is completion-gated (spec 2026-07-13).
+    public void GetReward(EnemyCard enemy)
+    {
+        if (DungeonDelve.AnyInProgress) { GrantExpOnly(enemy.enemySO.tier); return; }
+        Grant(enemy.enemySO.tier);
+    }
+
+    // Per-fight dungeon grant: the tier's bell exp sample, no bonus rolls.
+    public void GrantExpOnly(int tier)
+    {
+        player.PlayerExp += RewardRules.SampleExp(tier, tuning.Data, max => Random.Range(0, max));
+    }
+
+    // Dungeon completion bundle (spec 2026-07-13): guaranteed, no dice — one
+    // exp roll at the dungeon's tier, then rewardCount crystals and
+    // rewardCount card picks. Exp/crystals apply instantly; the picks resolve
+    // one at a time through the RewardQueue.
+    public void GrantDungeonCompletion(int tier, int rewardCount)
+    {
+        GrantExpOnly(tier);
+        for (int i = 0; i < rewardCount; i++)
+            crystals.CreateCrystal(RandomCrystalColor());
+        for (int i = 0; i < rewardCount; i++)
+            OfferCardChoice(tier);
+    }
+
+    private static readonly EmpowerType[] crystalColors =
+        { EmpowerType.Green, EmpowerType.Yellow, EmpowerType.Red, EmpowerType.Purple, EmpowerType.None };
+    private static EmpowerType RandomCrystalColor()
+        => crystalColors[Random.Range(0, crystalColors.Length)];
 
     void Grant(int tier)
     {
         player.PlayerExp += RewardRules.SampleExp(tier, tuning.Data, max => Random.Range(0, max));
 
         if (RewardRules.Roll(tuning.CrystalChance(tier), () => Random.value))
-        {
-            var types = new[] { EmpowerType.Green, EmpowerType.Yellow, EmpowerType.Red, EmpowerType.Purple, EmpowerType.None };
-            crystals.CreateCrystal(types[Random.Range(0, types.Length)]);
-        }
+            crystals.CreateCrystal(RandomCrystalColor());
 
         if (RewardRules.Roll(tuning.CardChance(tier), () => Random.value))
             OfferCardChoice(tier);

@@ -63,6 +63,18 @@ public class DungeonTracker : MonoBehaviour
             t.RefreshVisual();
     }
 
+    // Third win at this dungeon: announce, pay the guaranteed bundle, apply
+    // doom relief (bigger when the dungeon was flagged), refresh the map.
+    public void CompleteDungeon(DungeonToken token)
+    {
+        bool wasFlagged = ledger.IsFlagged(ToCell(token.gridPos));
+        GameManager.Instance.ValidationMessage($"{token.dungeonSO.cardName} is cleared!"
+            + (wasFlagged ? " The corruption lifts." : ""));
+        FindAnyObjectByType<Rewards>().GrantDungeonCompletion(token.dungeonSO.tier, token.dungeonSO.rewardCount);
+        DoomClock.Instance.Add(-DungeonRules.Relief(wasFlagged, DoomClock.Instance.Tuning));
+        RefreshTokenVisuals();
+    }
+
     public DungeonState[] Export() => ledger.Export();
 
     public void ApplySave(DungeonState[] dungeons, bool midFired, bool highFired)

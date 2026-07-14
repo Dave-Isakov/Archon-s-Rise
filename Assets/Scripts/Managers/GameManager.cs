@@ -172,6 +172,14 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        // A delve flee is field rules (1 wound); there is no map token to
+        // de-aggro, so DungeonDelve owns the whole teardown.
+        if (DungeonDelve.AnyInProgress)
+        {
+            DungeonDelve.Instance.Flee();
+            return;
+        }
+
         // Guard: activeCombatant is set only by a real fight, never while the
         // combat canvas is merely previewing an out-of-range enemy token.
         if (activeCombatant == null) return;
