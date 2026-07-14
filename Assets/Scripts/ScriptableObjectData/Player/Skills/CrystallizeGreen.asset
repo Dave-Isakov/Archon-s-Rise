@@ -15,7 +15,7 @@ MonoBehaviour:
   id: skill-crystallize-green
   cardName: 'Crystallize: Green'
   cardDescription: Gain 1 Green crystal, once per round
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: a4f6f6238e9dc4541bb5b4690e0ee538, type: 3}
   effect: 4
   magnitude: 1
   crystalColor: 4

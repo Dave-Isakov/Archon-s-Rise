@@ -15,21 +15,7 @@ MonoBehaviour:
   m_DefaultSprite: {fileID: 21300000, guid: 0d719ec1e98c95640a5cfbafef63dba2, type: 3}
   m_DefaultGameObject: {fileID: 0}
   m_DefaultColliderType: 1
-  m_TilingRules:
-  - m_Id: 0
-    m_Sprites:
-    - {fileID: 21300000, guid: 68f626266e2613e4aa3c23a8237571bd, type: 3}
-    m_GameObject: {fileID: 0}
-    m_MinAnimationSpeed: 1
-    m_MaxAnimationSpeed: 1
-    m_PerlinScale: 0.5
-    m_Output: 0
-    m_ColliderType: 1
-    m_RandomTransform: 0
-    m_Neighbors: 01000000
-    m_NeighborPositions:
-    - {x: 0, y: -1, z: 0}
-    m_RuleTransform: 0
+  m_TilingRules: []
   m_FlatTop: 0
   exploreCost: 5
   terrain: 5

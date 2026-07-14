@@ -15,7 +15,7 @@ MonoBehaviour:
   id: skill-drillmaster
   cardName: Drillmaster
   cardDescription: +1 Attack, once per turn
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: a2563f2b8dbc4044b9a50537d3a29962, type: 3}
   effect: 0
   magnitude: 1
   crystalColor: 0

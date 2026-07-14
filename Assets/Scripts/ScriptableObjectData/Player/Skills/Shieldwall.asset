@@ -15,7 +15,7 @@ MonoBehaviour:
   id: skill-shieldwall
   cardName: Shieldwall
   cardDescription: +1 Defend, once per turn
-  icon: {fileID: 0}
+  icon: {fileID: 21300010, guid: 66f0952bca521c640813e789d988aa1a, type: 3}
   effect: 1
   magnitude: 1
   crystalColor: 0
