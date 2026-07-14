@@ -54,6 +54,13 @@ public class DungeonTracker : MonoBehaviour
                 "Corruption seeps into a dungeon! It pushes the Doom Clock higher every round until cleared.");
         foreach (var cell in targets)
             ledger.SetFlagged(cell);
+        RefreshTokenVisuals();
+    }
+
+    private void RefreshTokenVisuals()
+    {
+        foreach (var t in FindObjectsByType<DungeonToken>(FindObjectsSortMode.None))
+            t.RefreshVisual();
     }
 
     public DungeonState[] Export() => ledger.Export();
@@ -66,6 +73,7 @@ public class DungeonTracker : MonoBehaviour
         foreach (var d in dungeons)
             if (!ledger.ApplySavedState(d))
                 Debug.LogWarning($"Dungeon restore: cell ({d.x},{d.y}) id '{d.dungeonId}' doesn't match the regenerated map — skipped.");
+        RefreshTokenVisuals();
     }
 
     private static Cell ToCell(Vector3Int v) => new Cell(v.x, v.y);

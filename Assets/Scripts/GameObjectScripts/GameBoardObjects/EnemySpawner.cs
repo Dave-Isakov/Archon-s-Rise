@@ -13,6 +13,7 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] EnemyDeck deck;
     [SerializeField] Tilemap ground;
     [SerializeField] TileBase townTile;
+    [SerializeField] TileBase dungeonTile;
     [SerializeField] DoomTuningSO tuning;
 
     private readonly List<Cell> zones = new();
@@ -77,7 +78,8 @@ public class EnemySpawner : MonoBehaviour
         {
             var pos = new Vector3Int(c.x, c.y, 0);
             if (c.x < 0 || c.x > 19 || c.y < 0 || c.y > 19
-                || !ground.HasTile(pos) || ground.GetTile(pos) == townTile)
+                || !ground.HasTile(pos) || ground.GetTile(pos) == townTile
+                || ground.GetTile(pos) == dungeonTile)
                 blocked.Add(c);
         }
         foreach (var token in FindObjectsByType<EnemyToken>(FindObjectsSortMode.None))

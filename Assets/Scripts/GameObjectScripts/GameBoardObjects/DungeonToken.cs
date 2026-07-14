@@ -1,0 +1,46 @@
+using UnityEngine;
+using UnityEngine.EventSystems;
+
+// Map-side dungeon identity (M2.9): assigned SO + grid cell, visual state
+// (flagged / cleared markers), and the stand-on-cell entry rule (TownToken
+// pattern — dungeons are place-like, adjacency is not enough).
+public class DungeonToken : MonoBehaviour, IPointerClickHandler
+{
+    public DungeonsSO dungeonSO;
+    // Stable identity over the seeded map; assigned by GridGeneration at spawn.
+    public Vector3Int gridPos;
+    [SerializeField] GameObject flagMarker;    // active while flagged, until cleared
+    [SerializeField] GameObject clearedMarker; // active once complete
+    private PlayerPosition player;
+    private Grid gameboard;
+
+    void Start()
+    {
+        player = FindAnyObjectByType<PlayerPosition>();
+        gameboard = FindAnyObjectByType<Grid>();
+        DungeonTracker.Instance.Register(gridPos, dungeonSO.id);
+        RefreshVisual();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (MapFog.IsHidden(gridPos)) return; // hidden by fog → not interactable
+
+        if (gameboard.LocalToCell(player.transform.position) != gridPos)
+        {
+            GameManager.Instance.ValidationMessage(
+                $"You must be standing at {dungeonSO.cardName} to enter it.");
+            return;
+        }
+
+        // Replaced by DungeonPanel.Open(this) in the panel task.
+        GameManager.Instance.ValidationMessage($"{dungeonSO.cardName} awaits below…");
+    }
+
+    public void RefreshVisual()
+    {
+        bool complete = DungeonTracker.Instance.IsComplete(gridPos);
+        if (clearedMarker != null) clearedMarker.SetActive(complete);
+        if (flagMarker != null) flagMarker.SetActive(!complete && DungeonTracker.Instance.IsFlagged(gridPos));
+    }
+}

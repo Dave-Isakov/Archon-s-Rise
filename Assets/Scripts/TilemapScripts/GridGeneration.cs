@@ -21,6 +21,11 @@ public class GridGeneration : MonoBehaviour
     // place a fresh player meets. Towns closer to the start than this (Chebyshev
     // distance from (0,0)) only roll Town/Keep; Castles seed from here outward.
     [SerializeField] int castleMinDistanceFromStart = 8;
+    [SerializeField] TileBase dungeonTile;
+    [SerializeField] GameObject dungeonTokenPrefab;
+    [SerializeField] int dungeonCount = 6;
+    [SerializeField] int dungeonMinSpacing = 4;
+    [SerializeField] List<DungeonsSO> dungeonPool = new();
     [SerializeField] DoomTuningSO doomTuning;
     [SerializeField] EnemySpawner spawner;
     // Spawn zones seeded this generation — deterministic over the map seed,
@@ -170,6 +175,42 @@ public class GridGeneration : MonoBehaviour
                 }
         }
 
+        // Dungeon placement (M2.9): configurable count, spaced like spawn
+        // zones, deterministic over the map seed — positions and SO assignment
+        // are never saved, only progress is (PlaceConquest pattern).
+        if (dungeonTile != null && dungeonTokenPrefab != null && dungeonPool.Count > 0)
+        {
+            var dCandidates = new List<ArchonsRise.SaveData.Cell>();
+            for (int x = 0; x < 20; x++)
+                for (int y = 0; y < 20; y++)
+                {
+                    var pos = new Vector3Int(x, y);
+                    if (!ground.HasTile(pos) || ground.GetTile(pos) == townTile) continue;
+                    var cell = new ArchonsRise.SaveData.Cell(x, y);
+                    if (SpawnRules.Spacing(cell, new ArchonsRise.SaveData.Cell(0, 0)) < doomTuning.tuning.startSafeRadius) continue;
+                    dCandidates.Add(cell);
+                }
+            var dungeonCells = SpawnRules.SeedZones(dCandidates, dungeonCount, dungeonMinSpacing, max => Rng(0, max));
+
+            // Assign SOs seed-randomly: without replacement until the pool
+            // exhausts, then refill (repeats only when count > pool size).
+            var bag = new List<DungeonsSO>(dungeonPool);
+            foreach (var cell in dungeonCells)
+            {
+                if (bag.Count == 0) bag.AddRange(dungeonPool);
+                var so = bag[Rng(0, bag.Count)];
+                bag.Remove(so);
+
+                var tilePos = new Vector3Int(cell.x, cell.y);
+                ground.SetTile(tilePos, dungeonTile);
+                var token = Instantiate(dungeonTokenPrefab,
+                    ground.CellToWorld(tilePos) + new Vector3(0, -1), Quaternion.identity, townParentObject);
+                var placed = token.GetComponent<DungeonToken>();
+                placed.dungeonSO = so;
+                placed.gridPos = tilePos;
+            }
+        }
+
         // Seed spawn zones across the WHOLE map (replaces the accidental
         // lower-left-only enemy region). Candidates: land cells that aren't
         // towns and sit outside the start's safe radius. Deterministic over
@@ -180,7 +221,7 @@ public class GridGeneration : MonoBehaviour
             for (int y = 0; y < 20; y++)
             {
                 var pos = new Vector3Int(x, y);
-                if (!ground.HasTile(pos) || ground.GetTile(pos) == townTile) continue;
+                if (!ground.HasTile(pos) || ground.GetTile(pos) == townTile || ground.GetTile(pos) == dungeonTile) continue;
                 var cell = new ArchonsRise.SaveData.Cell(x, y);
                 if (SpawnRules.Spacing(cell, new ArchonsRise.SaveData.Cell(0, 0)) < tuning.startSafeRadius) continue;
                 candidates.Add(cell);
@@ -211,7 +252,7 @@ public class GridGeneration : MonoBehaviour
                     if (System.Math.Max(x, y) != d) continue; // ring at Chebyshev distance d
                     if (x > 19 || y > 19) continue;
                     var pos = new Vector3Int(x, y);
-                    if (!ground.HasTile(pos) || ground.GetTile(pos) == townTile) continue;
+                    if (!ground.HasTile(pos) || ground.GetTile(pos) == townTile || ground.GetTile(pos) == dungeonTile) continue;
                     pick = new ArchonsRise.SaveData.Cell(x, y);
                     break;
                 }
@@ -244,7 +285,8 @@ public class GridGeneration : MonoBehaviour
             {
                 var pos = new Vector3Int(c.x, c.y);
                 if (c.x < 0 || c.x > 19 || c.y < 0 || c.y > 19
-                    || !ground.HasTile(pos) || ground.GetTile(pos) == townTile)
+                    || !ground.HasTile(pos) || ground.GetTile(pos) == townTile
+                    || ground.GetTile(pos) == dungeonTile)
                     blocked.Add(c);
             }
 
