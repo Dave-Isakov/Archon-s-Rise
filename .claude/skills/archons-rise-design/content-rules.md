@@ -123,10 +123,10 @@ for the starting bands.
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `exploreCost` | int | Explore to enter |
-| `enemies` | List&lt;`EnemiesSO`&gt; | Enemies inside |
-| `tier` | int | Reward tier (1–3) every reward event pays out at |
-| `rewardCount` | int | Number of reward events the dungeon offers before rewards are exhausted |
+| `exploreCost` | int | Cost of **each** delve (flat × 3) |
+| `enemies` | List&lt;`EnemiesSO`&gt; | **Exactly 3**: slot 0 = tier-1 fight, slot 1 = tier-2, slot 2 = tier-3 (OnValidate warns) |
+| `tier` | int | Tier the completion bundle pays at |
+| `rewardCount` | int | Bundle scale: this many crystals AND this many card picks (guaranteed) |
 
 ## Location — `LocationsSO`
 **Menu:** `ScriptableObjects/LocationsSO`

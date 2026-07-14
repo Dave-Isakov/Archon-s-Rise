@@ -64,20 +64,25 @@ level-up picks queue behind any open card reward canvas. Unified reward arbiter 
 paid off / recruited with Charismatic; towns recruit via panel at per-unit prices.
 Spec: `docs/superpowers/specs/2026-07-09-unit-gameplay-and-recruitment-design.md`.
 
-## M2.9 — Dungeons
-**Goal:** dungeons become a playable encounter type — enter, clear a sequence of enemies, earn
-tiered completion rewards. (Content/data exist — `DungeonsSO`, Derelict Tower, DungeonEnemies —
-but the flow isn't wired.)
-**Scope:**
-- Enter a dungeon by spending **Explore** (`DungeonsSO.exploreCost`); fight its `enemies` in order.
-- **Completion rewards** from `DungeonsSO.rewards`, selected by **tier via `RewardsSO.rewardLevel`**
-  (the field kept alive for exactly this — higher-tier dungeons roll higher-tier rewards, instead of
-  today's flat-random pick).
-- Design pass still needed: dungeon entry/clear UI, failure/retreat handling, tier→reward mapping.
+## M2.9 — Map Dungeons + RewardQueue ✅ (2026-07-14)
+**Goal:** dungeons become **map places** — spaced hexes entered by standing on the cell — with
+tiered delves, completion-gated bundles, doom-band flagging, and all reward modals serialized
+through one unified `RewardQueue`. Replaces the never-wired card-based flow.
+**Scope (shipped):**
+- **6 spaced dungeon hexes** per map (`DungeonRuleTile`/`DungeonToken`, seeded placement, spawn
+  blocking, never on towns or the start ring).
+- **3 tiered delves** each: one Explore spend per delve, one authored enemy (tier 1/2/3) under
+  normal field rules (wounds, flee = 1 wound); fights pay **experience only**.
+- **Guaranteed completion bundle** (exp + `rewardCount` crystals + `rewardCount` card picks) and
+  **Doom relief** on clearing the third delve.
+- **Doom-band flags:** first entry into the mid/high band flags a random uncleared dungeon (+1
+  doom/round until cleared; larger relief when a flagged dungeon is cleared).
+- **Unified `RewardQueue`** — every card/skill/message modal opens one at a time; the M2.4 busy-wait
+  is deleted. Save schema **v6** persists dungeon progress + flag state.
 
-**Acceptance:** the player can enter a dungeon, clear its enemies in sequence, and receive
-tier-appropriate completion rewards. **Precedes M3** — dungeons are core-loop content; meta-unlocks
-come after.
+**Acceptance (met):** 6 spaced dungeons per map; stand-on-cell entry opens the panel; delves spend
+Explore and pay exp only; completion pays the guaranteed bundle and drops doom; flags fire on band
+entry and tick doom; progress saves/restores; no overlapping modals. **Precedes M3.**
 
 ## M3 — Run setup & meta-unlocks
 **Goal:** framed runs plus between-run progression.

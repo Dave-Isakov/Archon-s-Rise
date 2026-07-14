@@ -11,7 +11,10 @@ Where Archon's Rise stands today. Seeded from the code review (`docs/code-review
 - Hex-map **exploration** via `GridGeneration` (randomized).
 - **Combat** (player Attack vs enemy HP; enemy Attack vs Defend → Wounds); field + dungeon enemies.
 - **Towns** (Town/Village/Fortress/City) and **Unit** recruiting (Knight/Scout/Warrior/Merchant).
-- **Dungeons**; **Rewards** (Experience/Crystals/Cards at Beginner→Master).
+- **Map dungeons** (M2.9, 2026-07-14) — 6 spaced hexes/map, stand-on-cell entry, 3 tiered delves
+  (exp-only fights), guaranteed completion bundle + doom relief, doom-band flagging, save v6.
+- **Rewards** (Experience/Crystals/Cards at Beginner→Master), all modals serialized through the
+  unified **`RewardQueue`** (replaces the M2.4 busy-wait).
 - **Leveling** counters (exp, expToNextLevel, level).
 - ScriptableObject **GameEvent/Listener** bus.
 - JSON **save** — full run state: deck/hand/discard (by stable content id), fog-of-war reveal, crystals, scalar player stats. ✅ M1 complete (2026-06-29).

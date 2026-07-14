@@ -20,7 +20,8 @@ four action stats, then act:
   each at **its own Influence price** (per-unit, not a flat town rate); unaffordable entries show
   disabled. Recruiting is capped by the **army cap** (starts at 1, raised by level-ups; at cap,
   hiring first opens the disband picker to make room — cancelling it spends nothing),
-- **Move/explore** further (spending Explore).
+- **Move/explore** further (spending Explore),
+- **Enter a dungeon** by **standing on its cell** (place-like, not adjacent) — see [Dungeons](#dungeons).
 
 Gain rewards (experience, crystals, cards) from defeating enemies and clearing dungeons, level up,
 and grow your deck — all while the **Doom Clock** rises each round. The run ends when you meet the
@@ -98,6 +99,18 @@ Eight stat types (the `StatType` flags in code):
   fight. Visibility passes through a single blind gate (`PreviewRules.CanPreview`): today every enemy
   is visible, but a future mechanic can blind an encounter, replacing the whole panel with "You
   cannot see the enemy/enemies you are about to confront."
+
+## Dungeons
+Map places (6 per map — count is tuning, see [balance.md](balance.md)), entered by **standing
+on the cell** like other places. A dungeon is **three tiered delves**: each delve spends the
+dungeon's flat `exploreCost` and fights one authored enemy — tier 1, then 2, then 3 — under
+normal field-combat rules (wounds, flee = 1 Wound). Defeated slots never respawn; progress
+persists and saves. Fights inside grant **experience only**; completing the third delve pays a
+**guaranteed bundle** (exp roll + `rewardCount` crystals + `rewardCount` card picks at the
+dungeon's `tier`) and **lowers the Doom Clock**. When doom first enters the mid/high band, a
+random uncleared dungeon becomes **flagged** (once per band per run): each flagged dungeon adds
+**+1 doom per round** until cleared, and clearing a flagged dungeon grants a larger doom
+reduction. All reward/message modals resolve one at a time through the **RewardQueue**.
 
 ## Empower / Crystal Economy
 A card may be **Empowered** by spending one **Crystal** of the card's color

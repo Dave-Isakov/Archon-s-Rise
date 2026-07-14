@@ -12,9 +12,24 @@ numbers.
 
 ## Doom Clock
 - Starts at **0**, maximum **20**.
-- **+1 per round**; certain events (failed dungeon, ignored threat) add **+1 to +3** extra.
+- **+1 per round**, **plus +1 per flagged, uncleared dungeon** (M2.9 — a flagged dungeon ticks
+  until cleared; the round add is `1 + flaggedCount`).
+- Bands: low **0–6**, mid **7–13**, high **14–20** (`lowBandMax` 6, `midBandMax` 13).
 - Reaching max = run lost.
 - _Starting values — tune in playtest._ Max vs. per-round rate sets the run's overall time budget.
+
+## Dungeons (M2.9)
+- **6 dungeons per map** (`dungeonCount`), min spacing **4** Chebyshev (`dungeonMinSpacing`), never
+  on towns or within the start safe radius (3).
+- **3 delves each**, flat `exploreCost` per delve: **2** for tier-lite dungeons, **3** for the
+  tougher three. Fights are exp-only; `DoomRules.MaxTier` does **not** gate them.
+- **Completion bundle:** 1 exp roll at `tier` + `rewardCount` crystals + `rewardCount` card picks,
+  all guaranteed. `rewardCount` **1** for five dungeons, **2** for the showpiece (Wyrm's Hollow).
+- **Flags:** `flagsOnMidBand` **1** + `flagsOnHighBand` **1** (one dungeon flagged on first entry
+  into each band, once per run).
+- **Doom relief on clear:** `dungeonCompleteRelief` **−1** unflagged, `flaggedCompleteRelief` **−3**
+  flagged.
+- _Starting values — tune in playtest._
 
 ## Wound-out (tactical loss)
 - Lose if **Wounds in deck ≥ 6**. (HP is toughness, never depletes — decision 2026-07-06.)

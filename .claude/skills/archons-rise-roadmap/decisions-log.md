@@ -233,3 +233,23 @@ editing an old one.
      on the same GameObject (`OnDisable` unregisters), so a button that hid once — e.g. Recruit on a
      not-yet-conquered Keep — never received `UpdateButtonText` again and the conquered menu came up empty.
      Reviving all buttons before raising the events re-registers their listeners. Zero scene wiring.
+
+- **2026-07-14 — M2.9: dungeons are map places with tiered delves; unified `RewardQueue`.**
+  Dungeons stopped being a card flow and became **map hexes** entered by standing on the cell
+  (6 per map, spaced like spawn zones, never on towns or the start ring). Each dungeon is **three
+  authored tiered delves**: one Explore spend per delve, one enemy (tier 1/2/3) under normal field
+  rules (wounds, flee = 1 wound). **Fights pay experience only**; clearing the third delve pays a
+  **guaranteed completion bundle** (1 exp roll at the dungeon `tier` + `rewardCount` crystals +
+  `rewardCount` card picks) and **lowers the Doom Clock**. **Doom-band flags:** the first time doom
+  enters the mid/high band, one random uncleared dungeon is **flagged** (once per band per run);
+  each flagged dungeon adds **+1 doom/round** until cleared, and clearing a flagged dungeon gives a
+  larger relief (−3 vs −1). `DoomRules.MaxTier` does **not** gate dungeon fights. Save schema
+  bumped to **v6** (dungeon progress + once-per-run band-fire bools; positions/SO re-derive from
+  the map seed). The legacy card-based dungeon flow (`Dungeon`, `DungeonDeck`, `DungeonEvent`) was
+  deleted.
+  _Why:_ the card flow was never wired and didn't fit the place-based map; map dungeons give
+  explore a real payoff and a doom-management lever. A **unified `RewardQueue`** (pure
+  `ModalQueueCore` + scene singleton) now serializes **every** reward/skill/message modal one at a
+  time, replacing the M2.4 level-up busy-wait poll and guaranteeing no overlapping menus when a
+  completion bundle, an enemy card drop, and a level-up all fire in the same frame.
+  _Closes_ the reward-arbiter follow-up.
