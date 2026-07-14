@@ -203,6 +203,10 @@ public class DataManager : MonoBehaviour
         // Start; the ledger tolerates either order regardless.
         ConquestTracker.Instance.ApplySave(run.places);
 
+        // Dungeon tokens registered themselves during their Start (the restore
+        // coroutine waits a frame), so saved progress lands on live entries.
+        DungeonTracker.Instance.ApplySave(run.dungeons, run.dungeonMidFlagsFired, run.dungeonHighFlagsFired);
+
         // Re-clear fog at the cells the player had already revealed.
         var dir = FindAnyObjectByType<DirectionButton>();
         if (dir != null && dir.Fog != null)
@@ -255,7 +259,7 @@ public class DataManager : MonoBehaviour
         var crystals  = FindAnyObjectByType<CrystalInventory>();
         var game      = GameManager.Instance;
 
-        var file = new SaveFile { schemaVersion = 5 };
+        var file = new SaveFile { schemaVersion = 6 };
         var run  = file.run;
 
         run.player.hp            = player.PlayerHP;
@@ -285,6 +289,9 @@ public class DataManager : MonoBehaviour
         run.map.seed            = CurrentSeed;
         run.map.defeatedEnemies = MapDelta.ToArray(DefeatedEnemies);
         run.places = ConquestTracker.Instance.ExportPlaces();
+        run.dungeons = DungeonTracker.Instance.Export();
+        run.dungeonMidFlagsFired  = DungeonTracker.Instance.MidFired;
+        run.dungeonHighFlagsFired = DungeonTracker.Instance.HighFired;
 
         var dir = FindAnyObjectByType<DirectionButton>();
         if (dir != null && dir.Fog != null)
