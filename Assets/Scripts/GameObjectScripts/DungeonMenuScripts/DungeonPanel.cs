@@ -6,7 +6,7 @@ using UnityEngine.UI;
 // PreviewRules blind gate), flagged banner, and the Delve button that spends
 // the dungeon's exploreCost and starts the fight. Opened by DungeonToken when
 // the player stands on the cell.
-public class DungeonPanel : MonoBehaviour
+public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
 {
     [SerializeField] TextMeshProUGUI nameText;
     [SerializeField] TextMeshProUGUI descriptionText;
@@ -16,7 +16,30 @@ public class DungeonPanel : MonoBehaviour
     [SerializeField] Button delveButton;
     [SerializeField] TextMeshProUGUI delveButtonText;
 
+    // OnExploreEvent_GetCurrentExplore: broadcast on every explore change with the
+    // current total, so the Delve gate updates live as the player pays cards while
+    // the panel is open (instead of a one-shot check when the menu opens).
+    [SerializeField] IntEvent onExploreChanged;
+
     private DungeonToken current;
+
+    private void OnEnable()
+    {
+        if (onExploreChanged != null) onExploreChanged.RegisterListener(this);
+    }
+
+    private void OnDisable()
+    {
+        if (onExploreChanged != null) onExploreChanged.UnRegisterListener(this);
+    }
+
+    // Fired by OnExploreEvent_GetCurrentExplore whenever the player's explore total
+    // changes. Only re-gate while the panel is actually open on a dungeon.
+    public void OnEventRaised(int currentExplore)
+    {
+        if (current == null) return;
+        UpdateDelveInteractable(currentExplore);
+    }
 
     public void Open(DungeonToken token)
     {
@@ -68,9 +91,23 @@ public class DungeonPanel : MonoBehaviour
         delveButton.gameObject.SetActive(!complete);
         delveButtonText.text = $"Delve ({so.exploreCost} Explore)";
         var player = FindAnyObjectByType<Player>();
-        delveButton.interactable = player != null && player.PlayerExplore >= so.exploreCost;
+        UpdateDelveInteractable(player != null ? player.PlayerExplore : 0);
 
         if (complete) { previewText.text = ""; return; }
+
+        UpdatePreview(so, cleared);
+    }
+
+    // Gate the Delve button on the player having enough explore. Called on open and
+    // again on every explore change while the panel is open.
+    private void UpdateDelveInteractable(int currentExplore)
+    {
+        if (current == null) return;
+        delveButton.interactable = currentExplore >= current.dungeonSO.exploreCost;
+    }
+
+    private void UpdatePreview(DungeonsSO so, int cleared)
+    {
         var next = so.enemies[cleared];
         previewText.text = PreviewRules.CanPreview()
             ? $"Next: {next.cardName}   <sprite=\"Sword\" index=0> {next.enemyAttack}   <sprite=\"shield\" index=0> {next.enemyHP}"
