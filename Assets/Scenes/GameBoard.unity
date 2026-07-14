@@ -53683,6 +53683,34 @@ PrefabInstance:
       propertyPath: 'tiles.Array.data[4]'
       value: 
       objectReference: {fileID: 11400000, guid: 48c2b4b83a3d26a4087cd3cda9cf0026, type: 2}
+    - target: {fileID: 5626674807191951870, guid: f1257ec7de3260e42b380001199990c5, type: 3}
+      propertyPath: dungeonPool.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5626674807191951870, guid: f1257ec7de3260e42b380001199990c5, type: 3}
+      propertyPath: 'dungeonPool.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: b50fbc6033e5a214990cda54f6d67a2c, type: 2}
+    - target: {fileID: 5626674807191951870, guid: f1257ec7de3260e42b380001199990c5, type: 3}
+      propertyPath: 'dungeonPool.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 843943e1d0558f2459d1bed3375a8b07, type: 2}
+    - target: {fileID: 5626674807191951870, guid: f1257ec7de3260e42b380001199990c5, type: 3}
+      propertyPath: 'dungeonPool.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 055e43cf382ca9e48917a02f109fac36, type: 2}
+    - target: {fileID: 5626674807191951870, guid: f1257ec7de3260e42b380001199990c5, type: 3}
+      propertyPath: 'dungeonPool.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 02823a266e6d7a949a683207ea755b01, type: 2}
+    - target: {fileID: 5626674807191951870, guid: f1257ec7de3260e42b380001199990c5, type: 3}
+      propertyPath: 'dungeonPool.Array.data[4]'
+      value: 
+      objectReference: {fileID: 11400000, guid: e72e3a3ac66fd854a89b3d3fefdd3a71, type: 2}
+    - target: {fileID: 5626674807191951870, guid: f1257ec7de3260e42b380001199990c5, type: 3}
+      propertyPath: 'dungeonPool.Array.data[5]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 0d958115c66b64f44b1c537f9b46a187, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:

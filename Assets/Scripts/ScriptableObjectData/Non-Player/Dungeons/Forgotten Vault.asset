@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1a39edde8ddd17d4e8dbb82803df6703, type: 3}
-  m_Name: Derelict Tower
-  m_EditorClassIdentifier: 
-  id: dungeon-derelict-tower
-  cardName: Derelict Tower
-  cardDescription: A leaning spire whose upper floors still hum with residual sorcery.
-  exploreCost: 2
+  m_Name: Forgotten Vault
+  m_EditorClassIdentifier: Assembly-CSharp::DungeonsSO
+  id: dungeon-forgotten-vault
+  cardName: Forgotten Vault
+  cardDescription: Sealed by the old kingdom; its wards are failing at last.
+  exploreCost: 3
   enemies:
-  - {fileID: 11400000, guid: 247e967b80c7c7848b7d9c12d40d86dd, type: 2}
-  - {fileID: 11400000, guid: f399ee2a44cbc454fa93885e7fa7511b, type: 2}
+  - {fileID: 11400000, guid: 256d8eda38889d84c8b72ff62bcbfdee, type: 2}
+  - {fileID: 11400000, guid: 50d37205264f1b54693753f32dde8ef1, type: 2}
   - {fileID: 11400000, guid: 5e1e6b87496053548b95c311db7fc5da, type: 2}
   tier: 3
   rewardCount: 1

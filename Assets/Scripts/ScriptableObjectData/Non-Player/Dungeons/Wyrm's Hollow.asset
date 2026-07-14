@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1a39edde8ddd17d4e8dbb82803df6703, type: 3}
-  m_Name: Derelict Tower
-  m_EditorClassIdentifier: 
-  id: dungeon-derelict-tower
-  cardName: Derelict Tower
-  cardDescription: A leaning spire whose upper floors still hum with residual sorcery.
-  exploreCost: 2
+  m_Name: Wyrm's Hollow
+  m_EditorClassIdentifier: Assembly-CSharp::DungeonsSO
+  id: dungeon-wyrms-hollow
+  cardName: Wyrm's Hollow
+  cardDescription: The deepest delve in the realm. Whatever sleeps here, it hoards
+    well.
+  exploreCost: 3
   enemies:
   - {fileID: 11400000, guid: 247e967b80c7c7848b7d9c12d40d86dd, type: 2}
-  - {fileID: 11400000, guid: f399ee2a44cbc454fa93885e7fa7511b, type: 2}
-  - {fileID: 11400000, guid: 5e1e6b87496053548b95c311db7fc5da, type: 2}
+  - {fileID: 11400000, guid: cb1748b6b852ae347bad82411a4af31f, type: 2}
+  - {fileID: 11400000, guid: 9a49473bd8ef61f44a3854c22571506b, type: 2}
   tier: 3
-  rewardCount: 1
+  rewardCount: 2

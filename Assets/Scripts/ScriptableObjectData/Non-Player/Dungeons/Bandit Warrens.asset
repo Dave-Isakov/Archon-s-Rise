@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1a39edde8ddd17d4e8dbb82803df6703, type: 3}
-  m_Name: Derelict Tower
-  m_EditorClassIdentifier: 
-  id: dungeon-derelict-tower
-  cardName: Derelict Tower
-  cardDescription: A leaning spire whose upper floors still hum with residual sorcery.
+  m_Name: Bandit Warrens
+  m_EditorClassIdentifier: Assembly-CSharp::DungeonsSO
+  id: dungeon-bandit-warrens
+  cardName: Bandit Warrens
+  cardDescription: A smugglers' maze dug beneath the hills, ruled by a brute of a
+    chief.
   exploreCost: 2
   enemies:
-  - {fileID: 11400000, guid: 247e967b80c7c7848b7d9c12d40d86dd, type: 2}
+  - {fileID: 11400000, guid: 46f5d3a8bf5ea234198cf0f02b227bcf, type: 2}
   - {fileID: 11400000, guid: f399ee2a44cbc454fa93885e7fa7511b, type: 2}
-  - {fileID: 11400000, guid: 5e1e6b87496053548b95c311db7fc5da, type: 2}
+  - {fileID: 11400000, guid: 9a49473bd8ef61f44a3854c22571506b, type: 2}
   tier: 3
   rewardCount: 1
