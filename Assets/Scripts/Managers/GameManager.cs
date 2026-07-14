@@ -28,6 +28,7 @@ public class GameManager : MonoBehaviour
     public Canvas cardListCanvas;
     public GameObject cardListParent;
     public Canvas townCanvas;
+    public Canvas dungeonCanvas;
     public GameObject playerHand;
     public PlayManager commands;
     private int roundNum;
@@ -63,6 +64,8 @@ public class GameManager : MonoBehaviour
         mainMenuCanvas.enabled = false;
         townCanvas.gameObject.SetActive(true);
         townCanvas.enabled = false;
+        dungeonCanvas.gameObject.SetActive(true);
+        dungeonCanvas.enabled = false;
         combatCanvas.gameObject.SetActive(true);
         combatCanvas.enabled = false;
         if (fleeButton != null) fleeButton.gameObject.SetActive(false);

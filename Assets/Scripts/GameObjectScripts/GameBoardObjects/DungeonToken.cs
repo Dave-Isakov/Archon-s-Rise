@@ -33,8 +33,7 @@ public class DungeonToken : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        // Replaced by DungeonPanel.Open(this) in the panel task.
-        GameManager.Instance.ValidationMessage($"{dungeonSO.cardName} awaits below…");
+        FindAnyObjectByType<DungeonPanel>(FindObjectsInactive.Include).Open(this);
     }
 
     public void RefreshVisual()

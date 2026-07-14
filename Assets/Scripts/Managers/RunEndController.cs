@@ -77,6 +77,7 @@ public class RunEndController : MonoBehaviour
             if (gm.messageCanvas != null)    gm.messageCanvas.enabled = false;
             if (gm.combatCanvas != null)     gm.combatCanvas.enabled = false;
             if (gm.townCanvas != null)       gm.townCanvas.enabled = false;
+            if (gm.dungeonCanvas != null)    gm.dungeonCanvas.enabled = false;
             if (gm.cardRewardCanvas != null) gm.cardRewardCanvas.enabled = false;
             if (gm.cardListCanvas != null)   gm.cardListCanvas.enabled = false;
             if (gm.cardCanvas != null)       gm.cardCanvas.enabled = false;

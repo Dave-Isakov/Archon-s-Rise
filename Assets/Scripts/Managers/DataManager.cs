@@ -357,6 +357,7 @@ public class DataManager : MonoBehaviour
         // No modal sub-screen open.
         if (game.combatCanvas != null && game.combatCanvas.enabled) return false;
         if (game.townCanvas != null && game.townCanvas.enabled) return false;
+        if (game.dungeonCanvas != null && game.dungeonCanvas.enabled) return false;
         if (game.cardRewardCanvas != null && game.cardRewardCanvas.enabled) return false;
         if (game.cardListCanvas != null && game.cardListCanvas.enabled) return false;
 
