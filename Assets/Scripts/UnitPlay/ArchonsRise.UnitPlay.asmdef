@@ -1,7 +1,7 @@
 {
     "name": "ArchonsRise.UnitPlay",
     "rootNamespace": "",
-    "references": ["ArchonsRise.Enums"],
+    "references": ["ArchonsRise.Enums", "ArchonsRise.UiLanguage"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
