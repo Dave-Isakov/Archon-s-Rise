@@ -13,6 +13,11 @@ public class Card : MonoBehaviour, IPointerClickHandler
     [SerializeField] bool inDiscard;
     [SerializeField] bool inHand;
     [SerializeField] private bool isEmpowered;
+    // Conversion state for the in-flight play (spec 2026-07-14). ConvertOn is
+    // set by the inspector before the PlayCommand executes; ConvertMoved holds
+    // the per-pool amounts the play actually moved so undo restores exactly.
+    [System.NonSerialized] public bool ConvertOn;
+    [System.NonSerialized] public int[] ConvertMoved;
     private bool isMaximized;
     private Vector2 startPosition;
     public int cardIndex = 0;

@@ -164,12 +164,65 @@ public class Player : MonoBehaviour
             AssignPlayerStats(card.cardSO.GetCardStats(card.IsEmpowered));
             EmpowerCrystalCheck(card);
             onPlay_TriggerAdditionalEffects.Raise(card);
+            ApplyCardConversion(card);
         }
         else if(card.IsPlayed)
         {
+            RevertCardConversion(card);
             UnAssignPlayerStats(card.cardSO.GetCardStats(card.IsEmpowered));
             UndoEmpower(card);
             onPlay_TriggerAdditionalEffects.Raise(card);
+        }
+    }
+
+    // Conversion rider (spec 2026-07-14): only the Normal play path converts —
+    // validation forbids isChoice converters and improvise never converts.
+    void ApplyCardConversion(Card card)
+    {
+        if (!card.ConvertOn) return;
+        var so = card.cardSO;
+        int[] pools = { playerAttack, playerDefend, playerInfluence, playerExplore };
+        var moved = ConvertRules.Moved(pools, so.convertFrom, so.convertTo);
+        card.ConvertMoved = moved;
+        ShiftPools(moved, so.convertTo, +1);
+        PulseConvert(moved, so.convertTo);
+    }
+
+    void RevertCardConversion(Card card)
+    {
+        if (card.ConvertMoved == null) return;
+        ShiftPools(card.ConvertMoved, card.cardSO.convertTo, -1);
+        card.ConvertMoved = null;
+    }
+
+    // sign +1: drain each source pool by moved[i], add the total to the target.
+    // sign -1: exact inverse. Safe under LIFO undo: nothing touches the pools
+    // between execute and undo without itself being undone first.
+    void ShiftPools(int[] moved, StatType to, int sign)
+    {
+        int total = ConvertRules.MovedTotal(moved);
+        playerAttack    -= sign * moved[0];
+        playerDefend    -= sign * moved[1];
+        playerInfluence -= sign * moved[2];
+        playerExplore   -= sign * moved[3];
+        int target = ConvertRules.IndexOf(to);
+        if      (target == 0) playerAttack    += sign * total;
+        else if (target == 1) playerDefend    += sign * total;
+        else if (target == 2) playerInfluence += sign * total;
+        else if (target == 3) playerExplore   += sign * total;
+        GetCurrentInfluence();
+        GetCurrentExplore();
+    }
+
+    // Pulse every drained source icon plus the target (apply only, like the
+    // unit-option pulse; undo shows the stat count-down instead).
+    void PulseConvert(int[] moved, StatType to)
+    {
+        foreach (var icon in FindObjectsByType<PlayerIcon>())
+        {
+            for (int i = 0; i < moved.Length; i++)
+                if (moved[i] > 0) icon.AnimateStat(ConvertRules.ActionStats[i]);
+            icon.AnimateStat(to);
         }
     }
     public void AttackChoice(Card card)
