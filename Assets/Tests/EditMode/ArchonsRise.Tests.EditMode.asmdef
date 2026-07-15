@@ -13,7 +13,9 @@
         "ArchonsRise.Places",
         "ArchonsRise.Rewards",
         "ArchonsRise.SaveData",
-        "ArchonsRise.UnitPlay"
+        "ArchonsRise.UnitPlay",
+        "ArchonsRise.UiLanguage",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],

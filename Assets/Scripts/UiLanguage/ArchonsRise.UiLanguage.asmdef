@@ -1,0 +1,12 @@
+{
+    "name": "ArchonsRise.UiLanguage",
+    "rootNamespace": "",
+    "references": ["ArchonsRise.Enums"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "precompiledReferences": [],
+    "overrideReferences": false
+}
