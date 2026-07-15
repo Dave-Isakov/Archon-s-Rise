@@ -6,14 +6,18 @@ public class CrystalButton : TownButtons
 {
     private void Update() {
         if (_town is not null)
+        {
             if(currentPlayerInfluence < _town.townSO.resourceLevel)
                 thisButton.interactable = false;
+            SyncLock();
+        }
     }
     public override void UpdateButtonText()
     {
         if (_town is null) return;
 
-        buttonText.text = "Crystal " + _town.townSO.resourceLevel.ToString();
+        buttonText.text =
+            $"{IconMarkup.Tag(IconConcept.Crystal)} Crystal — {IconMarkup.Cost(IconConcept.Influence, _town.townSO.resourceLevel)}";
         bool allowed = PlaceRules.AllowedServices(_town.townSO.placeType).HasFlag(PlaceService.Crystal);
         bool open = ConquestTracker.Instance.IsConquered(_town.gridPos);
         if (allowed && open)
@@ -30,6 +34,7 @@ public class CrystalButton : TownButtons
         {
             thisButton.gameObject.SetActive(false);
         }
+        SyncLock();
     }
 
     // Fired when the player selects one of the pop-out crystals. Deducting here (rather than

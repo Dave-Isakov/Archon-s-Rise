@@ -6,14 +6,18 @@ public class HealButton : TownButtons
 {
     private void Update() {
         if (_town is not null)
+        {
             if(currentPlayerInfluence < _town.townSO.healLevel)
                 thisButton.interactable = false;
+            SyncLock();
+        }
     }
     public override void UpdateButtonText()
     {
         if (_town is not null)
         {
-            buttonText.text = "Heal " + _town.townSO.healLevel.ToString();
+            buttonText.text =
+                $"{IconMarkup.Tag(IconConcept.Heal)} Heal — {IconMarkup.Cost(IconConcept.Influence, _town.townSO.healLevel)}";
             bool allowed = PlaceRules.AllowedServices(_town.townSO.placeType).HasFlag(PlaceService.Heal);
             bool open = ConquestTracker.Instance.IsConquered(_town.gridPos);
             if (allowed && open)
@@ -33,6 +37,7 @@ public class HealButton : TownButtons
             {
                 thisButton.gameObject.SetActive(false);
             }
+            SyncLock();
         }
     }
 }

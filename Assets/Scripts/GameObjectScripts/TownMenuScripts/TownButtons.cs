@@ -11,6 +11,12 @@ public abstract class TownButtons : MonoBehaviour
     [SerializeField] protected TextMeshProUGUI buttonText;
     [SerializeField] protected int currentPlayerInfluence;
 
+    // The one locked/unaffordable look (UiLock, alpha 0.4). Wired per button in
+    // the editor; null-safe so unwired buttons keep their current appearance.
+    [SerializeField] protected CanvasGroup lockGroup;
+
+    protected void SyncLock() => UiLock.Apply(lockGroup, !thisButton.interactable);
+
     protected void Awake()
     {
         

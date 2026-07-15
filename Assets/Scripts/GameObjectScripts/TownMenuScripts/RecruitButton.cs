@@ -12,14 +12,17 @@ public class RecruitButton : TownButtons
     private void Update()
     {
         if (_town is not null)
+        {
             thisButton.interactable = AnyAffordable();
+            SyncLock();
+        }
     }
 
     public override void UpdateButtonText()
     {
         if (_town is not null)
         {
-            buttonText.text = "Recruit";
+            buttonText.text = $"{IconMarkup.Tag(IconConcept.Army)} Recruit";
             bool allowed = PlaceRules.AllowedServices(_town.townSO.placeType).HasFlag(PlaceService.Recruit);
             bool open = ConquestTracker.Instance.IsConquered(_town.gridPos);
             if (allowed && open)
@@ -33,6 +36,7 @@ public class RecruitButton : TownButtons
             {
                 thisButton.gameObject.SetActive(false);
             }
+            SyncLock();
         }
     }
 }
