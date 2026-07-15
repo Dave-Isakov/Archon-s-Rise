@@ -78,6 +78,9 @@ MonoBehaviour:
       doom: 0
       roundsSinceSpawn: 0
       spawnedEnemies: []
+      dungeons: []
+      dungeonMidFlagsFired: 0
+      dungeonHighFlagsFired: 0
   savePath: 
   allCards:
   - {fileID: 11400000, guid: fc9bc6d5c1c1493680a53217db38434e, type: 2}
@@ -103,6 +106,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 68828276266644389eef08104cf626ff, type: 2}
   - {fileID: 11400000, guid: abde18bcea62c94438fe53fddbc97f57, type: 2}
   - {fileID: 11400000, guid: b12ead6b89a9d744598192c3828d2900, type: 2}
+  - {fileID: 11400000, guid: 291db57f64c66dc4db48aa611a5b0326, type: 2}
   - {fileID: 11400000, guid: cd1247f5ec0e04d4bb9e7cbc84bfcd5a, type: 2}
   - {fileID: 11400000, guid: 9e2e8678ea3b457b804115ef8dd6afd5, type: 2}
   - {fileID: 11400000, guid: b2dc06c4392945eb9ffb847f5af46af7, type: 2}

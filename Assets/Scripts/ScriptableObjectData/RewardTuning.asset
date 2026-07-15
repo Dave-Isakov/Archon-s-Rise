@@ -53,6 +53,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9e2e8678ea3b457b804115ef8dd6afd5, type: 2}
   - {fileID: 11400000, guid: 0f162ca090caa35488a1e97a7071491b, type: 2}
   - {fileID: 11400000, guid: 8dcef2da0e6b45bcadc2364527ae7000, type: 2}
+  - {fileID: 11400000, guid: 291db57f64c66dc4db48aa611a5b0326, type: 2}
   tier3Cards:
   - {fileID: 11400000, guid: 6a0030b41a885b2419098c937175ae8d, type: 2}
   - {fileID: 11400000, guid: 504ab97706ed35f4393a0154b5ca946e, type: 2}

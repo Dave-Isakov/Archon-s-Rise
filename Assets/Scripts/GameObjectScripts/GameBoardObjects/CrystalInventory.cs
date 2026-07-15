@@ -162,17 +162,21 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
     }
 
     /// <summary>
-    /// Returns one count per EmpowerType enum value (in enum declaration order).
+    /// Returns one count per EmpowerType enum value (in enum declaration order),
+    /// plus a trailing slot for wild ("All") crystals.
     /// EmpowerType is a [Flags] enum with non-contiguous values (None=0,Red=1,Yellow=2,Green=4,Purple=8),
     /// so we use Array.IndexOf rather than a raw (int) cast to map color to index.
+    /// Wild crystals carry color == -1 (all flags), which is not an enum value and so
+    /// has no color bucket; they are counted separately by isAll into the trailing slot.
     /// </summary>
     public int[] GetCounts()
     {
         var values = Enum.GetValues(typeof(EmpowerType));
-        var counts = new int[values.Length];
+        var counts = new int[values.Length + 1]; // +1: trailing wild-crystal slot
         foreach (var crystal in crystalsInInventory)
         {
             if (crystal == null) continue;
+            if (crystal.isAll) { counts[values.Length]++; continue; }
             int idx = Array.IndexOf(values, crystal.color);
             if (idx >= 0) counts[idx]++;
         }
@@ -190,6 +194,13 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
         for (int i = 0; i < counts.Length && i < values.Length; i++)
             for (int n = 0; n < counts[i]; n++)
                 CreateCrystal((EmpowerType)values.GetValue(i));
+
+        // Trailing wild slot: present in saves written after this fix; older saves
+        // have no such slot and are simply skipped. -1 (all flags) hits CreateCrystal's
+        // default case, which instantiates the WildCrystal prefab (color -1, isAll).
+        if (counts.Length > values.Length)
+            for (int n = 0; n < counts[values.Length]; n++)
+                CreateCrystal((EmpowerType)(-1));
     }
 
     public void Crystallize(Card card)
