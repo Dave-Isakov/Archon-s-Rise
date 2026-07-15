@@ -15,12 +15,12 @@ public class EnemyPreviewEntry : MonoBehaviour
     public void Populate(EnemyPreviewData data)
     {
         enemyName.text = data.enemy.cardName;
-        enemyAttack.text = "<sprite=\"Sword\" index=0> \n" + (data.enemy.enemyAttack + data.bonusAttack).ToString();
-        enemyHP.text = "<sprite=\"shield\" index=0> \n" + (data.enemy.enemyHP + data.bonusHP).ToString();
+        enemyAttack.text = IconMarkup.Tag(IconConcept.Attack) + " \n" + (data.enemy.enemyAttack + data.bonusAttack).ToString();
+        enemyHP.text = IconMarkup.Tag(IconConcept.Hp) + " \n" + (data.enemy.enemyHP + data.bonusHP).ToString();
         if (data.enemy.canInfluence)
         {
             enemyInfluence.gameObject.SetActive(true);
-            enemyInfluence.text = "<sprite=\"gem\" index=0> \n" + data.enemy.influenceCost.ToString();
+            enemyInfluence.text = IconMarkup.Tag(IconConcept.Influence) + " \n" + data.enemy.influenceCost.ToString();
         }
         else
         {

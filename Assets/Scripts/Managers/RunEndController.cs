@@ -64,8 +64,8 @@ public class RunEndController : MonoBehaviour
         var player = FindAnyObjectByType<Player>();
         statsText.text =
             $"Rounds survived: {GameManager.Instance.Round}\n" +
-            $"Castles conquered: {ConquestTracker.Instance.ConqueredCastleCount()}\n" +
-            $"Level reached: {(player != null ? player.PlayerLevel : 0)}";
+            $"{IconMarkup.Tag(IconConcept.Castle)} Castles conquered: {ConquestTracker.Instance.ConqueredCastleCount()}\n" +
+            $"{IconMarkup.Tag(IconConcept.Experience)} Level reached: {(player != null ? player.PlayerLevel : 0)}";
 
         // The run-end screen owns the display: shut every other canvas so nothing
         // (a lingering retreat message, an open combat/town panel) renders over it

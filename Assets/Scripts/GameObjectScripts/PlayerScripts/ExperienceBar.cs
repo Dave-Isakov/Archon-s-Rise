@@ -12,7 +12,7 @@ public class ExperienceBar : MonoBehaviour
 
     void Update()
     {
-        experienceText.text = player.PlayerExp + "/" + player.ExpToNextLevel;
+        experienceText.text = $"{IconMarkup.Tag(IconConcept.Experience)} {player.PlayerExp}/{player.ExpToNextLevel}";
         experienceBar.maxValue = player.ExpToNextLevel;
         experienceBar.value = player.PlayerExp;
     }

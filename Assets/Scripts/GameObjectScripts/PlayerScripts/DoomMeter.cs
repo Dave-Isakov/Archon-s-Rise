@@ -13,7 +13,7 @@ public class DoomMeter : MonoBehaviour
     public void OnDoomChanged(int doom)
     {
         int max = tuning.tuning.doomMax;
-        label.text = $"{doom}/{max}";
+        label.text = $"{IconMarkup.Tag(IconConcept.Doom)} {doom}/{max}";
         fill.fillAmount = max > 0 ? (float)doom / max : 0f;
     }
 }

@@ -34,8 +34,8 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
     void Start() 
     {
         enemyName.text = enemySO.cardName;
-        enemyAttack.text = "<sprite=\"Sword\" index=0> \n" + EffectiveAttack.ToString();
-        enemyHP.text = "<sprite=\"shield\" index=0> \n" + EffectiveHP.ToString();
+        enemyAttack.text = IconMarkup.Tag(IconConcept.Attack) + " \n" + EffectiveAttack.ToString();
+        enemyHP.text = IconMarkup.Tag(IconConcept.Hp) + " \n" + EffectiveHP.ToString();
         var player = FindAnyObjectByType<Player>();
         if (enemySO.canInfluence)
         {
