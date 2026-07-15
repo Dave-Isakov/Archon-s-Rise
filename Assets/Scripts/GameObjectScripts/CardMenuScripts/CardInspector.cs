@@ -110,8 +110,8 @@ public class CardInspector : MonoBehaviour
             if (crystal == null)
             {
                 string need = Card.cardSO.empowerType.IsAllColors()
-                    ? "any crystal"
-                    : $"a {Card.cardSO.empowerType} or wild crystal";
+                    ? $"any crystal {IconMarkup.CrystalTag(EmpowerType.None)}"
+                    : $"a {Card.cardSO.empowerType} {IconMarkup.CrystalTag(Card.cardSO.empowerType)} or wild crystal";
                 GameManager.Instance.ValidationMessage($"You need {need} to empower this card.");
                 Raise();
                 return;

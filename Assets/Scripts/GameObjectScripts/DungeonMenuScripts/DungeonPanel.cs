@@ -69,6 +69,9 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
         }
         player.PlayerExplore -= cost;
         player.GetCurrentExplore();
+        // Delving is a firm decision: commit all pending plays so the explore
+        // that paid for it can't be undone into a negative total.
+        GameManager.Instance.commands.ClearStack();
 
         var token = current;
         Close();
@@ -85,11 +88,11 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
         nameText.text = so.cardName;
         descriptionText.text = so.cardDescription;
         progressText.text = complete ? "Cleared!" : $"Depth {cleared + 1} of {DungeonRules.DelveCount}";
-        flaggedText.text = "Corrupted — +1 Doom each round until cleared";
+        flaggedText.text = $"Corrupted — +{IconMarkup.Cost(IconConcept.Doom, 1)} each round until cleared";
         flaggedText.gameObject.SetActive(!complete && tracker.IsFlagged(current.gridPos));
 
         delveButton.gameObject.SetActive(!complete);
-        delveButtonText.text = $"Delve ({so.exploreCost} Explore)";
+        delveButtonText.text = $"Delve — {IconMarkup.Cost(IconConcept.Explore, so.exploreCost)}";
         var player = FindAnyObjectByType<Player>();
         UpdateDelveInteractable(player != null ? player.PlayerExplore : 0);
 
@@ -110,7 +113,7 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
     {
         var next = so.enemies[cleared];
         previewText.text = PreviewRules.CanPreview()
-            ? $"Next: {next.cardName}   <sprite=\"Sword\" index=0> {next.enemyAttack}   <sprite=\"shield\" index=0> {next.enemyHP}"
+            ? $"Next: {next.cardName}   {IconMarkup.Cost(IconConcept.Attack, next.enemyAttack)}   {IconMarkup.Cost(IconConcept.Hp, next.enemyHP)}"
             : "You cannot see the enemy you are about to confront.";
     }
 }

@@ -46,8 +46,9 @@ public class RecruitPanel : MonoBehaviour
             var go = Instantiate(entryButtonPrefab, entryContainer);
             string summary = string.Join(" / ", unit.options.Select(UnitOptionText.Describe));
             go.GetComponentInChildren<TextMeshProUGUI>().text =
-                $"{unit.cardName} — <sprite=\"gem\" index=0>{unit.influenceCost}\n<size=70%>{summary}</size>";
+                $"{unit.cardName} — {IconMarkup.Cost(IconConcept.Influence, unit.influenceCost)}\n<size=70%>{summary}</size>";
             go.GetComponent<Button>().interactable = player.playerInfluence >= unit.influenceCost;
+            UiLock.Apply(go.GetComponent<CanvasGroup>(), player.playerInfluence < unit.influenceCost);
             var captured = unit;
             go.GetComponent<Button>().onClick.AddListener(() => Pick(captured));
             spawned.Add(go);
