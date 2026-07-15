@@ -20,7 +20,8 @@ public static class LateGameSaveTool
     const int Round           = 10;
     const int UnitCount       = 3;
     const int SkillCount      = 3;
-    const int TotalCards      = 16;   // split into hand (PlayerHandSize) + deck
+    const int MinCards        = 16;   // deck size is randomized in [MinCards, MaxCards],
+    const int MaxCards        = 20;   // split into hand (PlayerHandSize) + deck
     static readonly Vector3Int MapCenter = new Vector3Int(10, 10, 0);
     const int RevealRadius    = 3;    // fog cleared around the placed player
 
@@ -68,10 +69,16 @@ public static class LateGameSaveTool
             .Take(SkillCount).ToList();
         player.RebuildSkills(skills, new HashSet<string>());
 
+        // Random deck size in [MinCards, MaxCards], sampled from the whole non-Wound
+        // pool (shuffled, so cards are unique and the hand/deck split is random too).
+        // Only if the pool is smaller than the target do we pad with random repeats.
         var pool = (dm.allCards ?? new CardsSO[0])
             .Where(c => c != null && c.cardType != StatType.Wound).ToList();
-        var cards = new List<CardsSO>();
-        for (int i = 0; i < TotalCards && pool.Count > 0; i++) cards.Add(pool[i % pool.Count]);
+        int totalCards = Random.Range(MinCards, MaxCards + 1);
+        var shuffled = pool.OrderBy(_ => Random.value).ToList();
+        var cards = shuffled.Take(totalCards).ToList();
+        while (cards.Count < totalCards && pool.Count > 0)
+            cards.Add(pool[Random.Range(0, pool.Count)]);
         int handSize = Mathf.Max(1, player.PlayerHandSize);
         deck.RebuildDeck(cards.Skip(handSize).ToList());
         hand.RebuildHand(cards.Take(handSize).ToList());
