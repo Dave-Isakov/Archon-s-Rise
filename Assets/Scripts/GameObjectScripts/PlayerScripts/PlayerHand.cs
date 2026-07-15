@@ -187,25 +187,15 @@ public class PlayerHand : MonoBehaviour
 
     public void Heal(Card card)
     {
-        if(card.cardSO.cardType == StatType.Heal && card.IsPlayed)
-        {
-            if(!card.IsEmpowered)
-                for(var i = 0; i < card.cardSO.healAmount; i++)
-                    HealWound();
-            else if(card.IsEmpowered)
-                for(var i = 0; i < card.cardSO.empowerHealAmount; i++)
-                    HealWound();
-        }
+        var count = HealRules.HealCount(card.cardSO.cardType, card.IsEmpowered,
+            card.cardSO.healAmount, card.cardSO.empowerHealAmount);
 
-        else if(card.cardSO.cardType == StatType.Heal && !card.IsPlayed)
-        {
-            if(!card.IsEmpowered)
-                for(var i = 0; i < card.cardSO.healAmount; i++)
-                    RestoreHealedWound();
-            else if(card.IsEmpowered)
-                for(var i = 0; i < card.cardSO.empowerHealAmount; i++)
-                    RestoreHealedWound();                    
-        }
+        if(card.IsPlayed)
+            for(var i = 0; i < count; i++)
+                HealWound();
+        else
+            for(var i = 0; i < count; i++)
+                RestoreHealedWound();
     }
 
     public void TownHeal(TownToken town)
