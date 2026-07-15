@@ -11,4 +11,8 @@ public enum SkillEffect
     // Passive gate (Charismatic): no activatable effect; queried by
     // Player.HasCharismatic to allow recruiting influenced enemies. Appended.
     RecruitEnemies,
+    // Converts banked action pools 1:1 (SkillsSO.convertFrom -> convertTo).
+    ConvertStat,
+    // Opens the refresh picker with `magnitude` as the budget.
+    RefreshUnits,
 }

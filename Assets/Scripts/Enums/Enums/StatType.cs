@@ -11,5 +11,8 @@ public enum StatType
     Heal = 16,
     Wound = 32,
     Crystal = 64,
-    Siege = 128
+    Siege = 128,
+    // Immediate effect flag (like Heal/Crystal, not a per-turn pool): the card
+    // readies spent units via the refresh picker (spec 2026-07-14).
+    Refresh = 256
 }

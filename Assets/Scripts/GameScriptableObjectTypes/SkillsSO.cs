@@ -11,4 +11,7 @@ public class SkillsSO : AllCards
     // Only meaningful for SkillEffect.GainCrystal.
     public EmpowerType crystalColor;
     public SkillCadence cadence;
+    // Only meaningful for SkillEffect.ConvertStat (spec 2026-07-14).
+    public StatType convertFrom;
+    public StatType convertTo;
 }

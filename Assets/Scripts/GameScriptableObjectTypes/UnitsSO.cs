@@ -12,4 +12,12 @@ public class UnitsSO : AllCards
     public Sprite sprite;
     public Color color;
     public char unitLetter;
+
+    void OnValidate()
+    {
+        if (options == null) return;
+        foreach (var o in options)
+            if (o != null && o.crystalCost != EmpowerType.None && o.influenceCost > 0)
+                Debug.LogWarning($"{name}: an option may cost a crystal OR influence, not both.", this);
+    }
 }

@@ -24,6 +24,13 @@ public class CardsSO : AllCards
     public StatType cardType;
     public EmpowerType empowerType;
     public bool isChoice;
+    [Header("Conversion (spec 2026-07-14)")]
+    public StatType convertTo;          // None = this card has no conversion
+    public StatType convertFrom;        // action flags only; never contains convertTo
+    public bool convertRequiresEmpower; // true = conversion only offered on the empowered play
+    [Header("Refresh (spec 2026-07-14)")]
+    public int refresh;
+    public int empowerRefresh;
 
     ///<summary> Returns 5 stat values: attack[0], defend[1], influence[2], explore[3], siege[4]. </summary>
     public int[] GetCardStats(bool isEmpowered)
@@ -75,5 +82,27 @@ public class CardsSO : AllCards
             else return siege;
         else
         return 0;
+    }
+
+    public int ReturnRefresh(bool isEmpowered)
+    {
+        if (cardType.HasFlag(StatType.Refresh))
+            if (isEmpowered) return empowerRefresh;
+            else return refresh;
+        else
+        return 0;
+    }
+
+    void OnValidate()
+    {
+        if (convertTo != StatType.None)
+        {
+            if (isChoice)
+                Debug.LogWarning($"{name}: a card cannot be both isChoice and a converter.", this);
+            if (!ConvertRules.IsValid(convertFrom, convertTo))
+                Debug.LogWarning($"{name}: conversion must target one action stat, draw from action stats, and never include the target in its sources.", this);
+        }
+        if ((refresh > 0 || empowerRefresh > 0) && !cardType.HasFlag(StatType.Refresh))
+            Debug.LogWarning($"{name}: refresh values need the Refresh flag on cardType.", this);
     }
 }
