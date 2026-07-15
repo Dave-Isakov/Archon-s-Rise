@@ -26,6 +26,8 @@ public class UnitUseBar : MonoBehaviour
         useButton.interactable = sel.CanUse;
         useLabel.text = sel.CanUse
             ? $"USE · {sel.Describe(sel.SelectedIndex)}"
-            : (sel.SelectedIndex >= 0 ? "Needs a crystal" : "No options");
+            : (sel.SelectedIndex >= 0
+                ? (sel.Selected != null && sel.Selected.influenceCost > 0 ? "Needs influence" : "Needs a crystal")
+                : "No options");
     }
 }

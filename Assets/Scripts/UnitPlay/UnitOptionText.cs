@@ -8,6 +8,7 @@ public static class UnitOptionText
             ? $"Crystallize: {o.amount} {o.grantColor}"
             : $"{o.effect} {o.amount}";
 
+        if (o.influenceCost > 0) return $"{body} — {o.influenceCost} Influence";
         if (o.crystalCost == EmpowerType.None) return body;
         string cost = o.crystalCost.IsAllColors() ? "1 crystal (any color)" : $"1 {o.crystalCost} crystal";
         return $"{body} — {cost}";

@@ -23,11 +23,16 @@ public class UnitInspector : MonoBehaviour
     {
         Unit = unit;
         var inv = FindAnyObjectByType<CrystalInventory>();
+        var player = FindAnyObjectByType<Player>();
         var options = unit.unitSO.options;
         var affordable = new bool[options.Count];
         for (int i = 0; i < options.Count; i++)
-            affordable[i] = inv == null ? options[i].crystalCost == EmpowerType.None
-                                        : inv.CanPay(options[i].crystalCost);
+        {
+            bool crystalOk = inv == null ? options[i].crystalCost == EmpowerType.None
+                                         : inv.CanPay(options[i].crystalCost);
+            bool influenceOk = player == null || player.PlayerInfluence >= options[i].influenceCost;
+            affordable[i] = crystalOk && influenceOk;
+        }
 
         Selection = new UnitPlaySelection(options, affordable);
         GameManager.Instance.unitCanvas.enabled = true;

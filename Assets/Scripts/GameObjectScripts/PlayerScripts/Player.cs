@@ -474,6 +474,10 @@ public class Player : MonoBehaviour
     // applies the option's effect and the exhaust state.
     public void ApplyUnitOption(Unit unit, UnitOption option)
     {
+        // Influence-costed option (spec 2026-07-14): an in-turn tactical spend,
+        // so it stays undoable — never Player.Influence(), which clears the
+        // stack for permanent purchases.
+        if (option.influenceCost > 0) { playerInfluence -= option.influenceCost; GetCurrentInfluence(); }
         switch (option.effect)
         {
             case UnitEffect.Attack:    playerAttack    += option.amount; break;
@@ -522,6 +526,7 @@ public class Player : MonoBehaviour
 
     public void RevertUnitOption(Unit unit, UnitOption option)
     {
+        if (option.influenceCost > 0) { playerInfluence += option.influenceCost; GetCurrentInfluence(); }
         switch (option.effect)
         {
             case UnitEffect.Attack:    playerAttack    -= option.amount; break;
