@@ -165,9 +165,11 @@ public class Player : MonoBehaviour
             EmpowerCrystalCheck(card);
             onPlay_TriggerAdditionalEffects.Raise(card);
             ApplyCardConversion(card);
+            BeginCardRefresh(card);
         }
         else if(card.IsPlayed)
         {
+            RevertCardRefresh(card);
             RevertCardConversion(card);
             UnAssignPlayerStats(card.cardSO.GetCardStats(card.IsEmpowered));
             UndoEmpower(card);
@@ -427,11 +429,44 @@ public class Player : MonoBehaviour
         foreach (var unit in FindObjectsByType<Unit>())
         {
             if (unit.IsPlayed)
-            {
-                unit.transform.Rotate(0, 0, 90);
-                unit.IsPlayed = false;
-            }
+                ReadyUnit(unit);
         }
+    }
+
+    // The one rotate/IsPlayed pair, shared by round refresh, unit options, and
+    // the refresh picker so exhaust visuals can never drift apart.
+    void ReadyUnit(Unit unit)   { unit.transform.Rotate(0, 0, 90);  unit.IsPlayed = false; }
+    void ExhaustUnit(Unit unit) { unit.transform.Rotate(0, 0, -90); unit.IsPlayed = true; }
+
+    bool AnyRefreshable(int budget)
+    {
+        foreach (var unit in FindObjectsByType<Unit>())
+            if (RefreshRules.CanPick(unit.IsPlayed, unit.unitSO.influenceCost, budget)) return true;
+        return false;
+    }
+
+    // Refresh rider (spec 2026-07-14): open the picker with the play's budget.
+    // Picks ready units immediately and are recorded on the card so a later
+    // undo of this play re-exhausts exactly those units. Fizzles (no picker)
+    // when nothing affordable is spent at play time.
+    void BeginCardRefresh(Card card)
+    {
+        card.RefreshedUnits.Clear();
+        int budget = card.cardSO.ReturnRefresh(card.IsEmpowered);
+        if (budget <= 0 || !AnyRefreshable(budget)) return;
+        var panel = FindAnyObjectByType<UnitPickerPanel>();
+        if (panel == null) return;
+        panel.OpenForRefresh(budget, unit =>
+        {
+            ReadyUnit(unit);
+            card.RefreshedUnits.Add(unit);
+        });
+    }
+
+    void RevertCardRefresh(Card card)
+    {
+        foreach (var unit in card.RefreshedUnits) ExhaustUnit(unit);
+        card.RefreshedUnits.Clear();
     }
 
     // Applies ONE authored option (spec 2026-07-09). Crystal cost consumption
@@ -460,8 +495,7 @@ public class Player : MonoBehaviour
             }
         }
         PulseStatIcon(option.effect);
-        unit.transform.Rotate(0, 0, -90);
-        unit.IsPlayed = true;
+        ExhaustUnit(unit);
     }
 
     // Unit options apply a single effect through the pop-out (no Card), so pulse
@@ -508,8 +542,7 @@ public class Player : MonoBehaviour
                 break;
             }
         }
-        unit.transform.Rotate(0, 0, 90);
-        unit.IsPlayed = false;
+        ReadyUnit(unit);
     }
 
     // SkillEvent listener target. Toggles like PlayUnit: the same event fires on
@@ -518,17 +551,17 @@ public class Player : MonoBehaviour
     {
         if (!token.IsUsed)
         {
-            ApplySkillEffect(token.skillSO, +1);
+            ApplySkillEffect(token.skillSO, +1, token);
             token.SetUsed(true);
         }
         else
         {
-            ApplySkillEffect(token.skillSO, -1);
+            ApplySkillEffect(token.skillSO, -1, token);
             token.SetUsed(false);
         }
     }
 
-    private void ApplySkillEffect(SkillsSO skill, int sign)
+    private void ApplySkillEffect(SkillsSO skill, int sign, SkillToken token)
     {
         switch (skill.effect)
         {
@@ -553,6 +586,41 @@ public class Player : MonoBehaviour
                 {
                     if (sign > 0) hand.HealWound();
                     else          hand.RestoreHealedWound();
+                }
+                break;
+            }
+            case SkillEffect.ConvertStat:
+            {
+                if (sign > 0)
+                {
+                    int[] pools = { playerAttack, playerDefend, playerInfluence, playerExplore };
+                    token.ConvertMoved = ConvertRules.Moved(pools, skill.convertFrom, skill.convertTo);
+                    ShiftPools(token.ConvertMoved, skill.convertTo, +1);
+                    PulseConvert(token.ConvertMoved, skill.convertTo);
+                }
+                else if (token.ConvertMoved != null)
+                {
+                    ShiftPools(token.ConvertMoved, skill.convertTo, -1);
+                    token.ConvertMoved = null;
+                }
+                break;
+            }
+            case SkillEffect.RefreshUnits:
+            {
+                if (sign > 0)
+                {
+                    token.RefreshedUnits.Clear();
+                    if (AnyRefreshable(skill.magnitude))
+                        FindAnyObjectByType<UnitPickerPanel>()?.OpenForRefresh(skill.magnitude, unit =>
+                        {
+                            ReadyUnit(unit);
+                            token.RefreshedUnits.Add(unit);
+                        });
+                }
+                else
+                {
+                    foreach (var unit in token.RefreshedUnits) ExhaustUnit(unit);
+                    token.RefreshedUnits.Clear();
                 }
                 break;
             }

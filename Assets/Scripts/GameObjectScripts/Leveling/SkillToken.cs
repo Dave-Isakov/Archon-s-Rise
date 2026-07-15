@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,6 +12,11 @@ public class SkillToken : MonoBehaviour, IPointerClickHandler
     [SerializeField] TextMeshProUGUI label;
     [SerializeField] SkillEvent onClick_PerformSkillAction;
     public SkillsSO skillSO;
+    // Per-activation conversion snapshot (spec 2026-07-14): the sign-flip undo
+    // pattern can't reverse a conversion, so the applied amounts live here.
+    [System.NonSerialized] public int[] ConvertMoved;
+    // Units this activation readied (spec 2026-07-14) so undo re-exhausts exactly them.
+    public readonly List<Unit> RefreshedUnits = new();
     public bool IsUsed { get; private set; }
 
     public void Bind(SkillsSO so)
