@@ -157,4 +157,70 @@ public class CardPlaySelectionTests
         Assert.AreEqual(new[] { 0, 1, 0, 0 }, s.PreviewStats(false));
         Assert.AreEqual(new[] { 0, 1, 0, 0 }, s.PreviewStats(true)); // flat +1 regardless
     }
+
+    static CardSnapshot Converter(bool requiresEmpower)
+    {
+        // Defend 3 / empower Defend 5, Convert all Defend -> Attack (Shield Bash shape)
+        return new CardSnapshot(StatType.Defend, EmpowerType.Red, false,
+            0, 3, 0, 0,
+            0, 5, 0, 0,
+            StatType.Attack, StatType.Defend, requiresEmpower);
+    }
+
+    [Test]
+    public void Convert_DefaultsOff()
+    {
+        var sel = new CardPlaySelection(Converter(false));
+        Assert.IsFalse(sel.ConvertOn);
+        Assert.IsTrue(sel.HasConversion);
+        Assert.IsTrue(sel.CanConvert());
+        Assert.IsFalse(sel.EffectiveConvert());
+    }
+
+    [Test]
+    public void Convert_OptInArms()
+    {
+        var sel = new CardPlaySelection(Converter(false));
+        sel.SetConvert(true);
+        Assert.IsTrue(sel.EffectiveConvert());
+    }
+
+    [Test]
+    public void Convert_NoConversionCardCannotConvert()
+    {
+        var sel = new CardPlaySelection(new CardSnapshot(
+            StatType.Defend, EmpowerType.None, false, 0, 3, 0, 0, 0, 5, 0, 0));
+        Assert.IsFalse(sel.HasConversion);
+        sel.SetConvert(true);
+        Assert.IsFalse(sel.EffectiveConvert());
+    }
+
+    [Test]
+    public void Convert_LockedWhileImprovising()
+    {
+        var sel = new CardPlaySelection(Converter(false));
+        sel.SetConvert(true);
+        sel.SetImproviseStat(StatType.Attack);
+        Assert.IsFalse(sel.CanConvert());
+        Assert.IsFalse(sel.EffectiveConvert());
+    }
+
+    [Test]
+    public void Convert_RequiresEmpowerGatesUntilEmpowered()
+    {
+        var sel = new CardPlaySelection(Converter(true));
+        sel.SetConvert(true);
+        Assert.IsFalse(sel.CanConvert());
+        sel.SetEmpowered(true);
+        Assert.IsTrue(sel.CanConvert());
+        Assert.IsTrue(sel.EffectiveConvert());
+    }
+
+    [Test]
+    public void IsPlayable_RefreshOnlyCardIsPlayable()
+    {
+        var sel = new CardPlaySelection(new CardSnapshot(
+            StatType.Refresh, EmpowerType.Green, false, 0, 0, 0, 0, 0, 0, 0, 0));
+        Assert.IsTrue(sel.IsPlayable());
+    }
 }

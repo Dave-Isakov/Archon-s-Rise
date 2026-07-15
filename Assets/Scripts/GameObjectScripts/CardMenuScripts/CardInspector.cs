@@ -96,6 +96,7 @@ public class CardInspector : MonoBehaviour
     public void SetMode(PlayMode mode)      { Selection?.SetMode(mode); Raise(); }
     public void ChooseStat(StatType stat)   { Selection?.SetChoiceStat(stat); Raise(); }
     public void ImproviseStat(StatType s)   { Selection?.SetImproviseStat(s); Raise(); }
+    public void SetConvert(bool value)      { Selection?.SetConvert(value); Raise(); }
 
     public void SetEmpowered(bool value)
     {
@@ -136,6 +137,9 @@ public class CardInspector : MonoBehaviour
     {
         if (Selection == null || !Selection.IsPlayable()) return;
         Card.IsEmpowered = Selection.EffectiveEmpowered();
+        // Always assigned — true or false — so a card replayed later can never
+        // carry a stale opt-in (spec 2026-07-14).
+        Card.ConvertOn = Selection.EffectiveConvert();
         var evt = EventFor(Selection);
         if (evt == null) return;
 
@@ -187,7 +191,8 @@ public class CardInspector : MonoBehaviour
     static CardSnapshot Snapshot(CardsSO so) =>
         new CardSnapshot(so.cardType, so.empowerType, so.isChoice,
             so.attack, so.defend, so.influence, so.explore,
-            so.empowerAttack, so.empowerDefend, so.empowerInfluence, so.empowerExplore);
+            so.empowerAttack, so.empowerDefend, so.empowerInfluence, so.empowerExplore,
+            so.convertTo, so.convertFrom, so.convertRequiresEmpower);
 
     void Raise() => Changed?.Invoke();
 }

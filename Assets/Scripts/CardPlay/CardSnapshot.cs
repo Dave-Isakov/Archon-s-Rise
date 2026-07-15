@@ -5,10 +5,15 @@ public readonly struct CardSnapshot
     public readonly bool IsChoice;
     public readonly int Attack, Defend, Influence, Explore;
     public readonly int EmpowerAttack, EmpowerDefend, EmpowerInfluence, EmpowerExplore;
+    public readonly StatType ConvertTo;             // None = no conversion
+    public readonly StatType ConvertFrom;
+    public readonly bool ConvertRequiresEmpower;
 
     public CardSnapshot(StatType cardType, EmpowerType empowerType, bool isChoice,
         int attack, int defend, int influence, int explore,
-        int empowerAttack, int empowerDefend, int empowerInfluence, int empowerExplore)
+        int empowerAttack, int empowerDefend, int empowerInfluence, int empowerExplore,
+        StatType convertTo = StatType.None, StatType convertFrom = StatType.None,
+        bool convertRequiresEmpower = false)
     {
         CardType = cardType;
         EmpowerType = empowerType;
@@ -16,6 +21,9 @@ public readonly struct CardSnapshot
         Attack = attack; Defend = defend; Influence = influence; Explore = explore;
         EmpowerAttack = empowerAttack; EmpowerDefend = empowerDefend;
         EmpowerInfluence = empowerInfluence; EmpowerExplore = empowerExplore;
+        ConvertTo = convertTo;
+        ConvertFrom = convertFrom;
+        ConvertRequiresEmpower = convertRequiresEmpower;
     }
 
     public int BaseOf(StatType single)

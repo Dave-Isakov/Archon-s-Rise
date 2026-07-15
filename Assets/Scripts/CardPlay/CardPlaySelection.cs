@@ -12,6 +12,7 @@ public class CardPlaySelection
     public StatType ChoiceStat { get; private set; }
     public StatType ImproviseStat { get; private set; }
     public bool Empowered { get; private set; }
+    public bool ConvertOn { get; private set; }
 
     public CardPlaySelection(CardSnapshot card)
     {
@@ -23,6 +24,7 @@ public class CardPlaySelection
         Mode = card.IsChoice ? PlayMode.Choice : PlayMode.Normal;
         ImproviseStat = StatType.Attack;
         Empowered = false;
+        ConvertOn = false;
     }
 
     public void SetMode(PlayMode mode) => Mode = mode;
@@ -46,6 +48,18 @@ public class CardPlaySelection
 
     public bool EffectiveEmpowered() => Empowered && CanEmpower();
 
+    public void SetConvert(bool value) => ConvertOn = value;
+
+    public bool HasConversion => _card.ConvertTo != StatType.None;
+
+    // Opt-in gate (spec 2026-07-14): never while improvising, and an
+    // empower-gated conversion needs the play to actually be empowered.
+    public bool CanConvert() =>
+        HasConversion && Mode != PlayMode.Improvise
+        && (!_card.ConvertRequiresEmpower || EffectiveEmpowered());
+
+    public bool EffectiveConvert() => ConvertOn && CanConvert();
+
     // Playable if the card produces any usable effect. Action-stat cards, plus
     // Crystal and Heal cards (which carry no action flags and resolve through the
     // Normal play route). Wounds are the only unplayable card.
@@ -54,6 +68,7 @@ public class CardPlaySelection
         if (_card.CardType.HasFlag(StatType.Wound)) return false;
         if (_card.CardType.HasFlag(StatType.Crystal)) return true;
         if (_card.CardType.HasFlag(StatType.Heal)) return true;
+        if (_card.CardType.HasFlag(StatType.Refresh)) return true;
         foreach (var s in ActionStats)
             if (_card.CardType.HasFlag(s)) return true;
         return false;
