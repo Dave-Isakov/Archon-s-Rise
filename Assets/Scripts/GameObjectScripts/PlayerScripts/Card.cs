@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
@@ -18,6 +19,8 @@ public class Card : MonoBehaviour, IPointerClickHandler
     // the per-pool amounts the play actually moved so undo restores exactly.
     [System.NonSerialized] public bool ConvertOn;
     [System.NonSerialized] public int[] ConvertMoved;
+    // Units this play readied (spec 2026-07-14) so undo re-exhausts exactly them.
+    public readonly List<Unit> RefreshedUnits = new();
     private bool isMaximized;
     private Vector2 startPosition;
     public int cardIndex = 0;
