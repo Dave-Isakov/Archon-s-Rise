@@ -54,7 +54,6 @@ public class Player : MonoBehaviour
     [SerializeField] CardEvent onUndo_RegenerateCrystalGameObject;
     [SerializeField] CardEvent onPlay_TriggerAdditionalEffects;
     [SerializeField] PlayerEvent onEnemyDefeat_CheckPlayerDefendForWound;
-    [SerializeField] EnemyCardEvent OnEnemyDefeat_GetRewards;
     [SerializeField] IntEvent onInfluenceEvent_GetCurrentInfluence;
     [SerializeField] IntEvent OnExploreEvent_GetCurrentExplore;
     [SerializeField] EnemyCardEvent onDefeat_WoundPlayer;
@@ -340,7 +339,7 @@ public class Player : MonoBehaviour
         if (wounds > 0)
             GameManager.Instance.ValidationMessage($"{enemy.enemySO.name} has been destroyed! You are wounded {wounds} times!");
 
-        OnEnemyDefeat_GetRewards.Raise(enemy);
+        GameManager.Instance.ResolveDefeat(enemy);
     }
 
     // Influence resolution (spec 2026-07-09): pay the cost to end the fight
@@ -376,7 +375,7 @@ public class Player : MonoBehaviour
             ? $"{enemy.enemySO.cardName} joins your army!"
             : $"{enemy.enemySO.cardName} departs peacefully.");
         Influence(enemy.enemySO.influenceCost); // spend + clear undo stack (standard for influence spends)
-        OnEnemyDefeat_GetRewards.Raise(enemy);  // rewards + the defeat/cleanup chain; no counterattack ran = wound-free
+        GameManager.Instance.ResolveDefeat(enemy);  // rewards + defeat message + teardown; no counterattack ran = wound-free
     }
 
     public void AddUnit(UnitsSO so)

@@ -96,8 +96,7 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
     IEnumerator StartCombat()
     {
         GameManager.Instance.activeCombatant = this;
-        GameManager.Instance.CombatCanvasActive();
-        yield return new WaitUntil(() => GameManager.Instance.combatCanvas.GetComponentInChildren<TextMeshProUGUI>().enabled == false);
+        yield return GameManager.Instance.PlayCombatIntro();
         deck.GetNewEnemyCard(this);
     }
 }

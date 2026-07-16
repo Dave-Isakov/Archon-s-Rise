@@ -17,6 +17,10 @@ public class GameManager : MonoBehaviour
     public Canvas unitCanvas;
     public Canvas combatCanvas;
     public GameObject enemyCardCombatPosition;
+    [SerializeField] Rewards rewards;
+    [SerializeField] TextMeshProUGUI combatBanner; // the "Combat!" intro text
+    [SerializeField] string combatIntroState = "CombatIntro";
+    [SerializeField] float combatIntroDuration = 1.5f;
     // The enemy token whose combat is currently open. Set when combat starts,
     // read by FleeCombat() to de-aggro the right token, cleared on teardown.
     // Non-null ONLY during a real fight, never while merely previewing a token.
@@ -134,7 +138,25 @@ public class GameManager : MonoBehaviour
     {
         combatCanvas.enabled = true;
         combatCanvas.GetComponentInChildren<Animator>().enabled = true;
+        if (combatBanner != null) combatBanner.enabled = false; // no intro flash for guardian/dungeon
         if (fleeButton != null) fleeButton.gameObject.SetActive(true);
+    }
+
+    // Field-combat intro: enable the canvas, replay the authored banner clip from
+    // frame 0 (deterministic — no longer keyed off the banner TMP's enabled flag,
+    // which never reset and made the intro play only once), wait its duration.
+    public IEnumerator PlayCombatIntro()
+    {
+        combatCanvas.enabled = true;
+        var animator = combatCanvas.GetComponentInChildren<Animator>(true);
+        if (combatBanner != null) combatBanner.enabled = true;
+        if (animator != null)
+        {
+            animator.enabled = true;
+            animator.Play(combatIntroState, 0, 0f);
+        }
+        if (fleeButton != null) fleeButton.gameObject.SetActive(true);
+        yield return new WaitForSeconds(combatIntroDuration);
     }
 
     public void CheckCombatants()
@@ -145,6 +167,38 @@ public class GameManager : MonoBehaviour
             combatCanvas.GetComponentInChildren<Animator>().enabled = false;
             EndCombat();
         }
+    }
+
+    // Single defeat orchestrator (spec 2026-07-16). Applies rewards, shows a
+    // reward-naming message, opens the card pick after it, then tears the fight
+    // down — all serialized through RewardQueue so ordering is correct by
+    // construction. Replaces the OnEnemyDefeat_GetRewards fan-out and the old
+    // click-the-defeated-card teardown.
+    public void ResolveDefeat(EnemyCard enemy)
+    {
+        RewardSummary summary = rewards.GetReward(enemy);
+
+        ValidationMessage(DefeatMessage.Compose(
+            enemy.enemySO.cardName, summary.exp, summary.crystal, summary.cardPick));
+
+        if (summary.cardPick)
+            rewards.OfferCardChoice(summary.tier); // self-enqueues, lands after the message
+
+        RewardQueue.Instance.Enqueue(done => StartCoroutine(TeardownDefeat(enemy, done)));
+    }
+
+    // Runs as a coroutine so watcher Updates (GuardianAssault/DungeonDelve/
+    // EnemyToken) react to isDefeated before the close check. CheckCombatants
+    // must see the defeated card STILL present: childCount == 1 means it was the
+    // last enemy (close); a spawned next-guardian makes it 2 (stay open).
+    private IEnumerator TeardownDefeat(EnemyCard enemy, System.Action done)
+    {
+        enemy.isDefeated = true;
+        yield return null; // let watcher Updates spawn any next-guardian card
+        CheckCombatants(); // closes + EndCombat only if the defeated card is the last
+        Destroy(enemy.gameObject);
+        commands.ClearStack();
+        done();
     }
 
     // Clears combat state shared by every way combat can end (win or flee).
