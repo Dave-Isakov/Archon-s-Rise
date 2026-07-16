@@ -19,10 +19,11 @@ MonoBehaviour:
     <sprite="empower" index=0>
 
 
-    <sprite="refresh" index=0> 6
+    <sprite="refresh"
+    index=0> 6
 
-    <sprite="refresh" index=0>
-    = Unit <sprite="gem" index=0>'
+
+    <sprite="refresh" index=0> = Unit <sprite="gem" index=0>'
   attack: 0
   defend: 0
   explore: 0

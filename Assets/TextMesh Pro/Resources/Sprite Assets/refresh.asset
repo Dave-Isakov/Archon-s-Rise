@@ -1,13 +1,13 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!21 &-8761735705911599758
+--- !u!21 &-5098217369181029472
 Material:
   serializedVersion: 8
-  m_ObjectHideFlags: 1
+  m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: TextMeshPro/Sprite
+  m_Name: refresh Material
   m_Shader: {fileID: 4800000, guid: cf81c85f95fe47e1a27f6ae460cf182c, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -24,7 +24,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: a4f6f6238e9dc4541bb5b4690e0ee538, type: 3}
+        m_Texture: {fileID: 2800000, guid: 99587b0e12308c94fbe5d282c2c63663, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
@@ -52,8 +52,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 84a92b25f83d49b9bc132d206b370281, type: 3}
-  m_Name: crystal
-  m_EditorClassIdentifier: 
+  m_Name: refresh
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TMP_SpriteAsset
   m_Version: 1.1.0
   m_FaceInfo:
     m_FaceIndex: 0
@@ -77,30 +77,30 @@ MonoBehaviour:
     m_StrikethroughOffset: 0
     m_StrikethroughThickness: 0
     m_TabWidth: 0
-  m_Material: {fileID: -8761735705911599758}
-  spriteSheet: {fileID: 2800000, guid: a4f6f6238e9dc4541bb5b4690e0ee538, type: 3}
+  m_Material: {fileID: -5098217369181029472}
+  spriteSheet: {fileID: 2800000, guid: 99587b0e12308c94fbe5d282c2c63663, type: 3}
   m_SpriteCharacterTable:
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 0
-    m_Scale: 1.5
-    m_Name: crystal
+    m_Scale: 1
+    m_Name: refresh_0
   m_GlyphTable:
   - m_Index: 0
     m_Metrics:
-      m_Width: 960
-      m_Height: 1104
-      m_HorizontalBearingX: 0
-      m_HorizontalBearingY: 950
-      m_HorizontalAdvance: 960
+      m_Width: 512
+      m_Height: 512
+      m_HorizontalBearingX: -128
+      m_HorizontalBearingY: 450
+      m_HorizontalAdvance: 512
     m_GlyphRect:
       m_X: 0
       m_Y: 0
-      m_Width: 960
-      m_Height: 1104
+      m_Width: 512
+      m_Height: 512
     m_Scale: 1
     m_AtlasIndex: 0
     m_ClassDefinitionType: 0
-    sprite: {fileID: 21300000, guid: a4f6f6238e9dc4541bb5b4690e0ee538, type: 3}
+    sprite: {fileID: -8687029706193621143, guid: 99587b0e12308c94fbe5d282c2c63663, type: 3}
   spriteInfoList: []
   fallbackSpriteAssets: []
