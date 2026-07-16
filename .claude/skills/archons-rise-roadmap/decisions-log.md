@@ -315,3 +315,15 @@ editing an old one.
   doom meter, xp bar, run-end screen. Spec:
   `docs/superpowers/specs/2026-07-15-m2.11-ui-language-iconography-design.md`; plan:
   `docs/superpowers/plans/2026-07-15-m2.11-ui-language-iconography.md`.
+
+- **2026-07-16 — Empower gets its own glyph.**
+  Added `IconConcept.Empower` (TMP name `empower`) to the M2.11 icon language so the literal word
+  "Empower" reads as an icon: the empowered-line header in card/skill descriptions becomes
+  `<sprite="empower" index=0> <stat>: N`, and the ConvertBanner locked-reason label reads
+  `<empower-glyph> to unlock`. Empower is a **modifier** concept — not an action stat — so it is
+  excluded from `IconMarkup.ActionStatOrder`/`TryForStat` and from per-line stat ordering. The
+  CardInspector validation message ("…to empower this card.") was **left as prose**: "empower" there
+  is a verb mid-sentence and a glyph reads as a verb awkwardly. This should have been part of M2.11
+  (a missed concept); shipped as a small follow-on. Spec:
+  `docs/superpowers/specs/2026-07-16-empower-icon-design.md`;
+  plan: `docs/superpowers/plans/2026-07-16-empower-icon.md`.
