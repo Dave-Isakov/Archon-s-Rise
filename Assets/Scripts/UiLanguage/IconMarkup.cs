@@ -31,6 +31,7 @@ public static class IconMarkup
             case IconConcept.Castle:     return "castle";
             case IconConcept.Dungeon:    return "dungeon";
             case IconConcept.Empower:    return "empower";
+            case IconConcept.Refresh:    return "refresh";
             default:                     return "";
         }
     }
@@ -61,8 +62,8 @@ public static class IconMarkup
             : $"<sprite=\"{TmpName(IconConcept.Crystal)}\" index=0 color=#{hex}>";
     }
 
-    // Maps a single StatType flag to its concept. False for None, combined
-    // flags, and Refresh (an effect flag with no icon of its own).
+    // Maps a single StatType flag to its concept. False for None and
+    // combined flags.
     public static bool TryForStat(StatType stat, out IconConcept concept)
     {
         concept = IconConcept.Attack;
@@ -74,6 +75,7 @@ public static class IconMarkup
         if (stat == StatType.Wound)     { concept = IconConcept.Wound;     return true; }
         if (stat == StatType.Crystal)   { concept = IconConcept.Crystal;   return true; }
         if (stat == StatType.Siege)     { concept = IconConcept.Siege;     return true; }
+        if (stat == StatType.Refresh)   { concept = IconConcept.Refresh;   return true; }
         return false;
     }
 }

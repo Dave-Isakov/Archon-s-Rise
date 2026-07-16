@@ -27,6 +27,7 @@ public class IconMarkupTests
         Assert.AreEqual("<sprite=\"castle\" index=0>", IconMarkup.Tag(IconConcept.Castle));
         Assert.AreEqual("<sprite=\"dungeon\" index=0>", IconMarkup.Tag(IconConcept.Dungeon));
         Assert.AreEqual("<sprite=\"empower\" index=0>", IconMarkup.Tag(IconConcept.Empower));
+        Assert.AreEqual("<sprite=\"refresh\" index=0>", IconMarkup.Tag(IconConcept.Refresh));
     }
 
     [Test]
@@ -81,7 +82,8 @@ public class IconMarkupTests
         Assert.AreEqual(IconConcept.Siege, c);
         Assert.IsTrue(IconMarkup.TryForStat(StatType.Wound, out c));
         Assert.AreEqual(IconConcept.Wound, c);
-        Assert.IsFalse(IconMarkup.TryForStat(StatType.Refresh, out c));
+        Assert.IsTrue(IconMarkup.TryForStat(StatType.Refresh, out c));
+        Assert.AreEqual(IconConcept.Refresh, c);
         Assert.IsFalse(IconMarkup.TryForStat(StatType.None, out c));
         Assert.IsFalse(IconMarkup.TryForStat(StatType.Attack | StatType.Defend, out c));
     }

@@ -20,4 +20,5 @@ public enum IconConcept
     Castle,
     Dungeon,
     Empower,
+    Refresh,
 }
