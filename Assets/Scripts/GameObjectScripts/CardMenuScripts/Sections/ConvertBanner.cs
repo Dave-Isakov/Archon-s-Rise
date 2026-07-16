@@ -41,6 +41,6 @@ public class ConvertBanner : MonoBehaviour
         if (!can && lockedReasonText != null)
             lockedReasonText.text = sel.Mode == PlayMode.Improvise
                 ? "Locked while improvising"
-                : "Empower to unlock";
+                : $"{IconMarkup.Tag(IconConcept.Empower)} to unlock";
     }
 }
