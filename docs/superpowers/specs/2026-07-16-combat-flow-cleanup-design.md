@@ -103,14 +103,22 @@ rule). The card modal is opened separately by the orchestrator via the existing
 3. If `summary.cardPick`, call `rewards.OfferCardChoice(summary.tier)` — its modal
    enqueues **after** the message, so the pick appears once the player clears the
    reward text.
-4. Enqueue **teardown** last:
-   - `enemy.isDefeated = true` — existing `EnemyToken.Update` and
-     `DungeonDelve.Update` watchers do their token/dungeon cleanup off this flag
-     (token destroy + defeated-cell recording, dungeon depth recording).
-   - Destroy the enemy card object.
-   - `CheckCombatants()` — closes the canvas only when that was the last enemy,
-     preserving guardian-chain behavior.
-   - `EndCombat()` and `commands.ClearStack()`.
+4. Enqueue **teardown** last, run as a coroutine so watcher `Update`s can react
+   between steps (ordering matters for the guardian chain):
+   - `enemy.isDefeated = true` — existing `EnemyToken.Update`,
+     `DungeonDelve.Update`, and `GuardianAssault.Update` watchers react off this
+     flag (token destroy + defeated-cell recording, dungeon depth recording, and
+     — for an unfinished guardian roster — spawning the *next* guardian card).
+   - `yield return null` — let those `Update`s run, so any next-guardian card is
+     already parented before the close check.
+   - `CheckCombatants()` **while the defeated card is still present** — it closes
+     the canvas only when `enemyCardCombatPosition` holds a single enemy card
+     (the just-defeated one = truly the last). If a next guardian spawned,
+     child count is 2 and the canvas stays open. This preserves the exact
+     `childCount == 1` semantics the current click-to-dismiss path relies on.
+   - Destroy the enemy card object, then `commands.ClearStack()`.
+   - `CheckCombatants()` calls `EndCombat()` on close (clears `activeCombatant`,
+     hides the Flee button).
 
 **Callers.** `Player.ResolveAttack` and `Player.CompleteInfluence` call
 `GameManager.Instance.ResolveDefeat(enemy)` instead of raising
