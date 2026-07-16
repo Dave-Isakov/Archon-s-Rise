@@ -59,10 +59,6 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
     public void DefeatMonster()
     {
         onClick_ValidatePlayerAttackToEnemyHP.Raise(this);
-    //         //ChooseReward();
-    //         //AssignReward();
-    //  isDefeated = true;
-    //         GameManager.Instance.commands.ClearStack();
     }
 
     public void SiegeMonster()
@@ -70,53 +66,15 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
         onClick_SiegeEnemy.Raise(this);
     }
 
-    // public void CheckWounds(Player player)
-    // {
-    //     if (player.PlayerDefend < enemySO.enemyAttack)
-    //     {
-    //         int woundCount = 0;
-    //         for (var i = 0; i < enemySO.enemyAttack-player.PlayerDefend; i += player.PlayerHP)
-    //         {
-    //             onDefeat_WoundPlayer.Raise(this);
-    //             woundCount++;
-    //         }
-    //         GameManager.Instance.ValidationMessage($"{enemySO.name} has been destroyed! You are wounded {woundCount} times!");
-    //     }
-    // }
-
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(isDefeated == true)
-        {
-            Destroy(this.gameObject, 1f * Time.deltaTime);
-            GameManager.Instance.ValidationMessage($"{enemySO.name} has been destroyed!");
-            GameManager.Instance.CheckCombatants();
-        }
-        if(isDefeated == false && !fightButton.interactable)
+        // Out-of-range preview card: a click dismisses the peek (fight buttons are
+        // disabled here). A real defeat now tears itself down via ResolveDefeat.
+        if (!isDefeated && !fightButton.interactable)
         {
             GameManager.Instance.combatCanvas.enabled = false;
             Destroy(this.gameObject);
         }
-    }
-
-    // public void OnPointerEnter(PointerEventData eventData)
-    // {
-    //     this.transform.localScale = new Vector3(2,2,2);
-    //     GetComponent<Canvas>().overrideSorting = true;
-    //     GetComponent<Canvas>().sortingOrder = 50;
-    // }
-
-    // public void OnPointerExit(PointerEventData eventData)
-    // {
-    //     this.transform.localScale = new Vector3(1,1,1);
-    //     GetComponent<Canvas>().overrideSorting = false;
-    //     GetComponent<Canvas>().sortingOrder = 0;
-    // }
-
-    public void DestroyEnemyObject(EnemyCard card)
-    {
-        card.isDefeated = true;
-        GameManager.Instance.commands.ClearStack();
     }
 
     public void EnableCombat(EnemyToken token)
