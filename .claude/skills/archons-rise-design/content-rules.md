@@ -32,10 +32,14 @@ authored `cardDescription`.
 
 - **Costs are `[icon][number]`** with no space: `<sprite="gem" index=0>3` (= `IconMarkup.Cost`).
   Buttons read `[icon] Label` (e.g. Heal, Recruit, Delve).
-- **Canonical tag names** (filename = tag, case-sensitive) are the 17 `IconMarkup.TmpName` values:
+- **Canonical tag names** (filename = tag, case-sensitive) are the 18 `IconMarkup.TmpName` values:
   `Sword` (Attack), `shield` (Defend), `scroll` (Explore), `gem` (Influence), `Heal`, `wound`,
   `crystal`, `siege`, `hp`, `doom`, `xp` (Experience), `army`, `town`, `keep`, `castle`, `dungeon`,
-  `empower`.
+  `empower`, `refresh`.
+- **Refresh** (spec 2026-07-16): the `refresh` glyph replaces the word in card text
+  (`<sprite="refresh" index=0> 3`); panel headers keep icon + word (unit picker:
+  `<refresh> Refresh — N left`). `IconMarkup.TryForStat` maps `StatType.Refresh` →
+  `IconConcept.Refresh` (the M2.11-era exclusion is lifted).
 - **Empowered-line header** (spec 2026-07-16): the `empower` glyph replaces the literal word
   "Empower" at the head of an empowered line — `<sprite="empower" index=0> <stat>: N`
   (e.g. `<sprite="empower" index=0> <sprite="Sword" index=0>: 6`). Empower is a modifier concept,

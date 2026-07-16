@@ -327,3 +327,13 @@ editing an old one.
   (a missed concept); shipped as a small follow-on. Spec:
   `docs/superpowers/specs/2026-07-16-empower-icon-design.md`;
   plan: `docs/superpowers/plans/2026-07-16-empower-icon.md`.
+
+- **2026-07-16 — Refresh gets its own glyph (last icon-less keyword).**
+  Added `IconConcept.Refresh` (TMP name `refresh`) to the icon language: Mobilize's description
+  now reads `<sprite="refresh" index=0> 3` / `<empower> <refresh> 6` with the legend
+  `<refresh> = Unit <gem>`, and the unit-picker title keeps icon + word
+  (`<refresh> Refresh — N left`) for panel-header clarity. **`IconMarkup.TryForStat` now maps
+  `StatType.Refresh` → `IconConcept.Refresh`** — the M2.11 exclusion was justified by Refresh
+  having "no icon of its own," which stopped being true. Registry grows to 18 entries. Spec:
+  `docs/superpowers/specs/2026-07-16-refresh-icon-design.md` (executed inline, no separate plan —
+  four-file delta on the empower template).
