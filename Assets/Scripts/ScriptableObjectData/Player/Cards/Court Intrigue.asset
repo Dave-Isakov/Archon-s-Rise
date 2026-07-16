@@ -11,10 +11,16 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Court Intrigue
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: card_court_intrigue
   cardName: Court Intrigue
-  cardDescription: "<sprite=\"shield\" index=0>: 2 or <sprite=\"gem\" index=0>: 2\n\nEmpowered:\n<sprite=\"shield\" index=0>: 3 or <sprite=\"gem\" index=0>: 3"
+  cardDescription: '<sprite="shield" index=0> 2 // <sprite="gem" index=0> 2
+
+    <sprite="empower"
+    index=0>
+
+
+    <sprite="shield" index=0> 3 // <sprite="gem" index=0> 3'
   attack: 0
   defend: 2
   explore: 0
@@ -32,3 +38,8 @@ MonoBehaviour:
   cardType: 10
   empowerType: 2
   isChoice: 1
+  convertTo: 0
+  convertFrom: 0
+  convertRequiresEmpower: 0
+  refresh: 0
+  empowerRefresh: 0

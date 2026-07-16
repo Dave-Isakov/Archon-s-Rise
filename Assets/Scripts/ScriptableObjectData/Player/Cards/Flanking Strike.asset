@@ -11,10 +11,16 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Flanking Strike
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: card_flanking_strike
   cardName: Flanking Strike
-  cardDescription: "<sprite=\"Sword\" index=0>: 2 or <sprite=\"scroll\" index=0>: 2\n\nEmpowered:\n<sprite=\"Sword\" index=0>: 3 or <sprite=\"scroll\" index=0>: 3"
+  cardDescription: '<sprite="Sword" index=0> 2 // <sprite="scroll" index=0> 2
+
+    <sprite="empower"
+    index=0>
+
+
+    <sprite="Sword" index=0> 3 // <sprite="scroll" index=0> 3'
   attack: 2
   defend: 0
   explore: 2
@@ -32,3 +38,8 @@ MonoBehaviour:
   cardType: 5
   empowerType: 4
   isChoice: 1
+  convertTo: 0
+  convertFrom: 0
+  convertRequiresEmpower: 0
+  refresh: 0
+  empowerRefresh: 0

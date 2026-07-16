@@ -14,11 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_expand_mind
   cardName: Expand Mind
-  cardDescription: '<sprite="scroll" index=0>: 1 <sprite="gem" index=0>: 2
+  cardDescription: '<sprite="scroll" index=0> 1 <sprite="gem" index=0> 2
+
+    <sprite="empower"
+    index=0>
 
 
-    Empower
-    <sprite="scroll" index=0>: 3 <sprite="gem" index=0>: 3'
+    <sprite="scroll" index=0> 3 <sprite="gem" index=0> 3'
   attack: 0
   defend: 0
   explore: 1
@@ -36,3 +38,8 @@ MonoBehaviour:
   cardType: 12
   empowerType: 2
   isChoice: 0
+  convertTo: 0
+  convertFrom: 0
+  convertRequiresEmpower: 0
+  refresh: 0
+  empowerRefresh: 0

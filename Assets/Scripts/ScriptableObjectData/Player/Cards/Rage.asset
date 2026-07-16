@@ -14,19 +14,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_rage
   cardName: Rage
-  cardDescription: "<sprite=\"Sword\" index=0>: 3\n\n<sprite=\"empower\" index=0> <sprite=\"Sword\" index=0>: 6"
+  cardDescription: '<sprite="Sword" index=0> 3
+
+    <sprite="empower" index=0>
+
+
+    <sprite="Sword"
+    index=0> 6'
   attack: 3
   defend: 0
   explore: 0
   influence: 0
+  siege: 0
   healAmount: 0
   numCrystals: 0
   empowerAttack: 6
   empowerDefend: 0
   empowerExplore: 0
   empowerInfluence: 0
+  empowerSiege: 0
   empowerHealAmount: 0
   empowerNumCrystals: 0
   cardType: 1
   empowerType: 1
   isChoice: 0
+  convertTo: 0
+  convertFrom: 0
+  convertRequiresEmpower: 0
+  refresh: 0
+  empowerRefresh: 0

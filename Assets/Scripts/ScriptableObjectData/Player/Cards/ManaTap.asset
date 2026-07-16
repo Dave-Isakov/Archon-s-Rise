@@ -14,11 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_mana_tap
   cardName: Mana Tap
-  cardDescription: '<sprite="scroll" index=0>: 2 <sprite="crystal" index=0 color=#522D2D>:
+  cardDescription: '<sprite="scroll" index=0> 2 <sprite="crystal" index=0 color=#522D2D>
     1
 
+    <sprite="empower" index=0>
 
-    <sprite="empower" index=0> <sprite="scroll" index=0>: 6 <sprite="Heal" index=0>: 1 '
+
+    <sprite="scroll" index=0> 6 <sprite="Heal"
+    index=0> 1 '
   attack: 0
   defend: 0
   explore: 2
@@ -36,3 +39,8 @@ MonoBehaviour:
   cardType: 84
   empowerType: 4
   isChoice: 0
+  convertTo: 0
+  convertFrom: 0
+  convertRequiresEmpower: 0
+  refresh: 0
+  empowerRefresh: 0

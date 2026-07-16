@@ -14,11 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardsSO
   id: card_siege
   cardName: Siege
-  cardDescription: '<sprite="siege" index=0>: 2
+  cardDescription: '<sprite="siege" index=0> 2
+
+    <sprite="empower" index=0>
 
 
-    <sprite="empower" index=0> <sprite="siege" index=0>:
-    3'
+    <sprite="siege"
+    index=0> 3'
   attack: 0
   defend: 0
   explore: 0
@@ -36,3 +38,8 @@ MonoBehaviour:
   cardType: 129
   empowerType: 1
   isChoice: 0
+  convertTo: 0
+  convertFrom: 0
+  convertRequiresEmpower: 0
+  refresh: 0
+  empowerRefresh: 0

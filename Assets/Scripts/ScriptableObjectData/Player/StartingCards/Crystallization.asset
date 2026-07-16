@@ -14,23 +14,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_crystallization
   cardName: Crystallization
-  cardDescription: '<sprite="crystal" index=0 color=#522D2D>: 2
+  cardDescription: '<sprite="crystal" index=0 color=#522D2D> 2
+
+    <sprite="empower"
+    index=0>
 
 
-    Empower: <sprite="crystal"
-    index=0 color=#522D2D>: 4'
+    <sprite="crystal" index=0 color=#522D2D> 4'
   attack: 0
   defend: 0
   explore: 0
   influence: 0
+  siege: 0
   healAmount: 0
   numCrystals: 2
   empowerAttack: 0
   empowerDefend: 0
   empowerExplore: 0
   empowerInfluence: 0
+  empowerSiege: 0
   empowerHealAmount: 0
   empowerNumCrystals: 4
   cardType: 64
   empowerType: -1
   isChoice: 0
+  convertTo: 0
+  convertFrom: 0
+  convertRequiresEmpower: 0
+  refresh: 0
+  empowerRefresh: 0

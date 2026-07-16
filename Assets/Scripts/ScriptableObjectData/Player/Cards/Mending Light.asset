@@ -11,10 +11,17 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Mending Light
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: card_mending_light
   cardName: Mending Light
-  cardDescription: "<sprite=\"Heal\" index=0>: 1 <sprite=\"crystal\" index=0 color=#522D2D>: 1\n\n<sprite=\"empower\" index=0> <sprite=\"Heal\" index=0>: 2 <sprite=\"crystal\" index=0 color=#522D2D>: 2"
+  cardDescription: '<sprite="Heal" index=0> 1 <sprite="crystal" index=0 color=#522D2D>
+    1
+
+    <sprite="empower" index=0>
+
+
+    <sprite="Heal" index=0> 2 <sprite="crystal"
+    index=0 color=#522D2D> 2'
   attack: 0
   defend: 0
   explore: 0
@@ -32,3 +39,8 @@ MonoBehaviour:
   cardType: 80
   empowerType: 4
   isChoice: 0
+  convertTo: 0
+  convertFrom: 0
+  convertRequiresEmpower: 0
+  refresh: 0
+  empowerRefresh: 0

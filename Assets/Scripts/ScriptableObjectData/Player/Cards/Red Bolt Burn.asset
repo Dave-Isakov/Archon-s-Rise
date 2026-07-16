@@ -14,10 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_red_bolt_burn
   cardName: Red Bolt Burn
-  cardDescription: '<sprite="crystal" index=0 color=#FF0000>: 1
+  cardDescription: '<sprite="crystal" index=0 color=#FF0000> 1
 
-    Empower: <sprite="Sword"
-    index=0>: 5'
+    <sprite="empower"
+    index=0>
+
+
+    <sprite="Sword" index=0> 5'
   attack: 0
   defend: 0
   explore: 0
@@ -35,3 +38,8 @@ MonoBehaviour:
   cardType: 65
   empowerType: 1
   isChoice: 0
+  convertTo: 0
+  convertFrom: 0
+  convertRequiresEmpower: 0
+  refresh: 0
+  empowerRefresh: 0

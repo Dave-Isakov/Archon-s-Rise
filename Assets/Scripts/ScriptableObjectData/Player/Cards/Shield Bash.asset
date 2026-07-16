@@ -14,11 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardsSO
   id: card_shield_bash
   cardName: Shield Bash
-  cardDescription: '<sprite="shield" index=0>: 3
+  cardDescription: '<sprite="shield" index=0> 3
+
+    <sprite="empower" index=0>
 
 
-    <sprite="empower" index=0> <sprite="shield" index=0>:
-    5
+    <sprite="shield"
+    index=0> 5
 
 
     <sprite="shield" index=0> -> <sprite="Sword" index=0>'

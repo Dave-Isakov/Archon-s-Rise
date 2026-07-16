@@ -11,10 +11,16 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
   m_Name: Warlords Decree
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: card_warlords_decree
   cardName: Warlord's Decree
-  cardDescription: "<sprite=\"Sword\" index=0>: 2 <sprite=\"gem\" index=0>: 1\n\n<sprite=\"empower\" index=0> <sprite=\"Sword\" index=0>: 3 <sprite=\"gem\" index=0>: 3"
+  cardDescription: '<sprite="Sword" index=0> 2 <sprite="gem" index=0> 1
+
+    <sprite="empower"
+    index=0>
+
+
+    <sprite="Sword" index=0> 3 <sprite="gem" index=0> 3'
   attack: 2
   defend: 0
   explore: 0
@@ -32,3 +38,8 @@ MonoBehaviour:
   cardType: 9
   empowerType: 1
   isChoice: 0
+  convertTo: 0
+  convertFrom: 0
+  convertRequiresEmpower: 0
+  refresh: 0
+  empowerRefresh: 0

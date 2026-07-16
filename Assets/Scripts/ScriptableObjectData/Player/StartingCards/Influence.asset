@@ -14,23 +14,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_influence
   cardName: Influence
-  cardDescription: '<sprite="gem" index=0>: 2
+  cardDescription: '<sprite="gem" index=0> 2
+
+    <sprite="empower" index=0>
 
 
-    <sprite="empower" index=0> <sprite="gem" index=0>:
-    4'
+    <sprite="gem"
+    index=0> 4'
   attack: 0
   defend: 0
   explore: 0
   influence: 2
+  siege: 0
   healAmount: 0
   numCrystals: 0
   empowerAttack: 0
   empowerDefend: 0
   empowerExplore: 0
   empowerInfluence: 4
+  empowerSiege: 0
   empowerHealAmount: 0
   empowerNumCrystals: 0
   cardType: 8
   empowerType: 2
   isChoice: 0
+  convertTo: 0
+  convertFrom: 0
+  convertRequiresEmpower: 0
+  refresh: 0
+  empowerRefresh: 0

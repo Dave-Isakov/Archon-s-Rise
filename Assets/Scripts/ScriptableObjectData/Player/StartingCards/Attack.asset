@@ -14,23 +14,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_attack
   cardName: Attack
-  cardDescription: '<sprite="Sword" index=0>: 2
+  cardDescription: '<sprite="Sword" index=0> 2
+
+    <sprite="empower" index=0>
 
 
-    <sprite="empower" index=0> <sprite="Sword" index=0>:
-    4'
+    <sprite="Sword"
+    index=0> 4'
   attack: 2
   defend: 0
   explore: 0
   influence: 0
+  siege: 0
   healAmount: 0
   numCrystals: 0
   empowerAttack: 4
   empowerDefend: 0
   empowerExplore: 0
   empowerInfluence: 0
+  empowerSiege: 0
   empowerHealAmount: 0
   empowerNumCrystals: 0
   cardType: 1
   empowerType: 1
   isChoice: 0
+  convertTo: 0
+  convertFrom: 0
+  convertRequiresEmpower: 0
+  refresh: 0
+  empowerRefresh: 0

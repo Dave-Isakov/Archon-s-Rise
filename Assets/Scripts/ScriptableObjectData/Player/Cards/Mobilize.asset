@@ -14,13 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardsSO
   id: card_mobilize
   cardName: Mobilize
-  cardDescription: 'Refresh: 3
+  cardDescription: 'Refresh 3
+
+    <sprite="empower" index=0>
 
 
-    <sprite="empower" index=0> Refresh: 6
+    Refresh 6
 
-    Refresh = Unit <sprite="gem"
-    index=0>'
+    Refresh
+    = Unit <sprite="gem" index=0>'
   attack: 0
   defend: 0
   explore: 0

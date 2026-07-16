@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: card_breach
   cardName: Breach
-  cardDescription: '<sprite="Sword" index=0>: 4
+  cardDescription: '<sprite="Sword" index=0> 4
 
+    <sprite="empower" index=0>
 
-    Empowered:
 
     <sprite="siege"
-    index=0>: 5'
+    index=0> 5'
   attack: 4
   defend: 0
   explore: 0
@@ -38,3 +38,8 @@ MonoBehaviour:
   cardType: 129
   empowerType: 1
   isChoice: 0
+  convertTo: 0
+  convertFrom: 0
+  convertRequiresEmpower: 0
+  refresh: 0
+  empowerRefresh: 0
