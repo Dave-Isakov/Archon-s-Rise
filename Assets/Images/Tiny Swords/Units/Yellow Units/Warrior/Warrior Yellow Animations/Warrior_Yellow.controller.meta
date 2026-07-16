@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 393ec7aeaf3f44807ade83fd3843fa04
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 352566
+  packageName: Tiny Swords
+  packageVersion: 1.0
+  assetPath: Assets/Tiny Swords/Units/Yellow Units/Warrior/Warrior Yellow Animations/Warrior_Yellow.controller
+  uploadId: 844324

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f172b4eeb829d4ec2b9b7a42f3efa3ef
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 352566
+  packageName: Tiny Swords
+  packageVersion: 1.0
+  assetPath: Assets/Tiny Swords/Units/Red Units/Warrior/Warrior Red Animations/Warrior.controller
+  uploadId: 844324

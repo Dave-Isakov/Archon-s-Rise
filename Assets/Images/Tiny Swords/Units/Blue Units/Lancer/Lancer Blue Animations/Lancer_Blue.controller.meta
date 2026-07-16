@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fa7ae5cd619544ca4a4ea82a50baa12d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 352566
+  packageName: Tiny Swords
+  packageVersion: 1.0
+  assetPath: Assets/Tiny Swords/Units/Blue Units/Lancer/Lancer Blue Animations/Lancer_Blue.controller
+  uploadId: 844324

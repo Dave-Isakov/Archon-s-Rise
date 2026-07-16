@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 7e606214963c74e2abeac068dfaea9ba
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 352566
+  packageName: Tiny Swords
+  packageVersion: 1.0
+  assetPath: Assets/Tiny Swords/Units/Black Units/Monk/Monk Black Animations/Monk_Black.controller
+  uploadId: 844324

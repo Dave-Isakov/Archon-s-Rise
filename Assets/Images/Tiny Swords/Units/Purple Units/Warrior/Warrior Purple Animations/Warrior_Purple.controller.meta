@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 12285b2ad229e465ca21363a5ff750b0
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 352566
+  packageName: Tiny Swords
+  packageVersion: 1.0
+  assetPath: Assets/Tiny Swords/Units/Purple Units/Warrior/Warrior Purple Animations/Warrior_Purple.controller
+  uploadId: 844324

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 96c592f8a437543f4ad9a10ec628d1b5
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 352566
+  packageName: Tiny Swords
+  packageVersion: 1.0
+  assetPath: Assets/Tiny Swords/Units/Yellow Units/Monk/Monk Yellow Animations/Monk_Yellow.controller
+  uploadId: 844324

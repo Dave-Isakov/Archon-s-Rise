@@ -149,6 +149,7 @@ GameObject:
   - component: {fileID: 2305809440057333416}
   - component: {fileID: 965651533286727790}
   - component: {fileID: 7694739148083726043}
+  - component: {fileID: 3645258503179674295}
   m_Layer: 5
   m_Name: DisbandEntry
   m_TagString: Untagged
@@ -258,3 +259,15 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!225 &3645258503179674295
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5859041889205478117}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0

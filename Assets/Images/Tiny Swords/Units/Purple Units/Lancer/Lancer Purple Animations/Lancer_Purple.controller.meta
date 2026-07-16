@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 07a95c332f29b4855ba1a665077ef01f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 352566
+  packageName: Tiny Swords
+  packageVersion: 1.0
+  assetPath: Assets/Tiny Swords/Units/Purple Units/Lancer/Lancer Purple Animations/Lancer_Purple.controller
+  uploadId: 844324

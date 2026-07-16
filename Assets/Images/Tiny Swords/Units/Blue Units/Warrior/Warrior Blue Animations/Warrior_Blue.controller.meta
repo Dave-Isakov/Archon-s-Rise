@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: aa1112b337436413a9e3f0f07d8475c2
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 9100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 352566
+  packageName: Tiny Swords
+  packageVersion: 1.0
+  assetPath: Assets/Tiny Swords/Units/Blue Units/Warrior/Warrior Blue Animations/Warrior_Blue.controller
+  uploadId: 844324

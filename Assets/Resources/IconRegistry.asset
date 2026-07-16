@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8245030c2f08e2f40a90473f2ef275e0, type: 3}
+  m_Name: IconRegistry
+  m_EditorClassIdentifier: ArchonsRise.UiLanguage::IconRegistrySO
+  placeholderSprite: {fileID: 21300000, guid: 5d9ba4e7d0964044ea54abe409d81dfd, type: 3}
+  entries:
+  - concept: 0
+    sprite: {fileID: 21300000, guid: b80185086f30452468632bd1df9c34b1, type: 3}
+  - concept: 1
+    sprite: {fileID: 21300000, guid: b97c91e8b348f3f4ebdc11f5c82182cd, type: 3}
+  - concept: 2
+    sprite: {fileID: 21300000, guid: db427fab3e94daf4caa704d9314a77a1, type: 3}
+  - concept: 3
+    sprite: {fileID: 21300000, guid: e7d29a79bc7fae248887c8a08a160303, type: 3}
+  - concept: 4
+    sprite: {fileID: 21300000, guid: bb67b03c2969d104caba950c446f8c8d, type: 3}
+  - concept: 5
+    sprite: {fileID: -4291139243541443631, guid: e42000263f7a2d14a9c99986bb2dd141, type: 3}
+  - concept: 6
+    sprite: {fileID: 21300000, guid: a4f6f6238e9dc4541bb5b4690e0ee538, type: 3}
+  - concept: 7
+    sprite: {fileID: 21300000, guid: 5d7061fc7da05ce44add317708ec7215, type: 3}
+  - concept: 8
+    sprite: {fileID: -5278734259511242463, guid: e9681a3a7563fbb4898b6ad361fe1da2, type: 3}
+  - concept: 9
+    sprite: {fileID: -7978167941245376310, guid: 4396b3e02d9ac2c4e82175c284808a3b, type: 3}
+  - concept: 10
+    sprite: {fileID: -5511982322241440918, guid: 8237a2fcd33e8f04a9c862de34d95ef6, type: 3}
+  - concept: 11
+    sprite: {fileID: -5963945849417036405, guid: fbb59ae0d8ba9dd449443f1bcce27f23, type: 3}
+  - concept: 12
+    sprite: {fileID: -4618140422616490331, guid: 88283a390a99d504ca5fdc286e6aea03, type: 3}
+  - concept: 13
+    sprite: {fileID: 6366162769813333071, guid: d79e14c83d4ef584e83bdd57479d350d, type: 3}
+  - concept: 14
+    sprite: {fileID: 21300000, guid: d0349d8d3a04044f7a4810157b116b14, type: 3}
+  - concept: 15
+    sprite: {fileID: 3348532550563196407, guid: 6161a2c052244474693751f440ff00eb, type: 3}

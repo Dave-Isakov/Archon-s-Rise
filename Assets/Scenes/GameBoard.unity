@@ -1285,7 +1285,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 2600}
+  m_AnchoredPosition: {x: 0, y: 3800}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &146827232
@@ -4102,6 +4102,7 @@ GameObject:
   - component: {fileID: 475056975}
   - component: {fileID: 475056976}
   - component: {fileID: 475056977}
+  - component: {fileID: 475056978}
   m_Layer: 5
   m_Name: RecruitButton
   m_TagString: Untagged
@@ -4229,6 +4230,7 @@ MonoBehaviour:
   thisButton: {fileID: 475056972}
   buttonText: {fileID: 1992925730}
   currentPlayerInfluence: 0
+  lockGroup: {fileID: 475056978}
   recruitPanel: {fileID: 415702304}
 --- !u!114 &475056976
 MonoBehaviour:
@@ -4298,6 +4300,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!225 &475056978
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 475056966}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!20 &519420031 stripped
 Camera:
   m_CorrespondingSourceObject: {fileID: 5135511142986681374, guid: 7a042ece69ad5a540a041076a2f16abe, type: 3}
@@ -8569,6 +8583,7 @@ GameObject:
   - component: {fileID: 871161581}
   - component: {fileID: 871161583}
   - component: {fileID: 871161584}
+  - component: {fileID: 871161585}
   m_Layer: 5
   m_Name: CrystalButton
   m_TagString: Untagged
@@ -8728,6 +8743,7 @@ MonoBehaviour:
   thisButton: {fileID: 871161578}
   buttonText: {fileID: 1657970514}
   currentPlayerInfluence: 0
+  lockGroup: {fileID: 871161585}
 --- !u!114 &871161583
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8796,6 +8812,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!225 &871161585
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 871161572}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &882410059
 GameObject:
   m_ObjectHideFlags: 0
@@ -11805,6 +11833,7 @@ GameObject:
   - component: {fileID: 1225833266}
   - component: {fileID: 1225833265}
   - component: {fileID: 1225833271}
+  - component: {fileID: 1225833272}
   m_Layer: 5
   m_Name: Assault
   m_TagString: Untagged
@@ -11850,6 +11879,7 @@ MonoBehaviour:
   thisButton: {fileID: 1225833268}
   buttonText: {fileID: 1807938983}
   currentPlayerInfluence: 0
+  lockGroup: {fileID: 1225833272}
 --- !u!114 &1225833266
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12012,6 +12042,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 642d6837b6607cd418df759ec4f4e6ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlacePreviewTrigger
+--- !u!225 &1225833272
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1225833263}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1230883301
 GameObject:
   m_ObjectHideFlags: 0
@@ -14119,6 +14161,7 @@ GameObject:
   - component: {fileID: 1477856437}
   - component: {fileID: 1477856436}
   - component: {fileID: 1477856438}
+  - component: {fileID: 1477856439}
   m_Layer: 5
   m_Name: HealButton
   m_TagString: Untagged
@@ -14274,6 +14317,7 @@ MonoBehaviour:
   thisButton: {fileID: 1477856433}
   buttonText: {fileID: 2025762700}
   currentPlayerInfluence: 0
+  lockGroup: {fileID: 1477856439}
 --- !u!114 &1477856438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14314,6 +14358,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!225 &1477856439
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1477856427}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1480549569
 GameObject:
   m_ObjectHideFlags: 0
@@ -18504,8 +18560,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UnitPickerPanel
   entryContainer: {fileID: 581214202}
   entryButtonPrefab: {fileID: 5859041889205478117, guid: d0207384a8ad1f24bbec71ec163609ce, type: 3}
-  doneButton: {fileID: 0}
-  titleLabel: {fileID: 0}
+  doneButton: {fileID: 1212475320}
+  titleLabel: {fileID: 1338731330}
 --- !u!114 &1757980672
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18530,7 +18586,7 @@ Canvas:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1757980670}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 519420031}
@@ -19296,8 +19352,7 @@ MonoBehaviour:
   playerLevel: 1
   units: []
   levelRewards: {fileID: 11400000, guid: 73e956ec0b8bb34458b83d983e595dde, type: 2}
-  skills:
-  - {fileID: 11400000, guid: d8dd923b9068134438a9cc7e9186972e, type: 2}
+  skills: []
   onSuccessfulExploration_ExploreNextCard: {fileID: 11400000, guid: 4f52db82efcd16740a8570fbf35f0a01, type: 2}
   onEmpower_DestroyCrystalGameObject: {fileID: 11400000, guid: 259aa8cdf370e1f488bdb4cb850895c7, type: 2}
   onUndo_RegenerateCrystalGameObject: {fileID: 11400000, guid: bd821ca14bf5a7347a223d4ff9ae05e3, type: 2}
@@ -22981,6 +23036,7 @@ GameObject:
   - component: {fileID: 2072412206}
   - component: {fileID: 2072412207}
   - component: {fileID: 2072412208}
+  - component: {fileID: 2072412209}
   m_Layer: 5
   m_Name: CardsButton
   m_TagString: Untagged
@@ -23108,6 +23164,7 @@ MonoBehaviour:
   thisButton: {fileID: 2072412203}
   buttonText: {fileID: 784888040}
   currentPlayerInfluence: 0
+  lockGroup: {fileID: 2072412209}
 --- !u!114 &2072412207
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23176,6 +23233,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!225 &2072412209
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2072412197}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!114 &2075273289 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5135511143076972773, guid: 7a042ece69ad5a540a041076a2f16abe, type: 3}
@@ -27013,7 +27082,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
       propertyPath: allCards.Array.size
-      value: 31
+      value: 32
       objectReference: {fileID: 0}
     - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
       propertyPath: allUnits.Array.size
@@ -27107,6 +27176,10 @@ PrefabInstance:
       propertyPath: 'allCards.Array.data[30]'
       value: 
       objectReference: {fileID: 11400000, guid: 91a2181ed83d82646bf3ca9cbdb55c46, type: 2}
+    - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
+      propertyPath: 'allCards.Array.data[31]'
+      value: 
+      objectReference: {fileID: 11400000, guid: a1f55bdd13bb33a4d9a800d11785a420, type: 2}
     - target: {fileID: 1431683923352114320, guid: bf2a41b6808581f4393e3a702745a1af, type: 3}
       propertyPath: 'allSkills.Array.data[0]'
       value: 
