@@ -6,17 +6,45 @@ content types inherit **`AllCards`**: `cardName` (string) and `cardDescription` 
 field here ever disagrees with those scripts, the scripts win — update this file.
 
 ## Enums used below
-- **`StatType`** `[Flags]`: `None=0, Attack=1, Defend=2, Explore=4, Influence=8, Heal=16, Wound=32, Crystal=64`.
-  Combine with `|` (e.g. `Explore | Crystal`).
+- **`StatType`** `[Flags]`: `None=0, Attack=1, Defend=2, Explore=4, Influence=8, Heal=16, Wound=32, Crystal=64, Siege=128, Refresh=256`.
+  Combine with `|` (e.g. `Explore | Crystal`). `Refresh` (spec 2026-07-14) is an immediate-effect flag
+  like Heal/Crystal (not a per-turn pool): it opens the mid-round refresh picker.
 - **`EmpowerType`** `[Flags]`: `None=0, Red=1, Yellow=2, Green=4, Purple=8`. Use `None` for a card/unit
   that cannot be empowered. All-colors (any-crystal cost / wild crystal) = all four flags set = `15`.
 - **`UnitEffect`**: `Attack=0, Defend=1, Explore=2, Influence=3, Siege=4, Heal=5, Crystallize=6`. One
   unit option's effect (append-only — new members go at the end).
 - **`SkillCadence`**: `PerTurn=0, PerRound=1, Passive=2`. `SkillEffect` (append-only) now also has
-  `RecruitEnemies` (the Charismatic passive gate).
+  `RecruitEnemies` (the Charismatic passive gate), `ConvertStat` (1:1 pool conversion), and
+  `RefreshUnits` (opens the refresh picker with `magnitude` as the budget).
 - **`TownSize`**: `Town, Village, Fortress, City`.
 - **`PlaceType`**: `Town=0, Keep=1, Castle=2` (source: `Assets/Scripts/Places/`).
 - **`PlaceService`** `[Flags]`: `None=0, Recruit=1, Heal=2, Cards=4` (source: `Assets/Scripts/Places/`).
+
+---
+
+## UI language — icons & costs (spec 2026-07-15, M2.11)
+
+One canonical icon per concept and one layout dialect across every panel. `IconMarkup`
+(`Assets/Scripts/UiLanguage/`) is the single owner of TMP sprite-tag names and cost strings —
+authored text and panel code both go through it; **never hand-roll a `<sprite=…>` literal or a
+bare-number cost.** Validation tests (`IconRegistryValidationTests`) enforce this over every
+authored `cardDescription`.
+
+- **Costs are `[icon][number]`** with no space: `<sprite="gem" index=0>3` (= `IconMarkup.Cost`).
+  Buttons read `[icon] Label` (e.g. Heal, Recruit, Delve).
+- **Canonical tag names** (filename = tag, case-sensitive) are the 16 `IconMarkup.TmpName` values:
+  `Sword` (Attack), `shield` (Defend), `scroll` (Explore), `gem` (Influence), `Heal`, `wound`,
+  `crystal`, `siege`, `hp`, `doom`, `xp` (Experience), `army`, `town`, `keep`, `castle`, `dungeon`.
+- **`shield` means Defend only.** Enemy toughness is `hp` everywhere — never the Defend shield.
+- **Action-stat order is Attack, Defend, Explore, Influence**, per line, everywhere the four appear
+  together. Lines with a conversion arrow (`->` / `→`) are directional and exempt.
+- **Crystal colors tint the one `crystal` glyph** with the canonical hexes (Red `#E5484D`,
+  Yellow `#F5D90A`, Green `#46A758`, Purple `#8E4EC6`); `None` and all-colors render untinted.
+  Use `IconMarkup.CrystalTag`.
+- **Locked / unaffordable = `CanvasGroup.alpha 0.4`** via `UiLock`, on top of `Button.interactable`.
+- **Adding a new icon:** one single-glyph TMP Sprite Asset in
+  `Assets/TextMesh Pro/Resources/Sprite Assets/` (asset name = tag), plus an `IconConcept` member,
+  its `IconMarkup.TmpName` case, and an `IconRegistry.asset` entry — then the validation tests green.
 
 ---
 
@@ -32,6 +60,10 @@ field here ever disagrees with those scripts, the scripts win — update this fi
 | `cardType` | `StatType` (flags) | Which stats this card provides |
 | `empowerType` | `EmpowerType` | Crystal color needed to empower |
 | `isChoice` | bool | Player picks which stat to apply |
+| `convertTo` | `StatType` | Conversion target (one action stat); `None` = card has no conversion |
+| `convertFrom` | `StatType` (flags) | Conversion sources (action flags only; never contains `convertTo`) |
+| `convertRequiresEmpower` | bool | true = the convert toggle is offered only on the empowered play |
+| `refresh`, `empowerRefresh` | int | Refresh budget (base / empowered); needs the `Refresh` flag on `cardType` |
 
 **Rules:**
 - The four **action stats** (Attack/Defend/Explore/Influence) are gated in code by
@@ -47,6 +79,28 @@ field here ever disagrees with those scripts, the scripts win — update this fi
   time (the StatChoiceToggles flow — cards offering mutually-exclusive stat options). Set **false**
   for cards that always apply all their effects together — even multi-effect cards (e.g. Heal+Crystal)
   are `false` if both always apply. A single-stat card is `false`.
+- **Conversion** (spec 2026-07-14): set `convertTo` to one action stat and `convertFrom` to the action
+  stats to drain (an "convert everything into Influence" card flags the three action stats *other than*
+  Influence). Rules enforced by `ConvertRules.IsValid` + `OnValidate`: target is exactly one action
+  stat; sources are action stats only (Siege/Heal/Crystal/Wound never participate); the target is
+  **never** among the sources; and a card **cannot be both `isChoice` and a converter**. Leave
+  `convertTo = None` for non-converters. `convertRequiresEmpower = true` gates the toggle behind an
+  empowered play.
+- **Refresh** (spec 2026-07-14): to make a refresh card, flag `Refresh` on `cardType` and set
+  `refresh` / `empowerRefresh` (the budget); `OnValidate` warns if refresh values are set without the
+  flag. Pair Refresh with a small secondary stat (e.g. `Explore | Refresh` with `explore 1`) so the
+  card is never a dead play when the refresh fizzles.
+
+## Skill — `SkillsSO`
+**Menu:** `ScriptableObjects/Skill`
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `effect` | `SkillEffect` | What activating does (stat gain, crystal, heal, `ConvertStat`, `RefreshUnits`, …) |
+| `magnitude` | int | Effect amount; for `RefreshUnits` it is the refresh **budget** |
+| `crystalColor` | `EmpowerType` | Only for `GainCrystal` |
+| `cadence` | `SkillCadence` | `PerTurn` / `PerRound` / `Passive` |
+| `convertFrom`, `convertTo` | `StatType` | Only for `ConvertStat` — same 1:1 conversion rules as cards (action stats only; target not in sources) |
 
 ## Enemy — `EnemiesSO`
 **Menu:** `ScriptableObjects/Cards/EnemyCards`
@@ -90,12 +144,15 @@ guardians. Castles are the win currency — conquering 2 wins the run (M2.5).
 
 **`UnitOption` fields:** `effect` (`UnitEffect`), `amount` (int), `grantColor` (`EmpowerType` — only
 used by `Crystallize`), `crystalCost` (`EmpowerType` — `None` = free; a color = 1 crystal of that
-color, wild satisfies; all-colors/`15` = any 1 crystal).
+color, wild satisfies; all-colors/`15` = any 1 crystal), `influenceCost` (int — in-turn Influence
+price; spec 2026-07-14).
 
 **Rules:** Recruited at towns for `influenceCost` (or via enemy influence + Charismatic). The pop-out
 lets the player pick one option; using it applies the effect and exhausts the unit for the round.
-A crystal-costed option ≈ twice its free sibling's amount (see [balance.md](balance.md)). The legacy
-flat-stat fields (`attack`/`defend`/…/`empowerType`, `GetUnitStats`) are retired.
+A crystal-costed option ≈ twice its free sibling's amount (see [balance.md](balance.md)). An option
+costs a **crystal OR Influence OR is free — never both** (`UnitsSO.OnValidate` warns if an option
+sets both `crystalCost` and `influenceCost`); author stronger variants as separate option rows. The
+legacy flat-stat fields (`attack`/`defend`/…/`empowerType`, `GetUnitStats`) are retired.
 
 ## Reward tuning — `RewardTuningSO`
 **Menu:** `ScriptableObjects/RewardTuning` — one shared asset, wired onto the `Rewards` component.

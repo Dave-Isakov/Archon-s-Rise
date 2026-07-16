@@ -253,3 +253,65 @@ editing an old one.
   time, replacing the M2.4 level-up busy-wait poll and guaranteeing no overlapping menus when a
   completion bundle, an enemy card drop, and a level-up all fire in the same frame.
   _Closes_ the reward-arbiter follow-up.
+
+- **2026-07-14 — Stat conversion, unit refresh & influence-costed unit options.**
+  Three additive strategy mechanics, no save schema bump (conversion/refresh are in-turn effects;
+  refresh only flips the already-persisted `unitExhausted` state). Six locked decisions:
+  1. **Conversion rate is always 1:1** — every point of source stat becomes one point of target.
+  2. **Conversion is opt-in at play time** — cards show an inspector toggle (off by default, locked
+     while improvising / until empowered when `convertRequiresEmpower`); skills are inherently opt-in
+     (clicking is the choice).
+  3. **Conversion touches the four action stats only** (Attack/Defend/Explore/Influence) — Siege is
+     never a source or target (scarcity pillar); Heal/Crystal/Wound never participate. A converter is
+     never also `isChoice`, and its target is never among its sources.
+  4. **Refresh N is a budget across multiple units** — each pick deducts the unit's recruit
+     `influenceCost` (min 1) from N until nothing affordable remains; unspent budget is lost; the
+     effect fizzles when no spent unit is affordable at play time. The picker opens directly, never
+     through `RewardQueue`.
+  5. **One cost type per unit option** — crystal OR Influence OR free, never both; stronger variants
+     are authored as separate option rows. The Influence spend is in-turn and undoable (never
+     `Player.Influence()`, which clears the undo stack for permanent purchases).
+  6. **No save schema bump.**
+  _Why:_ conversion gives banked-but-wrong stats a use (a pillar-3 tactical lever); mid-round refresh
+  turns Influence into a tempo resource; influence-costed options add a crystal-free unit spend. All
+  three ride existing apply/revert symmetry, and pure rules (`ConvertRules`, `RefreshRules`) are
+  TDD'd. Spec: `docs/superpowers/specs/2026-07-14-stat-conversion-refresh-influence-options-design.md`.
+
+- **2026-07-15 — Tutorial for playtest handoff: contextual + event-driven, split M2.11/M2.12.**
+  To hand the game to external playtesters, onboarding ships as **two milestones before M3**:
+  **M2.11 UI language & iconography** (canonical `IconRegistrySO` — concept → sprite + TMP tag;
+  costs always `[icon][number]` via a shared `CostRow`; action buttons `[icon] Label`; fixed
+  Atk/Def/Exp/Inf order; one global locked treatment; full panel audit) and **M2.12 tutorial &
+  help** (a dedicated TutorialCanvas above all others; a guided first-round rail of
+  `TutorialStepSO`s advancing on real GameEvents with no input locking and out-of-order
+  tolerance; once-per-profile reactive one-shots; a `HelpEntrySO` + ? icon on every major
+  panel; PlayerPrefs-only persistence — no save-schema bump; Skip/toggle/reset; and a map-gen
+  guarantee of ≥1 tier-1 enemy near the start ring). Locked decisions: the tutorial runs on the
+  player's **real first run** (no authored tutorial map — scripted levels fight the randomized
+  structure); teaching is **soft guidance** (steps wait, never block); banners/help are **not
+  modals** and never enter `RewardQueue` (they hide while a modal is open); icons precede
+  tutorial copy because inline `<sprite>` teaching only works when the real UI shows the same
+  glyphs. Playtest shell (build packaging, feedback capture) is a separate later follow-up.
+  _Why:_ external playtesters must learn unassisted; contextual event-driven teaching matches a
+  game whose systems surface organically. Specs:
+  `docs/superpowers/specs/2026-07-15-m2.11-ui-language-iconography-design.md`,
+  `docs/superpowers/specs/2026-07-15-m2.12-tutorial-help-design.md`.
+
+- **2026-07-15 — M2.11 implemented: `IconMarkup` (not `CostRow`) as the icon-language owner.**
+  Shipped the canonical icon language as a pure `static IconMarkup` (new `ArchonsRise.UiLanguage`
+  asmdef) owning all TMP sprite-tag names and cost strings, paired with an `IconRegistrySO`
+  (`Assets/Resources/IconRegistry.asset`) mapping the 16 `IconConcept`s → Sprites for Image-based
+  UI, and a `UiLock` static (alpha 0.4). Costs are `[icon][number]` (`<sprite="gem" index=0>3`);
+  buttons `[icon] Label`; action order fixed Attack/Defend/Explore/Influence per line; crystal
+  colors tint the one `crystal` glyph (Red `#E5484D`, Yellow `#F5D90A`, Green `#46A758`,
+  Purple `#8E4EC6`); `shield` is Defend only and enemy toughness switched to a new `hp` glyph.
+  **Amendment to the 2026-07-15 plan decision:** the spec's `CostRow` MonoBehaviour was replaced by
+  the text-only `IconMarkup` formatter — a pure, mcs/EditMode-testable string owner reuses the
+  existing "author descriptions with `<sprite>` tags" convention with no new prefab, and panels
+  route their existing TMP labels through it. Three EditMode validation tests pin registry
+  completeness, TMP-name resolution, and authored-description tag hygiene + canonical stat order.
+  Panels swept: unit option text, town service buttons (Heal/Crystal/Recruit/Assault), recruit &
+  unit-picker pickers, dungeon panel, card-inspector empower message, enemy preview + combat card,
+  doom meter, xp bar, run-end screen. Spec:
+  `docs/superpowers/specs/2026-07-15-m2.11-ui-language-iconography-design.md`; plan:
+  `docs/superpowers/plans/2026-07-15-m2.11-ui-language-iconography.md`.

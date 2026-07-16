@@ -79,6 +79,21 @@ the unit for the round (turned sideways). Costed options reserve/spend the cryst
 empower, and the whole use is a single undoable command (undo reverts the stat/heal/crystallize and
 refunds the crystal). Units all refresh at round start.
 
+An option may instead carry an **Influence cost** (spec 2026-07-14): an in-turn tactical spend
+(deducted from the banked Influence pool, undoable — not a permanent purchase). An option costs a
+**crystal OR Influence OR is free — never both**; stronger variants are authored as separate option
+rows. Unaffordable-by-Influence options lock exactly like crystal-costed ones (Use shows "Needs
+influence").
+
+**Mid-round Refresh** (spec 2026-07-14): a `Refresh` card or a `RefreshUnits` skill can **ready spent
+units mid-round**, budgeted by recruit value. Refresh N is a **budget spent across multiple units**:
+a modal picker lists only spent units, each showing its cost (the unit's recruit `influenceCost`,
+minimum 1); picking one readies it immediately and deducts its cost from the budget; entries over the
+remaining budget show disabled. Unspent budget is **lost** (no banking). If nothing spent is
+affordable at play time the effect **fizzles** (so refresh cards pair a small secondary stat to never
+be a dead play). The picker is **not** a reward modal — it opens directly, never through the
+`RewardQueue`. Undo of the play re-exhausts exactly the units it readied.
+
 ## Stats
 Eight stat types (the `StatType` flags in code):
 - **Attack** — defeats enemies (Attack ≥ enemy HP).
@@ -91,6 +106,17 @@ Eight stat types (the `StatType` flags in code):
 - **Siege** — a wound-free attack; defeats an enemy (Siege ≥ enemy HP) without taking the
   counterattack. Cannot be improvised; comes only from advanced cards and units (advanced Siege
   cards always also carry the Attack flag, so Siege only matters in combat).
+
+### Conversion (spec 2026-07-14)
+Some cards and skills can **convert** banked stat pools **1:1** into another stat: every point of a
+source stat becomes one point of the target. Conversion touches the **four action stats only**
+(Attack/Defend/Explore/Influence) — Siege/Heal/Crystal/Wound never participate (Siege's scarcity is a
+pillar). It is **opt-in at play time**: a converter card shows an inspector toggle (off by default,
+and locked while improvising or, for empower-gated converters, until the play is empowered); a
+convert **skill** is opt-in simply because clicking it is the choice. A conversion drains the
+**entire current pool** of each flagged source into the target (4 Defend banked + convert Defend→Attack
+= +4 Attack, Defend 0), and is fully undoable — undo restores the exact pools moved. A card is never
+both a converter and an `isChoice` card, and a converter's target is never one of its own sources.
 
 ## Enemy Preview
 - **Enemy preview** — hovering (later, controller-focusing) a map enemy token or a guarded place's
@@ -142,3 +168,8 @@ skills are never clicked or exhausted — their state is simply *queried* by the
 (e.g. **Charismatic** = `SkillEffect.RecruitEnemies`, which lets influenced enemies be recruited).
 Skills are acquired only via level-up picks; the pool is defined on `LevelRewardsSO`
 (spec: `docs/superpowers/specs/2026-07-06-level-up-rewards-design.md`).
+
+Two additional effects (spec 2026-07-14): **`ConvertStat`** converts banked pools 1:1 from the
+skill's `convertFrom` to `convertTo` (see [Conversion](#conversion-spec-2026-07-14)); **`RefreshUnits`**
+opens the refresh picker with `magnitude` as the budget (see mid-round Refresh under [Units](#units)).
+Both are undoable like any skill activation.

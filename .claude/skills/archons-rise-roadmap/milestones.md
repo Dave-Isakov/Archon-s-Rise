@@ -84,6 +84,69 @@ through one unified `RewardQueue`. Replaces the never-wired card-based flow.
 Explore and pay exp only; completion pays the guaranteed bundle and drops doom; flags fire on band
 entry and tick doom; progress saves/restores; no overlapping modals. **Precedes M3.**
 
+## M2.10 — Stat Conversion, Refresh & Influence Options ✅ (2026-07-14)
+**Goal:** three additive strategy mechanics on the existing apply/revert path, no save schema bump.
+**Scope (shipped):**
+- **1:1 stat conversion** — opt-in on cards (`ConvertBanner` inspector toggle) and via the
+  `ConvertStat` skill; four action stats only; fully undoable. Pure `ConvertRules` (TDD).
+  Content: Shield Bash, Rally to the Banner, Tactician skill.
+- **Mid-round unit Refresh** — a budgeted `UnitPickerPanel` modal (opens directly, not via
+  `RewardQueue`) driven by a `Refresh` card (`Mobilize`) or `RefreshUnits` skill; budget spent across
+  units by recruit cost, unspent lost, fizzles when nothing affordable. Pure `RefreshRules` (TDD).
+- **Influence-costed unit options** — one cost type per option (crystal OR influence OR free), with an
+  undoable in-turn Influence spend and affordability lock.
+
+**Acceptance (met):** converter cards/skills convert the whole pool and undo exactly; Refresh lists
+spent units with costs, locks over-budget entries, fizzles with none spent, and undo re-exhausts the
+picked units; influence options price/lock/spend/refund correctly; the full EditMode suite (incl.
+`ConvertRulesTests`, `RefreshRulesTests`, `UnitOptionTextTests`) is green; save/load mid-run restores
+units/skills/exhaust state. **Precedes M3.**
+
+## M2.11 — UI language & iconography — ✅ code complete 2026-07-15 (editor acceptance pending)
+**Status:** All code shipped and TDD-green (`IconMarkupTests`, `UnitOptionTextTests` via the mcs
+harness). Remaining before full sign-off is **USER editor work**: authoring the 9 new TMP sprite
+assets + the `IconRegistry.asset`, adding the `CanvasGroup`/`lockGroup` wiring, fixing any flagged
+card descriptions, and the play-mode acceptance audit (`IconRegistryValidationTests` green).
+**Deviation:** the spec's `CostRow` MonoBehaviour was replaced by a pure text-only `IconMarkup`
+formatter (`ArchonsRise.UiLanguage`) — mcs/EditMode-testable, no new prefab, reuses the existing
+`<sprite>`-in-description convention. See the 2026-07-15 decisions-log entry.
+**Goal:** one icon per core concept and one layout dialect on every panel — make the game
+legible to a stranger; prerequisite for M2.12's icon-inline teaching text.
+**Scope:**
+- **`IconRegistrySO`** — canonical concept → sprite + TMP tag mapping (8 stats, crystal
+  colors + wild, Doom, XP, HP, army, place types, Dungeon); static `IconRegistry.Get`.
+- **Layout language:** costs always `[icon][number]` (shared `CostRow` prefab); action
+  buttons `[icon] Label`; fixed stat order (Atk/Def/Exp/Inf); one global locked/unaffordable
+  treatment.
+- **Audit sweep** of TownMenu, Recruit, Disband, Dungeon, UnitPicker, EnemyPreview,
+  CardMenu, RewardCanvas, skill bar, HUD, run-end screen (surgical — conforming panels
+  untouched).
+- **Validation tests:** registry complete; every TMP tag resolves.
+
+**Acceptance:** no bare-number cost on any audited panel; `<sprite name=...>` renders the
+HUD's glyph for every concept; validation suite green.
+Spec: `docs/superpowers/specs/2026-07-15-m2.11-ui-language-iconography-design.md`.
+
+## M2.12 — Tutorial & help system
+**Goal:** external playtesters learn unassisted — guided first round on the real first run,
+contextual help everywhere, fully optional. Driver for the playtest handoff.
+**Scope:**
+- **TutorialCanvas** (Screen Space – Camera, above all) with step banner + Skip, pulsing
+  highlight frame (`TutorialTarget` id lookup), shared help popup.
+- **Guided rail** — ordered `TutorialStepSO`s advancing on real GameEvents (welcome/doom,
+  play card, pools, move, enemy preview, fight, end turn, send-off); out-of-order tolerant;
+  no input locking.
+- **Reactive one-shots** (`TutorialOneShotSO`, once per profile, deferred past the rail):
+  first wound/crystal/level-up/town/dungeon, deck-can't-refill, doom band.
+- **`HelpEntrySO` + ? icon** on every major panel (pulses until first read).
+- **PlayerPrefs persistence** (no save-schema bump); settings toggle + reset.
+- **Starter-enemy spawn guarantee** — ≥1 tier-1 enemy near the start ring (pure rule + tests).
+
+**Acceptance:** fresh profile → rail teaches round 1 hands-off and never stalls; skip/toggle/
+reset/resume all work; every panel's ? opens icon-inline copy; one-shots fire exactly once;
+20/20 maps pass the starter-enemy check; EditMode suites green.
+Spec: `docs/superpowers/specs/2026-07-15-m2.12-tutorial-help-design.md`.
+
 ## M3 — Run setup & meta-unlocks
 **Goal:** framed runs plus between-run progression.
 **Scope:**

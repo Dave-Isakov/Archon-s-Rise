@@ -100,6 +100,19 @@ _Starting bands — tune in playtest._
   (two solid options), **premium 5+** (strong or dual costed options).
 - A **crystal-costed option** delivers roughly **2× its free sibling's amount** (paying a crystal
   must feel worth it — pillar 3). E.g. Knight: Defend 3 free / Defend 6 for 1 Red.
+- An **Influence-costed option** (spec 2026-07-14) prices ≈ the **recruit-value of the stat burst** it
+  grants — a mercenary's "Attack 5 — 3 Influence" trades Influence pressure for a combat spike. One
+  cost type per option; author stronger tiers as separate rows.
+- _Starting values — tune in playtest._
+
+## Conversion & Refresh (spec 2026-07-14)
+- **Converter cards** price **~1 point under** a vanilla same-tier card of the same stat: the 1:1
+  conversion is an opt-in upside, so the base stat line is slightly discounted to pay for it. E.g.
+  Shield Bash (Defend 3 / empower Defend 5, may convert Defend→Attack) sits just under a plain Defend
+  card. Convert **skills** (e.g. Tactician) are per-round.
+- **Refresh** budget ≈ recruit value: base **Refresh ≈ one cheap unit** (`influenceCost` ~2–3),
+  empowered **≈ two cheap or one elite** unit. E.g. Mobilize Refresh 3 / empower Refresh 6. Pair
+  refresh with a small secondary stat (Explore 1) so a fizzle is never a wasted card.
 - _Starting values — tune in playtest._
 
 ## Skill Pool
