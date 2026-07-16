@@ -42,7 +42,8 @@ public class UnitPickerPanel : MonoBehaviour
     void Rebuild()
     {
         ClearEntries();
-        if (titleLabel != null) titleLabel.text = $"Refresh — {_remaining} left";
+        if (titleLabel != null)
+            titleLabel.text = $"{IconMarkup.Tag(IconConcept.Refresh)} Refresh — {_remaining} left";
 
         bool any = false;
         foreach (var unit in FindObjectsByType<Unit>())
