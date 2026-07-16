@@ -19,4 +19,5 @@ public enum IconConcept
     Keep,
     Castle,
     Dungeon,
+    Empower,
 }

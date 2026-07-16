@@ -26,6 +26,7 @@ public class IconMarkupTests
         Assert.AreEqual("<sprite=\"keep\" index=0>", IconMarkup.Tag(IconConcept.Keep));
         Assert.AreEqual("<sprite=\"castle\" index=0>", IconMarkup.Tag(IconConcept.Castle));
         Assert.AreEqual("<sprite=\"dungeon\" index=0>", IconMarkup.Tag(IconConcept.Dungeon));
+        Assert.AreEqual("<sprite=\"empower\" index=0>", IconMarkup.Tag(IconConcept.Empower));
     }
 
     [Test]

@@ -30,6 +30,7 @@ public static class IconMarkup
             case IconConcept.Keep:       return "keep";
             case IconConcept.Castle:     return "castle";
             case IconConcept.Dungeon:    return "dungeon";
+            case IconConcept.Empower:    return "empower";
             default:                     return "";
         }
     }
