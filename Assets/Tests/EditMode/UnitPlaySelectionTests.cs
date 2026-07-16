@@ -54,13 +54,14 @@ public class UnitPlaySelectionTests
     [Test]
     public void Describe_Free_Stat_Option()
     {
-        Assert.AreEqual("Attack 2", UnitOptionText.Describe(Opt(UnitEffect.Attack, 2)));
+        Assert.AreEqual("<sprite=\"Sword\" index=0> Attack 2",
+            UnitOptionText.Describe(Opt(UnitEffect.Attack, 2)));
     }
 
     [Test]
     public void Describe_Costed_Option_Appends_Cost()
     {
-        Assert.AreEqual("Defend 6 — 1 Red crystal",
+        Assert.AreEqual("<sprite=\"shield\" index=0> Defend 6 — <sprite=\"crystal\" index=0 color=#E5484D>1",
             UnitOptionText.Describe(Opt(UnitEffect.Defend, 6, EmpowerType.Red)));
     }
 
@@ -68,14 +69,14 @@ public class UnitPlaySelectionTests
     public void Describe_AnyColor_Cost()
     {
         var anyColor = EmpowerType.Red | EmpowerType.Yellow | EmpowerType.Green | EmpowerType.Purple;
-        Assert.AreEqual("Heal 1 — 1 crystal (any color)",
+        Assert.AreEqual("<sprite=\"Heal\" index=0> Heal 1 — <sprite=\"crystal\" index=0>1 (any color)",
             UnitOptionText.Describe(Opt(UnitEffect.Heal, 1, anyColor)));
     }
 
     [Test]
     public void Describe_Crystallize_Shows_Grant_Color()
     {
-        Assert.AreEqual("Crystallize: 1 Yellow",
+        Assert.AreEqual("<sprite=\"crystal\" index=0 color=#F5D90A> Crystallize 1",
             UnitOptionText.Describe(Opt(UnitEffect.Crystallize, 1, EmpowerType.None, EmpowerType.Yellow)));
     }
 
