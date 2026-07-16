@@ -41,9 +41,9 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
         {
             bool recruit = enemySO.recruitedUnit != null && player != null && player.HasCharismatic;
             enemyInfluence.gameObject.SetActive(true);
-            enemyInfluence.text = "<sprite=\"gem\" index=0> \n" + enemySO.influenceCost.ToString();
+            enemyInfluence.text = IconMarkup.Tag(IconConcept.Influence) + " \n" + enemySO.influenceCost.ToString();
             influenceButtonText.text = (recruit ? "Recruit " : "Pay ")
-                + "<sprite=\"gem\" index=0>" + enemySO.influenceCost.ToString();
+                + IconMarkup.Cost(IconConcept.Influence, enemySO.influenceCost);
             influenceButton.interactable = true;
             influenceButton.onClick.AddListener(() => player.InfluenceEnemy(this));
         }
