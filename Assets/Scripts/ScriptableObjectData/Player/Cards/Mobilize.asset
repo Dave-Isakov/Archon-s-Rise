@@ -17,8 +17,7 @@ MonoBehaviour:
   cardDescription: 'Refresh: 3
 
 
-    Empower Refresh: 6
-
+    <sprite="empower" index=0> Refresh: 6
 
     Refresh = Unit <sprite="gem"
     index=0>'

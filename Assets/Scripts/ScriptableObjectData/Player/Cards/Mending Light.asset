@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   id: card_mending_light
   cardName: Mending Light
-  cardDescription: "<sprite=\"Heal\" index=0>: 1 <sprite=\"crystal\" index=0 color=#522D2D>: 1\n\nEmpower <sprite=\"Heal\" index=0>: 2 <sprite=\"crystal\" index=0 color=#522D2D>: 2"
+  cardDescription: "<sprite=\"Heal\" index=0>: 1 <sprite=\"crystal\" index=0 color=#522D2D>: 1\n\n<sprite=\"empower\" index=0> <sprite=\"Heal\" index=0>: 2 <sprite=\"crystal\" index=0 color=#522D2D>: 2"
   attack: 0
   defend: 0
   explore: 0

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   id: card_siege_ram
   cardName: Siege Ram
-  cardDescription: "<sprite=\"shield\" index=0>: 1 <sprite=\"siege\" index=0>: 2\n\nEmpower <sprite=\"shield\" index=0>: 2 <sprite=\"siege\" index=0>: 3"
+  cardDescription: "<sprite=\"shield\" index=0>: 1 <sprite=\"siege\" index=0>: 2\n\n<sprite=\"empower\" index=0> <sprite=\"shield\" index=0>: 2 <sprite=\"siege\" index=0>: 3"
   attack: 0
   defend: 1
   explore: 0

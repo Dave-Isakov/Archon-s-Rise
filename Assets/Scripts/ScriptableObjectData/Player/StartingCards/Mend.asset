@@ -17,7 +17,7 @@ MonoBehaviour:
   cardDescription: '<sprite="Heal" index=0>: 1
 
 
-    Empower <sprite="Heal" index=0>:
+    <sprite="empower" index=0> <sprite="Heal" index=0>:
     2'
   attack: 0
   defend: 0

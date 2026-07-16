@@ -17,7 +17,7 @@ MonoBehaviour:
   cardDescription: '<sprite="gem" index=0>: 2
 
 
-    Empower <sprite="gem" index=0>:
+    <sprite="empower" index=0> <sprite="gem" index=0>:
     4'
   attack: 0
   defend: 0

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   id: card_guarded_advance
   cardName: Guarded Advance
-  cardDescription: "<sprite=\"shield\" index=0>: 2 <sprite=\"scroll\" index=0>: 1\n\nEmpower <sprite=\"shield\" index=0>: 3 <sprite=\"scroll\" index=0>: 3"
+  cardDescription: "<sprite=\"shield\" index=0>: 2 <sprite=\"scroll\" index=0>: 1\n\n<sprite=\"empower\" index=0> <sprite=\"shield\" index=0>: 3 <sprite=\"scroll\" index=0>: 3"
   attack: 0
   defend: 2
   explore: 1

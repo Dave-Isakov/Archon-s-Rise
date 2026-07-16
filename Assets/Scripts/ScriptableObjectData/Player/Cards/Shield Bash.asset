@@ -17,7 +17,7 @@ MonoBehaviour:
   cardDescription: '<sprite="shield" index=0>: 3
 
 
-    Empower <sprite="shield" index=0>:
+    <sprite="empower" index=0> <sprite="shield" index=0>:
     5
 
 

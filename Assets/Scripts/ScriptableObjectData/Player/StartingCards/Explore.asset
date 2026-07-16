@@ -17,7 +17,7 @@ MonoBehaviour:
   cardDescription: '<sprite="scroll" index=0>: 2
 
 
-    Empower <sprite="scroll" index=0>:
+    <sprite="empower" index=0> <sprite="scroll" index=0>:
     3'
   attack: 0
   defend: 0

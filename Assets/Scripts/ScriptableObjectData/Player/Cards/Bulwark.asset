@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   id: card_bulwark
   cardName: Bulwark
-  cardDescription: "<sprite=\"shield\" index=0>: 3\n\nEmpower <sprite=\"shield\" index=0>: 6"
+  cardDescription: "<sprite=\"shield\" index=0>: 3\n\n<sprite=\"empower\" index=0> <sprite=\"shield\" index=0>: 6"
   attack: 0
   defend: 3
   explore: 0

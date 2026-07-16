@@ -17,7 +17,7 @@ MonoBehaviour:
   cardDescription: '<sprite="siege" index=0>: 2
 
 
-    Empower <sprite="siege" index=0>:
+    <sprite="empower" index=0> <sprite="siege" index=0>:
     3'
   attack: 0
   defend: 0

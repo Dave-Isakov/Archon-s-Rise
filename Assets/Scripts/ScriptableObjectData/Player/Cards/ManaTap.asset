@@ -18,7 +18,7 @@ MonoBehaviour:
     1
 
 
-    Empower <sprite="scroll" index=0>: 6 <sprite="Heal" index=0>: 1 '
+    <sprite="empower" index=0> <sprite="scroll" index=0>: 6 <sprite="Heal" index=0>: 1 '
   attack: 0
   defend: 0
   explore: 2

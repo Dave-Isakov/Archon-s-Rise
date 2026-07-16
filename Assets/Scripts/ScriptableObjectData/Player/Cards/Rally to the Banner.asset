@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CardsSO
   id: card_rally_to_the_banner
   cardName: Rally to the Banner
-  cardDescription: "<sprite=\"gem\" index=0>: 2\n\nEmpower <sprite=\"gem\" index=0>:
+  cardDescription: "<sprite=\"gem\" index=0>: 2\n\n<sprite=\"empower\" index=0> <sprite=\"gem\" index=0>:
     3\n\n<sprite=\"Sword\" index=0> <sprite=\"shield\" index=0> <sprite=\"scroll\"
     index=0> -> <sprite=\"gem\" index=0>"
   attack: 0

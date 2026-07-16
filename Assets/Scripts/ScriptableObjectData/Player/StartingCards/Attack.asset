@@ -17,7 +17,7 @@ MonoBehaviour:
   cardDescription: '<sprite="Sword" index=0>: 2
 
 
-    Empower <sprite="Sword" index=0>:
+    <sprite="empower" index=0> <sprite="Sword" index=0>:
     4'
   attack: 2
   defend: 0
