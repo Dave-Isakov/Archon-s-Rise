@@ -14,6 +14,7 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
     public EnemyCard cardRef;
     public bool isAggro;
     public bool inCombat;
+    [SerializeField] SpriteRenderer glow; // soft halo child, pulses while the player is adjacent
     // Doom scaling applied at spawn time. Lives on the token — the shared
     // EnemiesSO asset is NEVER mutated.
     public int bonusHP;
@@ -49,6 +50,24 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
                 DataManager.Instance.DefeatedEnemies.Add(
                     new ArchonsRise.SaveData.Cell(gridPos.x, gridPos.y));
             Destroy(this.gameObject);
+        }
+
+        // Adjacency affordance: the halo pulses while the player stands next to
+        // this token (isAggro) and the token isn't fog-hidden.
+        if (glow != null)
+        {
+            bool show = isAggro && !MapFog.IsHidden(gridPos);
+            if (show)
+            {
+                if (!glow.enabled) glow.enabled = true;
+                var c = glow.color;
+                c.a = GlowPulse.Alpha(Time.time, 0.3f, 1.0f, 4f);
+                glow.color = c;
+            }
+            else if (glow.enabled)
+            {
+                glow.enabled = false;
+            }
         }
     }
 
