@@ -127,7 +127,18 @@ legible to a stranger; prerequisite for M2.12's icon-inline teaching text.
 HUD's glyph for every concept; validation suite green.
 Spec: `docs/superpowers/specs/2026-07-15-m2.11-ui-language-iconography-design.md`.
 
-## M2.12 — Tutorial & help system
+## M2.12 — Tutorial & help system — ✅ code complete 2026-07-16 (editor wiring + acceptance pending)
+**Status:** All code shipped and TDD-green (`TutorialRulesTests` 13/13 + the starter-guarantee
+additions to `SpawnRulesTests`, both via the mcs harness; `TutorialCopyValidationTests` pins authored
+copy from the editor). Remaining before sign-off is **USER editor work** (plan Tasks 8 + 10): build
+the TutorialCanvas (manager + banner + highlight frame + help popup), author the content assets
+(8 rail steps, 7 one-shots, 11 help entries, 7 VoidEvents), wire the 12 listeners + `TutorialTarget`
+drops + 11 `HelpIcon`s + MainMenu controls, then run the acceptance checklist.
+**Deviations from the plan/spec:** the spec's step "GameEvent reference" ships as a stable **event-id
+string** wired via Static-mode listeners (the typed generic bus can't be referenced polymorphically —
+see the 2026-07-16 decisions-log entry); one-shots reuse the rail banner (Next relabeled "Got it")
+rather than a second prefab; the doom one-shot fires on the **mid** band (`lowBandMax` crossing, where
+flags first fire).
 **Goal:** external playtesters learn unassisted — guided first round on the real first run,
 contextual help everywhere, fully optional. Driver for the playtest handoff.
 **Scope:**

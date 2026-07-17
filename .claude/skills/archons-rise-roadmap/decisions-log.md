@@ -337,3 +337,41 @@ editing an old one.
   having "no icon of its own," which stopped being true. Registry grows to 18 entries. Spec:
   `docs/superpowers/specs/2026-07-16-refresh-icon-design.md` (executed inline, no separate plan —
   four-file delta on the empower template).
+
+- **2026-07-16 — M2.12 tutorial implemented: contextual, event-driven, PlayerPrefs-only.**
+  Shipped the tutorial & help system as a pure `TutorialRules` state machine (new
+  `ArchonsRise.Tutorial` asmdef, TDD'd via the mcs harness) driving a scene `TutorialManager` on an
+  always-active TutorialCanvas that hosts every event listener (never the banner/popup children —
+  the self-disabling-listener trap), plus three dumb views (`TutorialBanner`, `HighlightFrame`
+  resolving ids through a static `TutorialTarget` registry, shared `HelpPopup` opened by `HelpIcon`s)
+  and content SOs (`TutorialStepSO`/`TutorialOneShotSO`/`HelpEntrySO`) under `Assets/Tutorial/`.
+  Locked implementation decisions:
+  1. **The spec's step "GameEvent reference" is translated to a stable event-id string.** The bus is
+     `BaseGameEvent<T>` over a dozen `T`s — no single serialized field can reference them
+     polymorphically. Each step/one-shot carries an event-id string; the user wires ordinary listener
+     components onto the TutorialManager whose UnityEvent calls `NotifyEvent(string)` in **Static**
+     mode (the doom band is a **Dynamic int** on `NotifyDoom`). 12 ids:
+     `card-played`, `player-moved`, `combat-started`, `enemy-resolved`, `turn-ended`, `wound`,
+     `crystal`, `level-up`, `town-entered`, `dungeon-entered`, `deck-cant-refill`, `doom-band`.
+  2. **Rail advancement tolerates out-of-order play** — every fired event is recorded, so a step whose
+     event already fired auto-completes the instant it becomes current; nothing ever stalls, and there
+     is **no input locking** anywhere (steps wait; a missing highlight target warns once and hides).
+  3. **Skip = rail done + every launch one-shot's seen flag set** — using only the specced persistence
+     keys (no separate "one-shots off" flag).
+  4. **Tips-toggle-off ≠ canvas GameObject off** — toggling off hides banner/frame and mutes
+     one-shots/pulses, but the TutorialCanvas stays active so the always-available `?` popup never
+     self-disables.
+  5. **The doom flagged band is derived, not raised** — an IntListener on the existing
+     `OnDoomChanged_UpdateMeter` calls `NotifyDoom(int)`, which emits `doom-band` when doom crosses
+     `DoomTuning.lowBandMax` (the mid band, where dungeon flags first fire). No hook in the lazy
+     `DungeonTracker`.
+  6. **The starter-enemy guarantee places, never retiers** — at map generation doom is 0, so every
+     initial enemy is tier 1 by construction; `SpawnRules.NeedsStarterEnemy`/`TryPickStarterCell` add
+     one directly-placed enemy inside `starterEnemyRadius` only when the zone spread left none, and the
+     nearest is tagged `starter-enemy` for the rail's fight step.
+  7. **First PlayerPrefs use, keys namespaced `tut.*`** (`tut.enabled`, `tut.railStep`,
+     `tut.oneshot.<id>`, `tut.help.<panelId>`); banners/help are never modals (never enqueue on
+     `RewardQueue`) and hide while `RewardQueue.Busy`, a picker canvas is open, or after run end. The
+     **run save schema is untouched (stays v6)** — tutorial state is device-level.
+  Spec: `docs/superpowers/specs/2026-07-15-m2.12-tutorial-help-design.md`; plan:
+  `docs/superpowers/plans/2026-07-16-m2.12-tutorial-help.md`.

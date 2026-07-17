@@ -212,3 +212,36 @@ for the starting bands.
 | `playerName` | string | Hero name |
 | `playerHandSize` | int | Starting hand size |
 | `startingHand` | List&lt;`CardsSO`&gt; | Starting deck/hand |
+
+## Tutorial & help copy (spec 2026-07-15, M2.12)
+
+Tutorial and help text is authored as ScriptableObject assets under `Assets/Tutorial/`, never in
+code. Three types (all in the `ArchonsRise.Tutorial` asmdef):
+
+| Type | Menu | Fields | Persistence key |
+|------|------|--------|-----------------|
+| `TutorialStepSO` | `ArchonsRise/Tutorial/Rail Step` | `id`, `bannerText`, `highlightTargetId`, `completionEventId` | `tut.railStep` (index) |
+| `TutorialOneShotSO` | `ArchonsRise/Tutorial/One-Shot Tip` | `id`, `bannerText`, `highlightTargetId`, `triggerEventId` | `tut.oneshot.<id>` |
+| `HelpEntrySO` | `ArchonsRise/Tutorial/Help Entry` | `panelId`, `title`, `body` | `tut.help.<panelId>` |
+
+**Rules:**
+- **All copy embeds registry icons** via the canonical `<sprite="name" index=0>` tags (names from
+  `IconMarkup.TmpName`, the same 18 as card text). `TutorialCopyValidationTests` fails on any unknown
+  tag — never hand-roll a glyph name.
+- **`id` / `panelId` are PlayerPrefs key components — never rename after ship** (a rename resets the
+  player's seen state). They must be unique and non-empty (`TutorialCopyValidationTests` pins this).
+- **One-shots stay short (≤ 2 sentences)** and point at a panel's `?` for the durable explanation —
+  the reactive tip teaches the moment, the help entry is the reference.
+- **`completionEventId` / `triggerEventId` come from the event-id contract** (below). An empty
+  `completionEventId` makes a rail step informational (advances on the banner's **Next** button).
+- **New one-shots / help entries must be added to the `TutorialManager`'s `oneShots` / `helpEntries`
+  lists** in the scene, or Skip and Reset won't clear their persisted keys.
+
+**Event-id contract** (rail step / one-shot completion strings; each is wired as a listener's Static
+string argument onto the TutorialManager object, except `doom-band` which is a DYNAMIC int on
+`NotifyDoom`):
+`card-played`, `player-moved`, `combat-started`, `enemy-resolved`, `turn-ended`, `wound`, `crystal`,
+`level-up`, `town-entered`, `dungeon-entered`, `deck-cant-refill`, `doom-band`.
+
+Tutorial state is **device-level PlayerPrefs only** (keys namespaced `tut.*`) — the run save schema
+(v6) is untouched by the tutorial.
