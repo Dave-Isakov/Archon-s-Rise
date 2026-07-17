@@ -8,6 +8,8 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] Button endTurnButton;
     [SerializeField] VoidEvent endTheTurn;
+    [SerializeField] VoidEvent onDeckCannotRefillTutorial; // M2.12 one-shot trigger
+    DrawVerdict lastVerdict = DrawVerdict.Draw;
     PlayerDeck deck;
     PlayerHand hand;
     Player player;
@@ -70,8 +72,13 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
         if (deck == null || hand == null || player == null) return;
         // Disabled mid-fight, and when the deck can't refill the hand (ending the
         // turn would only tick the turn counter — the round has to end instead).
+        var verdict = DrawGate.Evaluate(deck.CardsInDeck.Count, hand.cardsInPlay.Count, player.PlayerHandSize);
+        // Fire once per entry into DeckEmpty — Update polls every frame.
+        if (verdict == DrawVerdict.DeckEmpty && lastVerdict != DrawVerdict.DeckEmpty
+            && onDeckCannotRefillTutorial != null)
+            onDeckCannotRefillTutorial.Raise();
+        lastVerdict = verdict;
         endTurnButton.interactable = TurnButtonGate.EndTurn(
-            GameManager.Instance.activeCombatant != null || GuardianAssault.AnyInProgress,
-            DrawGate.Evaluate(deck.CardsInDeck.Count, hand.cardsInPlay.Count, player.PlayerHandSize));
+            GameManager.Instance.activeCombatant != null || GuardianAssault.AnyInProgress, verdict);
     }
 }

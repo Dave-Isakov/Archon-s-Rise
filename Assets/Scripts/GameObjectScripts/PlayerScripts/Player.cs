@@ -57,6 +57,7 @@ public class Player : MonoBehaviour
     [SerializeField] IntEvent onInfluenceEvent_GetCurrentInfluence;
     [SerializeField] IntEvent OnExploreEvent_GetCurrentExplore;
     [SerializeField] EnemyCardEvent onDefeat_WoundPlayer;
+    [SerializeField] VoidEvent onLevelUpTutorial; // M2.12 one-shot trigger
 
     void Start()
     {
@@ -695,6 +696,7 @@ public class Player : MonoBehaviour
     public void PlayerLevelUp()
     {
         playerLevel++;
+        if (onLevelUpTutorial != null) onLevelUpTutorial.Raise();
         // Overflow exp carries into the next level (the old reset-to-0 discarded
         // it). Update() keeps polling, so back-to-back level-ups fire one per
         // frame and their reward queues chain in order.

@@ -21,6 +21,7 @@ public class PlayerHand : MonoBehaviour
     Card activeCard;
     [Header("Events")]
     [SerializeField] GameObjectEvent newCardDraw;
+    [SerializeField] VoidEvent onWoundTutorial; // M2.12 one-shot trigger
 
     void Start()
     {
@@ -112,6 +113,7 @@ public class PlayerHand : MonoBehaviour
         woundCard.cardSO = wound;
         playerCard.name = woundCard.name;
         Relayout();
+        if (onWoundTutorial != null) onWoundTutorial.Raise();
         // Wound adds are not undoable commands, so a threshold crossed here
         // can never be un-done back under it — check at the moment of add.
         if (RunEndRules.IsWoundOut(TotalWoundCount()))

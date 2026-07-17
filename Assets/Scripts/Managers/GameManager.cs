@@ -28,6 +28,10 @@ public class GameManager : MonoBehaviour
     // Flee control. The combat canvas is reused to preview enemy tokens out of
     // range, so the Flee button is shown only during a real fight.
     public Button fleeButton;
+    // M2.12 tutorial triggers, raised at the real sites so the rail and
+    // one-shots key off actual play. Null-safe until wired.
+    [SerializeField] VoidEvent onCombatStartedTutorial;
+    [SerializeField] VoidEvent onEnemyResolvedTutorial;
     public Canvas cardRewardCanvas;
     public Canvas cardListCanvas;
     public Canvas townCanvas;
@@ -136,6 +140,7 @@ public class GameManager : MonoBehaviour
 
     public void CombatCanvasActive()
     {
+        if (onCombatStartedTutorial != null) onCombatStartedTutorial.Raise();
         combatCanvas.enabled = true;
         combatCanvas.GetComponentInChildren<Animator>().enabled = true;
         if (combatBanner != null) combatBanner.enabled = false; // no intro flash for guardian/dungeon
@@ -147,6 +152,7 @@ public class GameManager : MonoBehaviour
     // which never reset and made the intro play only once), wait its duration.
     public IEnumerator PlayCombatIntro()
     {
+        if (onCombatStartedTutorial != null) onCombatStartedTutorial.Raise();
         combatCanvas.enabled = true;
         var animator = combatCanvas.GetComponentInChildren<Animator>(true);
         if (combatBanner != null) combatBanner.enabled = true;
@@ -176,6 +182,7 @@ public class GameManager : MonoBehaviour
     // click-the-defeated-card teardown.
     public void ResolveDefeat(EnemyCard enemy)
     {
+        if (onEnemyResolvedTutorial != null) onEnemyResolvedTutorial.Raise();
         RewardSummary summary = rewards.GetReward(enemy);
 
         ValidationMessage(DefeatMessage.Compose(

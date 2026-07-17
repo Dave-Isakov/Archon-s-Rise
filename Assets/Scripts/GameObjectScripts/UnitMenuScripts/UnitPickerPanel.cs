@@ -17,6 +17,9 @@ public class UnitPickerPanel : MonoBehaviour
     [SerializeField] Button doneButton;
     [SerializeField] TextMeshProUGUI titleLabel;   // "Refresh — 3 left"
 
+    // M2.12: the tutorial banner hides while any picker is open.
+    public static bool AnyOpen { get; private set; }
+
     System.Action<Unit> _onPick;
     int _remaining;
     readonly List<GameObject> spawned = new();
@@ -28,11 +31,13 @@ public class UnitPickerPanel : MonoBehaviour
     {
         doneButton.onClick.RemoveAllListeners();
         doneButton.onClick.AddListener(Close);
+        AnyOpen = false;
         Canvas.enabled = false; // start closed regardless of the authored state
     }
 
     public void OpenForRefresh(int budget, System.Action<Unit> onPick)
     {
+        AnyOpen = true;
         _onPick = onPick;
         _remaining = budget;
         Canvas.enabled = true;
@@ -77,6 +82,7 @@ public class UnitPickerPanel : MonoBehaviour
 
     void Close()
     {
+        AnyOpen = false;
         ClearEntries();
         _onPick = null;
         Canvas.enabled = false;

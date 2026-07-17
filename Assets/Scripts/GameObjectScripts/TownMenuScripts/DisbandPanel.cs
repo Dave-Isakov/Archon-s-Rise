@@ -15,6 +15,9 @@ public class DisbandPanel : MonoBehaviour
     [SerializeField] GameObject entryButtonPrefab; // Button + TMP label
     [SerializeField] Button cancelButton;
 
+    // M2.12: the tutorial banner hides while any picker is open.
+    public static bool AnyOpen { get; private set; }
+
     System.Action _onDisbanded;
     readonly List<GameObject> spawned = new();
 
@@ -25,6 +28,7 @@ public class DisbandPanel : MonoBehaviour
     {
         cancelButton.onClick.RemoveAllListeners();
         cancelButton.onClick.AddListener(Close);
+        AnyOpen = false;
         Canvas.enabled = false; // start closed regardless of the authored state
     }
 
@@ -32,6 +36,7 @@ public class DisbandPanel : MonoBehaviour
     // both pass their own continuation. Cancel never runs it.
     public void OpenForHire(System.Action onDisbanded)
     {
+        AnyOpen = true;
         _onDisbanded = onDisbanded;
         ClearEntries();
         Canvas.enabled = true;
@@ -56,6 +61,7 @@ public class DisbandPanel : MonoBehaviour
 
     void Close()
     {
+        AnyOpen = false;
         ClearEntries();
         _onDisbanded = null;
         Canvas.enabled = false;

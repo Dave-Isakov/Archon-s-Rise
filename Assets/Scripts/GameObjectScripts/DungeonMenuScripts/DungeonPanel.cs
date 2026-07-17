@@ -20,6 +20,7 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
     // current total, so the Delve gate updates live as the player pays cards while
     // the panel is open (instead of a one-shot check when the menu opens).
     [SerializeField] IntEvent onExploreChanged;
+    [SerializeField] VoidEvent onDungeonOpenTutorial; // M2.12 one-shot trigger
 
     private DungeonToken current;
 
@@ -45,6 +46,7 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
     {
         current = token;
         GameManager.Instance.dungeonCanvas.enabled = true;
+        if (onDungeonOpenTutorial != null) onDungeonOpenTutorial.Raise();
         Refresh();
     }
 

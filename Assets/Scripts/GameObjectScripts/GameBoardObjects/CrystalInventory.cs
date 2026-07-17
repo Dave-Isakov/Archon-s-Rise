@@ -9,6 +9,7 @@ using UnityEngine.EventSystems;
 public class CrystalInventory : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField] List<GameObject> crystals = new();
+    [SerializeField] VoidEvent onCrystalGainedTutorial; // M2.12 one-shot trigger
     public List<Crystal> crystalsInInventory;
     private int crystalID;
     GameObject activeCrystal;
@@ -50,6 +51,11 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
         activeCrystal.name += crystalID;
         crystalID++;
         crystalsInInventory.Add(activeCrystal.GetComponent<Crystal>());
+        // Save restore also funnels through here (SetCounts) — a load must
+        // never look like a fresh gain.
+        if (onCrystalGainedTutorial != null
+            && (DataManager.Instance == null || !DataManager.Instance.IsLoading))
+            onCrystalGainedTutorial.Raise();
         return activeCrystal.GetComponent<Crystal>();
     }
 
