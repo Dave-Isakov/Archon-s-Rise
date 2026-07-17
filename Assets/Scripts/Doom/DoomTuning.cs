@@ -25,6 +25,12 @@ public class DoomTuning
     public int startSafeRadius = 3;
     public int initialEnemiesPerZone = 2;
 
+    // M2.12 starter-enemy guarantee: after map gen at least one enemy must sit
+    // within this Chebyshev radius of the start (doom 0 → all tier 1). The
+    // rail's fight step must always have a subject.
+    public bool guaranteeStarterEnemy = true;
+    public int starterEnemyRadius = 5;
+
     // Dungeon flagging + doom relief (M2.9, spec 2026-07-13). Flags fire once
     // per run when doom first enters the mid/high band; completion relief is
     // applied as a negative DoomClock.Add.

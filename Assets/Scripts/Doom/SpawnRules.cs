@@ -57,4 +57,34 @@ public static class SpawnRules
             if (tiers[i] <= maxTier) eligible.Add(i);
         return eligible.Count == 0 ? -1 : eligible[rng(eligible.Count)];
     }
+
+    // M2.12 starter guarantee. At map generation doom is 0, so every initial
+    // enemy is tier 1 by construction — presence within the radius is the
+    // whole check.
+    public static bool NeedsStarterEnemy(IReadOnlyList<Cell> enemyCells, Cell start, int starterRadius)
+    {
+        foreach (var c in enemyCells)
+            if (Spacing(c, start) <= starterRadius) return false;
+        return true;
+    }
+
+    // Valid starter cells sit at spacing [2, starterRadius] from start (never
+    // on or adjacent to it, matching the zone-spawn rule) and are not blocked.
+    // False when the radius is saturated — the caller just skips (spec: place
+    // at a valid cell, never force).
+    public static bool TryPickStarterCell(IReadOnlyList<Cell> candidates, Cell start,
+        int starterRadius, HashSet<Cell> blocked, Func<int, int> rng, out Cell result)
+    {
+        var open = new List<Cell>();
+        foreach (var c in candidates)
+        {
+            int d = Spacing(c, start);
+            if (d < 2 || d > starterRadius) continue;
+            if (blocked.Contains(c)) continue;
+            open.Add(c);
+        }
+        if (open.Count == 0) { result = default(Cell); return false; }
+        result = open[rng(open.Count)];
+        return true;
+    }
 }

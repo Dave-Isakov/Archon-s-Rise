@@ -274,6 +274,8 @@ public class GridGeneration : MonoBehaviour
         var tiers = new List<int>();
         foreach (var e in deck.enemies) tiers.Add(e.tier);
 
+        var placedEnemyCells = new List<ArchonsRise.SaveData.Cell>();
+
         foreach (var zone in ZoneCells)
         {
             // Pre-block off-map / non-land / town cells in this zone's footprint
@@ -296,7 +298,37 @@ public class GridGeneration : MonoBehaviour
                 int idx = SpawnRules.PickEnemyIndex(tiers, DoomRules.MaxTier(0, tuning), max => Rng(0, max));
                 if (idx < 0) break;
                 deck.GetNewEnemyToken(new Vector3Int(cell.x, cell.y), ground, idx);
+                placedEnemyCells.Add(cell);
                 blocked.Add(cell);
+            }
+        }
+
+        // M2.12 starter guarantee: the near-start zone can fail or saturate,
+        // so back-stop with one directly placed enemy inside the starter
+        // radius (doom 0 → tier 1 by construction). Same cell rules as zone
+        // spawns: land only, no towns/dungeons, never on/adjacent to start.
+        if (tuning.guaranteeStarterEnemy
+            && SpawnRules.NeedsStarterEnemy(placedEnemyCells, start, tuning.starterEnemyRadius))
+        {
+            var starterCandidates = new List<ArchonsRise.SaveData.Cell>();
+            for (int x = 0; x <= tuning.starterEnemyRadius && x < 20; x++)
+                for (int y = 0; y <= tuning.starterEnemyRadius && y < 20; y++)
+                {
+                    var pos = new Vector3Int(x, y);
+                    if (!ground.HasTile(pos) || ground.GetTile(pos) == townTile
+                        || ground.GetTile(pos) == dungeonTile) continue;
+                    starterCandidates.Add(new ArchonsRise.SaveData.Cell(x, y));
+                }
+            if (SpawnRules.TryPickStarterCell(starterCandidates, start, tuning.starterEnemyRadius,
+                blocked, max => Rng(0, max), out var starterCell))
+            {
+                int idx = SpawnRules.PickEnemyIndex(tiers, DoomRules.MaxTier(0, tuning), max => Rng(0, max));
+                if (idx >= 0)
+                {
+                    deck.GetNewEnemyToken(new Vector3Int(starterCell.x, starterCell.y), ground, idx);
+                    placedEnemyCells.Add(starterCell);
+                    blocked.Add(starterCell);
+                }
             }
         }
 

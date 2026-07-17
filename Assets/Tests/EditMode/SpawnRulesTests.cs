@@ -77,4 +77,58 @@ public class SpawnRulesTests
         var tiers = new List<int> { 2, 3 };
         Assert.AreEqual(-1, SpawnRules.PickEnemyIndex(tiers, 1, Rng(0)));
     }
+
+    // --- M2.12 starter-enemy guarantee ---
+
+    [Test]
+    public void NeedsStarterEnemy_TrueWhenNoEnemyInRadius()
+    {
+        var enemies = new List<Cell> { new Cell(9, 9), new Cell(12, 3) };
+        Assert.IsTrue(SpawnRules.NeedsStarterEnemy(enemies, new Cell(0, 0), 5));
+    }
+
+    [Test]
+    public void NeedsStarterEnemy_FalseWhenOneIsWithinRadius()
+    {
+        var enemies = new List<Cell> { new Cell(9, 9), new Cell(3, 4) };
+        Assert.IsFalse(SpawnRules.NeedsStarterEnemy(enemies, new Cell(0, 0), 5));
+    }
+
+    [Test]
+    public void NeedsStarterEnemy_TrueWhenNoEnemiesAtAll()
+    {
+        Assert.IsTrue(SpawnRules.NeedsStarterEnemy(new List<Cell>(), new Cell(0, 0), 5));
+    }
+
+    [Test]
+    public void TryPickStarterCell_PicksOnlyInsideTheRing()
+    {
+        // (1,0) is adjacent to start (excluded), (9,9) beyond the radius, (4,4) valid.
+        var candidates = new List<Cell> { new Cell(1, 0), new Cell(9, 9), new Cell(4, 4) };
+        Cell picked;
+        Assert.IsTrue(SpawnRules.TryPickStarterCell(candidates, new Cell(0, 0), 5,
+            new HashSet<Cell>(), Rng(0), out picked));
+        Assert.AreEqual(new Cell(4, 4), picked);
+    }
+
+    [Test]
+    public void TryPickStarterCell_RespectsBlockedCells()
+    {
+        var candidates = new List<Cell> { new Cell(4, 4), new Cell(2, 3) };
+        var blocked = new HashSet<Cell> { new Cell(4, 4) };
+        Cell picked;
+        Assert.IsTrue(SpawnRules.TryPickStarterCell(candidates, new Cell(0, 0), 5,
+            blocked, Rng(0), out picked));
+        Assert.AreEqual(new Cell(2, 3), picked);
+    }
+
+    [Test]
+    public void TryPickStarterCell_FalseWhenSaturated()
+    {
+        var candidates = new List<Cell> { new Cell(4, 4) };
+        var blocked = new HashSet<Cell> { new Cell(4, 4) };
+        Cell picked;
+        Assert.IsFalse(SpawnRules.TryPickStarterCell(candidates, new Cell(0, 0), 5,
+            blocked, Rng(0), out picked));
+    }
 }
