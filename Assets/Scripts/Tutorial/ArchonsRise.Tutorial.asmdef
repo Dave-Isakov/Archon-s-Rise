@@ -1,0 +1,12 @@
+{
+    "name": "ArchonsRise.Tutorial",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "precompiledReferences": [],
+    "overrideReferences": false
+}
