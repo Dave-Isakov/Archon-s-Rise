@@ -42,7 +42,7 @@ public class EnemyDeck : Deck<EnemiesSO>, IPointerClickHandler
         token.cardRef = card;
     }
 
-    public void GetNewEnemyToken(Vector3Int gridPosition, Tilemap ground, int enemyIndex,
+    public EnemyToken GetNewEnemyToken(Vector3Int gridPosition, Tilemap ground, int enemyIndex,
         int bonusHP = 0, int bonusAttack = 0, bool isMidRunSpawn = false)
     {
         enemyToken = Instantiate(prefabEnemyToken, ground.CellToLocal(gridPosition), Quaternion.identity);
@@ -54,6 +54,7 @@ public class EnemyDeck : Deck<EnemiesSO>, IPointerClickHandler
         token.bonusHP = bonusHP;
         token.bonusAttack = bonusAttack;
         token.isMidRunSpawn = isMidRunSpawn;
+        return token;
     }
 
     public void OnPointerClick(PointerEventData eventData)

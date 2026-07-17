@@ -276,6 +276,10 @@ public class GridGeneration : MonoBehaviour
 
         var placedEnemyCells = new List<ArchonsRise.SaveData.Cell>();
 
+        // The rail's fight step highlights this token (id "starter-enemy").
+        EnemyToken nearestStarter = null;
+        int nearestStarterDist = int.MaxValue;
+
         foreach (var zone in ZoneCells)
         {
             // Pre-block off-map / non-land / town cells in this zone's footprint
@@ -297,8 +301,14 @@ public class GridGeneration : MonoBehaviour
                 if (!SpawnRules.TryPickSpawnCell(zone, offsets, blocked, max => Rng(0, max), out var cell)) break;
                 int idx = SpawnRules.PickEnemyIndex(tiers, DoomRules.MaxTier(0, tuning), max => Rng(0, max));
                 if (idx < 0) break;
-                deck.GetNewEnemyToken(new Vector3Int(cell.x, cell.y), ground, idx);
+                var token = deck.GetNewEnemyToken(new Vector3Int(cell.x, cell.y), ground, idx);
                 placedEnemyCells.Add(cell);
+                int startDist = SpawnRules.Spacing(cell, start);
+                if (startDist <= tuning.starterEnemyRadius && startDist < nearestStarterDist)
+                {
+                    nearestStarterDist = startDist;
+                    nearestStarter = token;
+                }
                 blocked.Add(cell);
             }
         }
@@ -325,12 +335,21 @@ public class GridGeneration : MonoBehaviour
                 int idx = SpawnRules.PickEnemyIndex(tiers, DoomRules.MaxTier(0, tuning), max => Rng(0, max));
                 if (idx >= 0)
                 {
-                    deck.GetNewEnemyToken(new Vector3Int(starterCell.x, starterCell.y), ground, idx);
+                    var token = deck.GetNewEnemyToken(new Vector3Int(starterCell.x, starterCell.y), ground, idx);
                     placedEnemyCells.Add(starterCell);
                     blocked.Add(starterCell);
+                    int startDist = SpawnRules.Spacing(starterCell, start);
+                    if (startDist < nearestStarterDist)
+                    {
+                        nearestStarterDist = startDist;
+                        nearestStarter = token;
+                    }
                 }
             }
         }
+
+        if (nearestStarter != null)
+            TutorialTarget.Attach(nearestStarter.gameObject, "starter-enemy");
 
         if (spawner != null) spawner.SetZones(ZoneCells);
     }
