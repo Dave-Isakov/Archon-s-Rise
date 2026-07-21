@@ -50,4 +50,16 @@ public class DoomRulesTests
         Assert.AreEqual(0, DoomRules.Add(1, -3, T()));
         Assert.AreEqual(4, DoomRules.Add(7, -3, T()));
     }
+
+    [Test]
+    public void TurnsForBand_Shrinks_As_Doom_Climbs()
+    {
+        var t = T();
+        Assert.AreEqual(6, DoomRules.TurnsForBand(0, t));   // low band
+        Assert.AreEqual(6, DoomRules.TurnsForBand(6, t));   // low band edge
+        Assert.AreEqual(4, DoomRules.TurnsForBand(7, t));   // mid band
+        Assert.AreEqual(4, DoomRules.TurnsForBand(13, t));  // mid band edge
+        Assert.AreEqual(3, DoomRules.TurnsForBand(14, t));  // high band
+        Assert.AreEqual(3, DoomRules.TurnsForBand(99, t));  // clamped high
+    }
 }

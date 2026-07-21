@@ -10,6 +10,12 @@ public class DoomTuning
     public int lowBandMax = 6;
     public int midBandMax = 13;
 
+    // Turns per round ("day" length) by band — generous early, shorter as Doom
+    // climbs (spec 2026-07-21). Starting values; tune in balance.md.
+    public int lowBandTurns = 6;
+    public int midBandTurns = 4;
+    public int highBandTurns = 3;
+
     // Rounds between mid-run spawns, per band.
     public int lowSpawnInterval = 3;
     public int midSpawnInterval = 2;

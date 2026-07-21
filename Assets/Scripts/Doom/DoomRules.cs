@@ -23,6 +23,13 @@ public static class DoomRules
     public static int MaxTier(int doom, DoomTuning t)
         => doom > t.midBandMax ? 3 : doom > t.lowBandMax ? 2 : 1;
 
+    // Turns in a round ("day" length) at this doom: longer in the low band,
+    // shorter as the bands escalate (spec 2026-07-21).
+    public static int TurnsForBand(int doom, DoomTuning t)
+        => doom <= t.lowBandMax ? t.lowBandTurns
+         : doom <= t.midBandMax ? t.midBandTurns
+         : t.highBandTurns;
+
     // Flat +HP/+Attack applied to enemies spawned at this doom.
     public static int StatBonus(int doom, DoomTuning t)
         => doom > t.midBandMax ? t.highStatBonus : doom > t.lowBandMax ? t.midStatBonus : 0;
