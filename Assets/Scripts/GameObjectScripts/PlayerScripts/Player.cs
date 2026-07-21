@@ -94,7 +94,8 @@ public class Player : MonoBehaviour
     public void Exploration(int newExplore)
     {
         playerExplore = newExplore;
-        GameManager.Instance.commands.ClearStack();
+        // No ClearStack: movement is undoable now (spec 2026-07-21). The undo
+        // stack commits on action-start, End Turn, round-end, or a fog reveal.
     }
     
     public void Influence(int influenceCost)

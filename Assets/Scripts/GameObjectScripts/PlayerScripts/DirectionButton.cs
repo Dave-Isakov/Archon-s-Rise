@@ -79,6 +79,14 @@ public partial class DirectionButton : MonoBehaviour
 
     public void Explore()
     {
+        // Movement is Explore-phase only (spec 2026-07-21); once the action is
+        // taken the turn is committed to it and the map locks.
+        if(TurnPhaseController.Instance != null && !TurnPhaseController.Instance.CanMove)
+        {
+            GameManager.Instance.ValidationMessage("You can only move during the Explore phase.");
+            return;
+        }
+
         // A visible enemy standing on the destination blocks the move outright —
         // the player must fight it (step adjacent to trigger combat), never walk
         // over it. Checked before spending explore so a blocked click costs nothing.
@@ -89,32 +97,51 @@ public partial class DirectionButton : MonoBehaviour
             return;
         }
 
-        if(playerExplore >= explore)
+        if(playerExplore < explore)
         {
+            GameManager.Instance.ValidationMessage($"Need {explore} to explore!");
+            return;
+        }
+
+        var adjTile = player.gridPos + player.compass[this.direction];
+        player.UpdateCompass(adjTile, compass);
+
+        if(fog.HasTile(adjTile))
+        {
+            // Fog-reveal step: spend explore, uncover fog, and COMMIT — revealed
+            // knowledge can't be undone (TurnPhaseRules.ShouldCommitOnMove(true)).
             playerExplore -= explore;
             onSuccessfulExplore_AdjustPlayersExplore.Raise(playerExplore);
-            var adjTile = player.gridPos + player.compass[this.direction];
-            player.UpdateCompass(adjTile, compass);
-            if(fog.HasTile(adjTile))
+            foreach(Directions d in Enum.GetValues(typeof(Directions)))
             {
-                foreach(Directions direction in Enum.GetValues(typeof(Directions)))
-                {
-                    fog.SetTile(adjTile + compass[direction], null);
-                }
-                var tile = adjTile + compass[this.direction];
-                player.UpdateCompass(tile, compass);
-                foreach(Directions direction in Enum.GetValues(typeof(Directions)))
-                {
-                    fog.SetTile(tile + compass[direction], null);
-                }
+                fog.SetTile(adjTile + compass[d], null);
             }
-            else
-                Move();
+            var tile = adjTile + compass[this.direction];
+            player.UpdateCompass(tile, compass);
+            foreach(Directions d in Enum.GetValues(typeof(Directions)))
+            {
+                fog.SetTile(tile + compass[d], null);
+            }
+            GameManager.Instance.commands.ClearStack();
         }
         else
         {
-            GameManager.Instance.ValidationMessage($"Need {explore} to explore!");
+            // Ordinary move onto already-revealed ground: undoable.
+            var from = player.transform.position;
+            var to = gameboard.CellToWorld(gameboard.LocalToCell(from) + player.compass[direction]);
+            GameManager.Instance.commands.AddCommand(new MoveCommand(this, from, to, explore));
         }
+    }
+
+    // Reposition the player and adjust the explore pool. Used by MoveCommand for
+    // both execute (spend) and undo (refund). Raises the position + explore events
+    // so the map buttons and HUD stay in sync.
+    public void ApplyMove(Vector3 worldPos, int exploreDelta, bool refund = false)
+    {
+        player.transform.position = worldPos;
+        playerExplore += refund ? exploreDelta : -exploreDelta;
+        onSuccessfulExplore_AdjustPlayersExplore.Raise(playerExplore);
+        sendNewPositionOfPlayer.Raise(player);
     }
 
     public void Move()
