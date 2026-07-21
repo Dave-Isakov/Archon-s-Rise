@@ -33,9 +33,10 @@ Mechanically today:
   Moving and acting are both **optional**; the only turn-flow control is **End Turn**.
 - Phase transitions are **implicit**, not button-driven: taking the action ends Explore; pressing
   **End Turn** ends the turn. No phase-advance button, no manual End Round button.
-- The **round is a fixed "day"** of N turns; when the budget runs out the round **auto-ends** (forced
-  long rest: reshuffle + Doom tick + unit/skill refresh), so Doom advances on a bounded cadence and
-  stalling is impossible.
+- The **round is a "day"** whose length **shrinks as Doom rises**: a generous turn budget early,
+  stepping down each time Doom crosses into a higher band. When the budget runs out the round
+  **auto-ends** (forced long rest: reshuffle + Doom tick + unit/skill refresh), so Doom advances on a
+  bounded — and tightening — cadence, and stalling is impossible.
 - **Movement becomes undoable** — the undo stack commits on action-start, End Turn, round-end, and
   irreversible reveals (fog), never on an ordinary move.
 - A **phase HUD label** plus a **turns-remaining countdown** (repurposed from the Round/Turn text)
@@ -79,18 +80,25 @@ Rules that fall out of this:
   played this turn (ending would draw nothing and merely tick the counter). Once any card is played,
   End Turn is unrestricted. This is exactly the existing `EndTurnButton.HandFullUnplayed` logic.
 
-### 2. The round as a bounded "day"
+### 2. The round as a shrinking "day"
 
-- A round is a fixed budget of **`turnsPerRound`** turns (a tuning constant in `balance.md`; a future
-  lever could let Doom shrink it). The current turn count is shown as a **countdown** (see §4).
+- A round's turn budget is **derived from the current Doom band**, not a flat constant: a
+  **per-band `turnsPerRound` table** in `balance.md` (e.g. low band = generous, mid band = fewer,
+  high band = fewest — exact numbers are tuning). Doom's low/mid/high bands are the same ones that
+  already drive dungeon flagging (`DoomRules`). The current remaining-turns count is shown as a
+  **countdown** (see §5).
+- The budget for a round is chosen at **round-start** from the band Doom sits in **after** that
+  round's Doom tick, so the day length steps down at a clean round boundary rather than mid-round. A
+  mid-round Doom jump from an event applies to the *next* round's budget.
 - Each **End Turn** decrements the remaining turns. When it reaches **0 the round auto-ends** — no
   button. The **deck-can't-refill case also auto-ends the round** (secondary trigger) so the player
   never stalls with a dead hand.
 - Round-end (the "long rest") is the existing `RoundPlus` behavior, now fired automatically:
   full hand reset (discard + unplayed hand → deck, shuffle, fresh full hand), **Doom rises**,
-  units/skills refresh, the turn budget resets to `turnsPerRound`, and a new turn begins at Explore.
+  units/skills refresh, the turn budget resets to the band-derived value, and a new turn begins at
+  Explore.
 - The manual **End Round button is removed.** Nothing else about Doom/round pacing changes; it simply
-  advances on a bounded, unavoidable cadence now.
+  advances on a bounded — and, as Doom climbs, tightening — cadence now.
 
 ### 3. Phase-state architecture
 
@@ -101,8 +109,9 @@ Rules that fall out of this:
     spent (entering an action performs the Explore→Action transition itself).
   - `ShouldCommitOnMove(bool revealedNewFog)` — the fog-reveal commit predicate (see §4/undo).
 - **Pure `RoundRules`** (also mcs-testable): given `turnsRemaining` and whether the deck can refill,
-  `IsRoundOver(...)` and the next `turnsRemaining` after a turn end. Keeps the day math out of the
-  MonoBehaviour.
+  `IsRoundOver(...)` and the next `turnsRemaining` after a turn end; plus `TurnsForBand(band, table)`
+  (or `TurnsForDoom(doomValue, bands, table)`) that maps the current Doom band to the round's turn
+  budget. Keeps the day math and the band→budget mapping out of the MonoBehaviour.
 - **`TurnPhaseController`** (MonoBehaviour, singleton like the other managers): owns `CurrentPhase`,
   `actionTaken`, and `turnsRemaining`; raises **`onPhaseChanged`** (and a turns-remaining event for
   the HUD). It exposes `BeginAction()` (called by interaction entry points — sets `actionTaken`,
@@ -191,8 +200,9 @@ edge case and pools already reset predictably, so re-entering Explore on load is
 - **Pure / TDD via the mcs harness:**
   - `TurnPhaseRules` — `CanMove`, `CanInteract`/action-spent, `ShouldCommitOnMove` (fog-reveal commit
     predicate).
-  - `RoundRules` — `IsRoundOver` (budget-exhausted and deck-can't-refill triggers) and the
-    next-`turnsRemaining` math.
+  - `RoundRules` — `IsRoundOver` (budget-exhausted and deck-can't-refill triggers), the
+    next-`turnsRemaining` math, and `TurnsForBand`/`TurnsForDoom` (each band maps to its budget;
+    boundary Doom values land in the right band).
 - **Manual in-editor (step-by-step instructions + acceptance checklist):** the scene wiring — day
   countdown TMP, phase label TMP, removed End Round button, movement/interaction gating hookups,
   tutorial assets — consistent with the EditMode-while-editor-open constraint.
@@ -204,9 +214,10 @@ edge case and pools already reset predictably, so re-entering Explore on load is
   one-action phased turns inside a fixed-length day. This is the core goal, not a regression.
 - **Movement-as-command** is the main new mechanism; the fog-reveal detection must be reliable, or an
   undo could restore hidden fog (hence the pure `ShouldCommitOnMove` test).
-- **`turnsPerRound` needs tuning** so a round's deck draw and Doom pacing feel right; place it in
+- **The per-band `turnsPerRound` table needs tuning** so early days feel roomy and late days feel
+  desperate, and so a round's deck draw stays sane at the shortest budget; place the table in
   `balance.md` and expect to iterate. The deck-can't-refill secondary round-end trigger must be wired
-  so a short deck can't strand the player mid-day.
+  so a short deck can't strand the player mid-day even at the smallest budget.
 - **Scene wiring performed manually by the user:** the countdown/phase-label TMPs + listeners, the
   removed End Round button, gating hookups, and the tutorial content assets. Provide exact editor
   steps; never hand-edit scene/prefab YAML.
@@ -215,9 +226,11 @@ edge case and pools already reset predictably, so re-entering Explore on load is
   leaks.
 - **Decisions to record** in `../../.claude/skills/archons-rise-roadmap/decisions-log.md` on
   implementation: the Explore→Action→End turn model; the one-encounter/one-visit action definition;
-  implicit phase transitions with End Turn as the only control; the bounded round/"day" with
-  automatic round-end and a `turnsPerRound` budget; the repurposed HUD countdown; the
-  movement-undoable / commit-on-fog-reveal undo rule; and the no-schema-bump load reset.
-- A new milestone entry (e.g. **M2.13 — Turn phases & bounded rounds**) should be added to
+  implicit phase transitions with End Turn as the only control; the "day" whose turn budget is
+  **derived from the Doom band and shrinks as Doom climbs**, with automatic round-end; the repurposed
+  HUD countdown; the movement-undoable / commit-on-fog-reveal undo rule; and the no-schema-bump load
+  reset.
+- A new milestone entry (e.g. **M2.13 — Turn phases & shrinking rounds**) should be added to
   `milestones.md`, with Spec 2 (multi-enemy phased combat) queued after it. `balance.md` gains the
-  `turnsPerRound` tuning value; `mechanics.md`'s Turn/Round Flow section is updated to the new model.
+  **per-band `turnsPerRound` table**; `mechanics.md`'s Turn/Round Flow section is updated to the new
+  model.
