@@ -14,18 +14,13 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
     PlayerHand hand;
     Player player;
 
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        // IPointerClickHandler fires even when the Button is not interactable;
-        // don't commit the undo stack on a disabled button.
-        if (!endTurnButton.interactable) return;
-        GameManager.Instance.commands.ClearStack();
-    }
+    // The controller commits the undo stack itself (EndTurnPressed), so the click
+    // path no longer needs to ClearStack here.
+    public void OnPointerClick(PointerEventData eventData) { /* no-op: controller commits */ }
 
-    // Gamepad path: commit the undo stack, then raise turn end — the same pair the
-    // click path performs (OnPointerClick ClearStack + Button onClick raise).
-    // Returns false only when gated off (combat / deck-empty) so the caller can fall
-    // back to End Round; a full-hand block is "handled" (message shown) and returns true.
+    // Gamepad path: routes through the controller, which commits, runs the turn-end
+    // chain, decrements the day, and auto-ends the round when the budget is spent.
+    // A full-hand block is "handled" (message shown) and returns true.
     public bool Trigger()
     {
         if (!endTurnButton.interactable) return false;
@@ -34,8 +29,7 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
             GameManager.Instance.ValidationMessage("You cannot end the turn with a full hand.");
             return true;
         }
-        GameManager.Instance.commands.ClearStack();
-        endTheTurn.Raise();
+        TurnPhaseController.Instance.EndTurnPressed();
         return true;
     }
 
@@ -60,7 +54,7 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
                 GameManager.Instance.ValidationMessage("You cannot end the turn with a full hand.");
                 return;
             }
-            endTheTurn.Raise();
+            TurnPhaseController.Instance.EndTurnPressed();
         });
         deck = FindAnyObjectByType<PlayerDeck>();
         hand = FindAnyObjectByType<PlayerHand>();
@@ -70,15 +64,17 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
     private void Update()
     {
         if (deck == null || hand == null || player == null) return;
-        // Disabled mid-fight, and when the deck can't refill the hand (ending the
-        // turn would only tick the turn counter — the round has to end instead).
+        // Deck-empty no longer disables End Turn (it auto-ends the round instead),
+        // but the tutorial still teaches the dry-deck rest, so keep the one-shot
+        // fire off the verdict.
         var verdict = DrawGate.Evaluate(deck.CardsInDeck.Count, hand.cardsInPlay.Count, player.PlayerHandSize);
         // Fire once per entry into DeckEmpty — Update polls every frame.
         if (verdict == DrawVerdict.DeckEmpty && lastVerdict != DrawVerdict.DeckEmpty
             && onDeckCannotRefillTutorial != null)
             onDeckCannotRefillTutorial.Raise();
         lastVerdict = verdict;
+        // Disabled only mid-fight now.
         endTurnButton.interactable = TurnButtonGate.EndTurn(
-            GameManager.Instance.activeCombatant != null || GuardianAssault.AnyInProgress, verdict);
+            GameManager.Instance.activeCombatant != null || GuardianAssault.AnyInProgress);
     }
 }
