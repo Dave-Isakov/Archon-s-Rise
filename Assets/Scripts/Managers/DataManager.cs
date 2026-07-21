@@ -230,8 +230,13 @@ public class DataManager : MonoBehaviour
         hand.RebuildHand(Cards.Resolve(run.handCardIds));
         if (discard != null) discard.RebuildDiscard(Cards.Resolve(run.discardCardIds));
 
-        if (game != null) { game.Round = run.round; game.Turn = run.turn; }
+        if (game != null) game.Round = run.round;
         if (DoomClock.Instance != null) DoomClock.Instance.SetLoaded(run.doom);
+        // TurnsRemaining rides the existing turn slot (no schema bump; spec
+        // 2026-07-21). Restore it after DoomClock so any same-round StartRound (dry
+        // deck) reads the right band. LoadState also resets the phase to Explore.
+        if (TurnPhaseController.Instance != null)
+            TurnPhaseController.Instance.LoadState(run.turn);
         if (EnemySpawner.Instance != null)
         {
             EnemySpawner.Instance.RoundsSinceSpawn = run.roundsSinceSpawn;
@@ -298,7 +303,10 @@ public class DataManager : MonoBehaviour
             run.map.revealedCells = CaptureRevealedCells(dir.Fog);
 
         run.round = game != null ? game.Round : 0;
-        run.turn  = game != null ? game.Turn  : 0;
+        // The turn slot now carries the day budget (TurnsRemaining), not a turn
+        // counter (spec 2026-07-21); reset to Explore on load, so phase isn't saved.
+        run.turn  = TurnPhaseController.Instance != null ? TurnPhaseController.Instance.TurnsRemaining
+                  : game != null ? game.Turn : 0;
         run.doom  = DoomClock.Instance != null ? DoomClock.Instance.Doom : 0;
         run.roundsSinceSpawn = EnemySpawner.Instance != null ? EnemySpawner.Instance.RoundsSinceSpawn : 0;
         run.spawnedEnemies   = EnemySpawner.Instance != null ? EnemySpawner.Instance.ExportAlive()
