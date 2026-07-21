@@ -114,6 +114,19 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
 
     IEnumerator StartCombat()
     {
+        // A fight is the turn's one action (spec 2026-07-21): block a second
+        // encounter, and taking this one performs the implicit Explore->Action
+        // transition (commits the movement stack, locks further movement).
+        if (TurnPhaseController.Instance != null)
+        {
+            if (!TurnPhaseController.Instance.CanInteract)
+            {
+                GameManager.Instance.ValidationMessage("You've already taken your action this turn.");
+                yield break;
+            }
+            TurnPhaseController.Instance.BeginAction();
+        }
+
         GameManager.Instance.activeCombatant = this;
         yield return GameManager.Instance.PlayCombatIntro();
         deck.GetNewEnemyCard(this);

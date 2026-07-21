@@ -33,6 +33,18 @@ public class DungeonToken : MonoBehaviour, IPointerClickHandler
             return;
         }
 
+        // A dungeon delve is the turn's one action (spec 2026-07-21); block a
+        // second interaction and perform the implicit Explore->Action transition.
+        if (TurnPhaseController.Instance != null)
+        {
+            if (!TurnPhaseController.Instance.CanInteract)
+            {
+                GameManager.Instance.ValidationMessage("You've already taken your action this turn.");
+                return;
+            }
+            TurnPhaseController.Instance.BeginAction();
+        }
+
         FindAnyObjectByType<DungeonPanel>(FindObjectsInactive.Include).Open(this);
     }
 

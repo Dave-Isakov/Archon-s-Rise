@@ -34,6 +34,19 @@ public class TownToken : MonoBehaviour, IPointerClickHandler
             return;
         }
 
+        // Entering a place is the turn's one action (spec 2026-07-21). The whole
+        // visit (recruit/heal/buy/assault inside the open menu) counts as one — only
+        // the menu open spends the action; the services within it do not.
+        if (TurnPhaseController.Instance != null)
+        {
+            if (!TurnPhaseController.Instance.CanInteract)
+            {
+                GameManager.Instance.ValidationMessage("You've already taken your action this turn.");
+                return;
+            }
+            TurnPhaseController.Instance.BeginAction();
+        }
+
         GameManager.Instance.townCanvas.enabled = true;
         deck.CreateTown(this);
         // Revive any button that hid itself on a previous open, so its listener
