@@ -85,9 +85,8 @@ public class GameManager : MonoBehaviour
         commands = new PlayManager();
     }
 
-    private void Update() {
-        roundTurnText.text = "Round: " + roundNum + " Turn: " + turnNum;
-    }
+    // The old per-frame "Round/Turn" label is now the event-driven day countdown +
+    // phase label driven by PhaseHud off the controller's events (spec 2026-07-21).
 
     // Dismiss callback for the queued message currently on screen; set by the
     // ValidationMessage job, consumed exactly once by ReturnButton.
