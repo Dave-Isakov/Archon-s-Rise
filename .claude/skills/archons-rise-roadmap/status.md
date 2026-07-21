@@ -4,8 +4,12 @@ Where Archon's Rise stands today. Seeded from the code review (`docs/code-review
 2026-06-25). Update this as milestones complete.
 
 ## Exists (in code)
-- Four action stats (Attack/Defend/Explore/Influence) + Heal/Wound/Crystal; turn/round structure;
-  stat reset on turn end.
+- Four action stats (Attack/Defend/Explore/Influence) + Heal/Wound/Crystal; stat reset on turn end.
+- **Turn phases** (M2.13, 2026-07-21 — code complete, editor wiring pending): strict
+  Explore → Action → End; one encounter/place-visit per turn; the round is a Doom-band-scaled "day"
+  (`turnsPerRound` 6/4/3) that auto-ends (budget spent or deck can't refill); End Round removed;
+  movement undoable except on fog reveal; event-driven phase + day-countdown HUD; day budget saved in
+  the existing turn slot (phase resets to Explore on load, no schema bump).
 - Full **undo** via Command pattern (`PlayManager`, `PlayCommand`, `CardDrawCommand`).
 - Cards with **Empower / crystal** economy; 7 starting + ~9 acquirable cards.
 - Hex-map **exploration** via `GridGeneration` (randomized).

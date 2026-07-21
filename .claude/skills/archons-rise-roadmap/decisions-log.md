@@ -375,3 +375,47 @@ editing an old one.
      **run save schema is untouched (stays v6)** — tutorial state is device-level.
   Spec: `docs/superpowers/specs/2026-07-15-m2.12-tutorial-help-design.md`; plan:
   `docs/superpowers/plans/2026-07-16-m2.12-tutorial-help.md`.
+
+- **2026-07-21 — Turn phases: strict Explore → Action → End (M2.13).**
+  A turn is a one-way `TurnPhase` sequence (`TurnPhaseRules`): move only in Explore, exactly one
+  encounter in Action, End is a pass-through into the next turn.
+  _Why:_ removes the old free-form "do anything until you end the turn" ambiguity and gives combat/
+  pacing a predictable rhythm; the enum's `End` value exists for gating correctness but is never a
+  resting state (the controller transitions straight to the next Explore), so the player can't get
+  stuck.
+
+- **2026-07-21 — One encounter or one place-visit per turn; transitions are implicit.**
+  Taking the action (fight / place visit / dungeon delve) *is* the Explore→Action move (`BeginAction`);
+  there is no manual "enter Action" button. A whole place visit (recruit/heal/buy/assault in the open
+  menu) is the single action — only the menu **open** spends it.
+  _Why:_ keeps the UI to one control (End Turn) and matches the mental model "you get one thing done
+  per turn"; guarding the menu open rather than each service avoids nickel-and-diming a single visit.
+
+- **2026-07-21 — The round is a Doom-band-scaled "day" that auto-ends.**
+  `turnsPerRound` = 6 (low) / 4 (mid) / 3 (high) via `DoomRules.TurnsForBand` on `DoomTuning`
+  (`RoundRules` counts it down). The day ends automatically when the budget is spent **or** the deck
+  can't refill the hand (forced rest: reshuffle + Doom tick + unit/skill refresh). End Round is
+  removed; End Turn is the sole control and triggers the round-end chain itself.
+  _Why:_ makes the escalating Doom pressure legible as a shrinking day and removes a redundant button;
+  the deck-can't-refill forced rest stops a short deck stranding the player mid-day.
+
+- **2026-07-21 — Movement is undoable; a fog reveal commits.**
+  Ordinary moves push a `MoveCommand` (execute spends Explore + repositions, undo refunds); a step
+  that uncovers new fog commits the undo stack instead (`ShouldCommitOnMove`). `Player.Exploration`
+  no longer clears the stack.
+  _Why:_ lets the player take back a misstep during exploration, but revealed map knowledge can't be
+  un-known, so the reveal is the natural commit point.
+
+- **2026-07-21 — Day budget persists in the existing turn save slot; phase is not saved.**
+  `TurnsRemaining` rides the old `run.turn` field; on load `TurnPhaseController.LoadState` restores it
+  (after `DoomClock.SetLoaded`) and resets the phase to Explore with the action unspent.
+  _Why:_ avoids a save-schema bump; resuming at Explore is the safe, unambiguous state and the old
+  per-turn counter was already only cosmetic.
+
+- **2026-07-21 — HUD countdown is event-driven, repurposing the Round/Turn label.**
+  The old per-frame `GameManager` "Round: n Turn: n" text is replaced by `PhaseHud`, driven off
+  `onTurnsRemainingChanged` (a "Turns left" day countdown on the same TMP) + `onPhaseChanged` (a new
+  phase label). No per-frame HUD writes.
+  _Why:_ the day/phase only change on events, so polling every frame was wasteful and caused flicker.
+  Spec: `docs/superpowers/specs/2026-07-21-turn-phase-system.md`; plan:
+  `docs/superpowers/plans/2026-07-21-turn-phase-system.md`.

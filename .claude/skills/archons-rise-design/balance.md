@@ -18,6 +18,19 @@ numbers.
 - Reaching max = run lost.
 - _Starting values — tune in playtest._ Max vs. per-round rate sets the run's overall time budget.
 
+## Turns per Round ("Day" length) (spec 2026-07-21, M2.13)
+A round is a Doom-band-scaled day; its turn budget shrinks as Doom climbs (`DoomRules.TurnsForBand`,
+fields on `DoomTuning`):
+
+| Band | Doom | `turnsPerRound` |
+|------|------|-----------------|
+| Low  | 0–6  | **6** (`lowBandTurns`)  |
+| Mid  | 7–13 | **4** (`midBandTurns`)  |
+| High | 14–20| **3** (`highBandTurns`) |
+
+The day also ends early if the deck can't refill the hand (forced rest). _Starting values — tune in
+playtest._ Set them on the `DoomTuning.asset` (new fields default to 0 on existing assets).
+
 ## Dungeons (M2.9)
 - **6 dungeons per map** (`dungeonCount`), min spacing **4** Chebyshev (`dungeonMinSpacing`), never
   on towns or within the start safe radius (3).

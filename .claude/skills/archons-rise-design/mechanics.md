@@ -55,16 +55,28 @@ further. If it reaches its maximum before the Archon threshold is met, the land 
 lost. The Doom Clock is the strategic pressure that forces the player to *rise fast*. This is a
 **new system to build** (roadmap milestone M2).
 
-## Turn / Round Flow
-Within a **turn**, the player plays cards to build up the four stats, takes actions, then ends the
-turn — at which point the action stats reset to 0 (matches existing `Player.TurnEnd`) and the hand
-tops up to hand size from the deck. **Rounds** group turns and are the cadence on which the Doom
-Clock advances (matches the existing `GameManager` round/turn counters). Ending a round is a **full
-hand reset**: the discard pile and all unplayed hand cards return to the deck, the deck is shuffled,
-and a fresh full hand is drawn (decision 2026-07-02). Units exhaust when used (turned sideways)
-and all refresh when a new round starts. When the deck can't refill the hand, the turn cannot be
-ended — the End Turn button disables and the player must end the round. Neither the turn nor the
-round can end mid-combat: both buttons disable while a fight is active.
+## Turn / Round Flow (spec 2026-07-21, M2.13)
+A **turn** runs a strict **Explore → Action → End** sequence (`TurnPhase`, `TurnPhaseRules`):
+
+- **Explore:** the player plays cards to build stats and spends Explore to move and uncover the map.
+  Movement is **undoable** (`MoveCommand` on the undo stack) — *except* a step that reveals new fog,
+  which commits the stack (revealed knowledge can't be un-known; `ShouldCommitOnMove`).
+- **Action:** the player takes **exactly one** encounter per turn — a fight, a place visit, or a
+  dungeon delve. Taking the action is the **implicit Explore→Action transition** (`BeginAction`):
+  it commits the movement stack and locks further movement for the turn. A whole place visit
+  (recruit/heal/buy/assault inside the open menu) counts as the one action. A second interaction is
+  refused.
+- **End:** **End Turn** is the only turn-flow control (End Round is gone). It resets action stats to
+  0, tops up the hand, and advances the day.
+
+A **round is a "day"** whose length scales with the Doom band (`DoomRules.TurnsForBand`,
+`RoundRules`): **6** turns in the low band, **4** mid, **3** high — the day shrinks as Doom climbs.
+The day **auto-ends** when its turn budget is spent **or** the deck can no longer refill the hand
+(a forced rest, so a short deck can't strand the player mid-day). A day's end is a **full hand
+reset**: discard + unplayed hand cards return to the deck, the deck is shuffled, a fresh hand is
+drawn (decision 2026-07-02), the Doom Clock ticks, and units/skills refresh. Combat still blocks
+End Turn while a fight is active. Phase is **not** saved — a loaded run always resumes at Explore
+(the remaining day budget rides the existing turn save slot; no schema bump).
 
 ## Units
 Recruited units are **configurable option-lists**, not fixed stat blocks. Each unit (`UnitsSO`)

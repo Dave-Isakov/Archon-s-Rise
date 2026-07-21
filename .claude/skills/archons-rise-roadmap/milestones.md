@@ -158,6 +158,37 @@ reset/resume all work; every panel's ? opens icon-inline copy; one-shots fire ex
 20/20 maps pass the starter-enemy check; EditMode suites green.
 Spec: `docs/superpowers/specs/2026-07-15-m2.12-tutorial-help-design.md`.
 
+## M2.13 — Turn phases & shrinking rounds — ✅ code complete 2026-07-21 (editor wiring + acceptance pending)
+**Status:** All script work shipped; pure logic TDD-green via the mcs harness (`TurnPhaseRulesTests`
+3/3, `RoundRulesTests` 4/4, `DoomRulesTests.TurnsForBand`, `TurnButtonGateTests` updated 2/2).
+Remaining before sign-off is **USER editor work**: create the two events (`onPhaseChanged` VoidEvent,
+`onTurnsRemainingChanged` IntEvent) + place/wire `TurnPhaseController`; set the `DoomTuning.asset`
+band-turn fields (6/4/3); remove the End Round button + `TurnFlowShortcuts.endRound` ref; add the
+`PhaseHud` + phase TMP and its two listeners; author the rail phase copy (move/fight/end-turn steps
++ HUD help entry + a phase `TutorialTarget`); then the full-suite + play-through acceptance.
+**Goal:** restructure a turn into a strict **Explore → Action → End** sequence with a one-encounter
+cap, make the round a **Doom-band-scaled "day"** that auto-ends, make movement undoable, and surface
+a phase + day-countdown HUD.
+**Scope:**
+- Pure rules: `TurnPhase`/`TurnPhaseRules` (move/interact/commit gating), `RoundRules` (day-budget
+  math), `DoomRules.TurnsForBand` (per-band `turnsPerRound` 6/4/3).
+- `TurnPhaseController` scene singleton owns phase / action-taken / turns-remaining; reuses the
+  existing `endTheTurn` / `endTheRound` chains; raises `onPhaseChanged` / `onTurnsRemainingChanged`.
+- Undoable `MoveCommand`; the fog-reveal branch commits the stack instead.
+- One action per turn via `BeginAction` (combat / place visit / dungeon delve).
+- End Turn routes through the controller and auto-ends the round; **End Round removed**.
+- Event-driven day-countdown + phase HUD (`PhaseHud`); no per-frame Round/Turn text.
+- Save/load rides the existing turn slot for the day budget; phase resets to Explore (no schema bump).
+
+**Acceptance:** turn starts in Explore (move undoable; fog-reveal not); one action blocks a second +
+further movement; a place visit allows all its services; End Turn decrements the day and the label
+tracks phase; day auto-ends at 0 (reshuffle + Doom tick + refresh) with budget 6→4→3 across bands;
+empty deck ends the round on End Turn; save/reload restores the day and lands in Explore; the rail
+teaches the three phases + the day. EditMode suites green.
+Spec: `docs/superpowers/specs/2026-07-21-turn-phase-system.md`; plan:
+`docs/superpowers/plans/2026-07-21-turn-phase-system.md`. **Spec 2 — multi-enemy phased combat** is
+queued next.
+
 ## M3 — Run setup & meta-unlocks
 **Goal:** framed runs plus between-run progression.
 **Scope:**
