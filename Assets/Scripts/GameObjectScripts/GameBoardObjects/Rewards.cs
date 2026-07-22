@@ -29,9 +29,11 @@ public class Rewards : MonoBehaviour
     // and reports the result; the card pick, if any, is opened by the caller so
     // it lands after the defeat message. Dungeon fights pay experience only —
     // the dungeon's reward is completion-gated (spec 2026-07-13).
-    public RewardSummary GetReward(EnemyCard enemy)
+    // expOnly is set by the caller for dungeon fights (spec 2026-07-21, Spec 2):
+    // combat context, not a global delve flag, now decides exp-only routing.
+    public RewardSummary GetReward(EnemyCard enemy, bool expOnly)
     {
-        if (DungeonDelve.AnyInProgress) return GrantExpOnly(enemy.enemySO.tier);
+        if (expOnly) return GrantExpOnly(enemy.enemySO.tier);
         return Grant(enemy.enemySO.tier);
     }
 

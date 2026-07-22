@@ -184,7 +184,7 @@ public class GameManager : MonoBehaviour
     // exp/crystal apply instantly inside GetReward; CombatController holds the
     // returned summary and pays its message + card pick at fight-end via
     // PayReward. Keeps the private rewards service encapsulated in GameManager.
-    public RewardSummary CaptureReward(EnemyCard enemy) => rewards.GetReward(enemy);
+    public RewardSummary CaptureReward(EnemyCard enemy, bool expOnly) => rewards.GetReward(enemy, expOnly);
 
     // Pay one captured reward summary (spec 2026-07-21, Spec 2 deferred payout).
     // Mirrors the old ResolveDefeat body minus the exp grant (banked at capture)

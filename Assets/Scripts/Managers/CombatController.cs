@@ -26,7 +26,9 @@ public class CombatController : MonoBehaviour
 
     readonly List<EnemyCard> live = new();   // logical set; resolution keys off THIS, not childCount
     CombatContext context;
-    TownToken guardianPlace;
+    TownToken guardianPlace;   // Guardian: the assaulted place
+    EnemyToken fieldToken;     // Field: the map token, destroyed + save-recorded on defeat
+    DungeonToken dungeonToken; // Dungeon: depth/completion tracked on defeat
 
     // Captured (enemy name, reward) pairs for killed enemies; the exp/crystal is
     // banked immediately by CaptureReward, but the naming message + card pick are
@@ -45,14 +47,25 @@ public class CombatController : MonoBehaviour
 
     void Awake() { Instance = this; Phase = CombatPhase.Resolved; }
 
-    public void OpenFight(List<EnemySpawn> spawns, CombatContext context, TownToken guardianPlace)
+    // Opens a phased fight. The source varies by context — guardianPlace for a
+    // Guardian assault, fieldToken for a Field encounter, dungeonToken for a
+    // Dungeon delve — and drives that context's win bookkeeping (Task 9).
+    public void OpenFight(List<EnemySpawn> spawns, CombatContext context,
+        TownToken guardianPlace = null, EnemyToken fieldToken = null, DungeonToken dungeonToken = null)
     {
         this.context = context;
         this.guardianPlace = guardianPlace;
+        this.fieldToken = fieldToken;
+        this.dungeonToken = dungeonToken;
         live.Clear();
 
-        var prefab = FindAnyObjectByType<EnemyDeck>().PrefabEnemyCard;
         var parent = GameManager.Instance.enemyCardCombatPosition.transform;
+        // Clear any stragglers (a fled fight's survivors, or an out-of-range peek
+        // card) so a new fight never inherits stale cards.
+        foreach (var stale in parent.GetComponentsInChildren<EnemyCard>())
+            Destroy(stale.gameObject);
+
+        var prefab = FindAnyObjectByType<EnemyDeck>().PrefabEnemyCard;
         foreach (var s in spawns)
         {
             var go = Instantiate(prefab, parent);
@@ -110,16 +123,44 @@ public class CombatController : MonoBehaviour
 
         GameManager.Instance.commands.ClearStack();   // a kill is irreversible
 
+        // Per-context win bookkeeping, banked at kill time (parallels how the
+        // guardian ConquestTracker record used to fire from GuardianAssault.Update).
         if (context == CombatContext.Guardian && guardianPlace != null)
             ConquestTracker.Instance.RecordDefeat(guardianPlace.gridPos);
+        else if (context == CombatContext.Field && fieldToken != null)
+            RecordFieldDefeat(fieldToken);
+        else if (context == CombatContext.Dungeon && dungeonToken != null)
+            RecordDungeonDefeat(dungeonToken);
 
-        // Exp/crystal bank now; the name + card pick are paid at fight-end.
-        pendingRewards.Add((card.enemySO.cardName, GameManager.Instance.CaptureReward(card)));
+        // Exp/crystal bank now; the name + card pick are paid at fight-end. Dungeon
+        // fights are exp-only (spec 2026-07-13), driven by context, not a flag.
+        pendingRewards.Add((card.enemySO.cardName,
+            GameManager.Instance.CaptureReward(card, expOnly: context == CombatContext.Dungeon)));
 
         var fx = card.GetComponent<EnemyCardDefeatFx>();
         if (wasInfluence) fx.PlayFade(null); else fx.PlayDestroy(null);
 
         if (!HasLiveEnemies) WinFight();
+    }
+
+    // A field enemy's map token is removed and its cell recorded so a map-gen
+    // enemy never respawns on reload (mid-run spawns aren't cell-tracked).
+    void RecordFieldDefeat(EnemyToken token)
+    {
+        if (!token.isMidRunSpawn && DataManager.Instance != null)
+            DataManager.Instance.DefeatedEnemies.Add(
+                new ArchonsRise.SaveData.Cell(token.gridPos.x, token.gridPos.y));
+        Destroy(token.gameObject);
+    }
+
+    // A delve win records depth, refreshes the token's marker, and completes the
+    // dungeon when the last slot falls (mirrors the old DungeonDelve.Update).
+    void RecordDungeonDefeat(DungeonToken token)
+    {
+        DungeonTracker.Instance.RecordDefeat(token.gridPos);
+        token.RefreshVisual();
+        if (DungeonTracker.Instance.IsComplete(token.gridPos))
+            DungeonTracker.Instance.CompleteDungeon(token);
     }
 
     void WinFight() { EndFight(paidFlee: false); }
@@ -155,6 +196,12 @@ public class CombatController : MonoBehaviour
     {
         Phase = CombatPhase.Resolved;
 
+        // A flee leaves survivors in the logical set — destroy their cards now so
+        // the next fight starts clean (killed cards are already self-destroying).
+        foreach (var card in live)
+            if (card != null) Destroy(card.gameObject);
+        live.Clear();
+
         foreach (var (name, summary) in pendingRewards)
         {
             var n = name; var s = summary;   // capture per-iteration for the closure
@@ -171,7 +218,17 @@ public class CombatController : MonoBehaviour
                 RunEndController.RequestEnd(RunOutcome.Victory);
         }
 
+        // Fleeing a field fight leaves the token on the map; de-aggro it so the
+        // player must step away and back to re-engage (parity with the old Flee).
+        if (paidFlee && context == CombatContext.Field && fieldToken != null)
+        {
+            fieldToken.isAggro = false;
+            if (fieldToken.player != null) fieldToken.player.inCombat = false;
+        }
+
         GameManager.Instance.CloseCombatCanvas();
         guardianPlace = null;
+        fieldToken = null;
+        dungeonToken = null;
     }
 }

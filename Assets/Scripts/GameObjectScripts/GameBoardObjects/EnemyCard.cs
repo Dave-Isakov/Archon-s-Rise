@@ -68,9 +68,12 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        // Out-of-range preview card: a click dismisses the peek (fight buttons are
-        // disabled here). A real defeat now tears itself down via ResolveDefeat.
-        if (!isDefeated && !fightButton.interactable)
+        // Out-of-range preview card: a click dismisses the peek (its fight buttons
+        // are disabled). Guarded by !InCombat because a LIVE card in the Siege
+        // phase also has its Fight button disabled (spec 2026-07-21, Spec 2) —
+        // without the guard, clicking a real enemy's body would desync the fight.
+        bool inCombat = CombatController.Instance != null && CombatController.Instance.InCombat;
+        if (!isDefeated && !fightButton.interactable && !inCombat)
         {
             GameManager.Instance.combatCanvas.enabled = false;
             Destroy(this.gameObject);

@@ -44,13 +44,9 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
 
     void Update()
     {
-        if(cardRef is not null && cardRef.IsDefeated)
-        {
-            if (!isMidRunSpawn && DataManager.Instance != null)
-                DataManager.Instance.DefeatedEnemies.Add(
-                    new ArchonsRise.SaveData.Cell(gridPos.x, gridPos.y));
-            Destroy(this.gameObject);
-        }
+        // Field-defeat teardown (save-cell record + token destroy) now lives in
+        // CombatController.RecordFieldDefeat (spec 2026-07-21, Spec 2), keyed off
+        // the logical live set rather than this card's isDefeated flag.
 
         // Adjacency affordance: the halo pulses while the player stands next to
         // this token (isAggro) and the token isn't fog-hidden.
@@ -129,6 +125,10 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
 
         GameManager.Instance.activeCombatant = this;
         yield return GameManager.Instance.PlayCombatIntro();
-        deck.GetNewEnemyCard(this);
+        var spawns = new List<CombatController.EnemySpawn>
+        {
+            new CombatController.EnemySpawn(enemy, bonusHP, bonusAttack)
+        };
+        CombatController.Instance.OpenFight(spawns, CombatContext.Field, fieldToken: this);
     }
 }
