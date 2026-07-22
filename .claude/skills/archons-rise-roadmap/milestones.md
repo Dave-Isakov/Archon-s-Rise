@@ -158,14 +158,18 @@ reset/resume all work; every panel's ? opens icon-inline copy; one-shots fire ex
 20/20 maps pass the starter-enemy check; EditMode suites green.
 Spec: `docs/superpowers/specs/2026-07-15-m2.12-tutorial-help-design.md`.
 
-## M2.13 — Turn phases & shrinking rounds — ✅ code complete 2026-07-21 (editor wiring + acceptance pending)
-**Status:** All script work shipped; pure logic TDD-green via the mcs harness (`TurnPhaseRulesTests`
-3/3, `RoundRulesTests` 4/4, `DoomRulesTests.TurnsForBand`, `TurnButtonGateTests` updated 2/2).
-Remaining before sign-off is **USER editor work**: create the two events (`onPhaseChanged` VoidEvent,
-`onTurnsRemainingChanged` IntEvent) + place/wire `TurnPhaseController`; set the `DoomTuning.asset`
-band-turn fields (6/4/3); remove the End Round button + `TurnFlowShortcuts.endRound` ref; add the
-`PhaseHud` + phase TMP and its two listeners; author the rail phase copy (move/fight/end-turn steps
-+ HUD help entry + a phase `TutorialTarget`); then the full-suite + play-through acceptance.
+## M2.13 — Turn phases & shrinking rounds — ✅ shipped 2026-07-21 (final play-through acceptance = last gate)
+**Status:** Code + editor wiring committed; pure logic TDD-green via the mcs harness
+(`TurnPhaseRulesTests` 3/3, `RoundRulesTests` 4/4, `DoomRulesTests.TurnsForBand`, `TurnButtonGateTests`
+2/2). Editor work done and committed: the two events + wired `TurnPhaseController`, `DoomTuning`
+band-turn fields (6/4/3), End Round button removed, `PhaseHud` + phase label + its two listeners,
+and the rail phase copy authored (move/fight/end-turn) — the `TutorialCopyValidationTests`
+`PhaseRailStepsTeach…` pin is satisfied. **Post-wiring refinements:** the End Turn button caption
+flips to **"End the Day"** when the next press ends the round (`EndTurnButton.UpdateLabel` off
+`RoundRules.IsRoundOver`); the stale "End the Round" empty-deck message was removed (auto-rest
+handles it); and the manual **click-the-deck-to-draw** path plus its now-dead code (`CardDrawCommand`,
+`PlayerDeck.DataToDrawnCard`) were deleted. Remaining: the USER's full EditMode-suite run in Test
+Runner + the play-through checklist (both inherently in-editor).
 **Goal:** restructure a turn into a strict **Explore → Action → End** sequence with a one-encounter
 cap, make the round a **Doom-band-scaled "day"** that auto-ends, make movement undoable, and surface
 a phase + day-countdown HUD.

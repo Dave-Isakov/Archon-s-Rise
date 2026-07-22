@@ -419,3 +419,17 @@ editing an old one.
   _Why:_ the day/phase only change on events, so polling every frame was wasteful and caused flicker.
   Spec: `docs/superpowers/specs/2026-07-21-turn-phase-system.md`; plan:
   `docs/superpowers/plans/2026-07-21-turn-phase-system.md`.
+
+- **2026-07-21 — Turn-phase post-wiring refinements (M2.13).**
+  Three small adjustments once the phase system was wired and play-tested:
+  1. **The End Turn button caption is dynamic** — reads "End the Day" when the next press will end
+     the round (last turn of the day, or a dry deck that forces the rest), "End the Turn" otherwise,
+     computed from `RoundRules.IsRoundOver` in `EndTurnButton.UpdateLabel`. _Why:_ the day auto-ends,
+     so the button should tell the player when a press is the bigger commitment.
+  2. **Removed the stale "End the Round" empty-deck message** (`PlayerHand.TryDrawCard`) — deck-empty
+     now auto-ends the day and reshuffles, so the old prompt named a button that no longer exists and
+     told the player to do something the system does for them.
+  3. **Deleted the click-the-deck-to-draw path** and its dead code (`CardDrawCommand`,
+     `PlayerDeck.DataToDrawnCard`, the `drawNewCardEvent`/`OnCardDraw_SetCardData` chain — the latter's
+     only `Raise` was already commented out). _Why:_ manual draw has no role — the hand tops up on turn
+     end and deals fresh on day end; a click-draw only invited confusion.
