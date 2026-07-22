@@ -433,3 +433,40 @@ editing an old one.
      `PlayerDeck.DataToDrawnCard`, the `drawNewCardEvent`/`OnCardDraw_SetCardData` chain — the latter's
      only `Raise` was already commented out). _Why:_ manual draw has no role — the hand tops up on turn
      end and deals fresh on day end; a click-draw only invited confusion.
+
+- **2026-07-22 — Multi-enemy phased combat (M2.14, Spec 2).**
+  Replaced single-enemy combat with a phased **Siege → Defend → Attack → auto-flee** engine
+  (`CombatController`) shared by field, dungeon, and guardian fights, with one multi-purpose button
+  whose caption tracks the phase. Guarded places spawn their **whole remaining roster at once**
+  (simultaneous guardians). Key decisions:
+  1. **Siege is a Siege-phase-only currency**, cleared at Engage; Siege/Influence are per-enemy,
+     wound-free removals *before* the counterattack, so thinning the roster shrinks it.
+  2. **One summed group counterattack** (`CombatRules.GroupWoundCount`) — all survivors' Attack sums
+     into a single Defend comparison — instead of a per-kill counterattack.
+  3. **Kills bank immediately; rewards pay at fight-end** through `RewardQueue` (deferred payout) so a
+     mid-fight kill never pops a modal mid-decision. Guardian conquest is recorded per kill, keeping
+     assaults **resumable** (3-wound retreat, survivors-only respawn).
+  4. **Field/dungeon win-teardown folded into the controller** (`OpenFight` takes the source token):
+     field records the `DefeatedEnemies` save cell + destroys the map token; dungeon records depth /
+     `RefreshVisual` / `CompleteDungeon`. Dungeon **exp-only reward routing is driven by combat
+     context**, replacing the `DungeonDelve.AnyInProgress` flag. _Why:_ the plan under-specified this;
+     folding it in matches how guardian bookkeeping already lived in the controller and removes the
+     per-frame `Update` watchers on `EnemyToken`/`DungeonDelve`.
+  5. **Two-track defeat FX** — shake→dissolve for Siege/Attack kills, fade-and-drift for Influence —
+     rendered by a **hand-written UI dissolve shader with procedural noise** (`UI/EnemyCardDissolve`),
+     not a Shader Graph. _Why:_ uGUI renders through the Canvas (built-in path) even under URP, so a
+     ShaderLab UI shader is simpler and more reliable, and procedural noise needs no texture asset.
+
+  **Playtest refinements (same day):**
+  6. **Split out an explicit Defend phase.** Engage now only commits Siege and opens a Defend window
+     (button becomes **Defend**); the counterattack resolves on the **Defend** press, not at Engage.
+     _Why:_ taking wounds the instant you Engage — before you can play defense — felt punishing; the
+     window lets the player build Defend first.
+  7. **The fight holds the combat canvas open until the death FX finishes**, then pays rewards and
+     closes (input gated during the animation). _Why:_ closing on the last kill hid the dissolve
+     entirely — combat "ended too fast to see."
+  8. **The shared `PhaseHud` phase label doubles as the combat sub-phase readout** (Siege/Defend/
+     Attack), falling back to the turn phase (**Action**) on resolve; the separate `PhaseLabelHud` was
+     deleted. _Why:_ two competing phase labels looked cluttered; one label is cleaner.
+  Spec: `docs/superpowers/specs/2026-07-21-*` (Spec 2); plan:
+  `docs/superpowers/plans/2026-07-22-multi-enemy-phased-combat.md`.

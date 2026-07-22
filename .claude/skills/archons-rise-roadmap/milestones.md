@@ -193,6 +193,35 @@ Spec: `docs/superpowers/specs/2026-07-21-turn-phase-system.md`; plan:
 `docs/superpowers/plans/2026-07-21-turn-phase-system.md`. **Spec 2 — multi-enemy phased combat** is
 queued next.
 
+## M2.14 — Multi-enemy phased combat — ✅ code complete 2026-07-22 (editor wiring + play acceptance done)
+**Status:** All C# committed; pure logic TDD-green via the mcs harness (`CombatPhaseRulesTests` 3/3,
+`CombatRulesTests` 10/10 incl. `GroupWoundCount`, `DefeatFxMathTests` 4/4). Editor work (Task 10/11)
+wired by the USER and play-confirmed: `CombatController` scene object, `onCombatPhaseChanged` event,
+the Flee→multi-purpose button (`OnMultiButton`), the shared `PhaseHud` label driving combat
+sub-phases, the `UI/EnemyCardDissolve` material + `EnemyCardDefeatFx` on the prefab, and the guardian
+side-by-side layout.
+**Goal:** replace single-enemy combat with a phased **Siege → Defend → Attack → auto-flee** engine
+shared by field, dungeon, and guardian fights; spawn a guarded place's whole remaining roster at
+once; and add Balatro-style defeat juice.
+**Scope:**
+- Pure rules: `CombatPhase`/`CombatPhaseRules` (phase gating + button label), `CombatRules.GroupWoundCount`
+  (summed group counterattack), `DefeatFxMath` (shake envelope + dissolve ramp).
+- `CombatController` scene singleton owns the phase machine, the logical live-enemy set, the per-fight
+  context + source token, one multi-purpose button, and the deferred reward tally.
+- `EnemyCardDefeatFx` component + hand-written `UI/EnemyCardDissolve` shader (procedural noise) for the
+  two-track defeat FX; the fight holds open until the FX finishes.
+- Simultaneous guardians via `OpenFight`; per-kill banking + 3-wound resumable retreat.
+- Field/dungeon/guardian win-teardown folded into the controller; standalone `Flee`/`ResolveDefeat`
+  retired; shared `PhaseHud` label reused for the sub-phases (returns to Action on resolve).
+**Acceptance:** Siege phase gates Siege/Influence + Engage; Engage clears Siege and opens Defend; the
+Defend press resolves the summed counterattack (wounds for the shortfall) → Attack; Fight kills
+dissolve, Influence fades, canvas stays open through the FX then pays rewards; a Castle spawns both
+guardians at once, Withdraw keeps progress, re-entry spawns only survivors, clearing both conquers
+(+ victory on the 2nd); dungeon delves stay exp-only and complete on the last slot; field kills stay
+dead across reload. Pure suites green.
+Spec: `docs/superpowers/specs/2026-07-21-*` (Spec 2); plan:
+`docs/superpowers/plans/2026-07-22-multi-enemy-phased-combat.md`.
+
 ## M3 — Run setup & meta-unlocks
 **Goal:** framed runs plus between-run progression.
 **Scope:**

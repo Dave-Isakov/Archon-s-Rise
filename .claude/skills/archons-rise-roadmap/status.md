@@ -13,7 +13,11 @@ Where Archon's Rise stands today. Seeded from the code review (`docs/code-review
 - Full **undo** via Command pattern (`PlayManager`, `PlayCommand`, `CardDrawCommand`).
 - Cards with **Empower / crystal** economy; 7 starting + ~9 acquirable cards.
 - Hex-map **exploration** via `GridGeneration` (randomized).
-- **Combat** (player Attack vs enemy HP; enemy Attack vs Defend → Wounds); field + dungeon enemies.
+- **Combat** — phased **Siege → Defend → Attack → auto-flee** engine (M2.14, 2026-07-22), one
+  multi-purpose button, shared by field, dungeon, and guardian fights. Siege/Influence remove enemies
+  before a single summed group counterattack (Attack vs Defend → Wounds); guarded places spawn their
+  whole remaining roster at once with per-kill banking + 3-wound resumable retreat; deferred
+  fight-end rewards; two-track defeat FX (dissolve/fade) via `UI/EnemyCardDissolve`.
 - **Towns** (Town/Village/Fortress/City) and **Unit** recruiting (Knight/Scout/Warrior/Merchant).
 - **Map dungeons** (M2.9, 2026-07-14) — 6 spaced hexes/map, stand-on-cell entry, 3 tiered delves
   (exp-only fights), guaranteed completion bundle + doom relief, doom-band flagging, save v6.

@@ -5,7 +5,7 @@ description: Living development roadmap for the Archon's Rise game. Use when dec
 
 # Archon's Rise — Development Roadmap
 
-**Current Focus:** M2.5 — Win/lose systems (see [milestones.md](milestones.md)). M2 (place-type system) ✅ done 2026-07-03.
+**Current Focus:** M2.14 — Multi-enemy phased combat ✅ code + editor complete, play-accepted 2026-07-22 (see [milestones.md](milestones.md)). M2.13 (turn phases) shipped 2026-07-21.
 
 ## Index
 - [status.md](status.md) — what exists vs. stubbed vs. missing.

@@ -15,7 +15,8 @@ four action stats, then act:
   the fight **wound-free and still grants the defeat rewards** (no counterattack runs). If the enemy
   has a `recruitedUnit` **and** the player owns the **Charismatic** passive, the same payment also
   adds that unit to the army (rewards + unit); otherwise influence is pay-to-leave only. At the army
-  cap a recruit-influence opens the disband picker first; cancelling spends nothing,
+  cap a recruit-influence opens the disband picker first; cancelling spends nothing. These resolve
+  through the phased, multi-enemy combat engine (Siege → Defend → Attack) — see **Combat** below,
 - **Recruit** units at a town (spending Influence) — a **recruit panel** lists the town's units,
   each at **its own Influence price** (per-unit, not a flat town rate); unaffordable entries show
   disabled. Recruiting is capped by the **army cap** (starts at 1, raised by level-ups; at cap,
@@ -26,6 +27,35 @@ four action stats, then act:
 Gain rewards (experience, crystals, cards) from defeating enemies and clearing dungeons, level up,
 and grow your deck — all while the **Doom Clock** rises each round. The run ends when you meet the
 Archon threshold (**win**) or trigger a loss condition.
+
+## Combat — phased, multi-enemy (spec 2026-07-21, Spec 2)
+Field, dungeon, and guardian fights all run through one phased engine (`CombatController`) with a
+**single multi-purpose button** whose caption tracks the phase. A guarded place spawns its **whole
+remaining roster at once** (simultaneous guardians), not one at a time; field and dungeon fights are
+single-enemy. Combat stays in the board scene.
+
+The phases (button caption in **bold**):
+- **Siege** (**Engage**) — the pre-commit phase. Per-enemy **Siege** (spends the Siege pool, wound-free)
+  and **Influence** (pay `canInfluence` cost, wound-free, still grants rewards; recruits with
+  Charismatic + `recruitedUnit`) remove enemies *before* the counterattack. Thinning the roster here
+  shrinks the coming counterattack. Pressing **Engage** commits: the **Siege pool is cleared** (a
+  Siege-phase-only currency) and combat enters Defend. No wounds yet.
+- **Defend** (**Defend**) — a window to play defense cards and build the Defend pool. Pressing
+  **Defend** resolves the **group counterattack**: every surviving enemy's Attack is **summed into
+  one comparison** against Defend, and the shortfall becomes Wounds in HP-sized bites
+  (`CombatRules.GroupWoundCount`). Then combat enters Attack.
+- **Attack** (**Withdraw**) — spend the **Attack** pool to defeat remaining enemies (the counterattack
+  already happened, so normal kills here are wound-free at point of use). **Withdraw** flees: field/
+  dungeon costs **1 wound**, a guardian assault costs **3 wounds** with conquest progress kept.
+- **Resolved** — the fight is over; the roster is cleared (win) or the player withdrew.
+
+Each defeat is **banked immediately** (logical removal, guardian conquest record, field save-cell/
+token teardown, dungeon depth tracking, reward captured) but reward **messages + card picks are paid
+at fight-end**, serialized through `RewardQueue`, so a mid-fight kill never pops a modal that
+interrupts a Siege/Attack decision. Defeats play a **two-track FX** — a shake→dissolve for Siege/
+Attack kills, a fade-and-drift for Influence — and the fight **holds the canvas open until the FX
+finishes** before closing. The shared HUD phase label doubles as the combat sub-phase readout
+(**Siege/Defend/Attack**), returning to **Action** when combat resolves.
 
 ## Win — Conquer 2 Castles
 Map places are typed: **Town / Keep / Castle** (+ existing Dungeons). Guarded places (Keep 1
