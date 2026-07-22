@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92261ec319cf8834eb6d46a8c063b0ec, type: 3}
+  m_Name: fight-attack
+  m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialStepSO
+  id: fight-attack
+  bannerText: 'Attack phase: the counterattack is over. Spend <sprite="Sword" index=0>
+    Attack to defeat each survivor (<sprite="Sword" index=0> at least its <sprite="hp"
+    index=0> HP), or Withdraw to flee.'
+  highlightTargetId: fight-button
+  completionEventId: enemy-resolved

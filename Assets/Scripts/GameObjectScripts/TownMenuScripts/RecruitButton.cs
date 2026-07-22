@@ -13,7 +13,7 @@ public class RecruitButton : TownButtons
     {
         if (_town is not null)
         {
-            thisButton.interactable = AnyAffordable();
+            thisButton.interactable = AnyAffordable() && CanActThisVisit;
             SyncLock();
         }
     }

@@ -33,17 +33,11 @@ public class DungeonToken : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        // A dungeon delve is the turn's one action (spec 2026-07-21); block a
-        // second interaction and perform the implicit Explore->Action transition.
+        // Opening the dungeon panel is a free peek (spec 2026-07-22): the turn's one
+        // action is spent by pressing Delve, not by opening the menu. BeginVisit
+        // snapshots whether this visit may act (only if the action is still unspent).
         if (TurnPhaseController.Instance != null)
-        {
-            if (!TurnPhaseController.Instance.CanInteract)
-            {
-                GameManager.Instance.ValidationMessage("You've already taken your action this turn.");
-                return;
-            }
-            TurnPhaseController.Instance.BeginAction();
-        }
+            TurnPhaseController.Instance.BeginVisit();
 
         FindAnyObjectByType<DungeonPanel>(FindObjectsInactive.Include).Open(this);
     }

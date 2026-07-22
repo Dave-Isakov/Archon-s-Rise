@@ -59,7 +59,7 @@ public class DungeonTracker : MonoBehaviour
 
     private void RefreshTokenVisuals()
     {
-        foreach (var t in FindObjectsByType<DungeonToken>(FindObjectsSortMode.None))
+        foreach (var t in FindObjectsByType<DungeonToken>())
             t.RefreshVisual();
     }
 

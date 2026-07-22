@@ -82,9 +82,9 @@ public class EnemySpawner : MonoBehaviour
                 || ground.GetTile(pos) == dungeonTile)
                 blocked.Add(c);
         }
-        foreach (var token in FindObjectsByType<EnemyToken>(FindObjectsSortMode.None))
+        foreach (var token in FindObjectsByType<EnemyToken>())
             blocked.Add(new Cell(token.gridPos.x, token.gridPos.y));
-        foreach (var town in FindObjectsByType<TownToken>(FindObjectsSortMode.None))
+        foreach (var town in FindObjectsByType<TownToken>())
             blocked.Add(new Cell(town.gridPos.x, town.gridPos.y));
         var player = FindAnyObjectByType<PlayerPosition>();
         if (player != null)
@@ -99,7 +99,7 @@ public class EnemySpawner : MonoBehaviour
     public SpawnedEnemy[] ExportAlive()
     {
         var list = new List<SpawnedEnemy>();
-        foreach (var token in FindObjectsByType<EnemyToken>(FindObjectsSortMode.None))
+        foreach (var token in FindObjectsByType<EnemyToken>())
             if (token.isMidRunSpawn && token.enemy != null)
                 list.Add(new SpawnedEnemy
                 {

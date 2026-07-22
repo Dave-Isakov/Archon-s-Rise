@@ -7,7 +7,7 @@ public class HealButton : TownButtons
     private void Update() {
         if (_town is not null)
         {
-            if(currentPlayerInfluence < _town.townSO.healLevel)
+            if(currentPlayerInfluence < _town.townSO.healLevel || !CanActThisVisit)
                 thisButton.interactable = false;
             SyncLock();
         }
@@ -32,6 +32,10 @@ public class HealButton : TownButtons
                     thisButton.onClick.RemoveAllListeners();
                     thisButton.onClick.AddListener(() => townEvent.Raise(_town));
                     thisButton.onClick.AddListener(() => influenceCostEvent.Raise(_town.townSO.healLevel));
+                    // Healing is the visit's committed action (spec 2026-07-22).
+                    thisButton.onClick.AddListener(() => {
+                        if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.CommitVisitAction();
+                    });
             }
             else
             {

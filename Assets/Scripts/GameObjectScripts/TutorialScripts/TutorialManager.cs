@@ -95,6 +95,28 @@ public class TutorialManager : MonoBehaviour
             NotifyEvent("doom-band");
     }
 
+    // VoidListener on onCombatPhaseChanged (spec 2026-07-22, phased combat). The
+    // one combat-phase event drives the three combat rail steps (fight-siege ->
+    // fight-defend -> fight-attack): each phase maps to a DISTINCT event id, since
+    // the out-of-order-tolerant rail would chain past every step sharing one id.
+    // Siege entry is handled by the enemy step's combat-started, so it needs none.
+    // On Resolved we re-fire the mid-phase ids so a fight that skips a phase (e.g.
+    // a full Siege-phase clear, or a withdraw) can never strand the rail on a step
+    // whose transition never happened — enemy-resolved then closes fight-attack.
+    public void NotifyCombatPhase()
+    {
+        if (CombatController.Instance == null) return;
+        switch (CombatController.Instance.Phase)
+        {
+            case CombatPhase.Defend: NotifyEvent("combat-defend"); break;
+            case CombatPhase.Attack: NotifyEvent("combat-attack"); break;
+            case CombatPhase.Resolved:
+                NotifyEvent("combat-defend");
+                NotifyEvent("combat-attack");
+                break;
+        }
+    }
+
     // ---- banner buttons (wired in the editor) ----
 
     public void NextPressed()

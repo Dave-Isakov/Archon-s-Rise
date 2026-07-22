@@ -17,9 +17,14 @@ public class TurnPhaseController : MonoBehaviour
     public TurnPhase CurrentPhase { get; private set; }
     public int TurnsRemaining { get; private set; }
     bool actionTaken;
+    bool visitCanAct;
 
     public bool CanMove     => TurnPhaseRules.CanMove(CurrentPhase);
     public bool CanInteract => TurnPhaseRules.CanInteract(CurrentPhase, actionTaken);
+
+    // True while an open place/dungeon menu is allowed to spend the turn's action —
+    // snapshotted at menu open by BeginVisit (spec 2026-07-22).
+    public bool VisitCanAct => visitCanAct;
 
     void Awake() { Instance = this; }
 
@@ -38,6 +43,20 @@ public class TurnPhaseController : MonoBehaviour
         GameManager.Instance.commands.ClearStack();
         actionTaken = true;
         SetPhase(TurnPhase.Action);
+    }
+
+    // A place/dungeon menu opened (spec 2026-07-22). Opening is a free peek — it no
+    // longer spends the action. Snapshot whether this visit may act (only if the
+    // turn's action is still unspent); the first service committed inside does the
+    // real BeginAction via CommitVisitAction.
+    public void BeginVisit() => visitCanAct = CanInteract;
+
+    // A service inside the open menu was committed. The first one spends the turn's
+    // action; every later service in the SAME visit rides on it (a whole visit is
+    // one action), so this is a no-op once the action is spent.
+    public void CommitVisitAction()
+    {
+        if (visitCanAct && !actionTaken) BeginAction();
     }
 
     // The only turn-flow control. Commits, runs the turn-end chain, decrements the

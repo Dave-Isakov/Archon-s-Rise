@@ -470,3 +470,18 @@ editing an old one.
      deleted. _Why:_ two competing phase labels looked cluttered; one label is cleaner.
   Spec: `docs/superpowers/specs/2026-07-21-*` (Spec 2); plan:
   `docs/superpowers/plans/2026-07-22-multi-enemy-phased-combat.md`.
+
+- **2026-07-22 — Opening a place/dungeon menu is a free peek; the committed service spends the action.**
+  Reverses the 2026-07-21 "only the menu **open** spends it" rule. `TownToken`/`DungeonToken` no longer
+  call `BeginAction` on open — they call `TurnPhaseController.BeginVisit()`, which snapshots
+  `visitCanAct = CanInteract` (can this visit act at all?). The turn's action is spent by the first
+  service *committed* inside — an assault (`GuardianAssault.Begin`), a heal (`HealButton`), a recruit
+  (`RecruitPanel.Hire`), a crystal buy (`CrystalButton.OnCrystalPurchased`), or a dungeon delve
+  (`DungeonPanel.Delve`) — each of which calls `CommitVisitAction()` (`if (visitCanAct && !actionTaken)
+  BeginAction()`, idempotent). "A whole visit is one action" survives: the first commit spends it and
+  the rest of that same open menu rides free. When the action was already spent before the menu opened
+  (`visitCanAct` false — e.g. a field fight while standing on the cell), the menu still **opens for a
+  peek** but its service buttons lock (`CanActThisVisit` gate on `TownButtons` / `DungeonPanel`'s Delve).
+  _Why:_ opening a menu just to see what a place offers shouldn't burn the turn's one action — the
+  player was being charged for looking. Mirrors the existing crystal pattern (opening the crystal
+  pop-out is free; picking a crystal is the spend).

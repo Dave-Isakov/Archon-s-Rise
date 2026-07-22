@@ -83,14 +83,14 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
         UpdateLabel(verdict);
     }
 
-    // The button reads "End the Day" when the next press will end the round — the
+    // The button reads "End Day" when the next press will end the round — the
     // last turn of the day, or a dry deck that forces the rest (spec 2026-07-21) —
-    // and "End the Turn" otherwise. Mirrors RoundRules.IsRoundOver on the press.
+    // and "End Turn" otherwise. Mirrors RoundRules.IsRoundOver on the press.
     void UpdateLabel(DrawVerdict verdict)
     {
         if (label == null || TurnPhaseController.Instance == null) return;
         int next = RoundRules.NextTurnsRemaining(TurnPhaseController.Instance.TurnsRemaining);
         bool endsDay = RoundRules.IsRoundOver(next, RoundRules.DeckCanRefill(verdict));
-        label.text = endsDay ? "End the Day" : "End the Turn";
+        label.text = endsDay ? "End Day" : "End Turn";
     }
 }

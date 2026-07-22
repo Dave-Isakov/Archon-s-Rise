@@ -20,7 +20,7 @@ MonoBehaviour:
     index=0>
 
 
-    <sprite="Sword" index=0> 5'
+    <sprite="Siege" index=0> 4'
   attack: 0
   defend: 0
   explore: 0
@@ -28,14 +28,14 @@ MonoBehaviour:
   siege: 0
   healAmount: 0
   numCrystals: 1
-  empowerAttack: 5
+  empowerAttack: 0
   empowerDefend: 0
   empowerExplore: 0
   empowerInfluence: 0
-  empowerSiege: 0
+  empowerSiege: 4
   empowerHealAmount: 0
   empowerNumCrystals: 0
-  cardType: 65
+  cardType: 193
   empowerType: 1
   isChoice: 0
   convertTo: 0

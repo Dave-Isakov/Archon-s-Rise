@@ -7,7 +7,7 @@ public class CrystalButton : TownButtons
     private void Update() {
         if (_town is not null)
         {
-            if(currentPlayerInfluence < _town.townSO.resourceLevel)
+            if(currentPlayerInfluence < _town.townSO.resourceLevel || !CanActThisVisit)
                 thisButton.interactable = false;
             SyncLock();
         }
@@ -44,5 +44,9 @@ public class CrystalButton : TownButtons
     {
         if (_town is not null)
             influenceCostEvent.Raise(_town.townSO.resourceLevel);
+        // Buying a crystal is the visit's committed action (spec 2026-07-22). The
+        // Crystal button is gated on the visit still owning the action, so the
+        // pop-out only ever opens when this commit is allowed.
+        if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.CommitVisitAction();
     }
 }

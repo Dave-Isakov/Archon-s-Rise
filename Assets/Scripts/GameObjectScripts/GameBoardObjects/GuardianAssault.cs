@@ -19,8 +19,13 @@ public class GuardianAssault : MonoBehaviour
 
     public void Begin(TownToken town)
     {
+        // Assaulting is the visit's committed action (spec 2026-07-22): spend the
+        // turn's action now (the AssaultButton is gated so this only fires when the
+        // visit still owns it).
+        if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.CommitVisitAction();
+
         // Tear down the place menu the button click came from.
-        foreach (var card in FindObjectsByType<TownCard>(FindObjectsSortMode.None))
+        foreach (var card in FindObjectsByType<TownCard>())
             Destroy(card.gameObject);
         GameManager.Instance.townCanvas.enabled = false;
         GameManager.Instance.CombatCanvasActive(); // canvas chrome + multi-purpose button, no field banner

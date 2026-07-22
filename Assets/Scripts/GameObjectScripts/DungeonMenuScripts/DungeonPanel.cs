@@ -71,6 +71,10 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
         }
         player.PlayerExplore -= cost;
         player.GetCurrentExplore();
+        // Delving is the visit's committed action (spec 2026-07-22): spend the turn's
+        // action now (the Delve button is gated so this only fires when the visit
+        // still owns it). This also commits the movement stack.
+        if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.CommitVisitAction();
         // Delving is a firm decision: commit all pending plays so the explore
         // that paid for it can't be undone into a negative total.
         GameManager.Instance.commands.ClearStack();
@@ -108,7 +112,11 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
     private void UpdateDelveInteractable(int currentExplore)
     {
         if (current == null) return;
-        delveButton.interactable = currentExplore >= current.dungeonSO.exploreCost;
+        // Also gated on the visit still owning the turn's action (spec 2026-07-22):
+        // opening the panel is a free peek, so a delve after the action is spent is
+        // locked. Null-safe for scenes without a controller.
+        bool visitCanAct = TurnPhaseController.Instance == null || TurnPhaseController.Instance.VisitCanAct;
+        delveButton.interactable = currentExplore >= current.dungeonSO.exploreCost && visitCanAct;
     }
 
     private void UpdatePreview(DungeonsSO so, int cleared)

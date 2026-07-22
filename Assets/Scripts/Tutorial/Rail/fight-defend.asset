@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92261ec319cf8834eb6d46a8c063b0ec, type: 3}
+  m_Name: fight-defend
+  m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialStepSO
+  id: fight-defend
+  bannerText: 'Defend phase: play cards to build <sprite="shield" index=0> Defend,
+    then press Defend to take the counterattack. Each point of enemy <sprite="Sword"
+    index=0> Attack past your <sprite="shield" index=0> Defend becomes a <sprite="wound"
+    index=0> Wound.'
+  highlightTargetId: combat-button
+  completionEventId: combat-attack

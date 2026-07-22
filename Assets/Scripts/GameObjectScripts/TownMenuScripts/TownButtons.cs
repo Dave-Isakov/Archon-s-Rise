@@ -17,6 +17,12 @@ public abstract class TownButtons : MonoBehaviour
 
     protected void SyncLock() => UiLock.Apply(lockGroup, !thisButton.interactable);
 
+    // A service may only be committed when the current visit still owns the turn's
+    // action (spec 2026-07-22). Null-safe so buttons behave normally with no
+    // controller in the scene (tests / isolated harnesses).
+    protected static bool CanActThisVisit =>
+        TurnPhaseController.Instance == null || TurnPhaseController.Instance.VisitCanAct;
+
     protected void Awake()
     {
         

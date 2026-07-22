@@ -93,9 +93,12 @@ A **turn** runs a strict **Explore → Action → End** sequence (`TurnPhase`, `
   which commits the stack (revealed knowledge can't be un-known; `ShouldCommitOnMove`).
 - **Action:** the player takes **exactly one** encounter per turn — a fight, a place visit, or a
   dungeon delve. Taking the action is the **implicit Explore→Action transition** (`BeginAction`):
-  it commits the movement stack and locks further movement for the turn. A whole place visit
-  (recruit/heal/buy/assault inside the open menu) counts as the one action. A second interaction is
-  refused.
+  it commits the movement stack and locks further movement for the turn. **Opening a place or
+  dungeon menu is a free peek** (spec 2026-07-22) — the action is spent only by the first service
+  *committed* inside (an assault, a heal/recruit/crystal purchase, or pressing Delve), so you can
+  open a menu to see what's on offer and close it without cost. A whole place visit still counts as
+  the one action: once the first service commits, the rest of that same open menu is free; reopening
+  after the action is spent is peek-only (its service buttons lock). A second interaction is refused.
 - **End:** **End Turn** is the only turn-flow control (End Round is gone). It resets action stats to
   0, tops up the hand, and advances the day.
 

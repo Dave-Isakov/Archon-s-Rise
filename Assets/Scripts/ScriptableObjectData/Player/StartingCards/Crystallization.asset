@@ -20,7 +20,7 @@ MonoBehaviour:
     index=0>
 
 
-    <sprite="crystal" index=0 color=#522D2D> 4'
+    <sprite="Heal" index=0> 1'
   attack: 0
   defend: 0
   explore: 0
@@ -33,9 +33,9 @@ MonoBehaviour:
   empowerExplore: 0
   empowerInfluence: 0
   empowerSiege: 0
-  empowerHealAmount: 0
-  empowerNumCrystals: 4
-  cardType: 64
+  empowerHealAmount: 1
+  empowerNumCrystals: 0
+  cardType: 80
   empowerType: -1
   isChoice: 0
   convertTo: 0

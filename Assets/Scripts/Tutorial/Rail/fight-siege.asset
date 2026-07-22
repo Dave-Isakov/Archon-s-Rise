@@ -10,12 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 92261ec319cf8834eb6d46a8c063b0ec, type: 3}
-  m_Name: fight
+  m_Name: fight-siege
   m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialStepSO
-  id: fight
-  bannerText: "This fight is your one action this turn. <sprite=\"Sword\" index=0>
-    Attack \u2265 enemy <sprite=\"hp\" index=0> HP defeats it; <sprite=\"shield\"
-    index=0> Defend prevents taking <sprite=\"wound\" index=0> Wounds. You may take
-    one action each turn."
-  highlightTargetId: fight-button
-  completionEventId: enemy-resolved
+  id: fight-siege
+  bannerText: 'Combat runs in phases. <sprite="siege" index=0> Siege phase: <sprite="siege"
+    index=0> Siege or <sprite="gem" index=0> Influence can remove enemies wound-free
+    before they strike back. Press Engage when you are ready to commit.'
+  highlightTargetId: combat-button
+  completionEventId: combat-defend

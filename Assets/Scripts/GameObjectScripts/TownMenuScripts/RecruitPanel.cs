@@ -76,6 +76,8 @@ public class RecruitPanel : MonoBehaviour
         // IntEvent that had been mis-wired to GetCurrentInfluence — which only
         // rebroadcasts the number — so hiring never actually deducted.)
         player.Influence(unit.influenceCost);
+        // Recruiting is the visit's committed action (spec 2026-07-22).
+        if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.CommitVisitAction();
     }
 
     void Close()

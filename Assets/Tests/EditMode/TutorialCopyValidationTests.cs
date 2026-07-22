@@ -67,8 +67,7 @@ public class TutorialCopyValidationTests
     }
 
     // Pins the turn-phase rail copy (spec 2026-07-21): the Explore/Action/End
-    // rhythm and the shrinking "day". RED until the rail assets are re-authored
-    // (Task 10); GREEN once the phase copy is entered.
+    // rhythm and the shrinking "day".
     [Test]
     public void PhaseRailStepsTeachExploreActionEndAndTheDay()
     {
@@ -77,14 +76,33 @@ public class TutorialCopyValidationTests
         Assert.That(explore, Does.Contain("Explore phase"));
         Assert.That(explore, Does.Contain("move"));
 
-        var action = StepBannerById("fight");
-        Assert.IsNotNull(action, "missing rail step id 'fight'");
-        Assert.That(action, Does.Contain("one action"));
-
         var end = StepBannerById("end-turn");
         Assert.IsNotNull(end, "missing rail step id 'end-turn'");
         Assert.That(end, Does.Contain("End the turn"));
         Assert.That(end, Does.Contain("day"));
+    }
+
+    // Pins the multi-enemy phased-combat rail walkthrough (spec 2026-07-22): the
+    // single 'fight' step is replaced by three steps that teach Siege -> Defend ->
+    // Attack, each keyed to that phase so the banner tracks the fight as it runs.
+    [Test]
+    public void CombatRailStepsTeachSiegeDefendAttackPhases()
+    {
+        var siege = StepBannerById("fight-siege");
+        Assert.IsNotNull(siege, "missing rail step id 'fight-siege'");
+        Assert.That(siege, Does.Contain("Siege phase"));
+
+        var defend = StepBannerById("fight-defend");
+        Assert.IsNotNull(defend, "missing rail step id 'fight-defend'");
+        Assert.That(defend, Does.Contain("Defend phase"));
+        Assert.That(defend, Does.Contain("counterattack"));
+
+        var attack = StepBannerById("fight-attack");
+        Assert.IsNotNull(attack, "missing rail step id 'fight-attack'");
+        Assert.That(attack, Does.Contain("Attack phase"));
+
+        // The old single-shot 'fight' step must be gone (renamed to fight-siege).
+        Assert.IsNull(StepBannerById("fight"), "stale single-shot 'fight' step still present");
     }
 
     [Test]
