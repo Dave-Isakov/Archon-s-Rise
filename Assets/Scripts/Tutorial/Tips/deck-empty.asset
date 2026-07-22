@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: deck-empty
   m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialOneShotSO
   id: deck-empty
-  bannerText: A <sprite="dungeon" index=0> dungeon takes 3 delves to clear. Delves
-    cost <sprite="scroll" index=0> Victory in battle pay only <sprite="xp" index=0>.
-    Clear it for the real prize.
-  highlightTargetId: end-round-button
+  bannerText: Your deck is dry. Press End the Day, it reshuffles your discard into
+    a fresh hand and advances the day.
+  highlightTargetId: end-turn-button
   triggerEventId: deck-cant-refill

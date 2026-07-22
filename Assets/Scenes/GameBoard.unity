@@ -1559,7 +1559,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 9600}
+  m_AnchoredPosition: {x: 0, y: 10100}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &146827232
@@ -11494,6 +11494,7 @@ GameObject:
   - component: {fileID: 1012324065}
   - component: {fileID: 1012324067}
   - component: {fileID: 1012324066}
+  - component: {fileID: 1012324068}
   m_Layer: 5
   m_Name: PhaseText
   m_TagString: Untagged
@@ -11518,7 +11519,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: -49.99997}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 300, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1012324066
 MonoBehaviour:
@@ -11620,6 +11621,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1012324064}
   m_CullTransparentMesh: 1
+--- !u!114 &1012324068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1012324064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6111448783a8cde4c9997f79754af504, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialTarget
+  targetId: phase-label
 --- !u!1 &1017340597
 GameObject:
   m_ObjectHideFlags: 0
@@ -21386,9 +21400,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1974302827}
-        m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: FleeCombat
+      - m_Target: {fileID: 2096492139}
+        m_TargetAssemblyTypeName: CombatController, Assembly-CSharp
+        m_MethodName: OnMultiButton
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -23501,6 +23515,8 @@ GameObject:
   - component: {fileID: 1830968639}
   - component: {fileID: 1830968641}
   - component: {fileID: 1830968640}
+  - component: {fileID: 1830968643}
+  - component: {fileID: 1830968642}
   m_Layer: 5
   m_Name: RoundTurnCounter
   m_TagString: Untagged
@@ -23689,6 +23705,47 @@ MonoBehaviour:
       - m_Target: {fileID: 1830968639}
         m_TargetAssemblyTypeName: PhaseHud, Assembly-CSharp
         m_MethodName: OnPhaseChanged
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &1830968642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1830968635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a206e6c515e27d4d84dd578b7efdd12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PhaseLabelHud
+  label: {fileID: 1012324066}
+--- !u!114 &1830968643
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1830968635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3571130e79c1b24c904c1bbf6d42d76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VoidListener
+  gameEvent: {fileID: 11400000, guid: eaffbb22f16b27a49923267408f94c19, type: 2}
+  unityEventResponse:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1830968642}
+        m_TargetAssemblyTypeName: PhaseLabelHud, Assembly-CSharp
+        m_MethodName: Refresh
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -27450,6 +27507,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2096448495}
   m_CullTransparentMesh: 1
+--- !u!1 &2096492138
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2096492140}
+  - component: {fileID: 2096492139}
+  m_Layer: 0
+  m_Name: CombatController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2096492139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2096492138}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9841df47e10896e4581fec695097c42b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombatController
+  multiButton: {fileID: 1692507405}
+  multiButtonLabel: {fileID: 1019332442}
+  onCombatPhaseChanged: {fileID: 11400000, guid: eaffbb22f16b27a49923267408f94c19, type: 2}
+--- !u!4 &2096492140
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2096492138}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.15274, y: 0.61005, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2097099565
 GameObject:
   m_ObjectHideFlags: 0
@@ -60054,6 +60158,7 @@ MonoBehaviour:
   endTurnButton: {fileID: 6792894709839071334}
   endTheTurn: {fileID: 11400000, guid: 77858732ac21a4a4994d5bcae00e3412, type: 2}
   onDeckCannotRefillTutorial: {fileID: 0}
+  label: {fileID: 0}
 --- !u!114 &6792894709839071336
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60872,7 +60977,8 @@ PrefabInstance:
       propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
       value: 1801810542
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7684908867119438333, guid: 6aa5c23f997240548a95d57c54ca30de, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -61996,3 +62102,4 @@ SceneRoots:
   - {fileID: 1245566175}
   - {fileID: 593363791}
   - {fileID: 1480549573}
+  - {fileID: 2096492140}
