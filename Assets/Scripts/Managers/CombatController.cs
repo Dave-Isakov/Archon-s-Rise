@@ -19,6 +19,10 @@ public class CombatController : MonoBehaviour
     public bool CanSiege        => CombatPhaseRules.CanSiege(Phase);
     public bool CanInfluence    => CombatPhaseRules.CanInfluence(Phase);
     public bool CanNormalAttack => CombatPhaseRules.CanNormalAttack(Phase);
+    // A fight is live only in Siege/Attack. Phase is initialized to Resolved in
+    // Awake so this reads false before the first fight (the enum's default is
+    // Siege, which would otherwise report combat when none is running).
+    public bool InCombat => Phase == CombatPhase.Siege || Phase == CombatPhase.Attack;
 
     readonly List<EnemyCard> live = new();   // logical set; resolution keys off THIS, not childCount
     CombatContext context;
@@ -39,7 +43,7 @@ public class CombatController : MonoBehaviour
         { this.so = so; this.bonusHP = bonusHP; this.bonusAttack = bonusAttack; }
     }
 
-    void Awake() { Instance = this; }
+    void Awake() { Instance = this; Phase = CombatPhase.Resolved; }
 
     public void OpenFight(List<EnemySpawn> spawns, CombatContext context, TownToken guardianPlace)
     {
@@ -62,6 +66,7 @@ public class CombatController : MonoBehaviour
         }
 
         GameManager.Instance.combatCanvas.enabled = true;
+        if (multiButton != null) multiButton.gameObject.SetActive(true); // the multi-purpose (ex-Flee) button
         SetPhase(CombatPhase.Siege);
     }
 

@@ -78,7 +78,8 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
         lastVerdict = verdict;
         // Disabled only mid-fight now.
         endTurnButton.interactable = TurnButtonGate.EndTurn(
-            GameManager.Instance.activeCombatant != null || GuardianAssault.AnyInProgress);
+            GameManager.Instance.activeCombatant != null
+            || (CombatController.Instance != null && CombatController.Instance.InCombat));
         UpdateLabel(verdict);
     }
 
