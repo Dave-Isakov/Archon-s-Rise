@@ -105,16 +105,20 @@ public class CardPlaySelection
         return result;
     }
 
+    // Icon language (spec 2026-07-15): each stat renders as its TMP sprite glyph
+    // immediately followed by its signed amount, space-separated. Pool order
+    // [attack, defend, influence, explore].
     public string Describe()
     {
         var parts = new List<string>();
         var stats = ResolveStats();
-        string[] names = { "Attack", "Defend", "Influence", "Explore" };
+        IconConcept[] concepts =
+            { IconConcept.Attack, IconConcept.Defend, IconConcept.Influence, IconConcept.Explore };
         for (int i = 0; i < 4; i++)
-            if (stats[i] != 0) parts.Add($"+{stats[i]} {names[i]}");
+            if (stats[i] != 0) parts.Add($"{IconMarkup.Tag(concepts[i])}+{stats[i]}");
 
         if (parts.Count == 0) return "—"; // em dash for no output
-        string body = string.Join(", ", parts);
+        string body = string.Join(" ", parts);
         return Mode == PlayMode.Improvise ? body + " (improvised)" : body;
     }
 

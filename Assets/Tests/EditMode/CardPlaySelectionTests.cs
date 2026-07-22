@@ -27,7 +27,7 @@ public class CardPlaySelectionTests
     {
         var s = new CardPlaySelection(Strike());
         Assert.AreEqual(new[] { 2, 0, 0, 0 }, s.ResolveStats());
-        Assert.AreEqual("+2 Attack", s.Describe());
+        Assert.AreEqual("<sprite=\"Sword\" index=0>+2", s.Describe());
     }
 
     [Test]
@@ -79,7 +79,7 @@ public class CardPlaySelectionTests
         s.SetImproviseStat(StatType.Defend);
         Assert.AreEqual(PlayMode.Improvise, s.Mode);
         Assert.AreEqual(new[] { 0, 1, 0, 0 }, s.ResolveStats());
-        Assert.AreEqual("+1 Defend (improvised)", s.Describe());
+        Assert.AreEqual("<sprite=\"shield\" index=0>+1 (improvised)", s.Describe());
     }
 
     [Test]

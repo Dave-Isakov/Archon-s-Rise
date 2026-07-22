@@ -13,6 +13,13 @@ public class SkillChoiceButton : MonoBehaviour
     public void Bind(SkillsSO skill, Action<SkillsSO> onClick)
     {
         if (icon != null && skill.icon != null) icon.sprite = skill.icon;
+        if (icon != null)
+        {
+            string hex = skill.crystalColor.SkillIconTintHex();
+            icon.color = hex.Length > 0 && ColorUtility.TryParseHtmlString("#" + hex, out Color tint)
+                ? tint
+                : Color.white;
+        }
         nameText.text = skill.cardName;
         descriptionText.text = skill.cardDescription;
         button.onClick.RemoveAllListeners();

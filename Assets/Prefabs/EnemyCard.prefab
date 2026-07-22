@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Name
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 55358289a2692894cae93650d7d3a2c4, type: 2}
+  m_sharedMaterial: {fileID: 4711908081976432227, guid: 55358289a2692894cae93650d7d3a2c4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -358,7 +358,7 @@ MonoBehaviour:
       m_Calls: []
   m_text: <sprite="gem" index=0>
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 55358289a2692894cae93650d7d3a2c4, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -425,7 +425,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &4644490986371857415
@@ -583,6 +583,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemySO: {fileID: 0}
+  bonusHP: 0
+  bonusAttack: 0
   enemyName: {fileID: 3080921338879096766}
   enemyHP: {fileID: 9103217917826355687}
   enemyAttack: {fileID: 1095017149540023129}
@@ -690,8 +692,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: <sprite="shield" index=0>
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 55358289a2692894cae93650d7d3a2c4, type: 2}
+  m_sharedMaterial: {fileID: 4711908081976432227, guid: 55358289a2692894cae93650d7d3a2c4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -827,8 +829,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Impossible
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 55358289a2692894cae93650d7d3a2c4, type: 2}
+  m_sharedMaterial: {fileID: 4711908081976432227, guid: 55358289a2692894cae93650d7d3a2c4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1638,6 +1640,7 @@ GameObject:
   - component: {fileID: 5452276791384417627}
   - component: {fileID: 7515486954288219721}
   - component: {fileID: 7555496661297782163}
+  - component: {fileID: 6570723534676341434}
   m_Layer: 8
   m_Name: FightButton
   m_TagString: Untagged
@@ -1747,6 +1750,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6570723534676341434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7128530211981648253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6111448783a8cde4c9997f79754af504, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialTarget
+  targetId: fight-button
 --- !u!1 &8647130966512096927
 GameObject:
   m_ObjectHideFlags: 0
@@ -1814,8 +1830,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: <sprite="Sword" index=0>
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 55358289a2692894cae93650d7d3a2c4, type: 2}
+  m_sharedMaterial: {fileID: 4711908081976432227, guid: 55358289a2692894cae93650d7d3a2c4, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

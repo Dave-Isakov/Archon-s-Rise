@@ -104,14 +104,15 @@ public class ConvertRulesTests
     [Test]
     public void Describe_SingleSource()
     {
-        Assert.AreEqual("Convert all Defend → Attack",
+        Assert.AreEqual("<sprite=\"shield\" index=0> → <sprite=\"Sword\" index=0>",
             ConvertRules.Describe(StatType.Defend, StatType.Attack));
     }
 
     [Test]
     public void Describe_MultiSource()
     {
-        Assert.AreEqual("Convert all Attack, Defend, Explore → Influence",
+        Assert.AreEqual(
+            "<sprite=\"Sword\" index=0> <sprite=\"shield\" index=0> <sprite=\"scroll\" index=0> → <sprite=\"gem\" index=0>",
             ConvertRules.Describe(StatType.Attack | StatType.Defend | StatType.Explore,
                 StatType.Influence));
     }

@@ -41,7 +41,7 @@ MonoBehaviour:
   - m_ElementType: 2
     m_Unicode: 65534
     m_GlyphIndex: 0
-    m_Scale: 1
+    m_Scale: 1.5
     m_Name: hp_0
   m_GlyphTable:
   - m_Index: 0
@@ -49,7 +49,7 @@ MonoBehaviour:
       m_Width: 512
       m_Height: 512
       m_HorizontalBearingX: 0
-      m_HorizontalBearingY: 350
+      m_HorizontalBearingY: 365
       m_HorizontalAdvance: 512
     m_GlyphRect:
       m_X: 0

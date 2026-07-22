@@ -24,6 +24,14 @@ public class SkillToken : MonoBehaviour, IPointerClickHandler
         skillSO = so;
         gameObject.name = so.cardName;
         if (icon != null && so.icon != null) icon.sprite = so.icon;
+        if (icon != null && so.icon != null) dimOverlay.sprite = so.icon;
+        if (icon != null)
+        {
+            string hex = so.crystalColor.SkillIconTintHex();
+            icon.color = hex.Length > 0 && ColorUtility.TryParseHtmlString("#" + hex, out Color tint)
+                ? tint
+                : Color.white;
+        }
         if (label != null) label.text = so.cardName;
         SetUsed(false);
     }

@@ -50,12 +50,16 @@ public static class ConvertRules
         return total;
     }
 
-    // Banner / description text, e.g. "Convert all Defend → Attack".
+    // Banner / description text in icon language (spec 2026-07-15): the source
+    // stat glyphs, space-separated, then an arrow to the target glyph, e.g.
+    // "<shield> → <sword>". TMP renders the arrow and sprite tags directly.
     public static string Describe(StatType from, StatType to)
     {
         var parts = new List<string>();
         for (int i = 0; i < ActionStats.Length; i++)
-            if (from.HasFlag(ActionStats[i])) parts.Add(ActionStats[i].ToString());
-        return "Convert all " + string.Join(", ", parts.ToArray()) + " → " + to;
+            if (from.HasFlag(ActionStats[i]) && IconMarkup.TryForStat(ActionStats[i], out var c))
+                parts.Add(IconMarkup.Tag(c));
+        string target = IconMarkup.TryForStat(to, out var tc) ? IconMarkup.Tag(tc) : to.ToString();
+        return string.Join(" ", parts.ToArray()) + " → " + target;
     }
 }

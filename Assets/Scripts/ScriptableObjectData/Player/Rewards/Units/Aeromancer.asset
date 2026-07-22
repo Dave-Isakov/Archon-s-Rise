@@ -14,20 +14,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: unit_Aeromancer
   cardName: Aeromancer
-  cardDescription: 1 Green Crystal / 1 Yellow Crystal / Siege 4 (1 GR)
+  cardDescription: "<sprite=\"crystal\" index=0 color=#F5D90A> 1\n<sprite=\"crystal\"
+    index=0 color=#46A758> 1\n<sprite=\"siege\" index=0> 4 \u2014 <sprite=\"crystal\"
+    index=0 color=#46A758>1"
   options:
   - effect: 6
     amount: 1
     grantColor: 2
     crystalCost: 0
+    influenceCost: 0
   - effect: 6
     amount: 1
     grantColor: 4
     crystalCost: 0
+    influenceCost: 0
   - effect: 4
     amount: 4
     grantColor: 0
     crystalCost: 4
+    influenceCost: 0
   influenceCost: 6
   sprite: {fileID: 0}
   color: {r: 0.45113918, g: 0.67781395, b: 0.6981132, a: 1}

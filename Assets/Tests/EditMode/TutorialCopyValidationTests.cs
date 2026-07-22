@@ -55,6 +55,38 @@ public class TutorialCopyValidationTests
         }
     }
 
+    static string StepBannerById(string id)
+    {
+        foreach (string guid in AssetDatabase.FindAssets("t:TutorialStepSO"))
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            var so = AssetDatabase.LoadAssetAtPath<TutorialStepSO>(path);
+            if (so != null && so.id == id) return so.bannerText ?? "";
+        }
+        return null;
+    }
+
+    // Pins the turn-phase rail copy (spec 2026-07-21): the Explore/Action/End
+    // rhythm and the shrinking "day". RED until the rail assets are re-authored
+    // (Task 10); GREEN once the phase copy is entered.
+    [Test]
+    public void PhaseRailStepsTeachExploreActionEndAndTheDay()
+    {
+        var explore = StepBannerById("move");
+        Assert.IsNotNull(explore, "missing rail step id 'move'");
+        Assert.That(explore, Does.Contain("Explore phase"));
+        Assert.That(explore, Does.Contain("move"));
+
+        var action = StepBannerById("fight");
+        Assert.IsNotNull(action, "missing rail step id 'fight'");
+        Assert.That(action, Does.Contain("one action"));
+
+        var end = StepBannerById("end-turn");
+        Assert.IsNotNull(end, "missing rail step id 'end-turn'");
+        Assert.That(end, Does.Contain("End the turn"));
+        Assert.That(end, Does.Contain("day"));
+    }
+
     [Test]
     public void StepAndOneShotIdsAreUniqueAndNonEmpty()
     {

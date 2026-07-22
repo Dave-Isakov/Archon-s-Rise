@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3031d9ea30ed3f84a81e132bf7dee31c, type: 3}
+  m_Name: dungeon
+  m_EditorClassIdentifier: ArchonsRise.Tutorial::HelpEntrySO
+  panelId: dungeon
+  title: Dungeons
+  body: '3 delves clear a <sprite="dungeon" index=0> dungeon. Each delve costs <sprite="scroll" index=0> Explore and its fight pays only <sprite="xp" index=0> XP; the third win pays a guaranteed reward bundle. Corrupted (flagged) dungeons add +<sprite="doom" index=0>1 every round until cleared.'

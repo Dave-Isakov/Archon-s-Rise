@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3031d9ea30ed3f84a81e132bf7dee31c, type: 3}
+  m_Name: hud
+  m_EditorClassIdentifier: ArchonsRise.Tutorial::HelpEntrySO
+  panelId: hud
+  title: Your HUD
+  body: "Pools: <sprite=\"Sword\" index=0> Attack, <sprite=\"shield\" index=0> Defend,
+    <sprite=\"scroll\" index=0> Explore, <sprite=\"gem\" index=0> Influence \u2014
+    filled by cards, spent by acting, reset at turn end. Each turn goes Explore (move)
+    \u2192 Action (one fight, town visit, or delve) \u2192 End. A round is a day
+    whose length shrinks as <sprite=\"doom\" index=0> Doom climbs; when the day ends
+    your hand refills and <sprite=\"doom\" index=0> rises."

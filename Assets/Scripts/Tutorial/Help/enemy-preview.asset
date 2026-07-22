@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3031d9ea30ed3f84a81e132bf7dee31c, type: 3}
+  m_Name: enemy-preview
+  m_EditorClassIdentifier: ArchonsRise.Tutorial::HelpEntrySO
+  panelId: enemy-preview
+  title: Enemy Preview
+  body: '<sprite="Sword" index=0> is the enemy''s attack, <sprite="hp" index=0> its toughness. Defeating it needs Attack at least equal to <sprite="hp" index=0>; a weak <sprite="shield" index=0> Defend takes <sprite="wound" index=0> Wounds. <sprite="siege" index=0> Siege wins without a counterattack. Some enemies accept <sprite="gem" index=0> Influence and leave peacefully.'

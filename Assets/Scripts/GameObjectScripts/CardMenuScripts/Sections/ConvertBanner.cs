@@ -12,7 +12,7 @@ public class ConvertBanner : MonoBehaviour
     [SerializeField] CardInspector inspector;
     [SerializeField] GameObject root;              // banner container to show/hide
     [SerializeField] Toggle convertToggle;
-    [SerializeField] TextMeshProUGUI label;        // "Convert all Defend → Attack"
+    [SerializeField] TextMeshProUGUI label;        // icon language, e.g. "<shield> → <sword>"
     [SerializeField] GameObject lockedReason;
     [SerializeField] TextMeshProUGUI lockedReasonText;
 

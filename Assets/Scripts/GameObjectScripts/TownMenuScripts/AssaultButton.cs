@@ -17,7 +17,7 @@ public class AssaultButton : TownButtons
         int remaining = _town.townSO.guardians.Count
                         - ConquestTracker.Instance.DefeatedCount(_town.gridPos);
         buttonText.text =
-            $"{IconMarkup.Tag(IconConcept.Attack)} Assault ({remaining} guardian{(remaining == 1 ? "" : "s")})";
+            $"{IconMarkup.Tag(IconConcept.Attack)} Assault ({remaining} <sprite=\"guardian\" index=0>)";
         thisButton.interactable = true;
         SyncLock();
         thisButton.onClick.RemoveAllListeners();
