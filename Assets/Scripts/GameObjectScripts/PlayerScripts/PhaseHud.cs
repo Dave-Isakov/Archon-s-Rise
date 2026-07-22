@@ -21,4 +21,16 @@ public class PhaseHud : MonoBehaviour
         if (phaseText == null || TurnPhaseController.Instance == null) return;
         phaseText.text = "Phase: " + TurnPhaseController.Instance.CurrentPhase;
     }
+
+    // Wired to onCombatPhaseChanged (VoidListener, spec 2026-07-22). The one phase
+    // label doubles as the combat sub-phase readout so the HUD never shows two
+    // competing phase labels. On Resolved we fall back to the turn phase, which is
+    // Action after a fight — so leaving combat reads "Phase: Action".
+    public void OnCombatPhaseChanged()
+    {
+        if (phaseText == null || CombatController.Instance == null) return;
+        CombatPhase cp = CombatController.Instance.Phase;
+        if (cp == CombatPhase.Resolved) { OnPhaseChanged(); return; }
+        phaseText.text = "Phase: " + cp; // Siege / Defend / Attack
+    }
 }

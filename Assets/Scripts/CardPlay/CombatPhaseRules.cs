@@ -13,6 +13,7 @@ public static class CombatPhaseRules
     public static string ButtonLabel(CombatPhase phase)
     {
         if (phase == CombatPhase.Siege)  return "Engage";
+        if (phase == CombatPhase.Defend) return "Defend";
         if (phase == CombatPhase.Attack) return "Withdraw";
         return "";
     }

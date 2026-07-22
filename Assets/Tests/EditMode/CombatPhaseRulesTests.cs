@@ -7,6 +7,8 @@ public class CombatPhaseRulesTests
     {
         Assert.IsTrue(CombatPhaseRules.CanSiege(CombatPhase.Siege));
         Assert.IsTrue(CombatPhaseRules.CanInfluence(CombatPhase.Siege));
+        Assert.IsFalse(CombatPhaseRules.CanSiege(CombatPhase.Defend));
+        Assert.IsFalse(CombatPhaseRules.CanInfluence(CombatPhase.Defend));
         Assert.IsFalse(CombatPhaseRules.CanSiege(CombatPhase.Attack));
         Assert.IsFalse(CombatPhaseRules.CanInfluence(CombatPhase.Attack));
         Assert.IsFalse(CombatPhaseRules.CanSiege(CombatPhase.Resolved));
@@ -16,6 +18,7 @@ public class CombatPhaseRulesTests
     public void NormalAttack_Only_In_Attack_Phase()
     {
         Assert.IsFalse(CombatPhaseRules.CanNormalAttack(CombatPhase.Siege));
+        Assert.IsFalse(CombatPhaseRules.CanNormalAttack(CombatPhase.Defend));
         Assert.IsTrue(CombatPhaseRules.CanNormalAttack(CombatPhase.Attack));
         Assert.IsFalse(CombatPhaseRules.CanNormalAttack(CombatPhase.Resolved));
     }
@@ -24,6 +27,7 @@ public class CombatPhaseRulesTests
     public void Button_Label_Tracks_Phase()
     {
         Assert.AreEqual("Engage", CombatPhaseRules.ButtonLabel(CombatPhase.Siege));
+        Assert.AreEqual("Defend", CombatPhaseRules.ButtonLabel(CombatPhase.Defend));
         Assert.AreEqual("Withdraw", CombatPhaseRules.ButtonLabel(CombatPhase.Attack));
         Assert.AreEqual("", CombatPhaseRules.ButtonLabel(CombatPhase.Resolved));
     }

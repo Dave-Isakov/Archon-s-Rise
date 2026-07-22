@@ -19,10 +19,15 @@ public class CombatController : MonoBehaviour
     public bool CanSiege        => CombatPhaseRules.CanSiege(Phase);
     public bool CanInfluence    => CombatPhaseRules.CanInfluence(Phase);
     public bool CanNormalAttack => CombatPhaseRules.CanNormalAttack(Phase);
-    // A fight is live only in Siege/Attack. Phase is initialized to Resolved in
-    // Awake so this reads false before the first fight (the enum's default is
-    // Siege, which would otherwise report combat when none is running).
-    public bool InCombat => Phase == CombatPhase.Siege || Phase == CombatPhase.Attack;
+    // True from the final kill until the canvas actually closes: input is gated
+    // (Phase == Resolved) but the death FX is still playing and the canvas is open.
+    bool resolving;
+
+    // A fight is live in any non-Resolved phase, or while the closing FX plays.
+    // Phase is initialized to Resolved in Awake so this reads false before the
+    // first fight (the enum's default is Siege, which would otherwise report
+    // combat when none is running).
+    public bool InCombat => Phase != CombatPhase.Resolved || resolving;
 
     readonly List<EnemyCard> live = new();   // logical set; resolution keys off THIS, not childCount
     CombatContext context;
@@ -91,11 +96,27 @@ public class CombatController : MonoBehaviour
         if (onCombatPhaseChanged != null) onCombatPhaseChanged.Raise();
     }
 
-    // The Defend resolution (spec 2026-07-21, Spec 2): summed survivor Attack vs
-    // Defend in one HP-bite comparison; unspent Siege is consumed by committing.
+    // Engage (Siege -> Defend, spec 2026-07-22): commit the Siege-phase removals
+    // and open the Defend window. Siege is a Siege-phase-only currency, cleared
+    // here. NO counterattack yet — that waits for the Defend press so the player
+    // can play defense first.
     public void Engage()
     {
         if (Phase != CombatPhase.Siege) return;
+
+        var player = FindAnyObjectByType<Player>();
+        player.PlayerSiege = 0;                       // Siege doesn't carry past Engage
+        GameManager.Instance.commands.ClearStack();   // Engage is a commit point
+
+        SetPhase(CombatPhase.Defend);
+    }
+
+    // Defend (Defend -> Attack, spec 2026-07-22): resolve the summed survivor
+    // counterattack against whatever Defend the player built during the window —
+    // one HP-bite comparison, wounds for the shortfall — then open the Attack phase.
+    public void ResolveDefend()
+    {
+        if (Phase != CombatPhase.Defend) return;
         var player = FindAnyObjectByType<Player>();
 
         int total = 0;
@@ -106,8 +127,7 @@ public class CombatController : MonoBehaviour
         for (int i = 0; i < wounds; i++) hand.AddWound();
 
         player.PlayerDefend = Mathf.Max(0, player.PlayerDefend - total);
-        player.PlayerSiege = 0;                       // Siege is a Siege-phase-only currency
-        GameManager.Instance.commands.ClearStack();   // Engage is a commit point
+        GameManager.Instance.commands.ClearStack();   // taking the hit is a commit point
 
         if (wounds > 0)
             GameManager.Instance.ValidationMessage($"The enemies strike back! You are wounded {wounds} times.");
@@ -137,10 +157,15 @@ public class CombatController : MonoBehaviour
         pendingRewards.Add((card.enemySO.cardName,
             GameManager.Instance.CaptureReward(card, expOnly: context == CombatContext.Dungeon)));
 
-        var fx = card.GetComponent<EnemyCardDefeatFx>();
-        if (wasInfluence) fx.PlayFade(null); else fx.PlayDestroy(null);
+        // On the final kill, gate further input (Resolved) but keep the canvas
+        // open; the fight only closes once the death FX finishes (spec 2026-07-22),
+        // so the player actually sees the dissolve/fade.
+        bool wasLast = !HasLiveEnemies;
+        if (wasLast) { Phase = CombatPhase.Resolved; resolving = true; }
+        System.Action onFxDone = wasLast ? (System.Action)(() => EndFight(paidFlee: false)) : null;
 
-        if (!HasLiveEnemies) WinFight();
+        var fx = card.GetComponent<EnemyCardDefeatFx>();
+        if (wasInfluence) fx.PlayFade(onFxDone); else fx.PlayDestroy(onFxDone);
     }
 
     // A field enemy's map token is removed and its cell recorded so a map-gen
@@ -163,8 +188,6 @@ public class CombatController : MonoBehaviour
             DungeonTracker.Instance.CompleteDungeon(token);
     }
 
-    void WinFight() { EndFight(paidFlee: false); }
-
     // The multi-purpose button in the Attack phase. Survivors alive => this IS
     // the flee (field/dungeon 1 wound, guardian 3-wound retreat). Kills banked.
     public void Withdraw()
@@ -186,6 +209,7 @@ public class CombatController : MonoBehaviour
     public void OnMultiButton()
     {
         if (Phase == CombatPhase.Siege) Engage();
+        else if (Phase == CombatPhase.Defend) ResolveDefend();
         else if (Phase == CombatPhase.Attack) Withdraw();
     }
 
@@ -195,6 +219,7 @@ public class CombatController : MonoBehaviour
     void EndFight(bool paidFlee)
     {
         Phase = CombatPhase.Resolved;
+        resolving = false;
 
         // A flee leaves survivors in the logical set — destroy their cards now so
         // the next fight starts clean (killed cards are already self-destroying).
@@ -230,5 +255,9 @@ public class CombatController : MonoBehaviour
         guardianPlace = null;
         fieldToken = null;
         dungeonToken = null;
+
+        // Resolved: the shared phase label falls back to the turn phase (Action,
+        // since a fight is the turn's action) — see PhaseHud.OnCombatPhaseChanged.
+        if (onCombatPhaseChanged != null) onCombatPhaseChanged.Raise();
     }
 }
