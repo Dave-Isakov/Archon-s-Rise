@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -9,6 +10,7 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
     [SerializeField] Button endTurnButton;
     [SerializeField] VoidEvent endTheTurn;
     [SerializeField] VoidEvent onDeckCannotRefillTutorial; // M2.12 one-shot trigger
+    [SerializeField] TextMeshProUGUI label; // button caption; auto-found if unassigned
     DrawVerdict lastVerdict = DrawVerdict.Draw;
     PlayerDeck deck;
     PlayerHand hand;
@@ -59,6 +61,7 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
         deck = FindAnyObjectByType<PlayerDeck>();
         hand = FindAnyObjectByType<PlayerHand>();
         player = FindAnyObjectByType<Player>();
+        if (label == null) label = GetComponentInChildren<TextMeshProUGUI>(true);
     }
 
     private void Update()
@@ -76,5 +79,17 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
         // Disabled only mid-fight now.
         endTurnButton.interactable = TurnButtonGate.EndTurn(
             GameManager.Instance.activeCombatant != null || GuardianAssault.AnyInProgress);
+        UpdateLabel(verdict);
+    }
+
+    // The button reads "End the Day" when the next press will end the round — the
+    // last turn of the day, or a dry deck that forces the rest (spec 2026-07-21) —
+    // and "End the Turn" otherwise. Mirrors RoundRules.IsRoundOver on the press.
+    void UpdateLabel(DrawVerdict verdict)
+    {
+        if (label == null || TurnPhaseController.Instance == null) return;
+        int next = RoundRules.NextTurnsRemaining(TurnPhaseController.Instance.TurnsRemaining);
+        bool endsDay = RoundRules.IsRoundOver(next, RoundRules.DeckCanRefill(verdict));
+        label.text = endsDay ? "End the Day" : "End the Turn";
     }
 }

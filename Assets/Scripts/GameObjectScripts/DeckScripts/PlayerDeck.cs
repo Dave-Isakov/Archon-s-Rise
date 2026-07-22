@@ -4,14 +4,12 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.EventSystems;
 
-public class PlayerDeck : Deck<Card>, IPointerClickHandler
+public class PlayerDeck : Deck<Card>
 {
     public List<CardsSO> deckList = new();
     List<Card> cardsInDeck = new();
     [SerializeField] PlayerSO player;
     [SerializeField] TextMeshProUGUI deckCount;
-    PlayManager command;
-    ICommands drawCommand;
     [SerializeField] GameObject cardPrefab;
     GameObject playerCard;
     [Header("Deck Events")]
@@ -22,9 +20,6 @@ public class PlayerDeck : Deck<Card>, IPointerClickHandler
 
     void Awake()
     {
-        drawCommand = new CardDrawCommand(drawNewCardEvent, this);
-        command = new PlayManager();
-
         if (DataManager.Instance != null && DataManager.Instance.IsLoading) return; // deck rebuilt from save
 
         foreach(var card in player.StartingHand)
@@ -66,11 +61,9 @@ public class PlayerDeck : Deck<Card>, IPointerClickHandler
         CardsInDeck.RemoveAt(0);
     }
 
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        command.AddCommand(drawCommand);
-        Debug.Log("Drawing from the deck.");
-    }
+    // Clicking the deck no longer draws a card (spec 2026-07-21): drawing is
+    // automatic (hand top-up on turn end, fresh hand on day end), so a manual
+    // click-to-draw had no gameplay role and was removed.
 
     public void AddRandomCard()
     {

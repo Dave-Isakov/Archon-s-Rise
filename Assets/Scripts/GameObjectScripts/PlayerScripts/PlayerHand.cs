@@ -45,7 +45,9 @@ public class PlayerHand : MonoBehaviour
                 GameManager.Instance.ValidationMessage($"Your max hand size is {player.PlayerHandSize}, you cannot draw anymore cards.");
                 return false;
             case DrawVerdict.DeckEmpty:
-                GameManager.Instance.ValidationMessage("Your deck is empty. End the Round to reshuffle your discard pile and draw a new hand.");
+                // Deck-empty needs no player action now: End Turn auto-ends the day
+                // and reshuffles the discard into a fresh hand (spec 2026-07-21), so
+                // there's nothing to prompt — stay silent.
                 return false;
         }
 
