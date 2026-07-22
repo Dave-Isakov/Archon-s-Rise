@@ -223,6 +223,21 @@ public class GameManager : MonoBehaviour
         EndCombat();
     }
 
+    // Bank a killed enemy's reward at defeat time (spec 2026-07-21, Spec 2). The
+    // exp/crystal apply instantly inside GetReward; CombatController holds the
+    // returned summary and pays its message + card pick at fight-end via
+    // PayReward. Keeps the private rewards service encapsulated in GameManager.
+    public RewardSummary CaptureReward(EnemyCard enemy) => rewards.GetReward(enemy);
+
+    // Pay one captured reward summary (spec 2026-07-21, Spec 2 deferred payout).
+    // Mirrors the old ResolveDefeat body minus the exp grant (banked at capture)
+    // and teardown (the FX owns teardown).
+    public void PayReward(string enemyName, RewardSummary summary)
+    {
+        ValidationMessage(DefeatMessage.Compose(enemyName, summary.exp, summary.crystal, summary.cardPick));
+        if (summary.cardPick) rewards.OfferCardChoice(summary.tier);
+    }
+
     // Player gives up the current fight. During a guardian assault the Flee
     // button acts as Retreat (3 wounds, conquest progress kept); in field
     // combat it takes one wound and de-aggros the engaged token.

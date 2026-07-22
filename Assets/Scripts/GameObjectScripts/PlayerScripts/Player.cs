@@ -309,39 +309,24 @@ public class Player : MonoBehaviour
         ResolveAttack(enemy, AttackKind.Siege);
     }
 
+    // A per-enemy removal in the phased model (spec 2026-07-21, Spec 2). Siege
+    // spends in the Siege phase; a Normal Fight lands only in the Attack phase,
+    // where the Siege pool was already cleared by Engage, so Attack pays alone.
+    // No per-enemy counterattack here — the group counterattack ran at Engage.
     void ResolveAttack(EnemyCard enemy, AttackKind kind)
     {
         int hp = enemy.EffectiveHP;
         if (!CombatRules.CanDefeat(kind, playerAttack, playerSiege, hp))
         {
-            string need = kind == AttackKind.Siege ? "Siege" : "Attack (Siege counts)";
-            GameManager.Instance.ValidationMessage($"You need {hp} {need} in order to defeat this monster.");
+            string need = kind == AttackKind.Siege ? "Siege" : "Attack";
+            GameManager.Instance.ValidationMessage($"You need {hp} {need} to defeat this enemy.");
             return;
         }
 
-        if (kind == AttackKind.Siege)
-        {
-            playerSiege -= hp;
-        }
-        else
-        {
-            // Attack drains first; Siege covers only the shortfall.
-            int fromSiege = CombatRules.SiegeSpentOnNormal(playerAttack, hp);
-            playerAttack -= hp - fromSiege;
-            playerSiege  -= fromSiege;
-        }
+        if (kind == AttackKind.Siege) playerSiege -= hp;
+        else                          playerAttack -= hp;   // Attack phase: no Siege pool left to borrow
 
-        int wounds = CombatRules.WoundCount(kind, playerDefend, enemy.EffectiveAttack, playerHP);
-        for (int i = 0; i < wounds; i++)
-            onDefeat_WoundPlayer.Raise(enemy);
-
-        // Only a Normal attack takes the counterattack against Defend.
-        if (kind == AttackKind.Normal) playerDefend -= enemy.EffectiveAttack;
-
-        if (wounds > 0)
-            GameManager.Instance.ValidationMessage($"{enemy.enemySO.name} has been destroyed! You are wounded {wounds} times!");
-
-        GameManager.Instance.ResolveDefeat(enemy);
+        CombatController.Instance.NotifyDefeated(enemy, wasInfluence: false);
     }
 
     // Influence resolution (spec 2026-07-09): pay the cost to end the fight
@@ -377,7 +362,7 @@ public class Player : MonoBehaviour
             ? $"{enemy.enemySO.cardName} joins your army!"
             : $"{enemy.enemySO.cardName} departs peacefully.");
         Influence(enemy.enemySO.influenceCost); // spend + clear undo stack (standard for influence spends)
-        GameManager.Instance.ResolveDefeat(enemy);  // rewards + defeat message + teardown; no counterattack ran = wound-free
+        CombatController.Instance.NotifyDefeated(enemy, wasInfluence: true);  // wound-free removal; reward banked, paid at fight-end
     }
 
     public void AddUnit(UnitsSO so)
