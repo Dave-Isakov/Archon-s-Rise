@@ -83,4 +83,13 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
         siegeButton.interactable = token.isAggro;
         influenceButton.interactable = token.isAggro && enemySO.canInfluence;
     }
+
+    // Phase-gates this card's buttons (spec 2026-07-21, Spec 2). Siege/Influence
+    // are live only in the Siege phase; Fight only in the Attack phase.
+    public void ApplyPhase(CombatPhase phase)
+    {
+        if (siegeButton != null)     siegeButton.interactable     = CombatPhaseRules.CanSiege(phase);
+        if (fightButton != null)     fightButton.interactable     = CombatPhaseRules.CanNormalAttack(phase);
+        if (influenceButton != null) influenceButton.interactable = CombatPhaseRules.CanInfluence(phase) && enemySO.canInfluence;
+    }
 }
