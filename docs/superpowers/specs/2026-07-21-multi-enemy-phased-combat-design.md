@@ -39,6 +39,9 @@ weight (thin the group *before* it hits you), on one engine shared by every figh
 - **One multi-purpose combat button** ("Engage" → "Withdraw") drives the whole fight; the explicit
   Flee button is retired — **auto-flee** is simply what happens when the Attack phase ends with
   survivors.
+- **Defeat feedback ("juice"):** an enemy removed by Siege/Attack **shakes then dissipates** via a
+  dissolve shader (Balatro-style); an enemy removed by **Influence** gets a gentler **fade-out**. Each
+  kill should read as a distinct, satisfying beat (§7).
 - The pillar-critical logic (phase gating, the group counterattack) lives in **pure, mcs-testable
   rules**; a single **`CombatController`** owns the phase machine and swallows the combat glue
   currently scattered across `GameManager`, `GuardianAssault`, and per-enemy teardown.
@@ -117,11 +120,15 @@ The `CombatController` carries a **context** — `Field`, `Guardian(place)`, or 
 what a kill and a fight-end mean.
 
 **On each enemy defeat (immediately):**
-- Remove its card from the live set.
+- Remove its card from the controller's **logical live set** (resolution/auto-win keys off this set,
+  **not** the canvas child count — a card mid-dissolve is still a child for ~0.5s, §7).
 - **Commit the undo stack** — a kill is irreversible, exactly as today.
 - For a **guardian**, call `ConquestTracker.RecordDefeat(place)` right then, so a later withdraw banks
   it and the next assault spawns only the survivors.
 - **Tally** the kill for end-of-fight reward payout.
+- **Play the defeat animation** (Siege/Attack → shake + dissolve; Influence → fade, §7). The
+  `GameObject` is destroyed when the animation completes — the visual plays out without gating
+  resolution timing, which already advanced off the logical set above.
 
 **Reward payout is deferred to fight-end.** Rather than popping a card-pick/exp modal the instant an
 enemy dies mid-Siege-phase, all tallied kills resolve their rewards through the existing
@@ -203,6 +210,35 @@ serialize cross-scene inspector references, so a split would break every drag-wi
 hierarchy clutter ever bites, the clean escalation is an **additive scene overlay**
 (`LoadSceneAsync(Combat, Additive)` over the still-loaded board) — deferred, not this spec.
 
+### 7. Defeat feedback (juice)
+
+Each enemy removal plays one of two animations, chosen by **how** it died, on a
+**`EnemyCardDefeatFx`** component sitting on the `EnemyCard` prefab. The `CombatController` calls the
+matching method when it removes a card from the logical set (§3), and the `GameObject` self-destroys
+on completion via a callback.
+
+- **Siege / Attack → shake + dissolve (Balatro-authentic):**
+  - A short **position-shake** tween (~0.15s) — a decaying random wobble on the card's `RectTransform`.
+  - Then a **dissolve** (~0.4s): the card's Image uses a **URP UGUI-Canvas dissolve shader** (Shader
+    Graph, UGUI-Canvas target — the pattern the `UGUI Canvas` templates use) with a `_DissolveAmount`
+    float and a noise texture; a coroutine tweens `_DissolveAmount` 0→1 so the card burns away
+    edges-inward into nothing. Coroutine-driven, matching the existing `GlowPulse` style (no DOTween in
+    the project). An optional edge-glow colour on the dissolve band is a cheap upgrade left to the
+    material.
+- **Influence → fade-out (peaceful):**
+  - A gentler **`CanvasGroup` alpha 1→0** fade (~0.35s), optionally with a slight upward drift/scale —
+    no shake, no dissolve. Reads as "departs peacefully / joins your army," not destruction. Needs no
+    shader.
+
+The FX is **presentation only** — it starts *after* the kill is already banked/tallied and the undo
+stack committed, so an interrupted or skipped animation can never desync combat state. Durations are
+tuning constants on `EnemyCardDefeatFx`.
+
+**Editor/authoring work (USER):** the dissolve Shader Graph + a material instance on the `EnemyCard`
+art Image, the noise texture, the `EnemyCardDefeatFx` component fields + prefab wiring, and a
+`CanvasGroup` on the card for the fade. The design supplies the shape; shader/material/prefab authoring
+is manual editor work (no hand-edited YAML).
+
 ## Testing
 
 - **Pure / TDD via the mcs harness:**
@@ -213,7 +249,9 @@ hierarchy clutter ever bites, the clean escalation is an **additive scene overla
     exact HP bites). Extends `CombatRulesTests`.
 - **Manual in-editor (step-by-step + acceptance checklist):** the phase-label TMP + listener, the
   repurposed multi-purpose button, the simultaneous-guardian spawn/layout, per-context flee costs,
-  deferred reward ordering through `RewardQueue`.
+  deferred reward ordering through `RewardQueue`, and the **defeat FX** — Siege/Attack shake+dissolve
+  vs Influence fade — including that a kill's state is banked *before* its animation, so nothing
+  desyncs if the FX is cut short.
 
 ## Risks / Notes
 
@@ -232,11 +270,16 @@ hierarchy clutter ever bites, the clean escalation is an **additive scene overla
 - **Interaction gating must be complete:** every entry point that starts a fight (field token, guardian
   assault, dungeon delve) must open through `CombatController.OpenFight`, or a fight bypasses the phase
   machine.
+- **Defeat FX must stay presentation-only:** the kill's state (set removal, undo commit, guardian
+  record, reward tally) is banked *before* the animation starts and resolution keys off the logical
+  set, so a skipped/cut animation can never desync combat. Watch the ~0.5s window where a dissolving
+  card is still a canvas child — never revive the old `childCount`-based close check.
 - **Decisions to record** in `../../.claude/skills/archons-rise-roadmap/decisions-log.md` on
   implementation: the Siege→Defend→Attack→auto-flee model; Siege as a Siege-phase-only currency
   cleared at Engage; the summed single counterattack (Siege thins it); Influence resolved in the Siege
   phase; deferred reward payout through `RewardQueue`; simultaneous guardians with per-kill banking and
-  3-wound retreat; the one repurposed multi-purpose button (Flee retired); the same-scene decision.
+  3-wound retreat; the one repurposed multi-purpose button (Flee retired); the same-scene decision; the
+  two-track defeat FX (Siege/Attack dissolve vs Influence fade) as presentation-only juice.
 - **Docs to update:** `mechanics.md` Combat section → the phased model; a new milestone (e.g.
   **M2.14 — Multi-enemy phased combat**) in `milestones.md` marked as Spec 2 of the turn/combat change.
   No `balance.md` numbers change (retreat = 3 / flee = 1 already exist); the model is structural.
