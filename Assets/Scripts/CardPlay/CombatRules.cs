@@ -26,4 +26,11 @@ public static class CombatRules
         for (int i = 0; i < enemyAttack - defend; i += playerHP) wounds++;
         return wounds;
     }
+
+    // The group counterattack: every surviving enemy hits at once, so their
+    // Attack sums into ONE comparison against Defend, then the existing HP-bite
+    // rule applies. Because Siege/Influence remove enemies before Engage, a
+    // thinner survivor set means a smaller total and fewer wounds.
+    public static int GroupWoundCount(int defend, int totalEnemyAttack, int playerHP)
+        => WoundCount(AttackKind.Normal, defend, totalEnemyAttack, playerHP);
 }

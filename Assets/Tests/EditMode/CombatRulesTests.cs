@@ -61,4 +61,27 @@ public class CombatRulesTests
         // shortfall 1, HP 5 -> 1 wound
         Assert.AreEqual(1, CombatRules.WoundCount(AttackKind.Normal, 0, 1, 5));
     }
+
+    [Test]
+    public void Group_Counterattack_Sums_Attack_Into_HP_Bites()
+    {
+        // Two survivors, Attack 3 + 4 = 7, Defend 2, HP 3 -> shortfall 5 -> 2 wounds (i=0,3).
+        Assert.AreEqual(2, CombatRules.GroupWoundCount(2, 7, 3));
+    }
+
+    [Test]
+    public void Group_Counterattack_Zero_When_Defend_Covers_Total()
+    {
+        Assert.AreEqual(0, CombatRules.GroupWoundCount(7, 7, 3));
+        Assert.AreEqual(0, CombatRules.GroupWoundCount(9, 7, 3));
+    }
+
+    [Test]
+    public void Group_Counterattack_Thinned_Total_Yields_Fewer_Wounds()
+    {
+        // Full group total 8 -> shortfall 8, HP 2 -> 4 wounds.
+        Assert.AreEqual(4, CombatRules.GroupWoundCount(0, 8, 2));
+        // Siege removed one (total now 3) -> shortfall 3, HP 2 -> 2 wounds. Siege-thinning pays off.
+        Assert.AreEqual(2, CombatRules.GroupWoundCount(0, 3, 2));
+    }
 }
