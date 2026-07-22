@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
-using UnityEngine.EventSystems;
 
 public class PlayerDeck : Deck<Card>
 {
@@ -14,7 +13,6 @@ public class PlayerDeck : Deck<Card>
     GameObject playerCard;
     [Header("Deck Events")]
     [SerializeField] PlayerDeckEvent afterRoundEndShuffle_DrawCards;
-    [SerializeField] PlayerDeckEvent drawNewCardEvent;
 
     public List<Card> CardsInDeck { get => cardsInDeck; set => cardsInDeck = value; }
 
@@ -53,12 +51,6 @@ public class PlayerDeck : Deck<Card>
     void Update()
     {
         deckCount.text = CardsInDeck.Count.ToString();
-    }
-
-    public void DataToDrawnCard(GameObject playerCard)
-    {
-        playerCard.GetComponent<Card>().cardSO = CardsInDeck[0].cardSO;
-        CardsInDeck.RemoveAt(0);
     }
 
     // Clicking the deck no longer draws a card (spec 2026-07-21): drawing is
