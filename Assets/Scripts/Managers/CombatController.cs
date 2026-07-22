@@ -119,6 +119,30 @@ public class CombatController : MonoBehaviour
 
     void WinFight() { EndFight(paidFlee: false); }
 
+    // The multi-purpose button in the Attack phase. Survivors alive => this IS
+    // the flee (field/dungeon 1 wound, guardian 3-wound retreat). Kills banked.
+    public void Withdraw()
+    {
+        if (Phase != CombatPhase.Attack) return;
+
+        var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
+        int cost = context == CombatContext.Guardian ? PlaceRules.RetreatWoundCount : 1;
+        for (int i = 0; i < cost; i++) hand.AddWound();
+
+        GameManager.Instance.ValidationMessage(context == CombatContext.Guardian
+            ? $"You retreat from the assault and suffer {cost} wounds. Your progress is kept."
+            : "You flee the battle and suffer a wound!");
+
+        EndFight(paidFlee: true);
+    }
+
+    // The one button's click, dispatched by current phase.
+    public void OnMultiButton()
+    {
+        if (Phase == CombatPhase.Siege) Engage();
+        else if (Phase == CombatPhase.Attack) Withdraw();
+    }
+
     // Fight-end payout + close. Every captured reward is paid through the queue in
     // kill order (deferred so mid-fight kills never interrupt decisions). On a
     // cleared guardian roster we fire the conquest message + victory check.

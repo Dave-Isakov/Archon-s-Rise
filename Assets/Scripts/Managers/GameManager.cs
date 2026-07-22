@@ -164,49 +164,6 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(combatIntroDuration);
     }
 
-    public void CheckCombatants()
-    {
-        if(enemyCardCombatPosition.transform.childCount == 1)
-        {
-            combatCanvas.enabled = false;
-            combatCanvas.GetComponentInChildren<Animator>().enabled = false;
-            EndCombat();
-        }
-    }
-
-    // Single defeat orchestrator (spec 2026-07-16). Applies rewards, shows a
-    // reward-naming message, opens the card pick after it, then tears the fight
-    // down — all serialized through RewardQueue so ordering is correct by
-    // construction. Replaces the OnEnemyDefeat_GetRewards fan-out and the old
-    // click-the-defeated-card teardown.
-    public void ResolveDefeat(EnemyCard enemy)
-    {
-        if (onEnemyResolvedTutorial != null) onEnemyResolvedTutorial.Raise();
-        RewardSummary summary = rewards.GetReward(enemy);
-
-        ValidationMessage(DefeatMessage.Compose(
-            enemy.enemySO.cardName, summary.exp, summary.crystal, summary.cardPick));
-
-        if (summary.cardPick)
-            rewards.OfferCardChoice(summary.tier); // self-enqueues, lands after the message
-
-        RewardQueue.Instance.Enqueue(done => StartCoroutine(TeardownDefeat(enemy, done)));
-    }
-
-    // Runs as a coroutine so watcher Updates (GuardianAssault/DungeonDelve/
-    // EnemyToken) react to isDefeated before the close check. CheckCombatants
-    // must see the defeated card STILL present: childCount == 1 means it was the
-    // last enemy (close); a spawned next-guardian makes it 2 (stay open).
-    private IEnumerator TeardownDefeat(EnemyCard enemy, System.Action done)
-    {
-        enemy.isDefeated = true;
-        yield return null; // let watcher Updates spawn any next-guardian card
-        CheckCombatants(); // closes + EndCombat only if the defeated card is the last
-        Destroy(enemy.gameObject);
-        commands.ClearStack();
-        done();
-    }
-
     // Clears combat state shared by every way combat can end (win or flee).
     private void EndCombat()
     {
@@ -234,46 +191,9 @@ public class GameManager : MonoBehaviour
     // and teardown (the FX owns teardown).
     public void PayReward(string enemyName, RewardSummary summary)
     {
+        if (onEnemyResolvedTutorial != null) onEnemyResolvedTutorial.Raise();
         ValidationMessage(DefeatMessage.Compose(enemyName, summary.exp, summary.crystal, summary.cardPick));
         if (summary.cardPick) rewards.OfferCardChoice(summary.tier);
     }
-
-    // Player gives up the current fight. During a guardian assault the Flee
-    // button acts as Retreat (3 wounds, conquest progress kept); in field
-    // combat it takes one wound and de-aggros the engaged token.
-    public void FleeCombat()
-    {
-        if (GuardianAssault.AnyInProgress)
-        {
-            GuardianAssault.Instance.Retreat();
-            return;
-        }
-
-        // A delve flee is field rules (1 wound); there is no map token to
-        // de-aggro, so DungeonDelve owns the whole teardown.
-        if (DungeonDelve.AnyInProgress)
-        {
-            DungeonDelve.Instance.Flee();
-            return;
-        }
-
-        // Guard: activeCombatant is set only by a real fight, never while the
-        // combat canvas is merely previewing an out-of-range enemy token.
-        if (activeCombatant == null) return;
-
-        playerHand.GetComponent<PlayerHand>().AddWound();
-
-        foreach (var card in enemyCardCombatPosition.GetComponentsInChildren<EnemyCard>())
-            Destroy(card.gameObject);
-
-        activeCombatant.isAggro = false;
-        if (activeCombatant.player != null)
-            activeCombatant.player.inCombat = false;
-
-        CloseCombatCanvas();
-
-        ValidationMessage("You flee the battle and suffer a wound!");
-    }
-
 
 }
