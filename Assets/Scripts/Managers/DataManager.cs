@@ -208,7 +208,7 @@ public class DataManager : MonoBehaviour
         DungeonTracker.Instance.ApplySave(run.dungeons, run.dungeonMidFlagsFired, run.dungeonHighFlagsFired);
 
         // Re-clear fog at the cells the player had already revealed.
-        var dir = FindAnyObjectByType<DirectionButton>();
+        var dir = FindAnyObjectByType<ExplorationController>();
         if (dir != null && dir.Fog != null)
             foreach (var c in run.map.revealedCells)
                 dir.Fog.SetTile(new Vector3Int(c.x, c.y, 0), null);
@@ -298,7 +298,7 @@ public class DataManager : MonoBehaviour
         run.dungeonMidFlagsFired  = DungeonTracker.Instance.MidFired;
         run.dungeonHighFlagsFired = DungeonTracker.Instance.HighFired;
 
-        var dir = FindAnyObjectByType<DirectionButton>();
+        var dir = FindAnyObjectByType<ExplorationController>();
         if (dir != null && dir.Fog != null)
             run.map.revealedCells = CaptureRevealedCells(dir.Fog);
 

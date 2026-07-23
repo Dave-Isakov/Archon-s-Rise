@@ -3,8 +3,8 @@ using UnityEngine.Tilemaps;
 
 // Single source of truth for "is this map cell still under fog of war?". Map
 // tokens and preview triggers gate their interaction through here so nothing
-// hidden by fog can be hovered, previewed, or clicked. The fog Tilemap is shared
-// by every DirectionButton; it is looked up once and cached (the cache self-heals
+// hidden by fog can be hovered, previewed, or clicked. The fog Tilemap is owned
+// by the ExplorationController; it is looked up once and cached (the cache self-heals
 // after a scene reload because a destroyed Unity object compares == null).
 public static class MapFog
 {
@@ -14,8 +14,8 @@ public static class MapFog
     {
         if (fog == null)
         {
-            var dir = Object.FindAnyObjectByType<DirectionButton>();
-            if (dir != null) fog = dir.Fog;
+            var ctrl = Object.FindAnyObjectByType<ExplorationController>();
+            if (ctrl != null) fog = ctrl.Fog;
         }
         return fog;
     }

@@ -41,7 +41,7 @@ public static class LateGameSaveTool
         var deck    = Object.FindAnyObjectByType<PlayerDeck>();
         var hand    = Object.FindAnyObjectByType<PlayerHand>();
         var grid    = Object.FindAnyObjectByType<Grid>();
-        var dir     = Object.FindAnyObjectByType<DirectionButton>();
+        var dir     = Object.FindAnyObjectByType<ExplorationController>();
         var tracker = ConquestTracker.Instance;
 
         if (dm == null || player == null || pos == null || deck == null || hand == null || grid == null)
@@ -84,7 +84,7 @@ public static class LateGameSaveTool
         hand.RebuildHand(cards.Take(handSize).ToList());
 
         // --- Move to the map centre (nearest walkable cell) and clear fog around it ---
-        var walk = dir != null ? dir.Map : null;
+        var walk = dir?.Map;
         var center = NearestWalkable(walk, MapCenter);
         pos.transform.position = grid.CellToWorld(center);
         if (dir != null && dir.Fog != null)
@@ -98,7 +98,7 @@ public static class LateGameSaveTool
 
         // --- Pre-conquer one Castle so a single assault wins the run ---
         string conquered = "none";
-        var castle = Object.FindObjectsByType<TownToken>(FindObjectsSortMode.None)
+        var castle = Object.FindObjectsByType<TownToken>()
             .FirstOrDefault(t => t.townSO != null && t.townSO.placeType == PlaceType.Castle);
         if (castle != null && tracker != null)
         {
