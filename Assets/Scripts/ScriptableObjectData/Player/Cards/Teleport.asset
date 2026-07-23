@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
+  m_Name: Teleport
+  m_EditorClassIdentifier:
+  id: card_teleport
+  cardName: Teleport
+  cardDescription: '<sprite="scroll" index=0> Teleport to any revealed hex.'
+  attack: 0
+  defend: 0
+  explore: 0
+  influence: 0
+  siege: 0
+  healAmount: 0
+  numCrystals: 0
+  empowerAttack: 0
+  empowerDefend: 0
+  empowerExplore: 0
+  empowerInfluence: 0
+  empowerSiege: 0
+  empowerHealAmount: 0
+  empowerNumCrystals: 0
+  cardType: 0
+  empowerType: 0
+  isChoice: 0
+  convertTo: 0
+  convertFrom: 0
+  convertRequiresEmpower: 0
+  refresh: 0
+  empowerRefresh: 0
+  grantsTeleport: 1
