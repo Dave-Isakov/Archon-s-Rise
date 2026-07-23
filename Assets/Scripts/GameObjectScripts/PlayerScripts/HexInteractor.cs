@@ -6,7 +6,7 @@ using UnityEngine.Tilemaps;
 // ExplorationController + MapFog, classify via HexActionRules, drive the tooltip +
 // highlight, and on confirm dispatch Move/ScoutFog. Token cells (enemy/place) are left
 // to the tokens; teleport targeting is added in Task 5.
-public class HexInteractor : MonoBehaviour
+public partial class HexInteractor : MonoBehaviour
 {
     public static HexInteractor Instance { get; private set; }
 
@@ -40,6 +40,8 @@ public class HexInteractor : MonoBehaviour
 
     void Update()
     {
+        if (teleportMode && CancelPressed()) { CancelTeleport(); return; }
+
         if (!pointer.TryGetCell(out var cell))
         {
             ClearPainted();
@@ -79,8 +81,10 @@ public class HexInteractor : MonoBehaviour
                 if (armedFogCell == cell) { exploration.ScoutFog(cell); armedFogCell = null; }
                 else armedFogCell = cell;   // first click arms; tooltip prompts to confirm
                 break;
+            case HexActionKind.TeleportTarget:
+                CompleteTeleport(cell);
+                break;
             // EnemyFight / DistantInfo / DistantFog / None / OffMap: no board dispatch.
-            // TeleportTarget is handled by the Task 5 override.
             default:
                 break;
         }

@@ -66,6 +66,7 @@ public class CardPlaySelection
     public bool IsPlayable()
     {
         if (_card.CardType.HasFlag(StatType.Wound)) return false;
+        if (_card.GrantsTeleport) return true;
         if (_card.CardType.HasFlag(StatType.Crystal)) return true;
         if (_card.CardType.HasFlag(StatType.Heal)) return true;
         if (_card.CardType.HasFlag(StatType.Refresh)) return true;

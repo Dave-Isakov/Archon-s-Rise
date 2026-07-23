@@ -8,12 +8,13 @@ public readonly struct CardSnapshot
     public readonly StatType ConvertTo;             // None = no conversion
     public readonly StatType ConvertFrom;
     public readonly bool ConvertRequiresEmpower;
+    public readonly bool GrantsTeleport;
 
     public CardSnapshot(StatType cardType, EmpowerType empowerType, bool isChoice,
         int attack, int defend, int influence, int explore,
         int empowerAttack, int empowerDefend, int empowerInfluence, int empowerExplore,
         StatType convertTo = StatType.None, StatType convertFrom = StatType.None,
-        bool convertRequiresEmpower = false)
+        bool convertRequiresEmpower = false, bool grantsTeleport = false)
     {
         CardType = cardType;
         EmpowerType = empowerType;
@@ -24,6 +25,7 @@ public readonly struct CardSnapshot
         ConvertTo = convertTo;
         ConvertFrom = convertFrom;
         ConvertRequiresEmpower = convertRequiresEmpower;
+        GrantsTeleport = grantsTeleport;
     }
 
     public int BaseOf(StatType single)

@@ -32,6 +32,11 @@ public class CardsSO : AllCards
     public int refresh;
     public int empowerRefresh;
 
+    [Header("Teleport (spec 2026-07-23)")]
+    // Playing this card enters hex teleport-targeting instead of applying immediately;
+    // picking a visible hex repositions the player (Explore-phase movement, free).
+    public bool grantsTeleport;
+
     ///<summary> Returns 5 stat values: attack[0], defend[1], influence[2], explore[3], siege[4]. </summary>
     public int[] GetCardStats(bool isEmpowered)
     {

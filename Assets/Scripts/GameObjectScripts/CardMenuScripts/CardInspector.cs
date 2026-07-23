@@ -147,6 +147,22 @@ public class CardInspector : MonoBehaviour
         Vector3 origin = Card.transform.position;
         var applied = Selection.PreviewStats(Selection.EffectiveEmpowered());
 
+        // Teleport card: defer the play until a hex is picked (spec 2026-07-23). The
+        // card is not committed here — HexInteractor holds a pending PlayCommand and
+        // completes it (or discards it on cancel) from teleport targeting.
+        if (Card.cardSO.grantsTeleport)
+        {
+            if (TurnPhaseController.Instance != null && !TurnPhaseController.Instance.CanMove)
+            {
+                GameManager.Instance.ValidationMessage("You can only teleport during the Explore phase.");
+                return; // leave the inspector open so the player can cancel/back out
+            }
+            _reserved = null;
+            HexInteractor.Instance.BeginTeleport(new PlayCommand(evt, Card), Card);
+            Close();
+            return;
+        }
+
         GameManager.Instance.commands.AddCommand(new PlayCommand(evt, Card));
         _reserved = null; // ownership passes to the real consume/undo path
 
@@ -192,7 +208,7 @@ public class CardInspector : MonoBehaviour
         new CardSnapshot(so.cardType, so.empowerType, so.isChoice,
             so.attack, so.defend, so.influence, so.explore,
             so.empowerAttack, so.empowerDefend, so.empowerInfluence, so.empowerExplore,
-            so.convertTo, so.convertFrom, so.convertRequiresEmpower);
+            so.convertTo, so.convertFrom, so.convertRequiresEmpower, so.grantsTeleport);
 
     void Raise() => Changed?.Invoke();
 }

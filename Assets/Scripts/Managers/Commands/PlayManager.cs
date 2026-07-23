@@ -45,8 +45,10 @@ public class PlayManager
     {
         // These plays can no longer be undone; commit each one (card plays move to discard).
         foreach (var command in commandManager)
-            if (command is PlayCommand playCommand)
-                playCommand.Commit();
+        {
+            if (command is PlayCommand playCommand) playCommand.Commit();
+            else if (command is TeleportCommand teleportCommand) teleportCommand.Commit();
+        }
         commandManager.Clear();
 
         // Heals can't be undone anymore either, so their healed wounds are gone for good.
