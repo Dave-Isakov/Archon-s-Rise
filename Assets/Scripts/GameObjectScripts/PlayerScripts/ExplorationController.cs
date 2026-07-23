@@ -75,14 +75,17 @@ public class ExplorationController : MonoBehaviour
 
     // The six parity-correct neighbour cells of the player, for the affordable-ring
     // highlight. Directions has exactly six values, so the array is always full.
-    public Vector3Int[] PlayerNeighbors()
+    public Vector3Int[] PlayerNeighbors() => Neighbors(PlayerCell);
+
+    // The six parity-correct neighbour cells of an arbitrary cell. UpdateCompass must
+    // be re-run per cell because the hex offsets depend on the cell's row parity.
+    Vector3Int[] Neighbors(Vector3Int cell)
     {
-        var origin = PlayerCell;
-        player.UpdateCompass(origin, compass);
+        player.UpdateCompass(cell, compass);
         var result = new Vector3Int[6];
         int i = 0;
         foreach (Directions d in Enum.GetValues(typeof(Directions)))
-            result[i++] = origin + compass[d];
+            result[i++] = cell + compass[d];
         return result;
     }
 
@@ -127,7 +130,9 @@ public class ExplorationController : MonoBehaviour
     }
 
     // Reveal an adjacent fog hex in place (does NOT relocate the player). Irreversible:
-    // spends fogCost, uncovers the scouted cell + its neighbours, commits the stack.
+    // spends fogCost, uncovers a radius-2 disk around the scouted cell (the cell + its
+    // two neighbour rings, 19 cells), commits the stack. The wider reveal makes the
+    // scout worth its cost versus a single-ring peek.
     public void ScoutFog(Vector3Int targetCell)
     {
         if (!CanMovePhase()) return;
@@ -139,10 +144,17 @@ public class ExplorationController : MonoBehaviour
         playerExplore -= fogCost;
         onSuccessfulExplore_AdjustPlayersExplore.Raise(playerExplore);
 
-        player.UpdateCompass(targetCell, compass);
-        fog.SetTile(targetCell, null);
-        foreach (Directions d in Enum.GetValues(typeof(Directions)))
-            fog.SetTile(targetCell + compass[d], null);
+        // Radius-2 disk: the scouted cell, its neighbours (ring 1), and each of those
+        // cells' neighbours (ring 2). A HashSet dedupes the overlap between rings.
+        var toClear = new HashSet<Vector3Int> { targetCell };
+        foreach (var ring1 in Neighbors(targetCell))
+        {
+            toClear.Add(ring1);
+            foreach (var ring2 in Neighbors(ring1))
+                toClear.Add(ring2);
+        }
+        foreach (var c in toClear)
+            fog.SetTile(c, null);
 
         GameManager.Instance.commands.ClearStack(); // revealed knowledge can't be undone
     }
