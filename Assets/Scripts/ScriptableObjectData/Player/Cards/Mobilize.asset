@@ -16,6 +16,7 @@ MonoBehaviour:
   cardName: Mobilize
   cardDescription: '<sprite="refresh" index=0> 3
 
+
     <sprite="empower" index=0>
 
 
@@ -46,3 +47,4 @@ MonoBehaviour:
   convertRequiresEmpower: 0
   refresh: 3
   empowerRefresh: 6
+  grantsTeleport: 0

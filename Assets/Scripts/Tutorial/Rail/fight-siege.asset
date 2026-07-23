@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: fight-siege
   m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialStepSO
   id: fight-siege
-  bannerText: 'Combat runs in phases. <sprite="siege" index=0> Siege phase: <sprite="siege"
-    index=0> Siege or <sprite="gem" index=0> Influence can remove enemies wound-free
-    before they strike back. Press Engage when you are ready to commit.'
+  bannerText: Combat runs in phases. First is the <sprite="siege" index=0> Siege
+    phase. Use <sprite="siege" index=0> Siege or <sprite="gem" index=0> Influence
+    to remove enemies from the battlefield in this phase. Press engage and the enemy
+    will attack.
   highlightTargetId: combat-button
   completionEventId: combat-defend

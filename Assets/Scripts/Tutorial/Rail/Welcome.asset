@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: Welcome
   m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialStepSO
   id: welcome
-  bannerText: Conquer 2 <sprite="castle" index=0> Castles before the <sprite="doom"
-    index=0> Doom Clock fills. Your cards make every move.
+  bannerText: Welcome to Archon's Rise! Conquer 2 <sprite="castle" index=0> Castles
+    before the <sprite="doom" index=0> Doom Clock fills. Click Next to move to the
+    next tutorial step. Tutorial can be reset in the main menu by pressing ESC.
   highlightTargetId: doom-meter
   completionEventId: 

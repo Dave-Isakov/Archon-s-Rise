@@ -10,11 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 92261ec319cf8834eb6d46a8c063b0ec, type: 3}
-  m_Name: move
+  m_Name: pick-card
   m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialStepSO
-  id: move
-  bannerText: This is the Explore phase. The direction arrows show the <sprite="scroll"
-    index=0> cost to move to that hex. When hexes are not visible (fog) you also
-    may spend 2 <sprite="scroll" index=0> to uncover the map from the fog.
-  highlightTargetId: move-buttons
-  completionEventId: player-moved
+  id: pick-card
+  bannerText: Your hand drives every turn. Click a card to inspect it.
+  highlightTargetId: hand
+  completionEventId: card-inspected

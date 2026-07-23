@@ -16,6 +16,7 @@ MonoBehaviour:
   cardName: Shield Bash
   cardDescription: '<sprite="shield" index=0> 3
 
+
     <sprite="empower" index=0>
 
 
@@ -46,3 +47,4 @@ MonoBehaviour:
   convertRequiresEmpower: 1
   refresh: 0
   empowerRefresh: 0
+  grantsTeleport: 0

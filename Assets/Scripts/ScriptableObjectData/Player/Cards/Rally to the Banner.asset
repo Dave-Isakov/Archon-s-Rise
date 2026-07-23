@@ -16,6 +16,7 @@ MonoBehaviour:
   cardName: Rally to the Banner
   cardDescription: '<sprite="gem" index=0> 2
 
+
     <sprite="empower" index=0>
 
 
@@ -47,3 +48,4 @@ MonoBehaviour:
   convertRequiresEmpower: 1
   refresh: 0
   empowerRefresh: 0
+  grantsTeleport: 0

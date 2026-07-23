@@ -44,8 +44,8 @@ Material:
     - _ColorMask: 15
     - _EnableExternalAlpha: 0
     - _MaxAlpha: 1
-    - _MinAlpha: 0.55
-    - _Speed: 3
+    - _MinAlpha: 0.4
+    - _Speed: 8
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0
@@ -54,7 +54,7 @@ Material:
     - _UseUIAlphaClip: 0
     - _ZWrite: 0
     m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 0.88328785, g: 1, b: 0, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

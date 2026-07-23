@@ -16,6 +16,7 @@ MonoBehaviour:
   cardName: Survey the Land
   cardDescription: '<sprite="scroll" index=0> 2 // <sprite="gem" index=0> 2
 
+
     <sprite="empower"
     index=0>
 
@@ -43,3 +44,4 @@ MonoBehaviour:
   convertRequiresEmpower: 0
   refresh: 0
   empowerRefresh: 0
+  grantsTeleport: 0

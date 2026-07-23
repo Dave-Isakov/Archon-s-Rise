@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 13312, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: hexBase02
+  m_Name: HighlightHex
   m_EditorClassIdentifier: 
   m_Sprite: {fileID: 21300000, guid: 2b4118e0228e32a4293c7541873e1028, type: 3}
-  m_Color: {r: 0.7264151, g: 0.46334484, b: 0.14048593, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.5529412}
   m_Transform:
     e00: 1
     e01: 0

@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: pools
   m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialStepSO
   id: pools
-  bannerText: Your main stats sit here until spent every turn. Any card can be improvised
-    into 1 of any stat except <sprite="siege" index=0>.
+  bannerText: Your main stats sit here every turn until spent. Any card can be improvised
+    into 1 of any stat except <sprite="siege" index=0>. Most actions can be undone
+    by clicking the Undo Button unless new information is revealed or the phase changes
+    based on your actions.
   highlightTargetId: stat-pools
   completionEventId: 

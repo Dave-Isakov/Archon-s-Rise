@@ -17,6 +17,7 @@ MonoBehaviour:
   cardDescription: '<sprite="Heal" index=0> 1 <sprite="crystal" index=0 color=#522D2D>
     1
 
+
     <sprite="empower" index=0>
 
 
@@ -44,3 +45,4 @@ MonoBehaviour:
   convertRequiresEmpower: 0
   refresh: 0
   empowerRefresh: 0
+  grantsTeleport: 0

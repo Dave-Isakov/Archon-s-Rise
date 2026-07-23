@@ -13,8 +13,10 @@ MonoBehaviour:
   m_Name: play-card
   m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialStepSO
   id: play-card
-  bannerText: 'Click a card and Play it. Cards fill your pools: <sprite="Sword" index=0>
+  bannerText: 'Press Play to gain the stat to your stat pool: <sprite="Sword" index=0>
     Attack, <sprite="shield" index=0> Defend, <sprite="scroll" index=0> Explore,
-    <sprite="gem" index=0> Influence.'
-  highlightTargetId: hand
+    <sprite="gem" index=0> Influence. Card plays can be <sprite="empower" index=0>
+    with <sprite="crystal" index=0> to improve the card by clicking the box above
+    the Play button.'
+  highlightTargetId: play-button
   completionEventId: card-played
