@@ -26,10 +26,18 @@ public class DungeonToken : MonoBehaviour, IPointerClickHandler
     {
         if (MapFog.IsHidden(gridPos)) return; // hidden by fog → not interactable
 
+        // During teleport targeting the interactor owns all clicks; let it handle this.
+        if (HexInteractor.Instance != null && HexInteractor.Instance.IsTeleporting) return;
+
+        // Dungeons are entered by standing on the cell. If adjacent instead, treat the
+        // click as a move request onto this cell (Explore-phase movement).
         if (gameboard.LocalToCell(player.transform.position) != gridPos)
         {
-            GameManager.Instance.ValidationMessage(
-                $"You must be standing at {dungeonSO.cardName} to enter it.");
+            if (ExplorationController.Instance != null && ExplorationController.Instance.IsAdjacent(gridPos))
+                ExplorationController.Instance.Move(gridPos);
+            else
+                GameManager.Instance.ValidationMessage(
+                    $"You must be standing at {dungeonSO.cardName} to enter it.");
             return;
         }
 

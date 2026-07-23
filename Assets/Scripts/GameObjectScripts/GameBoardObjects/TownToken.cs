@@ -25,12 +25,20 @@ public class TownToken : MonoBehaviour, IPointerClickHandler
     {
         if (MapFog.IsHidden(gridPos)) return; // hidden by fog → not interactable
 
-        // Places are entered, not reached into: the player must be standing on
-        // this cell (adjacency is enough for enemies, not for places).
+        // During teleport targeting the interactor owns all clicks (you can teleport
+        // onto a place cell); let it handle this one.
+        if (HexInteractor.Instance != null && HexInteractor.Instance.IsTeleporting) return;
+
+        // Places are entered by standing on the cell. If the player is adjacent instead,
+        // treat the click as a move request onto this cell (Explore-phase movement); the
+        // menu opens on the next click, once standing here.
         if (gameboard.LocalToCell(player.transform.position) != gridPos)
         {
-            GameManager.Instance.ValidationMessage(
-                $"You must be standing in {townSO.cardName} to enter it.");
+            if (ExplorationController.Instance != null && ExplorationController.Instance.IsAdjacent(gridPos))
+                ExplorationController.Instance.Move(gridPos);
+            else
+                GameManager.Instance.ValidationMessage(
+                    $"You must be standing in {townSO.cardName} to enter it.");
             return;
         }
 
