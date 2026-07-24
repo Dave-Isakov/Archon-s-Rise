@@ -6,7 +6,7 @@ public class LevelRulesTests
     static List<LevelRewardEntry> Table() => new List<LevelRewardEntry>
     {
         new LevelRewardEntry { level = 2, skillPicks = 1 },
-        new LevelRewardEntry { level = 3, hpBonus = 1, cardPicks = 1 },
+        new LevelRewardEntry { level = 3, toughnessBonus = 1, cardPicks = 1 },
         new LevelRewardEntry { level = 4, handSizeBonus = 1, armySizeBonus = 1 },
         new LevelRewardEntry { level = 7, skillPicks = 1, armySizeBonus = 1 },
     };

@@ -690,7 +690,7 @@ public class Player : MonoBehaviour
         expToNextLevel = expToNextLevel + playerLevel + 12;
 
         var entry = LevelRules.RewardsFor(playerLevel, levelRewards.Entries);
-        if (entry != null) playerHP += entry.hpBonus;
+        if (entry != null) playerHP += entry.toughnessBonus;
 
         var controller = FindAnyObjectByType<LevelUpController>();
         if (controller != null) controller.EnqueueLevelRewards(playerLevel, entry);
