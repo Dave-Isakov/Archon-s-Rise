@@ -33,6 +33,30 @@ public static class CombatLayoutRules
         return 90f + arcDegrees * 0.5f - step * index;
     }
 
+    // A plain UI anchor point (px, +X right / +Y up) in the arc origin's local
+    // space. Separate from Slot because the advance button needs only a position.
+    public struct Anchor { public float X, Y; }
+
+    // The advance-button anchor: mirror the enemy cluster's centroid through the
+    // origin (screen-centre = the player) and sit `distance` px out along that
+    // ray, so the button rests opposite the enemies near the heart of combat
+    // (spec 2026-07-24 phase controls). A centroid at the origin is degenerate —
+    // fall straight down so the anchor is always defined.
+    public static Anchor OppositeAnchor(float centroidX, float centroidY, float distance)
+    {
+        double len = Math.Sqrt(centroidX * centroidX + centroidY * centroidY);
+        Anchor a;
+        if (len < 1e-4)
+        {
+            a.X = 0f;
+            a.Y = -distance;
+            return a;
+        }
+        a.X = -(float)(centroidX / len) * distance;
+        a.Y = -(float)(centroidY / len) * distance;
+        return a;
+    }
+
     public static Slot SlotFor(int index, int count, float radius, float arcDegrees)
     {
         float deg = AngleFor(index, count, arcDegrees);
