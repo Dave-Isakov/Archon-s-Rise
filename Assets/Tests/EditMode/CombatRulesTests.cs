@@ -84,4 +84,30 @@ public class CombatRulesTests
         // Siege removed one (total now 3) -> shortfall 3, HP 2 -> 2 wounds. Siege-thinning pays off.
         Assert.AreEqual(2, CombatRules.GroupWoundCount(0, 3, 2));
     }
+
+    [Test]
+    public void WoundCount_ZeroToughness_TerminatesAndActsAsOne()
+    {
+        // A 0 divisor previously made `i += toughness` loop forever.
+        Assert.AreEqual(5, CombatRules.WoundCount(AttackKind.Normal, 0, 5, 0));
+    }
+
+    [Test]
+    public void WoundCount_NegativeToughness_TerminatesAndActsAsOne()
+    {
+        Assert.AreEqual(3, CombatRules.WoundCount(AttackKind.Normal, 2, 5, -4));
+    }
+
+    [Test]
+    public void GroupWoundCount_ZeroToughness_TerminatesAndActsAsOne()
+    {
+        Assert.AreEqual(4, CombatRules.GroupWoundCount(1, 5, 0));
+    }
+
+    [Test]
+    public void WoundCount_ToughnessTwo_DividesShortfallIntoBites()
+    {
+        // Shortfall 5, toughness 2 -> ceil(5/2) = 3. Unchanged behaviour.
+        Assert.AreEqual(3, CombatRules.WoundCount(AttackKind.Normal, 0, 5, 2));
+    }
 }

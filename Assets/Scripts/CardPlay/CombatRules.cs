@@ -17,20 +17,27 @@ public static class CombatRules
 
     // The counterattack wound the player takes on a defeat. Siege is always
     // wound-free. Normal wounds when Defend falls short of the enemy's Attack,
-    // one wound per HP-sized bite of the shortfall (matches the original loop).
-    public static int WoundCount(AttackKind kind, int defend, int enemyAttack, int playerHP)
+    // one wound per Toughness-sized bite of the shortfall.
+    //
+    // Toughness is a DIVISOR, not a pool (spec 2026-07-23, Part T): it never
+    // depletes and is not a loss axis. Higher toughness = fewer wounds.
+    // Clamped to >= 1 here because a 0 divisor makes `i += toughness` loop
+    // forever; the rule must be safe on its own, whatever the caller passes.
+    public static int WoundCount(AttackKind kind, int defend, int enemyAttack, int playerToughness)
     {
         if (kind == AttackKind.Siege) return 0;
         if (defend >= enemyAttack) return 0;
+        int bite = playerToughness < 1 ? 1 : playerToughness;
         int wounds = 0;
-        for (int i = 0; i < enemyAttack - defend; i += playerHP) wounds++;
+        for (int i = 0; i < enemyAttack - defend; i += bite) wounds++;
         return wounds;
     }
 
     // The group counterattack: every surviving enemy hits at once, so their
-    // Attack sums into ONE comparison against Defend, then the existing HP-bite
-    // rule applies. Because Siege/Influence remove enemies before Engage, a
-    // thinner survivor set means a smaller total and fewer wounds.
-    public static int GroupWoundCount(int defend, int totalEnemyAttack, int playerHP)
-        => WoundCount(AttackKind.Normal, defend, totalEnemyAttack, playerHP);
+    // Attack sums into ONE comparison against Defend, then the existing
+    // Toughness-bite rule applies. Because Siege/Influence remove enemies
+    // before Engage, a thinner survivor set means a smaller total and fewer
+    // wounds.
+    public static int GroupWoundCount(int defend, int totalEnemyAttack, int playerToughness)
+        => WoundCount(AttackKind.Normal, defend, totalEnemyAttack, playerToughness);
 }
