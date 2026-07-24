@@ -34,12 +34,10 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
         {Directions.West, new Vector3Int(-1,0)}
     };
 
-    private EnemyDeck deck;
     void Start()
     {
         gridPos = gameboard.LocalToCell(transform.position);
         player = FindAnyObjectByType<PlayerPosition>();
-        deck = FindAnyObjectByType<EnemyDeck>();
         player.UpdateCompass(gridPos, compass);
     }
 
@@ -110,15 +108,14 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
     {
         if (MapFog.IsHidden(gridPos)) return; // hidden by fog → not interactable
 
-        if(this.isAggro)
-        {
-            StartCoroutine(StartCombat());
-        }
-        else
-        {
-            GameManager.Instance.combatCanvas.enabled = true;
-            deck.GetNewEnemyCard(this);
-        }
+        // Out-of-combat-range tokens are not clickable (spec 2026-07-24 follow-up).
+        // The old else-branch opened a preview card on the combat canvas, but its
+        // only dismissal was a bare-card click that the card's buttons absorb —
+        // stranding the player with an un-closable screen. Enemy preview is
+        // deferred to a hover affordance; only an in-range (aggro) token engages.
+        if (!isAggro) return;
+
+        StartCoroutine(StartCombat());
     }
 
     IEnumerator StartCombat()
