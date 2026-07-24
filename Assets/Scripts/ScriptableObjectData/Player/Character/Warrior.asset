@@ -38,4 +38,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 291db57f64c66dc4db48aa611a5b0326, type: 2}
   levelTable: {fileID: 11400000, guid: 73e956ec0b8bb34458b83d983e595dde, type: 2}
   skillPool: {fileID: 11400000, guid: e9f84ad197a53074390d7d07a7fd229c, type: 2}
-  animatorController: {fileID: 0}
+  animatorController: {fileID: 22100000, guid: cbf6dead4d845984ba5ae0505e0a44c7, type: 2}
