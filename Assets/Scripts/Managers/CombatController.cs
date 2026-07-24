@@ -55,6 +55,32 @@ public class CombatController : MonoBehaviour
 
     public bool HasLiveEnemies => live.Count > 0;
 
+    // Live-set readouts for the advance-button controller (spec 2026-07-24 phase
+    // controls). The counterattack total the Defend preview compares against; a
+    // "can this staged siege kill anyone" test for the Siege-phase hide; and the
+    // enemy cluster's centroid so the button can anchor opposite it.
+    public int LiveEnemyAttackTotal
+    {
+        get { int t = 0; foreach (var c in live) if (c != null) t += c.EffectiveAttack; return t; }
+    }
+
+    public bool AnySiegeKillable(int siege)
+    {
+        foreach (var c in live) if (c != null && c.EffectiveHP <= siege) return true;
+        return false;
+    }
+
+    public Vector2 EnemyCentroidLocal
+    {
+        get
+        {
+            int n = 0; Vector2 sum = Vector2.zero;
+            foreach (var c in live)
+                if (c != null) { sum += ((RectTransform)c.transform).anchoredPosition; n++; }
+            return n == 0 ? arcOrigin : sum / n;
+        }
+    }
+
     public struct EnemySpawn
     {
         public EnemiesSO so; public int bonusHP; public int bonusAttack;
