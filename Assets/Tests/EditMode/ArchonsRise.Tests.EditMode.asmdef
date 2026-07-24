@@ -6,6 +6,7 @@
         "UnityEditor.TestRunner",
         "ArchonsRise.CardList",
         "ArchonsRise.CardPlay",
+        "ArchonsRise.Avatar",
         "ArchonsRise.Doom",
         "ArchonsRise.Enums",
         "ArchonsRise.Hand",
