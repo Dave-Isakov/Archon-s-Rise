@@ -1,12 +1,13 @@
-# Multi-Character Foundation & Avatar Animation — Design
+# Multi-Character Foundation, Toughness Rename & Avatar Animation — Design
 
 **Date:** 2026-07-23
 **Status:** Approved (pending final spec review), ready for implementation plan
 **Scope note:** "Multi-character" is four subsystems, not one. This spec covers **A** (character as
-data) and **D** (avatar animation architecture) only. **B** (character-select / run-setup screen) and
-**C** (unlock profile persistence) are deferred — see [Deferred](#deferred-b-and-c). A is the
-keystone: B, C, and per-character content authoring are all cheap once the character is data instead
-of literals.
+data), **T** (the Toughness rename + readout), and **D** (avatar animation architecture). **B**
+(character-select / run-setup screen) and **C** (unlock profile persistence) are deferred — see
+[Deferred](#deferred-b-and-c). A is the keystone: B, C, and per-character content authoring are all
+cheap once the character is data instead of literals. T rides along because A is what turns the
+mis-named stat into an authored field.
 
 ## Problem
 
@@ -21,6 +22,9 @@ The game hardcodes a single, anonymous hero.
 - The save schema (v6) records no character identity, so a run is not self-describing.
 - `PlayerPosition.controller` has **one state, one clip, zero parameters**. `PlayerWalk.anim` exists
   on disk but is wired into nothing. There is no state machine to extend.
+- The stat named **HP** on the character side is not a health pool at all — it is a **divisor**. Every
+  identifier (`playerHP`, `hpBonus`, `run.player.hp`) misdescribes the mechanic, and the value is
+  **not shown anywhere in the UI**, so the player cannot see how tough they are.
 
 ## Goals
 
@@ -32,9 +36,12 @@ The game hardcodes a single, anonymous hero.
 - An avatar **state machine** (Idle / Walk / Fight / Hurt) authored once and overridden per character,
   driven correctly today even where staging is deferred.
 - Every knob that varies per character is **inspector-tunable**, per the project's standing pattern.
+- The character's wound-resistance stat is **named for what it does** — Toughness — and is **visible
+  in the HUD**.
 
 **Non-goals:** a character-select screen; unlock/ownership persistence; any change to combat, turn,
-or reward *rules*; a combat-canvas player avatar; per-character portraits.
+or reward *rules*; a combat-canvas player avatar; per-character portraits; **any change to enemies**
+(see Part T).
 
 ### Explicitly not a character concern
 
@@ -55,7 +62,7 @@ the existing asset stays bound.
 |---|---|---|
 | `id` | string | Stable content id, matching the `CardsSO`/`UnitsSO`/`SkillsSO` pattern |
 | `characterName` | string | was `playerName` |
-| `startingHP` | int | replaces the hardcoded `playerHP = 2`; **seeds `Player.playerHP` at run start only** — HP then grows via level-up `hpBonus` and is restored from `run.player.hp` on load, never re-seeded |
+| `startingToughness` | int | replaces the hardcoded `playerHP = 2` (see Part T); **seeds `Player.playerToughness` at run start only** — it then grows via level-up `toughnessBonus` and is restored from the save on load, never re-seeded. `OnValidate` clamps to **minimum 1** |
 | `handSize` | int | was `playerHandSize` |
 | `startingDeck` | List&lt;`CardsSO`&gt; | was `startingHand` — renamed because `PlayerDeck` feeds it into `deckList`, not the hand |
 | `improvAttack` / `improvDefend` / `improvExplore` / `improvInfluence` | int | replace the four hardcoded `= 1` literals |
@@ -63,7 +70,8 @@ the existing asset stays bound.
 | `skillPool` | `SkillPoolSO` | moved off `LevelRewardsSO` |
 | `animatorController` | `RuntimeAnimatorController` | the Part D hook; accepts a base controller or an override |
 
-`OnValidate` warns on: empty `id`, empty `startingDeck`, null `levelTable`, null `skillPool`.
+`OnValidate` warns on: empty `id`, empty `startingDeck`, null `levelTable`, null `skillPool`, and
+clamps `startingToughness` to at least 1 (see [T4](#t4-the-zero-toughness-hazard)).
 
 **Menu:** `ScriptableObjects/CharacterSO`.
 
@@ -97,14 +105,22 @@ resolved character. No initialization race exists to design around.
 
 ### A4. Save schema v7
 
-`RunState.characterId` (string). `SaveMigrator` follows its existing per-version pattern: a null or
-empty `characterId` marks a pre-v7 save and resolves to the default character; bump `schemaVersion`
-to 7.
+Two additions to `RunState` / `PlayerState`:
+
+- `RunState.characterId` (string) — a null or empty value marks a pre-v7 save and resolves to the
+  default character.
+- `PlayerState.toughness` (int) — replaces `hp`. **`hp` is kept in the model as a vestigial field**
+  so `JsonUtility` still parses it out of v6 files; the migrator copies `hp → toughness` when
+  `toughness == 0`. Renaming the field without this would silently read toughness as **0**, which is
+  the hang described in [T4](#t4-the-zero-toughness-hazard).
+
+Bump `schemaVersion` to 7.
 
 ### A5. Consumer changes
 
 - **`Player`** — delete the `PlayerSO` and `LevelRewardsSO` serialized fields, the `playerHP = 2`
-  literal, and the four `improv*Value = 1` literals; read all of them from
+  literal (the field itself is *renamed* by [T3](#t3-the-rename-character-side-only), not deleted),
+  and the four `improv*Value = 1` literals; read all of them from
   `DataManager.Instance.ActiveCharacter`. `PlayerHandSize` becomes
   `LevelRules.DerivedHandSize(character.HandSize, playerLevel, character.LevelTable.Entries)`.
   `HasCharismatic` is unchanged.
@@ -112,16 +128,84 @@ to 7.
 - **`LevelUpController`** — `player.LevelRewards.SkillPool` becomes the character's `SkillPool`.
 
 **`LevelRules` requires no changes.** It is already fully parameterized: `DerivedHandSize` takes the
-base size as an argument, and `DrawSkillChoices<T>` is generic over the pool. The entire pure-rules
-layer is untouched by A.
+base size as an argument, and `DrawSkillChoices<T>` is generic over the pool. The pure-rules layer is
+untouched by **A** — Part T does change `CombatRules` (a parameter rename plus the divisor clamp in
+[T4](#t4-the-zero-toughness-hazard)), and Part D adds `AvatarStateRules`.
 
 ### A6. Tests and assemblies
 
-Part A's only new pure-test surface is the **v6 → v7 migration**, which slots into the existing
+Part A's only new pure-test surface is the **v6 → v7 migration** (both the character-id default and
+the `hp → toughness` copy), which slots into the existing
 `ArchonsRise.SaveData.Tests` asmdef. `CharacterSO` and `SkillPoolSO` are ScriptableObjects living in
 `Assets/Scripts/GameScriptableObjectTypes/` alongside the other SOs in the main assembly — **Part A
 needs no new asmdef**. (Part D does add one, for `AvatarStateRules` — see D6.) Verification runs
 through the mcs harness.
+
+## Part T — Toughness terminology & readout
+
+### T1. What the stat actually is
+
+The character stat is a **divisor, not a pool**. `CombatRules.WoundCount` walks the Defend shortfall
+in stat-sized bites — `for (i = 0; i < shortfall; i += stat) wounds++`, i.e. `ceil(shortfall / stat)`.
+A shortfall of 5 against a stat of 2 is **3 wounds**. It never depletes, and it is not a loss axis:
+the only loss conditions are wound count and the Doom Clock. **Higher value = fewer wounds per bad
+fight.** Its name is therefore **Toughness**.
+
+### T2. Enemies are untouched
+
+**Enemy HP is a genuine depleting pool and keeps its name, its fields, and its glyph.** `enemyHP`,
+`EffectiveHP`, `IconConcept.Hp`, and the `"hp"` TMP tag are **out of scope and must not change.** No
+new icon is added.
+
+One documentation knock-on: [content-rules.md](../../../.claude/skills/archons-rise-design/content-rules.md)
+currently reads *"Enemy toughness is `hp` everywhere"*, which would make "toughness" name both
+concepts. It becomes *"Enemy **HP** is `hp` everywhere."*
+
+### T3. The rename (character side only)
+
+| Now | Becomes |
+|---|---|
+| `Player.playerHP` / `PlayerHP` | `playerToughness` / `PlayerToughness` |
+| `LevelRewardEntry.hpBonus` | `toughnessBonus` |
+| `CombatRules.WoundCount(..., int playerHP)` | `int playerToughness` (parameter name) |
+| `CombatRules.GroupWoundCount(..., int playerHP)` | `int playerToughness` |
+| `CharacterSO.startingHP` | `startingToughness` |
+| `PlayerState.hp` | `toughness` (+ vestigial `hp`, see A4) |
+| `LateGameSaveTool.PlayerHp` | `PlayerToughness` |
+
+**`hpBonus` is a serialized field on the shipped `LevelRewards.asset`.** Renaming it plainly would
+drop every authored value to 0 — silently removing all toughness progression. It **must** carry
+`[FormerlySerializedAs("hpBonus")]`.
+
+### T4. The zero-toughness hazard
+
+`WoundCount` increments the loop counter by the stat. **A toughness of 0 makes `i += 0` loop
+forever** and hangs Unity. This is unreachable today (the literal is 2 and only grows), but Part A
+turns it into an authored field and Part T renames its save key — two new ways to reach 0.
+
+Two guards, both required:
+
+- `CombatRules` clamps the divisor to a minimum of 1 before looping. The pure rule must be safe on
+  its own, independent of who calls it.
+- `CharacterSO.OnValidate` clamps `startingToughness` to a minimum of 1, so the bad asset can't be
+  authored in the first place.
+
+`CombatRulesTests` gains a case pinning that a 0 divisor terminates and behaves as 1.
+
+### T5. The HUD readout
+
+A `ToughnessLabel` component modelled directly on `DoomMeter` — an `IntEvent` raised by `Player`,
+consumed by an `IntListener`, **no per-frame polling**.
+
+- **Renders as the word plus the number** (e.g. `Toughness 2`). It deliberately does **not** reuse
+  the enemy `hp` glyph: borrowing that icon would re-assert exactly the pool/divisor equivalence
+  this rename exists to break. No new sprite asset is needed.
+- Raised on: run start, level-up (`toughnessBonus` applied), and save-load restore — the three
+  places the value can change.
+
+**Editor-wiring hazard:** the `IntListener` must be wired to the **Dynamic** method in the
+UnityEvent dropdown, not the Static one. A Static binding always fires with a hardcoded 0 and the
+label will read `Toughness 0` forever.
 
 ## Part D — Avatar animation
 
@@ -203,6 +287,19 @@ cannot see.** This is the accepted cost of "architecture now, staging later": th
 correctly driven, and re-staging them into the combat canvas later changes only where the avatar
 renders — none of D4 changes.
 
+## Design-bible updates
+
+Per the `archons-rise-design` maintenance rule, these land **in the same change** as the code, along
+with a `decisions-log.md` entry for the Toughness rename:
+
+- **mechanics.md** — the "Lose — Wounds" section's *"HP is toughness, not a health pool"* paragraph
+  becomes the Toughness definition; the Leveling section's *"+1 HP at milestone levels"* becomes
+  *+1 Toughness*.
+- **balance.md** — the level table's *+1 HP* rows and the *HP **2*** baseline become Toughness.
+- **content-rules.md** — the `PlayerSO` row becomes the `CharacterSO` table from A1; the
+  *"Enemy toughness is `hp`"* line becomes *"Enemy HP is `hp`"* (T2); add `SkillPoolSO`, and drop
+  `skillPool` from the `LevelRewardsSO` description.
+
 ## Editor work (USER)
 
 Per the project's standing practice, scene and prefab wiring is done manually in the editor from
@@ -211,9 +308,15 @@ step-by-step instructions, never by hand-editing YAML:
 1. Author the `CharacterSO` asset for the existing hero (id, stats, deck, table, pool, animator).
 2. Author `CommonSkills.asset` and move the 10 skills off the current `LevelRewardsSO` asset.
 3. Populate `DataManager.allCharacters` and `defaultCharacter`.
-4. Add the `Avatar` child to `PlayerPosition.prefab`; move `SpriteRenderer` + `Animator` onto it.
-5. Build `PlayerAvatar.controller` — 4 states, 3 parameters, the transitions in D2.
-6. Create the first `AnimatorOverrideController` and slot the four clips from D3.
+4. Add the `onToughnessChanged` `IntEvent` asset, the HUD label, and its `IntListener` — **wired to
+   the Dynamic method** (T5).
+5. Add the `Avatar` child to `PlayerPosition.prefab`; move `SpriteRenderer` + `Animator` onto it.
+6. Build `PlayerAvatar.controller` — 4 states, 3 parameters, the transitions in D2.
+7. Create the first `AnimatorOverrideController` and slot the four clips from D3.
+
+Then verify the `LevelRewards.asset` toughness values survived the `hpBonus` rename (T3) — the
+`FormerlySerializedAs` attribute should preserve them, but a zeroed column is the visible symptom if
+it was missed.
 
 ## Acceptance
 
@@ -227,6 +330,17 @@ step-by-step instructions, never by hand-editing YAML:
 - A v7 save round-trips its `characterId`; reloading restores the same character and the same derived
   hand size.
 - No component holds a serialized character reference except `DataManager`.
+
+**Part T**
+- A v6 save's `hp` value arrives as `toughness` — a leveled character does not lose progression on
+  load.
+- `LevelRewards.asset` still shows its authored toughness bonuses after the `hpBonus` rename.
+- `CombatRules` with a 0 divisor terminates rather than hanging, and behaves as 1.
+- `CharacterSO.OnValidate` refuses to leave `startingToughness` below 1.
+- The HUD label reads the correct value at run start, changes on a toughness level-up, and survives
+  save/reload — never `Toughness 0`.
+- Nothing about enemies changed: `enemyHP`, `EffectiveHP`, `IconConcept.Hp`, and the `"hp"` tag are
+  byte-identical, and `IconRegistryValidationTests` is green with no registry edits.
 
 **Part D**
 - The avatar idles on the map and plays Walk on a forward move, returning to Idle.
