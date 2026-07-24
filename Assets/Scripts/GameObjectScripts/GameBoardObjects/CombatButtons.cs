@@ -31,6 +31,11 @@ public class CombatButtons : MonoBehaviour
     [Header("On-screen clamp (px half-extents from centre)")]
     [SerializeField] Vector2 clampHalfExtents = new Vector2(360f, 260f);
 
+    [Header("Idle sway (owned here so nothing fights the anchor)")]
+    [SerializeField] float swayPosAmplitude = 4f;    // px
+    [SerializeField] float swayTiltAmplitude = 1.5f; // degrees
+    [SerializeField] float swayPeriod = 3.2f;        // seconds per cycle
+
     Player player;
 
     void Start()
@@ -63,7 +68,7 @@ public class CombatButtons : MonoBehaviour
         if (!show) return;
 
         var a = CombatLayoutRules.OppositeAnchor(cc.EnemyCentroidLocal.x, cc.EnemyCentroidLocal.y, advanceDistance);
-        ((RectTransform)advanceButton.transform).anchoredPosition = Clamp(new Vector2(a.X, a.Y));
+        PlaceWithSway((RectTransform)advanceButton.transform, a);
 
         string text; Color color;
         if (st.Kind == AdvanceKind.Engage) { text = "Engage"; color = engageColor; }
@@ -81,7 +86,19 @@ public class CombatButtons : MonoBehaviour
         if (!show) return;
 
         var a = CombatLayoutRules.OppositeAnchor(cc.EnemyCentroidLocal.x, cc.EnemyCentroidLocal.y, withdrawDistance);
-        ((RectTransform)withdrawButton.transform).anchoredPosition = Clamp(new Vector2(a.X, a.Y));
+        PlaceWithSway((RectTransform)withdrawButton.transform, a);
+    }
+
+    // Positions a button at its clamped anchor plus a subtle idle sway. Owning
+    // both here (rather than a separate EnemyCardIdleSway on the button) keeps a
+    // single writer of the RectTransform, so the sway can never fight the anchor.
+    void PlaceWithSway(RectTransform rt, CombatLayoutRules.Anchor a)
+    {
+        float w = Time.time / Mathf.Max(0.01f, swayPeriod) * Mathf.PI * 2f;
+        Vector2 sway = new Vector2(Mathf.Sin(w) * swayPosAmplitude,
+                                   Mathf.Cos(w * 0.5f) * swayPosAmplitude * 0.5f);
+        rt.anchoredPosition = Clamp(new Vector2(a.X, a.Y)) + sway;
+        rt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(w) * swayTiltAmplitude);
     }
 
     // The advance press means different things per phase; only ever visible in
