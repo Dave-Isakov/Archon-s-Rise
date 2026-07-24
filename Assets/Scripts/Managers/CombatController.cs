@@ -126,6 +126,10 @@ public class CombatController : MonoBehaviour
         var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
         for (int i = 0; i < wounds; i++) hand.AddWound();
 
+        // Taking the group counterattack reads on the avatar (spec D4).
+        if (wounds > 0 && PlayerAvatar.Instance != null)
+            PlayerAvatar.Instance.Play(AvatarState.Hurt);
+
         player.PlayerDefend = Mathf.Max(0, player.PlayerDefend - total);
         GameManager.Instance.commands.ClearStack();   // taking the hit is a commit point
 
@@ -140,6 +144,11 @@ public class CombatController : MonoBehaviour
     public void NotifyDefeated(EnemyCard card, bool wasInfluence)
     {
         if (!live.Remove(card)) return;
+
+        // Attack/Siege kills swing; Influence removals are the fade-and-drift
+        // track and play no attack animation (spec D4).
+        if (!wasInfluence && PlayerAvatar.Instance != null)
+            PlayerAvatar.Instance.Play(AvatarState.Fight);
 
         GameManager.Instance.commands.ClearStack();   // a kill is irreversible
 
