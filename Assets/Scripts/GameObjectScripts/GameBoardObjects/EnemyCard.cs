@@ -24,6 +24,8 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
     [SerializeField] public Button fightButton;
     [SerializeField] public Button siegeButton;
     [SerializeField] public Button influenceButton;
+    [SerializeField] GameObject siegeGlow;     // lit while staged Siege can spend here (spec 2026-07-24)
+    [SerializeField] GameObject influenceGlow; // lit while staged Influence can spend here
     [SerializeField] TextMeshProUGUI fightButtonText;
     [SerializeField] TextMeshProUGUI influenceButtonText;
     [SerializeField] Image artwork; // per-enemy portrait; disabled when the SO has none
@@ -91,6 +93,16 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
         fightButton.interactable = token.isAggro;
         siegeButton.interactable = token.isAggro;
         influenceButton.interactable = token.isAggro && enemySO.canInfluence;
+    }
+
+    // Lights this card's Siege/Influence buttons while the matching pool is
+    // staged in the Siege phase (spec 2026-07-24 phase controls), inviting the
+    // player to spend it here. Null-safe: an unwired glow stays dark. The
+    // controller passes false/false in every other phase.
+    public void SetActionGlow(bool siegeLit, bool influenceLit)
+    {
+        if (siegeGlow != null) siegeGlow.SetActive(siegeLit);
+        if (influenceGlow != null) influenceGlow.SetActive(influenceLit);
     }
 
     // Phase-gates this card's buttons (spec 2026-07-21, Spec 2). Siege/Influence
