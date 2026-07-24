@@ -65,6 +65,7 @@ public class Player : MonoBehaviour
     [SerializeField] IntEvent OnExploreEvent_GetCurrentExplore;
     [SerializeField] EnemyCardEvent onDefeat_WoundPlayer;
     [SerializeField] VoidEvent onLevelUpTutorial; // M2.12 one-shot trigger
+    [SerializeField] IntEvent onToughnessChanged;
 
     void Awake()
     {
@@ -86,6 +87,7 @@ public class Player : MonoBehaviour
         // every Awake, so this is the last chance before play begins.
         if (playerToughness == 0 && DataManager.Instance != null && !DataManager.Instance.IsLoading)
             playerToughness = Character.StartingToughness;
+        RaiseToughness();   // fresh-run seed; a load re-raises from RestoreNow
     }
     
     void Update()
@@ -691,6 +693,13 @@ public class Player : MonoBehaviour
     {
         OnExploreEvent_GetCurrentExplore.Raise(playerExplore);
     }
+
+    // Raised at the three points toughness can change: run start, a level-up
+    // that granted toughnessBonus, and a save-load restore.
+    public void RaiseToughness()
+    {
+        if (onToughnessChanged != null) onToughnessChanged.Raise(playerToughness);
+    }
     
     public void TurnEnd()
     {
@@ -715,6 +724,7 @@ public class Player : MonoBehaviour
 
         var entry = LevelRules.RewardsFor(playerLevel, Character.LevelTable.Entries);
         if (entry != null) playerToughness += entry.toughnessBonus;
+        if (entry != null && entry.toughnessBonus > 0) RaiseToughness();
 
         var controller = FindAnyObjectByType<LevelUpController>();
         if (controller != null) controller.EnqueueLevelRewards(playerLevel, entry);

@@ -252,6 +252,7 @@ public class DataManager : MonoBehaviour
         // Restore ExpToNextLevel first so Update() doesn't fire a spurious level-up.
         player.ExpToNextLevel  = run.player.expToNextLevel;
         player.PlayerToughness = run.player.toughness;
+        player.RaiseToughness();
         player.PlayerLevel     = run.player.level;
         player.PlayerExp       = run.player.exp;
         player.PlayerAttack    = run.player.attack;
