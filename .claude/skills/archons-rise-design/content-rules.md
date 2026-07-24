@@ -44,7 +44,8 @@ authored `cardDescription`.
   "Empower" at the head of an empowered line — `<sprite="empower" index=0> <stat>: N`
   (e.g. `<sprite="empower" index=0> <sprite="Sword" index=0>: 6`). Empower is a modifier concept,
   not an action stat, so it is exempt from the per-line action-stat ordering.
-- **`shield` means Defend only.** Enemy toughness is `hp` everywhere — never the Defend shield.
+- **`shield` means Defend only.** Enemy HP is `hp` everywhere — never the Defend shield.
+  ("Toughness" now names the character stat only; enemies keep HP, a real depleting pool.)
 - **Action-stat order is Attack, Defend, Explore, Influence**, per line, everywhere the four appear
   together. Lines with a conversion arrow (`->` / `→`) are directional and exempt.
 - **Crystal colors tint the one `crystal` glyph** with the canonical hexes (Red `#E5484D`,
@@ -204,14 +205,34 @@ for the starting bands.
 | `towns` | List&lt;`TownsSO`&gt; | Towns present |
 | `dungeons` | List&lt;`DungeonsSO`&gt; | Dungeons present |
 
-## Player — `PlayerSO`
-**Menu:** `ScriptableObjects/PlayerSO`
+## Character — `CharacterSO`
+**Menu:** `ScriptableObjects/CharacterSO` (was `PlayerSO` before 2026-07-23)
+
+A playable character is a **content bundle**, never a rules variant: characters differ only in the
+fields below. Rule-bending belongs in `SkillEffect` (the Charismatic precedent), and every character
+starts with zero skills. `DataManager.ActiveCharacter` is the single runtime source of truth.
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `playerName` | string | Hero name |
-| `playerHandSize` | int | Starting hand size |
-| `startingHand` | List&lt;`CardsSO`&gt; | Starting deck/hand |
+| `id` | string | Stable slug; recorded in the save (`RunState.characterId`) — never rename it |
+| `characterName` | string | Display name |
+| `startingToughness` | int | Divisor of the Defend shortfall. **Minimum 1** — 0 hangs `WoundCount` |
+| `handSize` | int | Base hand size before level bonuses |
+| `improvAttack` / `improvDefend` / `improvExplore` / `improvInfluence` | int | Improvise yields |
+| `startingDeck` | List&lt;`CardsSO`&gt; | The opening deck |
+| `levelTable` | `LevelRewardsSO` | Progression curve; characters may share one |
+| `skillPool` | `SkillPoolSO` | Skills offered on skill-pick levels |
+| `animatorController` | `RuntimeAnimatorController` | Avatar animation (spec Part D) |
+
+## Skill pool — `SkillPoolSO`
+**Menu:** `ScriptableObjects/SkillPool`
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `skills` | List&lt;`SkillsSO`&gt; | Draw pool for level-up skill picks |
+
+Split out of `LevelRewardsSO` on 2026-07-23 so characters that share a progression curve can still
+draw from different skill pools — retuning the exp curve stays a single-asset edit.
 
 ## Tutorial & help copy (spec 2026-07-15, M2.12)
 

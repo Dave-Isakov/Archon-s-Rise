@@ -485,3 +485,21 @@ editing an old one.
   _Why:_ opening a menu just to see what a place offers shouldn't burn the turn's one action — the
   player was being charged for looking. Mirrors the existing crystal pattern (opening the crystal
   pop-out is free; picking a crystal is the spend).
+
+## 2026-07-23 — Character-side HP renamed to Toughness; characters become data
+
+**Decision:** The character stat formerly called HP is renamed **Toughness** everywhere on the
+character side. Enemy HP keeps its name, fields, and `hp` glyph — enemy HP genuinely is a depleting
+pool. No new icon; the HUD label reads the word plus the number.
+
+**Why:** The stat is a *divisor* of the Defend shortfall (`ceil(shortfall / toughness)`), not a pool.
+It never depletes, and the loss axes are Wound count and the Doom Clock — characters have no HP at
+all. Calling it HP misdescribed the mechanic and invited confusion with the enemy stat.
+
+**Also:** `PlayerSO` becomes `CharacterSO`, a content bundle (starting deck, skill pool, level table,
+toughness, hand size, improvise values, animator). `DataManager.ActiveCharacter` is the single source
+of truth, replacing two independent serialized refs that could disagree. Save v7 records
+`characterId` so a run is self-describing — the select screen (Part B) then needs no save work.
+
+**Guard:** a 0 toughness makes `CombatRules.WoundCount` loop forever. Clamped in the rule *and*
+in `CharacterSO.OnValidate`.

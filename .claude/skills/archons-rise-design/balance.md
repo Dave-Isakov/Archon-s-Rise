@@ -45,7 +45,7 @@ playtest._ Set them on the `DoomTuning.asset` (new fields default to 0 on existi
 - _Starting values — tune in playtest._
 
 ## Wound-out (tactical loss)
-- Lose if **Wounds in deck ≥ 6**. (HP is toughness, never depletes — decision 2026-07-06.)
+- Lose if **Wounds in deck ≥ 6**. (Toughness is a divisor, never depletes — decision 2026-07-06.)
 - _Starting values — tune in playtest._ Tighten the wound count to make combat losses more punishing.
 
 ## Crystal Costs
@@ -93,16 +93,16 @@ _Starting bands — tune in playtest._
 | Level | Reward |
 |---|---|
 | 2 | skill pick |
-| 3 | +1 HP, card pick |
+| 3 | +1 Toughness, card pick |
 | 4 | +1 hand size, +1 army size |
 | 5 | skill pick |
-| 6 | +1 HP, card pick |
+| 6 | +1 Toughness, card pick |
 | 7 | skill pick, +1 army size |
 | 8 | +1 hand size |
-| 9 | +1 HP, skill pick |
+| 9 | +1 Toughness, skill pick |
 | 10 | +1 army size, +1 hand size, card pick |
 
-- Baselines: hand size **5**, army cap **1**, HP **2**. Levels past the last entry grant nothing.
+- Baselines: hand size **5**, army cap **1**, Toughness **2**. Levels past the last entry grant nothing.
 - **Card pick** = the standard choose-1-of-3 card reward screen (same pool as enemy defeats).
 - Table entries are per-level **counts** (skill picks, card picks, bonuses) — every knob is
   inspector-tunable per level with no code change.

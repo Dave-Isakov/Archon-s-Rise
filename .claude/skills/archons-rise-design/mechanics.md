@@ -75,9 +75,10 @@ Wounds are dead draws that clog the deck; accumulating too many — a count thre
 [balance.md](balance.md)) — ends the run. **Heal/Mend** cards remove Wounds, so wound management is
 an ongoing tactical cost.
 
-**HP is toughness, not a health pool** (decision 2026-07-06): HP divides the Defend shortfall into
-HP-sized bites, one Wound per bite (`CombatRules.WoundCount`). HP never depletes and is not a loss
-axis — raising it via level-ups means each bad fight inflicts fewer Wounds.
+**Toughness is a divisor, not a health pool** (decision 2026-07-06, renamed 2026-07-23): Toughness
+divides the Defend shortfall into Toughness-sized bites, one Wound per bite (`CombatRules.WoundCount`).
+It never depletes and is not a loss axis — raising it via level-ups means each bad fight inflicts
+fewer Wounds. The character has no HP; the only loss axes are Wound count and the Doom Clock.
 
 ## Lose — Doom Clock (strategic)
 A corruption/threat value rises every round (rate in [balance.md](balance.md)); some events push it
@@ -198,7 +199,7 @@ Three reward kinds:
 - **Skill pick** — choose 1 of 3 random unowned skills from the pool (see Skills below).
 - **+1 hand size** at milestone levels.
 - **+1 army size** at milestone levels (raises the recruit cap).
-- **+1 HP** at milestone levels (toughness — fewer Wounds per bad fight).
+- **+1 Toughness** at milestone levels (fewer Wounds per bad fight).
 
 Hand size and army cap are **derived from level + table**, never stored in saves. The experience
 curve and the table itself are tuning — see [balance.md](balance.md).
