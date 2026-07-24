@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: move
   m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialStepSO
   id: move
-  bannerText: This is the Explore phase. The direction arrows show the <sprite="scroll"
+  bannerText: This is the Explore phase. Hovering over a hex nearby shows the <sprite="scroll"
     index=0> cost to move to that hex. When hexes are not visible (fog) you also
     may spend 2 <sprite="scroll" index=0> to uncover the map from the fog.
   highlightTargetId: move-buttons
