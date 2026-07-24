@@ -14,6 +14,7 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
     public EnemyCard cardRef;
     public bool isAggro;
     public bool inCombat;
+    bool boardHidden; // true while this token's card is up in combat
     [SerializeField] SpriteRenderer glow; // soft halo child, pulses while the player is adjacent
     // Doom scaling applied at spawn time. Lives on the token — the shared
     // EnemiesSO asset is NEVER mutated.
@@ -44,6 +45,8 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
 
     void Update()
     {
+        if (boardHidden) return;
+
         // Field-defeat teardown (save-cell record + token destroy) now lives in
         // CombatController.RecordFieldDefeat (spec 2026-07-21, Spec 2), keyed off
         // the logical live set rather than this card's isDefeated flag.
@@ -65,6 +68,16 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
                 glow.enabled = false;
             }
         }
+    }
+
+    // Hides/shows the board icon (and glow) while this token's combat card is up
+    // (spec 2026-07-24). The card renders the enemy during the fight; a field
+    // flee restores the icon.
+    public void SetBoardVisible(bool visible)
+    {
+        boardHidden = !visible;
+        foreach (var sr in GetComponentsInChildren<SpriteRenderer>(true))
+            sr.enabled = visible;
     }
 
     public void CheckAggro(PlayerPosition player)

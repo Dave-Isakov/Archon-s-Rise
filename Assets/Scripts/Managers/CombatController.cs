@@ -87,6 +87,14 @@ public class CombatController : MonoBehaviour
         }
 
         LayoutLive();
+        Vector2 fromLocal = OriginLocalPoint(OriginWorld());
+        foreach (var card in live)
+        {
+            var morph = card.GetComponent<EnemyCardMorph>();
+            if (morph != null) morph.MorphIn(fromLocal);
+        }
+        if (context == CombatContext.Field && fieldToken != null)
+            fieldToken.SetBoardVisible(false);
 
         GameManager.Instance.combatCanvas.enabled = true;
         if (multiButton != null) multiButton.gameObject.SetActive(true); // the multi-purpose (ex-Flee) button
@@ -118,6 +126,26 @@ public class CombatController : MonoBehaviour
         float s = baseCardScale * slot.Scale;
         rt.localScale = new Vector3(s, s, 1f);
         rt.localRotation = Quaternion.Euler(0f, 0f, slot.TiltDeg);
+    }
+
+    // World position the cards emerge from / return to, per fight context.
+    Vector3 OriginWorld()
+    {
+        if (context == CombatContext.Field && fieldToken != null) return fieldToken.transform.position;
+        if (context == CombatContext.Guardian && guardianPlace != null) return guardianPlace.transform.position;
+        if (context == CombatContext.Dungeon && dungeonToken != null) return dungeonToken.transform.position;
+        return GameManager.Instance.enemyCardCombatPosition.transform.position; // fallback: centre
+    }
+
+    // Project a board world position into the arc origin's local UI space, so a
+    // card can fly from its token to its slot. Board camera -> screen -> canvas.
+    Vector2 OriginLocalPoint(Vector3 worldPos)
+    {
+        var canvas = GameManager.Instance.combatCanvas;
+        var parent = (RectTransform)GameManager.Instance.enemyCardCombatPosition.transform;
+        Vector2 screen = RectTransformUtility.WorldToScreenPoint(Camera.main, worldPos);
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, screen, canvas.worldCamera, out Vector2 local);
+        return local;
     }
 
     // Engage (Siege -> Defend, spec 2026-07-22): commit the Siege-phase removals
