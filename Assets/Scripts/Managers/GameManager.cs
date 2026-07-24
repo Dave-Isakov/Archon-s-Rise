@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
     public Canvas combatCanvas;
     public GameObject enemyCardCombatPosition;
     [SerializeField] Rewards rewards;
+    [SerializeField] CombatBackdrop combatBackdrop; // fades the battlefield after the intro
     [SerializeField] TextMeshProUGUI combatBanner; // the "Combat!" intro text
     [SerializeField] string combatIntroState = "CombatIntro";
     [SerializeField] float combatIntroDuration = 1.5f;
@@ -144,6 +145,7 @@ public class GameManager : MonoBehaviour
         combatCanvas.GetComponentInChildren<Animator>().enabled = true;
         if (combatBanner != null) combatBanner.enabled = false; // no intro flash for guardian/dungeon
         if (fleeButton != null) fleeButton.gameObject.SetActive(true);
+        if (combatBackdrop != null) combatBackdrop.FadeToBattle();
     }
 
     // Field-combat intro: enable the canvas, replay the authored banner clip from
@@ -162,6 +164,7 @@ public class GameManager : MonoBehaviour
         }
         if (fleeButton != null) fleeButton.gameObject.SetActive(true);
         yield return new WaitForSeconds(combatIntroDuration);
+        if (combatBackdrop != null) combatBackdrop.FadeToBattle();
     }
 
     // Clears combat state shared by every way combat can end (win or flee).
@@ -175,6 +178,7 @@ public class GameManager : MonoBehaviour
     // assault retreat).
     public void CloseCombatCanvas()
     {
+        if (combatBackdrop != null) combatBackdrop.Restore();
         combatCanvas.enabled = false;
         combatCanvas.GetComponentInChildren<Animator>().enabled = false;
         EndCombat();
