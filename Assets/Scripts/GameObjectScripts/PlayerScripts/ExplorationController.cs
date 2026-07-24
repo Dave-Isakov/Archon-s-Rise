@@ -163,10 +163,17 @@ public class ExplorationController : MonoBehaviour
     // (refund). Raises position + explore events so map + HUD stay in sync.
     public void ApplyMove(Vector3 worldPos, int exploreDelta, bool refund = false)
     {
+        Vector3 from = player.transform.position;
         player.transform.position = worldPos;
         playerExplore += refund ? exploreDelta : -exploreDelta;
         onSuccessfulExplore_AdjustPlayersExplore.Raise(playerExplore);
         sendNewPositionOfPlayer.Raise(player);
+
+        // Cosmetic catch-up ONLY — every rule above has already resolved against
+        // the snapped position. An undo (refund) snaps with no walk: an undo is a
+        // correction, not a journey.
+        if (!refund && PlayerAvatar.Instance != null)
+            PlayerAvatar.Instance.PlayWalk(from - worldPos);
     }
 
     // Free reposition (teleport, Task 5). Raises the position event so every enemy
