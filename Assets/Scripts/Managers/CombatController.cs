@@ -17,9 +17,15 @@ public class CombatController : MonoBehaviour
     [SerializeField] VoidEvent onCombatPhaseChanged; // HUD phase label listens
 
     [Header("Enemy arc layout (spec 2026-07-24)")]
-    [SerializeField] float arcRadius = 320f;    // px from the screen-centre player
-    [SerializeField] float arcDegrees = 120f;   // total fan spread
-    [SerializeField] float baseCardScale = 1.75f; // preserves the pre-arc card size
+    [SerializeField] float arcRadius = 130f;    // px the card floats out from the enemy's board spot
+    [SerializeField] float arcDegrees = 120f;   // total fan spread (multi-enemy)
+    [SerializeField] float baseCardScale = 1.2f; // card size on the board
+
+    // The arc centres on the enemy source's projected board position (not the
+    // screen-centre player), so a card appears where its icon was and clear of
+    // the player (spec 2026-07-24 follow-up). Cached at fight-open and reused by
+    // every re-layout so mid-fight removals re-fan around the same spot.
+    Vector2 arcOrigin;
 
     public CombatPhase Phase { get; private set; }
     public bool CanSiege        => CombatPhaseRules.CanSiege(Phase);
@@ -87,12 +93,12 @@ public class CombatController : MonoBehaviour
             live.Add(card);
         }
 
+        arcOrigin = OriginLocalPoint(OriginWorld());
         LayoutLive();
-        Vector2 fromLocal = OriginLocalPoint(OriginWorld());
         foreach (var card in live)
         {
             var morph = card.GetComponent<EnemyCardMorph>();
-            if (morph != null) morph.MorphIn(fromLocal);
+            if (morph != null) morph.MorphIn(arcOrigin); // fly out from the board spot to the slot
         }
         if (context == CombatContext.Field && fieldToken != null)
             fieldToken.SetBoardVisible(false);
@@ -110,7 +116,7 @@ public class CombatController : MonoBehaviour
         if (onCombatPhaseChanged != null) onCombatPhaseChanged.Raise();
     }
 
-    // Positions the live set in an even arc around the screen-centre player
+    // Positions the live set in an even arc centred on the enemy's board spot
     // (spec 2026-07-24). Called on spawn and after any mid-fight removal so gaps
     // close. Presentation only.
     void LayoutLive()
@@ -123,7 +129,7 @@ public class CombatController : MonoBehaviour
     void ApplySlot(EnemyCard card, CombatLayoutRules.Slot slot)
     {
         var rt = (RectTransform)card.transform;
-        rt.anchoredPosition = new Vector2(slot.X, slot.Y);
+        rt.anchoredPosition = arcOrigin + new Vector2(slot.X, slot.Y);
         float s = baseCardScale * slot.Scale;
         rt.localScale = new Vector3(s, s, 1f);
         rt.localRotation = Quaternion.Euler(0f, 0f, slot.TiltDeg);
