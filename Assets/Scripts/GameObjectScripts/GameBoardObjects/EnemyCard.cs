@@ -26,6 +26,7 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
     [SerializeField] public Button influenceButton;
     [SerializeField] TextMeshProUGUI fightButtonText;
     [SerializeField] TextMeshProUGUI influenceButtonText;
+    [SerializeField] Image artwork; // per-enemy portrait; disabled when the SO has none
     public bool isDefeated = false;
     private bool isMaximized;
 
@@ -34,6 +35,11 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
     void Start() 
     {
         enemyName.text = enemySO.cardName;
+        if (artwork != null)
+        {
+            if (enemySO.cardArt != null) { artwork.sprite = enemySO.cardArt; artwork.enabled = true; }
+            else artwork.enabled = false;
+        }
         enemyAttack.text = IconMarkup.Tag(IconConcept.Attack) + " \n" + EffectiveAttack.ToString();
         enemyHP.text = IconMarkup.Tag(IconConcept.Hp) + " \n" + EffectiveHP.ToString();
         var player = FindAnyObjectByType<Player>();

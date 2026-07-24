@@ -18,6 +18,11 @@ public class EnemiesSO : AllCards
     // the stable save identity for mid-run spawns — never rename ids.
     public int tier = 1;
 
+    // Per-enemy portrait shown on the combat card (spec 2026-07-24). Nullable:
+    // an unauthored enemy shows the plain card, never a broken frame. Art is
+    // authored later (M3 content).
+    public Sprite cardArt;
+
     private void Start() {
         if(!canInfluence)
         {
