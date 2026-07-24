@@ -16,7 +16,7 @@ public class CombatButtons : MonoBehaviour
     [Header("Advance (Siege/Defend commit)")]
     [SerializeField] Button advanceButton;
     [SerializeField] TextMeshProUGUI advanceLabel;
-    [SerializeField] Graphic advanceGlow;             // optional plate tinted per state
+    [SerializeField] Image advanceGlow;               // optional glow plate (UIPulseGlow.mat); tinted per state
     [SerializeField] float advanceDistance = 220f;    // px opposite the enemy centroid
 
     [Header("Withdraw (last resort)")]
