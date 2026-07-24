@@ -1,0 +1,9 @@
+{
+    "name": "ArchonsRise.CombatLayout",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "autoReferenced": true
+}

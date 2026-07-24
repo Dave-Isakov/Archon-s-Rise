@@ -7,6 +7,7 @@
         "ArchonsRise.CardList",
         "ArchonsRise.CardPlay",
         "ArchonsRise.Avatar",
+        "ArchonsRise.CombatLayout",
         "ArchonsRise.Doom",
         "ArchonsRise.Enums",
         "ArchonsRise.Hand",
