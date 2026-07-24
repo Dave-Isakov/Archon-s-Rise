@@ -122,7 +122,7 @@ public class CombatController : MonoBehaviour
         int total = 0;
         foreach (var card in live) total += card.EffectiveAttack;
 
-        int wounds = CombatRules.GroupWoundCount(player.PlayerDefend, total, player.PlayerHP);
+        int wounds = CombatRules.GroupWoundCount(player.PlayerDefend, total, player.PlayerToughness);
         var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
         for (int i = 0; i < wounds; i++) hand.AddWound();
 

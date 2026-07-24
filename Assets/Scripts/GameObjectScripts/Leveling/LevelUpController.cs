@@ -4,8 +4,8 @@ using UnityEngine;
 // Enqueues the level-up payout on the shared RewardQueue: announcement message,
 // then skill pick(s), then card pick(s) — strictly in order, one modal at a
 // time (spec 2026-07-13; replaces the M2.4 private queue + busy-wait poll).
-// Fixed bonuses (HP/hand/army) never enter the queue: Player applies HP
-// directly and the sizes are derived.
+// Fixed bonuses (toughness/hand/army) never enter the queue: Player applies
+// toughness directly and the sizes are derived.
 public class LevelUpController : MonoBehaviour
 {
     [SerializeField] Player player;
@@ -34,7 +34,7 @@ public class LevelUpController : MonoBehaviour
     {
         // Choices are drawn at open time so earlier picks in the same payout
         // are excluded from later draws.
-        var choices = LevelRules.DrawSkillChoices(player.LevelRewards.SkillPool,
+        var choices = LevelRules.DrawSkillChoices(player.SkillChoices,
             new List<SkillsSO>(player.Skills), rng, 3);
         if (choices.Count == 0) { done(); return; } // pool exhausted: skip the pick
         modal.Offer(choices, chosen => { player.AddSkill(chosen); done(); });

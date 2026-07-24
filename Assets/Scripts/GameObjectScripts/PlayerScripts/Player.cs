@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] CharacterSO player;
     [SerializeField] GameObject unitPrefab;
     [SerializeField] PlayerPosition playerPosition;
     private int playerAttack;
@@ -12,11 +11,7 @@ public class Player : MonoBehaviour
     public int playerInfluence;
     public int playerExplore;
     private int playerSiege;
-    private int improvAttackValue = 1;
-    private int improvDefendValue = 1;
-    private int improvInfluenceValue = 1;
-    private int improvExploreValue = 1;
-    private int playerHP = 2;
+    private int playerToughness;
     [SerializeField] private int playerExp;
     [SerializeField] private int expToNextLevel;
     [SerializeField] private int playerLevel;
@@ -24,12 +19,24 @@ public class Player : MonoBehaviour
     private bool inCombat;
     private bool inTown;
     [SerializeField] private List<UnitsSO> units = new();
-    [SerializeField] LevelRewardsSO levelRewards;
     [SerializeField] List<SkillsSO> skills = new();
-    public int PlayerHP { get => playerHP; set => playerHP = value;}
+
+    // THE character this run is. Resolved by DataManager before the scene
+    // loads, so it is safe to read from Awake onward (spec A3).
+    CharacterSO Character => DataManager.Instance.ActiveCharacter;
+
+    // The SkillsSO list a level-up pick draws from. Named *Choices* to keep it
+    // distinct from CharacterSO.SkillPool, which is the SkillPoolSO asset — the
+    // two would otherwise read as the same thing with different types.
+    public IReadOnlyList<SkillsSO> SkillChoices => Character.SkillPool.Skills;
+
+    // Toughness divides the Defend shortfall into bites, one Wound each. It
+    // never depletes and is not a loss axis (spec Part T).
+    public int PlayerToughness { get => playerToughness; set => playerToughness = value; }
     // Derived, never stored: base size from CharacterSO plus every table bonus
     // at or below the current level. Same derivation on load, so saves can't drift.
-    public int PlayerHandSize => LevelRules.DerivedHandSize(player.HandSize, playerLevel, levelRewards.Entries);
+    public int PlayerHandSize =>
+        LevelRules.DerivedHandSize(Character.HandSize, playerLevel, Character.LevelTable.Entries);
     public int PlayerAttack { get => playerAttack; set => playerAttack = value; }
     public int PlayerDefend { get => playerDefend; set => playerDefend = value;}
     public int PlayerInfluence { get => playerInfluence; set => playerInfluence = value;}
@@ -42,8 +49,8 @@ public class Player : MonoBehaviour
     public int ExpToNextLevel { get => expToNextLevel; set => expToNextLevel = value; }
     public int PlayerLevel { get => playerLevel; set => playerLevel = value; }
     public IReadOnlyList<UnitsSO> Units => units;
-    public int ArmyCap => LevelRules.DerivedArmyCap(playerLevel, levelRewards.Entries);
-    public LevelRewardsSO LevelRewards => levelRewards;
+    public int ArmyCap => LevelRules.DerivedArmyCap(playerLevel, Character.LevelTable.Entries);
+    public LevelRewardsSO LevelRewards => Character.LevelTable;
     public IReadOnlyList<SkillsSO> Skills => skills;
     // Charismatic passive: influenced enemies with a recruitedUnit join the army.
     public bool HasCharismatic => skills.Exists(s => s.effect == SkillEffect.RecruitEnemies);
@@ -59,9 +66,26 @@ public class Player : MonoBehaviour
     [SerializeField] EnemyCardEvent onDefeat_WoundPlayer;
     [SerializeField] VoidEvent onLevelUpTutorial; // M2.12 one-shot trigger
 
+    void Awake()
+    {
+        // Seed from the character on a fresh run only. A load overwrites this
+        // from the save in DataManager.RestoreNow — never re-seed, or a leveled
+        // character silently loses its earned toughness.
+        //
+        // DataManager and Player both live in GameBoard.unity and Awake order
+        // between them is not guaranteed, so a null Instance is a real (if rare)
+        // case: skip the seed rather than throw, and let RestoreNow/Start cover it.
+        if (DataManager.Instance == null || DataManager.Instance.IsLoading) return;
+        playerToughness = Character.StartingToughness;
+    }
+
     void Start()
     {
         OnExploreEvent_GetCurrentExplore.Raise(playerExplore);
+        // Awake may have skipped the seed (no DataManager yet); Start runs after
+        // every Awake, so this is the last chance before play begins.
+        if (playerToughness == 0 && DataManager.Instance != null && !DataManager.Instance.IsLoading)
+            playerToughness = Character.StartingToughness;
     }
     
     void Update()
@@ -109,12 +133,12 @@ public class Player : MonoBehaviour
     {
         if(!card.IsPlayed)
         {
-            playerAttack += improvAttackValue;
+            playerAttack += Character.ImprovAttack;
             card.IsPlayed = true;
         }
         else if(card.IsPlayed)
         {
-            playerAttack -= improvAttackValue;
+            playerAttack -= Character.ImprovAttack;
             card.IsPlayed = false;
         }
     }
@@ -122,12 +146,12 @@ public class Player : MonoBehaviour
     {
         if(!card.IsPlayed)
         {
-            playerDefend += improvDefendValue;
+            playerDefend += Character.ImprovDefend;
             card.IsPlayed = true;
         }
         else if(card.IsPlayed)
         {
-            playerDefend -= improvDefendValue;
+            playerDefend -= Character.ImprovDefend;
             card.IsPlayed = false;
         }
     }
@@ -135,12 +159,12 @@ public class Player : MonoBehaviour
     {
         if(!card.IsPlayed)
         {
-            playerInfluence += improvInfluenceValue;
+            playerInfluence += Character.ImprovInfluence;
             card.IsPlayed = true;
         }
         else if(card.IsPlayed)
         {
-            playerInfluence -= improvInfluenceValue;
+            playerInfluence -= Character.ImprovInfluence;
             card.IsPlayed = false;
         }
     }
@@ -148,12 +172,12 @@ public class Player : MonoBehaviour
     {
         if(!card.IsPlayed)
         {
-            playerExplore += improvExploreValue;
+            playerExplore += Character.ImprovExplore;
             card.IsPlayed = true;
         }
         else if(card.IsPlayed)
         {
-            playerExplore -= improvExploreValue;
+            playerExplore -= Character.ImprovExplore;
             card.IsPlayed = false;
         }
         GetCurrentExplore();
@@ -689,8 +713,8 @@ public class Player : MonoBehaviour
         playerExp = LevelRules.CarriedExp(playerExp, expToNextLevel);
         expToNextLevel = expToNextLevel + playerLevel + 12;
 
-        var entry = LevelRules.RewardsFor(playerLevel, levelRewards.Entries);
-        if (entry != null) playerHP += entry.toughnessBonus;
+        var entry = LevelRules.RewardsFor(playerLevel, Character.LevelTable.Entries);
+        if (entry != null) playerToughness += entry.toughnessBonus;
 
         var controller = FindAnyObjectByType<LevelUpController>();
         if (controller != null) controller.EnqueueLevelRewards(playerLevel, entry);

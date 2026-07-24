@@ -15,7 +15,7 @@ using UnityEngine.Tilemaps;
 public static class LateGameSaveTool
 {
     const int Level           = 7;
-    const int PlayerHp        = 5;
+    const int PlayerToughness = 5;
     const int StartingDoom    = 8;    // mid band: tier-2 enemies + stat scaling active
     const int Round           = 10;
     const int UnitCount       = 3;
@@ -52,7 +52,7 @@ public static class LateGameSaveTool
 
         // --- Level / vitals (ExpToNextLevel high so Update() won't fire a level-up) ---
         player.PlayerLevel    = Level;
-        player.PlayerHP       = PlayerHp;
+        player.PlayerToughness = PlayerToughness;
         player.PlayerExp      = 0;
         player.ExpToNextLevel = 9999;
 

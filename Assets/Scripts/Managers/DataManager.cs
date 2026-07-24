@@ -34,11 +34,30 @@ public class DataManager : MonoBehaviour
     public UnitsSO[] allUnits;
     public SkillsSO[] allSkills;
     public EnemiesSO[] allEnemies;
+    public CharacterSO[] allCharacters;
+    // Fallback when a run has no recorded character (pre-v7 save) and the seed
+    // for NewGame until the select screen (spec Part B) replaces it.
+    public CharacterSO defaultCharacter;
 
     public ContentRegistry<CardsSO> Cards { get; private set; }
     public ContentRegistry<UnitsSO> Units { get; private set; }
     public ContentRegistry<SkillsSO> Skills { get; private set; }
     public ContentRegistry<EnemiesSO> Enemies { get; private set; }
+    public ContentRegistry<CharacterSO> Characters { get; private set; }
+
+    // THE single source of truth for which character this run is (spec A3).
+    // Resolved before LoadScene(1) in both NewGame and LoadGame, so every
+    // scene-1 Awake sees it — no initialization race.
+    //
+    // Falls back to defaultCharacter when unset so that opening GameBoard.unity
+    // DIRECTLY in the editor (bypassing the MainMenu scene, as you do constantly
+    // while working) still runs instead of null-referencing.
+    CharacterSO activeCharacter;
+    public CharacterSO ActiveCharacter
+    {
+        get => activeCharacter != null ? activeCharacter : defaultCharacter;
+        private set => activeCharacter = value;
+    }
 
     private void Awake()
     {
@@ -64,6 +83,7 @@ public class DataManager : MonoBehaviour
             Units = new ContentRegistry<UnitsSO>(allUnits, u => u.id);
             Skills = new ContentRegistry<SkillsSO>(allSkills, s => s.id);
             Enemies = new ContentRegistry<EnemiesSO>(allEnemies, e => e.id);
+            Characters = new ContentRegistry<CharacterSO>(allCharacters, c => c.Id);
             return true;
         }
         catch (System.Exception e)
@@ -130,6 +150,8 @@ public class DataManager : MonoBehaviour
         IsLoading = false;
         CurrentSeed = new System.Random().Next(int.MinValue, int.MaxValue);
         DefeatedEnemies = new HashSet<Cell>();
+        // Part B (the select screen) replaces exactly this line.
+        ActiveCharacter = defaultCharacter;
         SceneManager.LoadScene(1);
     }
 
@@ -150,6 +172,20 @@ public class DataManager : MonoBehaviour
 
         CurrentSeed = current.run.map.seed;
         DefeatedEnemies = new HashSet<Cell>(current.run.map.defeatedEnemies);
+
+        // An unresolvable id must not block a load: fall back to the default so
+        // the run still opens, and say so loudly.
+        ActiveCharacter = defaultCharacter;
+        if (!string.IsNullOrEmpty(current.run.characterId)
+            && Characters != null
+            && Characters.TryGet(current.run.characterId, out var loaded))
+        {
+            ActiveCharacter = loaded;
+        }
+        else if (!string.IsNullOrEmpty(current.run.characterId))
+        {
+            Debug.LogError($"Save names unknown character '{current.run.characterId}'; using default.");
+        }
 
         IsLoading = true;
         SceneManager.sceneLoaded += OnGameSceneLoaded;
@@ -215,7 +251,7 @@ public class DataManager : MonoBehaviour
 
         // Restore ExpToNextLevel first so Update() doesn't fire a spurious level-up.
         player.ExpToNextLevel  = run.player.expToNextLevel;
-        player.PlayerHP        = run.player.hp;
+        player.PlayerToughness = run.player.toughness;
         player.PlayerLevel     = run.player.level;
         player.PlayerExp       = run.player.exp;
         player.PlayerAttack    = run.player.attack;
@@ -264,10 +300,10 @@ public class DataManager : MonoBehaviour
         var crystals  = FindAnyObjectByType<CrystalInventory>();
         var game      = GameManager.Instance;
 
-        var file = new SaveFile { schemaVersion = 6 };
+        var file = new SaveFile { schemaVersion = 7 };
         var run  = file.run;
 
-        run.player.hp            = player.PlayerHP;
+        run.player.toughness     = player.PlayerToughness;
         run.player.level         = player.PlayerLevel;
         run.player.exp           = player.PlayerExp;
         run.player.expToNextLevel = player.ExpToNextLevel;
@@ -291,6 +327,7 @@ public class DataManager : MonoBehaviour
         run.player.ownedSkillIds     = SkillIds(player);
         run.player.exhaustedSkillIds = ExhaustedSkillIds();
 
+        run.characterId         = ActiveCharacter != null ? ActiveCharacter.Id : "";
         run.map.seed            = CurrentSeed;
         run.map.defeatedEnemies = MapDelta.ToArray(DefeatedEnemies);
         run.places = ConquestTracker.Instance.ExportPlaces();

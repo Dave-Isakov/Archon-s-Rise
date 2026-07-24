@@ -5,9 +5,9 @@ namespace ArchonsRise.SaveData
     [Serializable]
     public class SaveFile
     {
-        // v6: adds RunState.dungeons + the once-per-run doom-band flag bools
-        // (M2.9 map dungeons).
-        public int schemaVersion = 6;
+        // v7: adds RunState.characterId (which character this run is) and
+        // PlayerState.toughness (renamed from hp — a divisor, not a pool).
+        public int schemaVersion = 7;
         public RunState run = new RunState();
     }
 
@@ -15,6 +15,9 @@ namespace ArchonsRise.SaveData
     public class RunState
     {
         public PlayerState player = new PlayerState();
+        // Which CharacterSO this run belongs to (v7). Empty = pre-v7 save;
+        // DataManager resolves that to defaultCharacter.
+        public string characterId = "";
         // Aligned to EmpowerType enum declaration order; one count per color.
         public int[] crystalCounts = Array.Empty<int>();
         public string[] deckCardIds = Array.Empty<string>();     // order = draw order
@@ -47,6 +50,12 @@ namespace ArchonsRise.SaveData
     [Serializable]
     public class PlayerState
     {
+        // Toughness: the Defend-shortfall divisor (never a pool). Renamed from
+        // `hp` in v7.
+        public int toughness;
+        // VESTIGIAL — v6 files carry this JSON key and JsonUtility only parses
+        // fields that exist on the model. SaveMigrator copies it into
+        // `toughness`; nothing else reads or writes it. Do not delete.
         public int hp;
         public int level;
         public int exp;

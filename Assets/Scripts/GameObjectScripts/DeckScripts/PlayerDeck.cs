@@ -7,7 +7,6 @@ public class PlayerDeck : Deck<Card>
 {
     public List<CardsSO> deckList = new();
     List<Card> cardsInDeck = new();
-    [SerializeField] CharacterSO player;
     [SerializeField] TextMeshProUGUI deckCount;
     [SerializeField] GameObject cardPrefab;
     GameObject playerCard;
@@ -18,9 +17,11 @@ public class PlayerDeck : Deck<Card>
 
     void Awake()
     {
-        if (DataManager.Instance != null && DataManager.Instance.IsLoading) return; // deck rebuilt from save
+        // No DataManager means no character to build from (Awake order between
+        // the two is not guaranteed); RestoreNow/RebuildDeck is the other path in.
+        if (DataManager.Instance == null || DataManager.Instance.IsLoading) return; // deck rebuilt from save
 
-        foreach(var card in player.StartingDeck)
+        foreach(var card in DataManager.Instance.ActiveCharacter.StartingDeck)
         {
             deckList.Add(card);
         }

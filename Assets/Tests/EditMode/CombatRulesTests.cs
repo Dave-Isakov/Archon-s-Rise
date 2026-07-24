@@ -52,13 +52,13 @@ public class CombatRulesTests
     }
 
     [Test]
-    public void Normal_Wounds_Chunked_By_PlayerHP()
+    public void Normal_Wounds_Chunked_By_PlayerToughness()
     {
-        // shortfall 6, HP 3 -> 2 wounds (i=0,3)
+        // shortfall 6, toughness 3 -> 2 wounds (i=0,3)
         Assert.AreEqual(2, CombatRules.WoundCount(AttackKind.Normal, 0, 6, 3));
-        // shortfall 4, HP 3 -> 2 wounds (i=0,3)
+        // shortfall 4, toughness 3 -> 2 wounds (i=0,3)
         Assert.AreEqual(2, CombatRules.WoundCount(AttackKind.Normal, 0, 4, 3));
-        // shortfall 1, HP 5 -> 1 wound
+        // shortfall 1, toughness 5 -> 1 wound
         Assert.AreEqual(1, CombatRules.WoundCount(AttackKind.Normal, 0, 1, 5));
     }
 

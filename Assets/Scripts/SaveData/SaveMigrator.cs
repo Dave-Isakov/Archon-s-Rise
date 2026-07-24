@@ -33,8 +33,19 @@ namespace ArchonsRise.SaveData
             if (file.run.dungeons == null)
                 file.run.dungeons = Array.Empty<DungeonState>();
 
-            if (file.schemaVersion < 6)
-                file.schemaVersion = 6;
+            // v6 -> v7: characterId did not exist; empty means "pre-v7", which
+            // DataManager resolves to the default character.
+            if (file.run.characterId == null)
+                file.run.characterId = "";
+
+            // v6 -> v7: `hp` became `toughness`. Copy the legacy value across —
+            // without this a v6 save loads at toughness 0, which is both wrong
+            // and the CombatRules hang case.
+            if (file.run.player.toughness == 0 && file.run.player.hp > 0)
+                file.run.player.toughness = file.run.player.hp;
+
+            if (file.schemaVersion < 7)
+                file.schemaVersion = 7;
             return file;
         }
     }
