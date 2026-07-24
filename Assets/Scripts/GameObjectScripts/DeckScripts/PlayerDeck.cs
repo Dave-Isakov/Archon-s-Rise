@@ -7,7 +7,7 @@ public class PlayerDeck : Deck<Card>
 {
     public List<CardsSO> deckList = new();
     List<Card> cardsInDeck = new();
-    [SerializeField] PlayerSO player;
+    [SerializeField] CharacterSO player;
     [SerializeField] TextMeshProUGUI deckCount;
     [SerializeField] GameObject cardPrefab;
     GameObject playerCard;
@@ -20,7 +20,7 @@ public class PlayerDeck : Deck<Card>
     {
         if (DataManager.Instance != null && DataManager.Instance.IsLoading) return; // deck rebuilt from save
 
-        foreach(var card in player.StartingHand)
+        foreach(var card in player.StartingDeck)
         {
             deckList.Add(card);
         }

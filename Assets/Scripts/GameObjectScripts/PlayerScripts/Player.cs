@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField] PlayerSO player;
+    [SerializeField] CharacterSO player;
     [SerializeField] GameObject unitPrefab;
     [SerializeField] PlayerPosition playerPosition;
     private int playerAttack;
@@ -27,9 +27,9 @@ public class Player : MonoBehaviour
     [SerializeField] LevelRewardsSO levelRewards;
     [SerializeField] List<SkillsSO> skills = new();
     public int PlayerHP { get => playerHP; set => playerHP = value;}
-    // Derived, never stored: base size from PlayerSO plus every table bonus at
-    // or below the current level. Same derivation on load, so saves can't drift.
-    public int PlayerHandSize => LevelRules.DerivedHandSize(player.PlayerHandSize, playerLevel, levelRewards.Entries);
+    // Derived, never stored: base size from CharacterSO plus every table bonus
+    // at or below the current level. Same derivation on load, so saves can't drift.
+    public int PlayerHandSize => LevelRules.DerivedHandSize(player.HandSize, playerLevel, levelRewards.Entries);
     public int PlayerAttack { get => playerAttack; set => playerAttack = value; }
     public int PlayerDefend { get => playerDefend; set => playerDefend = value;}
     public int PlayerInfluence { get => playerInfluence; set => playerInfluence = value;}
