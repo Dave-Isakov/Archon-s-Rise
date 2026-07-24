@@ -81,6 +81,14 @@ public class CombatController : MonoBehaviour
         }
     }
 
+    // Lights every live enemy's Siege/Influence buttons (spec 2026-07-24 phase
+    // controls). Driven by the advance-button controller off the staged pools;
+    // keeps the live set encapsulated.
+    public void SetEnemyActionGlow(bool siegeLit, bool influenceLit)
+    {
+        foreach (var c in live) if (c != null) c.SetActionGlow(siegeLit, influenceLit);
+    }
+
     public struct EnemySpawn
     {
         public EnemiesSO so; public int bonusHP; public int bonusAttack;
