@@ -15,6 +15,11 @@ public class CombatController : MonoBehaviour
     [SerializeField] TMPro.TextMeshProUGUI multiButtonLabel;
     [SerializeField] VoidEvent onCombatPhaseChanged; // HUD phase label listens
 
+    [Header("Enemy arc layout (spec 2026-07-24)")]
+    [SerializeField] float arcRadius = 320f;    // px from the screen-centre player
+    [SerializeField] float arcDegrees = 120f;   // total fan spread
+    [SerializeField] float baseCardScale = 1.75f; // preserves the pre-arc card size
+
     public CombatPhase Phase { get; private set; }
     public bool CanSiege        => CombatPhaseRules.CanSiege(Phase);
     public bool CanInfluence    => CombatPhaseRules.CanInfluence(Phase);
@@ -74,14 +79,14 @@ public class CombatController : MonoBehaviour
         foreach (var s in spawns)
         {
             var go = Instantiate(prefab, parent);
-            go.transform.localPosition = Vector3.zero;
-            go.transform.localScale = new Vector3(1.75f, 1.75f, 1f);
             var card = go.GetComponent<EnemyCard>();
             card.enemySO = s.so;
             card.bonusHP = s.bonusHP;
             card.bonusAttack = s.bonusAttack;
             live.Add(card);
         }
+
+        LayoutLive();
 
         GameManager.Instance.combatCanvas.enabled = true;
         if (multiButton != null) multiButton.gameObject.SetActive(true); // the multi-purpose (ex-Flee) button
@@ -94,6 +99,25 @@ public class CombatController : MonoBehaviour
         foreach (var card in live) card.ApplyPhase(phase);
         if (multiButtonLabel != null) multiButtonLabel.text = CombatPhaseRules.ButtonLabel(phase);
         if (onCombatPhaseChanged != null) onCombatPhaseChanged.Raise();
+    }
+
+    // Positions the live set in an even arc around the screen-centre player
+    // (spec 2026-07-24). Called on spawn and after any mid-fight removal so gaps
+    // close. Presentation only.
+    void LayoutLive()
+    {
+        int n = live.Count;
+        for (int i = 0; i < n; i++)
+            ApplySlot(live[i], CombatLayoutRules.SlotFor(i, n, arcRadius, arcDegrees));
+    }
+
+    void ApplySlot(EnemyCard card, CombatLayoutRules.Slot slot)
+    {
+        var rt = (RectTransform)card.transform;
+        rt.anchoredPosition = new Vector2(slot.X, slot.Y);
+        float s = baseCardScale * slot.Scale;
+        rt.localScale = new Vector3(s, s, 1f);
+        rt.localRotation = Quaternion.Euler(0f, 0f, slot.TiltDeg);
     }
 
     // Engage (Siege -> Defend, spec 2026-07-22): commit the Siege-phase removals
@@ -144,6 +168,8 @@ public class CombatController : MonoBehaviour
     public void NotifyDefeated(EnemyCard card, bool wasInfluence)
     {
         if (!live.Remove(card)) return;
+
+        LayoutLive(); // close the gap the removed card left
 
         // Attack/Siege kills swing; Influence removals are the fade-and-drift
         // track and play no attack animation (spec D4).
