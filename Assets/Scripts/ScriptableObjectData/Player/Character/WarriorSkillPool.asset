@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ec387ef9b442d74584524ca7cde7fc0, type: 3}
+  m_Name: WarriorSkillPool
+  m_EditorClassIdentifier: Assembly-CSharp::SkillPoolSO
+  skills:
+  - {fileID: 11400000, guid: 0b69646ee78111740acd73bfe213b808, type: 2}
+  - {fileID: 11400000, guid: f55e716aaaf339f49b0dae6d22408fd3, type: 2}
+  - {fileID: 11400000, guid: a230376f3091d9b4ea0fc865b3c29dad, type: 2}
+  - {fileID: 11400000, guid: 685994ae9ea51504490ea4ee827c454b, type: 2}
+  - {fileID: 11400000, guid: bbeecc9efeee5d942b70986be229bc60, type: 2}
+  - {fileID: 11400000, guid: 4d821699280727b428054bb4e51b487e, type: 2}
+  - {fileID: 11400000, guid: 4f74fbb4095856f4bb5cd3eea2d3c09a, type: 2}
+  - {fileID: 11400000, guid: 756d86e73b4780e41b6dd38816dfd7df, type: 2}
+  - {fileID: 11400000, guid: 7adef2dd6cc00b64e9f72a0eac22a939, type: 2}
+  - {fileID: 11400000, guid: 70934f8d70ab08542ab694bbd56b5d83, type: 2}
+  - {fileID: 11400000, guid: f54287a1c3d0e6e44bc4a5be511e1c06, type: 2}
+  - {fileID: 11400000, guid: d8dd923b9068134438a9cc7e9186972e, type: 2}

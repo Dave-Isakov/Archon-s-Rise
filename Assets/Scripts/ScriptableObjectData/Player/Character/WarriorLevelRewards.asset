@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5cd9764d6afded641a06422f13d70bac, type: 3}
-  m_Name: LevelRewards
+  m_Name: WarriorLevelRewards
   m_EditorClassIdentifier: Assembly-CSharp::LevelRewardsSO
   skillPool:
   - {fileID: 11400000, guid: a230376f3091d9b4ea0fc865b3c29dad, type: 2}

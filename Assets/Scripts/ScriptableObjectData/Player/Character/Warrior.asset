@@ -10,11 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e81f279c6c54fd442b20939fb0ec5570, type: 3}
-  m_Name: Player1
+  m_Name: Warrior
   m_EditorClassIdentifier: 
-  playerName: Dave
-  playerHandSize: 5
-  startingHand:
+  id: warrior
+  characterName: Warrior
+  startingToughness: 2
+  handSize: 5
+  improvAttack: 1
+  improvDefend: 1
+  improvExplore: 1
+  improvInfluence: 1
+  startingDeck:
   - {fileID: 11400000, guid: 85b6e17878e9f7341b3f38a935382b7a, type: 2}
   - {fileID: 11400000, guid: 85b6e17878e9f7341b3f38a935382b7a, type: 2}
   - {fileID: 11400000, guid: 85b6e17878e9f7341b3f38a935382b7a, type: 2}
@@ -30,3 +36,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: abde18bcea62c94438fe53fddbc97f57, type: 2}
   - {fileID: 11400000, guid: b12ead6b89a9d744598192c3828d2900, type: 2}
   - {fileID: 11400000, guid: 291db57f64c66dc4db48aa611a5b0326, type: 2}
+  levelTable: {fileID: 11400000, guid: 73e956ec0b8bb34458b83d983e595dde, type: 2}
+  skillPool: {fileID: 11400000, guid: e9f84ad197a53074390d7d07a7fd229c, type: 2}
+  animatorController: {fileID: 0}

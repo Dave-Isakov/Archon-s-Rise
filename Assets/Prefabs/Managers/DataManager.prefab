@@ -48,6 +48,7 @@ MonoBehaviour:
     schemaVersion: 1
     run:
       player:
+        toughness: 0
         hp: 0
         level: 0
         exp: 0
@@ -62,6 +63,7 @@ MonoBehaviour:
         - 0
         - 0
         - 0
+      characterId: 
       crystalCounts: 
       deckCardIds: []
       handCardIds: []
@@ -151,3 +153,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9a49473bd8ef61f44a3854c22571506b, type: 2}
   - {fileID: 11400000, guid: 5e1e6b87496053548b95c311db7fc5da, type: 2}
   - {fileID: 11400000, guid: f399ee2a44cbc454fa93885e7fa7511b, type: 2}
+  allCharacters: []
+  defaultCharacter: {fileID: 0}
