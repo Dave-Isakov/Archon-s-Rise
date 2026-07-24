@@ -20,6 +20,8 @@ public class EnemyCardDefeatFx : MonoBehaviour
     [SerializeField] float fadeDuration = 0.35f;
     [SerializeField] float fadeRise = 20f;         // px upward drift
 
+    [SerializeField] EnemyCardIdleSway idleSway; // halted before the defeat FX plays
+
     static readonly int DissolveId = Shader.PropertyToID("_DissolveAmount");
     CanvasGroup group;
     Material dissolveMat;
@@ -32,8 +34,16 @@ public class EnemyCardDefeatFx : MonoBehaviour
             dissolveMat = dissolveImage.material = new Material(dissolveImage.material);
     }
 
-    public void PlayDestroy(System.Action onComplete) => StartCoroutine(DestroyRoutine(onComplete));
-    public void PlayFade(System.Action onComplete)    => StartCoroutine(FadeRoutine(onComplete));
+    public void PlayDestroy(System.Action onComplete)
+    {
+        if (idleSway != null) idleSway.Stop();
+        StartCoroutine(DestroyRoutine(onComplete));
+    }
+    public void PlayFade(System.Action onComplete)
+    {
+        if (idleSway != null) idleSway.Stop();
+        StartCoroutine(FadeRoutine(onComplete));
+    }
 
     IEnumerator DestroyRoutine(System.Action onComplete)
     {
