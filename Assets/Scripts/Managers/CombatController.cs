@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -284,8 +285,40 @@ public class CombatController : MonoBehaviour
         Phase = CombatPhase.Resolved;
         resolving = false;
 
-        // A flee leaves survivors in the logical set — destroy their cards now so
-        // the next fight starts clean (killed cards are already self-destroying).
+        // A flee leaves survivors: morph them back to the board first, then finish.
+        // (A cleared fight reaches EndFight from the last kill's FX with live empty.)
+        if (paidFlee && live.Count > 0)
+        {
+            StartCoroutine(MorphSurvivorsBackThenFinish());
+            return;
+        }
+        FinishEnd(paidFlee);
+    }
+
+    IEnumerator MorphSurvivorsBackThenFinish()
+    {
+        Vector2 toLocal = OriginLocalPoint(OriginWorld());
+        var survivors = new List<EnemyCard>(live);
+        int pending = 0;
+        foreach (var card in survivors)
+            if (card != null && card.GetComponent<EnemyCardMorph>() != null) pending++;
+
+        foreach (var card in survivors)
+        {
+            if (card == null) continue;
+            var morph = card.GetComponent<EnemyCardMorph>();
+            if (morph != null) morph.MorphBack(toLocal, () => pending--);
+        }
+        if (pending > 0) yield return new WaitUntil(() => pending <= 0);
+
+        if (context == CombatContext.Field && fieldToken != null)
+            fieldToken.SetBoardVisible(true);
+        FinishEnd(paidFlee: true);
+    }
+
+    void FinishEnd(bool paidFlee)
+    {
+        // Destroy any remaining cards (fled survivors; killed cards self-destruct).
         foreach (var card in live)
             if (card != null) Destroy(card.gameObject);
         live.Clear();
