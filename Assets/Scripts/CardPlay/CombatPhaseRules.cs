@@ -9,17 +9,6 @@ public static class CombatPhaseRules
     // Normal attacks land only after the counterattack (Attack phase).
     public static bool CanNormalAttack(CombatPhase phase) => phase == CombatPhase.Attack;
 
-    // The single multi-purpose button's caption per phase. Retired with the
-    // multiButton in the phase-controls rework (spec 2026-07-24) — kept until
-    // CombatController stops calling it.
-    public static string ButtonLabel(CombatPhase phase)
-    {
-        if (phase == CombatPhase.Siege)  return "Engage";
-        if (phase == CombatPhase.Defend) return "Defend";
-        if (phase == CombatPhase.Attack) return "Withdraw";
-        return "";
-    }
-
     // The advance button's display state, as pure data so the MonoBehaviour only
     // renders (spec 2026-07-24 phase controls). Siege hides the button while the
     // player has staged siege that can actually kill something (they should spend

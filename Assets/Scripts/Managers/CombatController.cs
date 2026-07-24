@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public enum CombatContext { Field, Guardian, Dungeon }
 
@@ -12,8 +11,6 @@ public class CombatController : MonoBehaviour
 {
     public static CombatController Instance { get; private set; }
 
-    [SerializeField] Button multiButton;            // the repurposed Flee button
-    [SerializeField] TMPro.TextMeshProUGUI multiButtonLabel;
     [SerializeField] VoidEvent onCombatPhaseChanged; // HUD phase label listens
 
     [Header("Enemy arc layout (spec 2026-07-24)")]
@@ -138,15 +135,13 @@ public class CombatController : MonoBehaviour
             fieldToken.SetBoardVisible(false);
 
         GameManager.Instance.combatCanvas.enabled = true;
-        if (multiButton != null) multiButton.gameObject.SetActive(true); // the multi-purpose (ex-Flee) button
-        SetPhase(CombatPhase.Siege);
+        SetPhase(CombatPhase.Siege); // CombatButtons (spec 2026-07-24) owns the phase controls now
     }
 
     void SetPhase(CombatPhase phase)
     {
         Phase = phase;
         foreach (var card in live) card.ApplyPhase(phase);
-        if (multiButtonLabel != null) multiButtonLabel.text = CombatPhaseRules.ButtonLabel(phase);
         if (onCombatPhaseChanged != null) onCombatPhaseChanged.Raise();
     }
 
@@ -307,14 +302,6 @@ public class CombatController : MonoBehaviour
             : "You flee the battle and suffer a wound!");
 
         EndFight(paidFlee: true);
-    }
-
-    // The one button's click, dispatched by current phase.
-    public void OnMultiButton()
-    {
-        if (Phase == CombatPhase.Siege) Engage();
-        else if (Phase == CombatPhase.Defend) ResolveDefend();
-        else if (Phase == CombatPhase.Attack) Withdraw();
     }
 
     // Fight-end payout + close. Every captured reward is paid through the queue in

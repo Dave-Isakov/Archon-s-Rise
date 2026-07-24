@@ -22,13 +22,4 @@ public class CombatPhaseRulesTests
         Assert.IsTrue(CombatPhaseRules.CanNormalAttack(CombatPhase.Attack));
         Assert.IsFalse(CombatPhaseRules.CanNormalAttack(CombatPhase.Resolved));
     }
-
-    [Test]
-    public void Button_Label_Tracks_Phase()
-    {
-        Assert.AreEqual("Engage", CombatPhaseRules.ButtonLabel(CombatPhase.Siege));
-        Assert.AreEqual("Defend", CombatPhaseRules.ButtonLabel(CombatPhase.Defend));
-        Assert.AreEqual("Withdraw", CombatPhaseRules.ButtonLabel(CombatPhase.Attack));
-        Assert.AreEqual("", CombatPhaseRules.ButtonLabel(CombatPhase.Resolved));
-    }
 }
