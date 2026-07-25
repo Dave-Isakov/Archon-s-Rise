@@ -243,6 +243,10 @@ public class DataManager : MonoBehaviour
         // coroutine waits a frame), so saved progress lands on live entries.
         DungeonTracker.Instance.ApplySave(run.dungeons, run.dungeonMidFlagsFired, run.dungeonHighFlagsFired);
 
+        // Hotspot tokens register their charges during their Start (the restore
+        // coroutine waits a frame), so saved charge state lands on live entries.
+        HotspotTracker.Instance.ApplySave(run.hotspots);
+
         // Re-clear fog at the cells the player had already revealed.
         var dir = FindAnyObjectByType<ExplorationController>();
         if (dir != null && dir.Fog != null)
@@ -335,6 +339,7 @@ public class DataManager : MonoBehaviour
         run.dungeons = DungeonTracker.Instance.Export();
         run.dungeonMidFlagsFired  = DungeonTracker.Instance.MidFired;
         run.dungeonHighFlagsFired = DungeonTracker.Instance.HighFired;
+        run.hotspots = HotspotTracker.Instance.Export();
 
         var dir = FindAnyObjectByType<ExplorationController>();
         if (dir != null && dir.Fog != null)
