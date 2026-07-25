@@ -14,6 +14,9 @@ public class CrystalHotspotToken : MonoBehaviour, IHexOccupant
     [SerializeField] SpriteRenderer crystalSprite; // tinted to hotspotSO.color
 
     public Vector3Int Cell => gridPos;
+    // Passive: the player parks ON this tile to harvest, so it must never block
+    // HexInteractor's move-dispatch (unlike place-like towns/dungeons).
+    public bool BlocksMove => false;
 
     void Start()
     {
