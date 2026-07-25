@@ -1,10 +1,11 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using ArchonsRise.HexTooltipInfo;
 
 // Map-side dungeon identity (M2.9): assigned SO + grid cell, visual state
 // (flagged / cleared markers), and the stand-on-cell entry rule (TownToken
 // pattern — dungeons are place-like, adjacency is not enough).
-public class DungeonToken : MonoBehaviour, IPointerClickHandler
+public class DungeonToken : MonoBehaviour, IPointerClickHandler, IHexOccupant
 {
     public DungeonsSO dungeonSO;
     // Stable identity over the seeded map; assigned by GridGeneration at spawn.
@@ -19,8 +20,25 @@ public class DungeonToken : MonoBehaviour, IPointerClickHandler
         player = FindAnyObjectByType<PlayerPosition>();
         gameboard = FindAnyObjectByType<Grid>();
         DungeonTracker.Instance.Register(gridPos, dungeonSO.id);
+        HexOccupantRegistry.Instance.Register(this);
         RefreshVisual();
     }
+
+    void OnDestroy()
+    {
+        if (HexOccupantRegistry.Instance != null) HexOccupantRegistry.Instance.Unregister(this);
+    }
+
+    // IHexOccupant: dungeons describe their delve progress and block move-dispatch
+    // (they are entered by standing on the cell, not walked through).
+    public Vector3Int Cell => gridPos;
+    public bool BlocksMove => true;
+
+    public HexDescriptor Describe()
+        => new HexDescriptor(
+            TileDescriptor.Dungeon(dungeonSO.cardName,
+                DungeonTracker.Instance.DefeatedCount(gridPos), DungeonRules.DelveCount),
+            TileDescriptor.PlacePriority);
 
     public void OnPointerClick(PointerEventData eventData)
     {

@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using ArchonsRise.HexTooltipInfo;
 
-public class TownToken : MonoBehaviour, IPointerClickHandler
+public class TownToken : MonoBehaviour, IPointerClickHandler, IHexOccupant
 {
     public TownsSO townSO;
     // Stable identity over the seeded map; assigned by GridGeneration at spawn.
@@ -19,6 +20,33 @@ public class TownToken : MonoBehaviour, IPointerClickHandler
         player = FindAnyObjectByType<PlayerPosition>();
         gameboard = FindAnyObjectByType<Grid>();
         ConquestTracker.Instance.Register(gridPos, townSO.placeType, townSO.guardians.Count);
+        HexOccupantRegistry.Instance.Register(this);
+    }
+
+    void OnDestroy()
+    {
+        if (HexOccupantRegistry.Instance != null) HexOccupantRegistry.Instance.Unregister(this);
+    }
+
+    // IHexOccupant: towns/keeps/castles describe their type + name + conquest
+    // state, and block move-dispatch (entered by standing on the cell).
+    public Vector3Int Cell => gridPos;
+    public bool BlocksMove => true;
+
+    public HexDescriptor Describe()
+        => new HexDescriptor(
+            TileDescriptor.Town(townSO.cardName, PlaceTypeIcon(townSO.placeType),
+                ConquestTracker.Instance.IsConquered(gridPos)),
+            TileDescriptor.PlacePriority);
+
+    private static IconConcept PlaceTypeIcon(PlaceType type)
+    {
+        switch (type)
+        {
+            case PlaceType.Keep:   return IconConcept.Keep;
+            case PlaceType.Castle: return IconConcept.Castle;
+            default:               return IconConcept.Town;
+        }
     }
 
     public void OnPointerClick(PointerEventData eventData)

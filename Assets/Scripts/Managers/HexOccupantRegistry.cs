@@ -40,6 +40,16 @@ public class HexOccupantRegistry : MonoBehaviour
     public bool Occupied(Vector3Int cell)
         => byCell.TryGetValue(cell, out var list) && list.Count > 0;
 
+    // Move-blocking occupancy: true only when some occupant here is place-like
+    // (towns/dungeons). A passive tile (crystal hotspot) never blocks movement.
+    public bool Blocks(Vector3Int cell)
+    {
+        if (!byCell.TryGetValue(cell, out var list)) return false;
+        foreach (var occ in list)
+            if (occ.BlocksMove) return true;
+        return false;
+    }
+
     public bool Best(Vector3Int cell, out HexDescriptor best)
     {
         best = HexDescriptor.None;

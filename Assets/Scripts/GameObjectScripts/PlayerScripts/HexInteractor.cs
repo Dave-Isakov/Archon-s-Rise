@@ -131,6 +131,20 @@ public partial class HexInteractor : MonoBehaviour
     string TooltipText(Vector3Int cell, HexAction verdict)
     {
         string exp = IconMarkup.Tag(IconConcept.Explore);
+        string moveLine = MoveLine(cell, verdict, exp);
+        string occupantLine = null;
+        if (HexOccupantRegistry.Instance.Best(cell, out var d)) occupantLine = d.Line;
+
+        if (string.IsNullOrEmpty(occupantLine)) return moveLine;
+        if (string.IsNullOrEmpty(moveLine)) return occupantLine;
+        return occupantLine + "\n" + moveLine;
+    }
+
+    // The move/scout/teleport verdict line (unchanged behavior); may be null for
+    // the enemy/none/off-map cases. Split out so the occupant line (via the
+    // registry) can be prepended without touching the movement logic.
+    string MoveLine(Vector3Int cell, HexAction verdict, string exp)
+    {
         switch (verdict.Kind)
         {
             case HexActionKind.Move:
@@ -169,15 +183,14 @@ public partial class HexInteractor : MonoBehaviour
         painted.Clear();
     }
 
-    // A town or dungeon token stands on this cell (visible). These handle their own
-    // clicks (Task 4), so HexInteractor never dispatches Move onto them.
+    // A move-blocking occupant (town or dungeon) stands on this cell (visible).
+    // These handle their own clicks, so HexInteractor never dispatches Move onto
+    // them. Passive occupants (crystal hotspots) do NOT block — the player parks
+    // on them to harvest — so this routes through the registry's BlocksMove
+    // filter, not raw occupancy.
     protected bool PlaceOccupies(Vector3Int cell)
     {
         if (MapFog.IsHidden(cell)) return false;
-        foreach (var t in FindObjectsByType<TownToken>())
-            if (t.gridPos == cell) return true;
-        foreach (var d in FindObjectsByType<DungeonToken>())
-            if (d.gridPos == cell) return true;
-        return false;
+        return HexOccupantRegistry.Instance.Blocks(cell);
     }
 }
