@@ -7,7 +7,8 @@ namespace ArchonsRise.SaveData
     {
         // v7: adds RunState.characterId (which character this run is) and
         // PlayerState.toughness (renamed from hp — a divisor, not a pool).
-        public int schemaVersion = 7;
+        // v8: adds RunState.hotspots (crystal-hotspot charge state).
+        public int schemaVersion = 8;
         public RunState run = new RunState();
     }
 

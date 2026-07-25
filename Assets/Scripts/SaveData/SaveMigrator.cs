@@ -44,8 +44,13 @@ namespace ArchonsRise.SaveData
             if (file.run.player.toughness == 0 && file.run.player.hp > 0)
                 file.run.player.toughness = file.run.player.hp;
 
-            if (file.schemaVersion < 7)
-                file.schemaVersion = 7;
+            // v7 -> v8: hotspots array did not exist; absent means no hotspots
+            // harvested (fresh, full-charge tiles re-derive from the map seed).
+            if (file.run.hotspots == null)
+                file.run.hotspots = Array.Empty<HotspotState>();
+
+            if (file.schemaVersion < 8)
+                file.schemaVersion = 8;
             return file;
         }
     }
