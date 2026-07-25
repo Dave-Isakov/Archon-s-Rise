@@ -527,3 +527,15 @@ tooltip (highest-priority `Describe`) and its move-block check (`BlocksMove` fil
 walkable) through the registry. **A new tile type integrates with zero `HexInteractor` edits.** Save
 bumped to **v8** (`RunState.hotspots`, only drawn-down/depleted tiles saved; fresh tiles re-derive from
 the map seed). **Plan 2 (Shrines)** builds directly on this `IHexOccupant` / `TileDescriptor` foundation.
+
+## 2026-07-25 — Crystal hotspot movement cost: flat, static (mine-like)
+
+**Decision:** A crystal hotspot's entry cost is a **static `exploreCost` = 3** authored on the
+`CrystalHotspotRuleTile` asset — it does **not** inherit the terrain it spawns on. Placement overwrites
+the underlying ground tile (same as dungeons/towns), so the cell's cost is simply the hotspot tile's own.
+
+**Why:** picked over (B) terrain-inherited cost and (C) per-color terrain themes. A hotspot reads as a
+"mine": a flat, moderately expensive tile you invest explore into for a repeatable crystal payout. That
+delivers the "harder-to-reach = farm reward" feel without the extra machinery of preserving the
+underlying terrain, spawning on the separate mountains/water tilemaps, or terrain-aware placement — which
+can come later if flat cost proves too samey in playtest.

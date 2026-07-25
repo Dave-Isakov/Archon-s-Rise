@@ -207,7 +207,10 @@ for the starting bands.
 A crystal hotspot is a passive map tile. Standing on it at **End Turn** grants **1 crystal** of its
 `color` and spends a charge — it is **free** (never the turn's Action) and shows **no popup / no
 `RewardQueue`**; the HUD crystal count and the token's pip/dormant state are the only feedback
-(memory `map-feedback-tooltip-and-log`). Charge math is the pure `HotspotRules`; per-run state is the
+(memory `map-feedback-tooltip-and-log`). The `CrystalHotspotRuleTile` asset carries a **static
+`exploreCost` = 3** (mine-like): placement overwrites the underlying ground tile, so the entry cost is
+the hotspot tile's own cost, **not** the terrain it landed on — a deliberate flat "expensive to reach,
+farm the crystals" trade rather than terrain-scaled cost. Charge math is the pure `HotspotRules`; per-run state is the
 `Cell`-keyed `HotspotLedger` wrapped by the scene `HotspotTracker`; only drawn-down/depleted tiles
 are saved (`RunState.hotspots`, schema **v8**), fresh tiles re-derive from the map seed.
 
