@@ -17,11 +17,8 @@ MonoBehaviour:
   cardDescription: A band of sellswords who fight for coin - and can be bought.
   enemyHP: 4
   enemyAttack: 3
-  reward: 0
-  defeatRewards:
-  - {fileID: 11400000, guid: 879d999e9521d88449f93825314e7ac6, type: 2}
-  - {fileID: 11400000, guid: a974a541928f88f468e9ab70e6e1277c, type: 2}
   canInfluence: 1
   influenceCost: 4
   recruitedUnit: {fileID: 11400000, guid: 01a9990fd166e094d9b6d2ed4cbe52c7, type: 2}
   tier: 1
+  cardArt: {fileID: 1615815758522029734, guid: 1dc8676f4320a4631b5ec103b34a56d9, type: 3}

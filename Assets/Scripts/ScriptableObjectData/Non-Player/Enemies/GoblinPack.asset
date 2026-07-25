@@ -17,11 +17,8 @@ MonoBehaviour:
   cardDescription: A group of goblins looking to ruin your day.
   enemyHP: 5
   enemyAttack: 2
-  reward: 0
-  defeatRewards:
-  - {fileID: 11400000, guid: 5846e3a981fe150408c223103523ecad, type: 2}
-  - {fileID: 11400000, guid: 879d999e9521d88449f93825314e7ac6, type: 2}
-  - {fileID: 11400000, guid: a974a541928f88f468e9ab70e6e1277c, type: 2}
   canInfluence: 0
   influenceCost: 0
+  recruitedUnit: {fileID: 0}
   tier: 1
+  cardArt: {fileID: 1435813858662126931, guid: f14d034ef5d7140fd97bc02541c6db83, type: 3}
