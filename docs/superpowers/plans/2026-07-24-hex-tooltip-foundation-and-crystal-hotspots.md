@@ -513,7 +513,7 @@ Create `Assets/Scripts/HexTooltip/ArchonsRise.HexTooltipInfo.asmdef`:
 {
     "name": "ArchonsRise.HexTooltipInfo",
     "rootNamespace": "",
-    "references": ["ArchonsRise.UiLanguage", "ArchonsRise.SaveData"],
+    "references": ["ArchonsRise.UiLanguage", "ArchonsRise.Enums", "ArchonsRise.SaveData"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -984,9 +984,9 @@ git commit -m "feat: CrystalHotspotRuleTile + CrystalHotspotToken (passive, IHex
 - Modify: `Assets/Scripts/Managers/TurnPhaseController.cs`
 
 **Interfaces:**
-- Consumes: `HotspotTracker` (Task 6), the crystal-grant seam `crystals.CreateCrystal(EmpowerType)` (used by `Rewards`), `PlayerPosition`, the board `Grid`.
+- Consumes: `HotspotTracker` (Task 6), the crystal-grant seam `CrystalInventory.CreateCrystal(EmpowerType)` (used by `Rewards`), `PlayerPosition`, the board `Grid`.
 
-> The crystal is granted via the same seam `Rewards` uses: a `Crystals` component method `CreateCrystal(EmpowerType)`. Confirm the exact reference by opening `Rewards.cs` (it calls `crystals.CreateCrystal(color)`); reach the same `Crystals` instance from `TurnPhaseController` (e.g. `FindAnyObjectByType<Crystals>()`, cached in `Awake`).
+> The crystal is granted via the same seam `Rewards` uses: the `CrystalInventory` component's `CreateCrystal(EmpowerType)` (`Rewards.cs` holds a `CrystalInventory crystals;` field and calls `crystals.CreateCrystal(color)`). Reach the same instance from `TurnPhaseController` via `FindAnyObjectByType<CrystalInventory>()`, cached in `Awake`.
 
 - [ ] **Step 1: Add a private harvest helper**
 
@@ -1006,7 +1006,7 @@ In `Assets/Scripts/Managers/TurnPhaseController.cs`, add (cache `Grid`/`PlayerPo
         if (!HotspotTracker.Instance.CanHarvest(cell)) return;
 
         var color = HotspotTracker.Instance.ColorAt(cell);
-        FindAnyObjectByType<Crystals>().CreateCrystal(color);
+        FindAnyObjectByType<CrystalInventory>().CreateCrystal(color);
         HotspotTracker.Instance.Harvest(cell);
         HotspotTracker.Instance.RefreshTokenVisuals();
     }
