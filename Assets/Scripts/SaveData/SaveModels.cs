@@ -45,6 +45,10 @@ namespace ArchonsRise.SaveData
         // doom relief drops the clock back below a band edge.
         public bool dungeonMidFlagsFired;
         public bool dungeonHighFlagsFired;
+        // One entry per hotspot with charges consumed (or a depleted finite
+        // tile); positions and SO assignment re-derive from the map seed,
+        // hotspotId is a content sanity check on restore (v8).
+        public HotspotState[] hotspots = Array.Empty<HotspotState>();
     }
 
     [Serializable]
@@ -118,5 +122,14 @@ namespace ArchonsRise.SaveData
         public string dungeonId;
         public int defeatedCount;
         public bool flagged;
+    }
+
+    [Serializable]
+    public struct HotspotState
+    {
+        public int x;
+        public int y;
+        public string hotspotId;
+        public int remainingCharges; // -1 = unlimited (never persisted as depleted)
     }
 }
