@@ -1,0 +1,14 @@
+{
+    "name": "ArchonsRise.HexTooltipInfo",
+    "rootNamespace": "",
+    "references": ["ArchonsRise.UiLanguage", "ArchonsRise.Enums", "ArchonsRise.SaveData"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

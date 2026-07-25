@@ -11,6 +11,7 @@
         "ArchonsRise.Doom",
         "ArchonsRise.Enums",
         "ArchonsRise.Hand",
+        "ArchonsRise.HexTooltipInfo",
         "ArchonsRise.Hotspots",
         "ArchonsRise.Leveling",
         "ArchonsRise.Places",
