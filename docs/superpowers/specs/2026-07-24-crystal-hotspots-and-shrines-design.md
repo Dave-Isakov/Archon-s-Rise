@@ -23,7 +23,8 @@ Two new stand-on-cell hex tile types, plus a shared, extensible tile-tooltip upg
   `IHexOccupant` interface every token implements, so future tile types integrate for free.
 
 Build approach: **mirror the shipped Dungeon subsystem** (RuleTile + map Token + Tracker/ledger +
-content SO + pure rule class), one save-schema bump (v7) covering both tiles. Chosen over a minimal
+content SO + pure rule class), one save-schema bump (**v8** — the current schema is already v7)
+covering both tiles. Chosen over a minimal
 Place-taxonomy reuse (bends the conquer-to-win Place model) and a single unified special-tile class
 (fuses a passive trigger and an interactive menu into one class that would grow tangled).
 
@@ -192,12 +193,15 @@ keeps the special case to a single branch on an existing seam, not a parallel co
 
 ## Section 4 — Save, placement, testing
 
-### Save schema bump (v7)
-- `hotspots[]` — `{ cell, id, remainingCharges }` (via `HotspotTracker.Export` / `ApplySave`, the
-  `DungeonState` pattern; `-1` persists as unlimited).
-- `shrines[]` — `{ cell, id, state }` where `state ∈ { Live, ConsumedDormant, Guarding }`.
-- The summoned guardian already saves via the mid-run-spawn mechanism; **add** its `PendingShrineReward`
-  to the mid-run spawn record so a bad-roll guardian and its owed reward survive quit/resume.
+### Save schema bump (v8 — current schema is already v7)
+- `hotspots[]` — `HotspotState { x, y, hotspotId, remainingCharges }` (via `HotspotTracker.Export` /
+  `ApplySave`, the `DungeonState` pattern; `-1` persists as unlimited).
+- `shrines[]` — `ShrineState { x, y, shrineId, state }` where `state ∈ { Live, ConsumedDormant,
+  Guarding }` (serialized as an int).
+- The summoned guardian already saves via the mid-run-spawn mechanism (`SpawnedEnemy`); **extend**
+  `SpawnedEnemy` with `shrineRewardType` (int; `-1` = a normal spawn, no pending reward) and
+  `shrineCellX`/`shrineCellY` so a bad-roll guardian and its owed reward survive quit/resume. Existing
+  v7 spawns migrate with `shrineRewardType = -1`.
 - Restore validates cell/id against the regenerated map (the `DungeonTracker.ApplySave` warn-and-skip
   pattern).
 
