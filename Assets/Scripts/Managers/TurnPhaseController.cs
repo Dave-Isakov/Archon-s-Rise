@@ -66,6 +66,7 @@ public class TurnPhaseController : MonoBehaviour
         GameManager.Instance.commands.ClearStack();
 
         bool deckCanRefill = RoundRules.DeckCanRefill(CurrentDrawVerdict());
+        HarvestHotspotIfParked();
         endTheTurn.Raise(); // pools reset, hand top-up, TurnPlus (existing chain)
 
         int next = RoundRules.NextTurnsRemaining(TurnsRemaining);
@@ -81,6 +82,24 @@ public class TurnPhaseController : MonoBehaviour
             onTurnsRemainingChanged.Raise(TurnsRemaining);
             BeginTurn();
         }
+    }
+
+    // Free passive (spec 2026-07-24): if the player ends a turn parked on a live
+    // crystal hotspot, grant 1 crystal of its color and spend a charge. No modal
+    // and no RewardQueue — the HUD crystal count + the token pip are the feedback
+    // (memory map-feedback-tooltip-and-log).
+    private void HarvestHotspotIfParked()
+    {
+        var pp = FindAnyObjectByType<PlayerPosition>();
+        var grid = FindAnyObjectByType<Grid>();
+        if (pp == null || grid == null) return;
+        var cell = grid.LocalToCell(pp.transform.position);
+        if (!HotspotTracker.Instance.CanHarvest(cell)) return;
+
+        var color = HotspotTracker.Instance.ColorAt(cell);
+        FindAnyObjectByType<CrystalInventory>().CreateCrystal(color);
+        HotspotTracker.Instance.Harvest(cell);
+        HotspotTracker.Instance.RefreshTokenVisuals();
     }
 
     // Load path: restore the remaining budget; phase always resets to Explore.
