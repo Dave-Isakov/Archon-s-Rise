@@ -222,6 +222,34 @@ dead across reload. Pure suites green.
 Spec: `docs/superpowers/specs/2026-07-21-*` (Spec 2); plan:
 `docs/superpowers/plans/2026-07-22-multi-enemy-phased-combat.md`.
 
+## M2.15 — Crystal Hotspots + hex-tooltip foundation (Plan 1) — ✅ code complete 2026-07-24 (editor authoring + play acceptance pending)
+**Status:** All C# committed; pure logic TDD-green via the mcs harness (`HotspotRulesTests` 6/6,
+`HotspotLedgerTests` 6/6, `TileDescriptorTests` 4/4, `SaveMigratorV8Tests` 2/2, full `SaveMigrator*`
+suite 16/16 after the v7→v8 current-version assertion bump). Unity glue pattern-matched to
+`DungeonTracker`/`DungeonToken`; final editor compile + authoring + play acceptance are the USER gate.
+**Goal:** scattered **Crystal Hotspot** tiles that grant a fixed-color crystal when the player ends a
+turn parked on them (charge-limited, `-1` = unlimited rich vein), plus an extensible **hex-tooltip
+occupant** model so this and future tiles describe what's on a hex.
+**Scope:**
+- Pure rules/state: `HotspotRules` (charge math, `-1` unlimited sentinel), `Cell`-keyed `HotspotLedger`
+  (export only drawn-down/depleted tiles), `HexDescriptor` + `TileDescriptor` (icon-marked lines via
+  `IconMarkup`). All UnityEngine-free / mcs-testable.
+- Content + scene glue: `CrystalHotspotSO` (`id`/`color`/`charges`), `HotspotTracker` (DungeonTracker
+  pattern + color cache), `CrystalHotspotRuleTile`, passive `CrystalHotspotToken` (no click handler),
+  `GridGeneration` seeded/spaced placement (dungeon pattern, excluded from enemy/zone cells).
+- Harvest is a **free passive** fired from `TurnPhaseController.EndTurnPressed` (before `endTheTurn`),
+  granting via the same `CrystalInventory.CreateCrystal` seam `Rewards` uses — **no popup, no RewardQueue**.
+- Tooltip foundation: `IHexOccupant` (`Cell`/`Describe`/`BlocksMove`) + `HexOccupantRegistry`; `TownToken`
+  & `DungeonToken` retrofitted; `HexInteractor.TooltipText` appends the occupant line and `PlaceOccupies`
+  routes through the registry's `BlocksMove` filter (passive tiles stay walkable).
+- Save **schema v8**: `RunState.hotspots` + v7→v8 migration (absent = empty).
+**Acceptance (USER):** new run seeds spaced hotspots off towns/dungeons/start ring; park + End Turn adds
+the right-color crystal and drops the pip; a finite tile depletes to dormant while an unlimited one never
+does; tooltip shows town/keep/castle/dungeon/hotspot lines; save mid-run after a partial harvest → charge
++ dormant state restore, untouched tiles re-derive full. **Plan 2 (Shrines)** builds on this foundation.
+Spec: `docs/superpowers/specs/2026-07-24-crystal-hotspots-and-shrines-design.md`; plan:
+`docs/superpowers/plans/2026-07-24-hex-tooltip-foundation-and-crystal-hotspots.md`.
+
 ## M3 — Run setup & meta-unlocks
 **Goal:** framed runs plus between-run progression.
 **Scope:**

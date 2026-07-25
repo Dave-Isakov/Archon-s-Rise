@@ -195,6 +195,30 @@ for the starting bands.
 | `tier` | int | Tier the completion bundle pays at |
 | `rewardCount` | int | Bundle scale: this many crystals AND this many card picks (guaranteed) |
 
+## Crystal Hotspot — `CrystalHotspotSO`
+**Menu:** `ScriptableObjects/CrystalHotspot` (spec 2026-07-24, Plan 1)
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `id` | string | Stable slug; **save identity, never rename** (a v8 `HotspotState` restores by it) |
+| `color` | `EmpowerType` | Single color this tile yields (Red/Yellow/Green/Purple — never a combined flag) |
+| `charges` | int | Payouts before the tile goes dormant. **`-1` = unlimited** (rich vein, never depletes) |
+
+A crystal hotspot is a passive map tile. Standing on it at **End Turn** grants **1 crystal** of its
+`color` and spends a charge — it is **free** (never the turn's Action) and shows **no popup / no
+`RewardQueue`**; the HUD crystal count and the token's pip/dormant state are the only feedback
+(memory `map-feedback-tooltip-and-log`). Charge math is the pure `HotspotRules`; per-run state is the
+`Cell`-keyed `HotspotLedger` wrapped by the scene `HotspotTracker`; only drawn-down/depleted tiles
+are saved (`RunState.hotspots`, schema **v8**), fresh tiles re-derive from the map seed.
+
+**Hex tooltip occupants (`IHexOccupant` + `TileDescriptor`):** map tokens describe themselves to the
+hex tooltip by implementing `IHexOccupant` (`Cell`, `Describe() → HexDescriptor`, `BlocksMove`) and
+registering with `HexOccupantRegistry` on `Start`. The line text is built by the pure
+`TileDescriptor` (`Hotspot`/`Town`/`Dungeon`), always via `IconMarkup` — never a hand-rolled sprite
+tag. A new tile type integrates with **zero `HexInteractor` edits**: implement + register. `BlocksMove`
+is `true` for place-like tokens (towns/dungeons block move-dispatch), `false` for passive tiles
+(hotspots — you must be able to park on them).
+
 ## Location — `LocationsSO`
 **Menu:** `ScriptableObjects/LocationsSO`
 

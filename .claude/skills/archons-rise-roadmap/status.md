@@ -21,6 +21,13 @@ Where Archon's Rise stands today. Seeded from the code review (`docs/code-review
 - **Towns** (Town/Village/Fortress/City) and **Unit** recruiting (Knight/Scout/Warrior/Merchant).
 - **Map dungeons** (M2.9, 2026-07-14) — 6 spaced hexes/map, stand-on-cell entry, 3 tiered delves
   (exp-only fights), guaranteed completion bundle + doom relief, doom-band flagging, save v6.
+- **Crystal hotspots** (M2.15 Plan 1, 2026-07-24 — code complete, editor authoring + play acceptance
+  pending): scattered tiles that grant 1 fixed-color crystal when the player ends a turn parked on
+  them; charge-limited (`-1` = unlimited rich vein), a **free** passive (not the Action) with no
+  popup — the HUD count + token pip are the feedback. Save **v8** (`RunState.hotspots`). Ships an
+  extensible **hex-tooltip occupant** model (`IHexOccupant` + `HexOccupantRegistry` + pure
+  `TileDescriptor`): towns/keeps/castles/dungeons/hotspots each describe their own tooltip line, and a
+  new tile type integrates with zero `HexInteractor` edits.
 - **Rewards** (Experience/Crystals/Cards at Beginner→Master), all modals serialized through the
   unified **`RewardQueue`** (replaces the M2.4 busy-wait).
 - **Leveling** counters (exp, expToNextLevel, level).

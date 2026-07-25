@@ -503,3 +503,27 @@ of truth, replacing two independent serialized refs that could disagree. Save v7
 
 **Guard:** a 0 toughness makes `CombatRules.WoundCount` loop forever. Clamped in the rule *and*
 in `CharacterSO.OnValidate`.
+
+## 2026-07-24 — Crystal Hotspots: free, charge-limited, passive; extensible hex tooltip (Plan 1)
+
+**Decision:** Crystal Hotspots are passive map tiles that yield **1 crystal of a fixed color** when the
+player **ends a turn parked** on them. They are **charge-limited** (`CrystalHotspotSO.charges`, with
+**`-1` = unlimited** rich vein); a finite tile depletes to a dormant visual. Harvest is **free** — it
+fires from `TurnPhaseController.EndTurnPressed` (before `endTheTurn.Raise()`), not from the turn's one
+Action, and grants via the same `CrystalInventory.CreateCrystal` seam `Rewards` uses. There is **no
+modal and no `RewardQueue`**: the HUD crystal count and the token's pip/dormant state are the only
+feedback.
+
+**Why:** a low-friction map incentive that rewards positioning without competing with the single-action
+economy or interrupting flow with a reward popup — consistent with the map-feedback direction (tooltip
++ token visuals over per-event popups, memory `map-feedback-tooltip-and-log`). The `-1` sentinel gives
+designers a always-on vein without a separate type.
+
+**Also (the reusable half):** shipped an extensible **hex-tooltip occupant** model. Map tokens implement
+`IHexOccupant` (`Cell` / `Describe() → HexDescriptor` / `BlocksMove`) and register with
+`HexOccupantRegistry`; the pure `TileDescriptor` builds each icon-marked line via `IconMarkup`. Towns,
+keeps, castles, dungeons, and hotspots now describe themselves, and `HexInteractor` routes both its
+tooltip (highest-priority `Describe`) and its move-block check (`BlocksMove` filter — passive tiles stay
+walkable) through the registry. **A new tile type integrates with zero `HexInteractor` edits.** Save
+bumped to **v8** (`RunState.hotspots`, only drawn-down/depleted tiles saved; fresh tiles re-derive from
+the map seed). **Plan 2 (Shrines)** builds directly on this `IHexOccupant` / `TileDescriptor` foundation.
