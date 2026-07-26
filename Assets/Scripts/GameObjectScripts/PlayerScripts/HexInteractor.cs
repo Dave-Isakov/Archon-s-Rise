@@ -133,7 +133,10 @@ public partial class HexInteractor : MonoBehaviour
         string exp = IconMarkup.Tag(IconConcept.Explore);
         string moveLine = MoveLine(cell, verdict, exp);
         string occupantLine = null;
-        if (HexOccupantRegistry.Instance.Best(cell, out var d)) occupantLine = d.Line;
+        // Never reveal what's on a fogged cell — the occupant line is gated by fog
+        // exactly like PlaceOccupies, so a hidden hotspot/town/dungeon stays secret.
+        if (!MapFog.IsHidden(cell) && HexOccupantRegistry.Instance.Best(cell, out var d))
+            occupantLine = d.Line;
 
         if (string.IsNullOrEmpty(occupantLine)) return moveLine;
         if (string.IsNullOrEmpty(moveLine)) return occupantLine;
