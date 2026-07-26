@@ -6,8 +6,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Crystal Hotspot", menuName = "ScriptableObjects/CrystalHotspot")]
 public class CrystalHotspotSO : AllCards
 {
-    [Tooltip("Stable slug; save identity. Never rename.")]
-    public string id;
+    // Save identity is the inherited AllCards.id (a stable slug; never rename) —
+    // do not re-declare it here or Unity errors on a duplicate serialized field.
     [Tooltip("Single color this tile yields.")]
     public EmpowerType color = EmpowerType.Red;
     [Tooltip("Payouts before dormancy. -1 = unlimited (rich vein).")]

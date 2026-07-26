@@ -200,9 +200,12 @@ for the starting bands.
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `id` | string | Stable slug; **save identity, never rename** (a v8 `HotspotState` restores by it) |
 | `color` | `EmpowerType` | Single color this tile yields (Red/Yellow/Green/Purple — never a combined flag) |
 | `charges` | int | Payouts before the tile goes dormant. **`-1` = unlimited** (rich vein, never depletes) |
+
+Save identity is the **inherited `AllCards.id`** (a stable slug; **never rename** — a v8 `HotspotState`
+restores by it). Do **not** re-declare `id` on the subclass: Unity errors ("same field name serialized
+multiple times") on a duplicate serialized field shadowing the base.
 
 A crystal hotspot is a passive map tile. Standing on it at **End Turn** grants **1 crystal** of its
 `color` and spends a charge — it is **free** (never the turn's Action) and shows **no popup / no
