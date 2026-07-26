@@ -40,6 +40,8 @@ public class CrystalHotspotToken : MonoBehaviour, IHexOccupant
         bool live = HotspotTracker.Instance.CanHarvest(gridPos);
         if (dormantMarker != null) dormantMarker.SetActive(!live);
         if (livePips != null) livePips.SetActive(live);
-        // (Optional) tint crystalSprite by hotspotSO.color via IconMarkup's hexes.
+        // Show this color's crystal art (each CrystalHotspotSO carries its own).
+        if (crystalSprite != null && hotspotSO != null && hotspotSO.crystalSprite != null)
+            crystalSprite.sprite = hotspotSO.crystalSprite;
     }
 }

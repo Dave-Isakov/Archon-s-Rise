@@ -12,4 +12,6 @@ public class CrystalHotspotSO : AllCards
     public EmpowerType color = EmpowerType.Red;
     [Tooltip("Payouts before dormancy. -1 = unlimited (rich vein).")]
     public int charges = 3;
+    [Tooltip("Crystal art for this color; the token shows it (color lives with its own asset).")]
+    public Sprite crystalSprite;
 }

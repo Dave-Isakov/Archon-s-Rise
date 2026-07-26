@@ -202,6 +202,7 @@ for the starting bands.
 |-------|------|-------|
 | `color` | `EmpowerType` | Single color this tile yields (Red/Yellow/Green/Purple — never a combined flag) |
 | `charges` | int | Payouts before the tile goes dormant. **`-1` = unlimited** (rich vein, never depletes) |
+| `crystalSprite` | `Sprite` | This color's crystal art; the token displays it. Color art lives on its own SO asset (red art on the red SO, etc.), **not** on the rule tile — the `CrystalHotspotRuleTile` is one color-agnostic ground marker (single Default Sprite; no tiling rules) placed under every hotspot. |
 
 Save identity is the **inherited `AllCards.id`** (a stable slug; **never rename** — a v8 `HotspotState`
 restores by it). Do **not** re-declare `id` on the subclass: Unity errors ("same field name serialized
