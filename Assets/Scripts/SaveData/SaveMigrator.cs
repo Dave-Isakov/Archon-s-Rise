@@ -49,8 +49,31 @@ namespace ArchonsRise.SaveData
             if (file.run.hotspots == null)
                 file.run.hotspots = Array.Empty<HotspotState>();
 
-            if (file.schemaVersion < 8)
-                file.schemaVersion = 8;
+            // v8 -> v9: aggroedEnemies did not exist; absent means no token is armed.
+            // A pre-v9 save therefore loads with every enemy inert until the player
+            // steps away and back — the state it was already in before v9.
+            if (file.run.map.aggroedEnemies == null)
+                file.run.map.aggroedEnemies = Array.Empty<Cell>();
+
+            // v9 -> v10: shrines array did not exist; absent means all shrines Live.
+            if (file.run.shrines == null)
+                file.run.shrines = Array.Empty<ShrineState>();
+
+            // v9 -> v10: SpawnedEnemy gained a shrine-reward tag. Every spawn in a
+            // pre-v10 file is an ordinary map spawn, so force the tag to -1 (0 would
+            // read as ShrineReward.CardPick). Must run BEFORE the version bump — it
+            // guards on `< 10`. New-run spawns set the tag explicitly at creation,
+            // so they never depend on this migration.
+            if (file.schemaVersion < 10 && file.run.spawnedEnemies != null)
+                for (int i = 0; i < file.run.spawnedEnemies.Length; i++)
+                {
+                    var s = file.run.spawnedEnemies[i];
+                    s.shrineRewardType = -1;
+                    file.run.spawnedEnemies[i] = s;
+                }
+
+            if (file.schemaVersion < 10)
+                file.schemaVersion = 10;
             return file;
         }
     }

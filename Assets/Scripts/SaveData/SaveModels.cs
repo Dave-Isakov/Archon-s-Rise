@@ -8,7 +8,9 @@ namespace ArchonsRise.SaveData
         // v7: adds RunState.characterId (which character this run is) and
         // PlayerState.toughness (renamed from hp — a divisor, not a pool).
         // v8: adds RunState.hotspots (crystal-hotspot charge state).
-        public int schemaVersion = 8;
+        // v9: adds MapState.aggroedEnemies (which enemy tokens are armed).
+        // v10: adds RunState.shrines + the SpawnedEnemy shrine-reward tag.
+        public int schemaVersion = 10;
         public RunState run = new RunState();
     }
 
@@ -50,6 +52,10 @@ namespace ArchonsRise.SaveData
         // tile); positions and SO assignment re-derive from the map seed,
         // hotspotId is a content sanity check on restore (v8).
         public HotspotState[] hotspots = Array.Empty<HotspotState>();
+        // One entry per shrine that is no longer Live (consumed or guarding);
+        // positions/SO re-derive from the map seed, shrineId is a restore sanity
+        // check (v10). state: 0=Live 1=ConsumedDormant 2=Guarding.
+        public ShrineState[] shrines = Array.Empty<ShrineState>();
     }
 
     [Serializable]
@@ -82,6 +88,11 @@ namespace ArchonsRise.SaveData
         // Map cells the player has uncovered (fog cleared). Reveal is monotonic, so
         // re-clearing these on load reproduces the explored state over the seeded map.
         public Cell[] revealedCells = Array.Empty<Cell>();
+        // Cells whose enemy token is armed (isAggro) — the halo pulses and the token
+        // is clickable. NOT re-derivable from adjacency on load: fleeing a field fight
+        // de-aggros a token the player is still standing next to, so it must be
+        // persisted rather than recomputed (v9).
+        public Cell[] aggroedEnemies = Array.Empty<Cell>();
     }
 
     [Serializable]
@@ -113,6 +124,12 @@ namespace ArchonsRise.SaveData
         public string enemyId;
         public int bonusHP;
         public int bonusAttack;
+        // Shrine-guardian binding (v10): -1 = a normal spawn with no owed reward.
+        // Otherwise the ShrineReward int + the originating shrine's cell, so a
+        // bad-roll guardian pays 2x that reward on defeat across save/reload.
+        public int shrineRewardType;
+        public int shrineCellX;
+        public int shrineCellY;
     }
 
     [Serializable]
@@ -132,5 +149,14 @@ namespace ArchonsRise.SaveData
         public int y;
         public string hotspotId;
         public int remainingCharges; // -1 = unlimited (never persisted as depleted)
+    }
+
+    [Serializable]
+    public struct ShrineState
+    {
+        public int x;
+        public int y;
+        public string shrineId;
+        public int state; // 0=Live, 1=ConsumedDormant, 2=Guarding
     }
 }

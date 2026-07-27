@@ -8,7 +8,7 @@ public class SaveMigratorV7Tests
     {
         var f = new SaveFile { schemaVersion = 6 };
         var m = SaveMigrator.Migrate(f);
-        Assert.AreEqual(8, m.schemaVersion);
+        Assert.AreEqual(10, m.schemaVersion);
         // Empty means "pre-v7": DataManager resolves it to defaultCharacter.
         Assert.IsTrue(string.IsNullOrEmpty(m.run.characterId));
     }
@@ -31,7 +31,7 @@ public class SaveMigratorV7Tests
         f.run.player.toughness = 3;
         f.run.player.hp = 99;   // stale vestigial value must not win
         var m = SaveMigrator.Migrate(f);
-        Assert.AreEqual(8, m.schemaVersion);
+        Assert.AreEqual(10, m.schemaVersion);
         Assert.AreEqual("warlord", m.run.characterId);
         Assert.AreEqual(3, m.run.player.toughness);
     }
