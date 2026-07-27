@@ -209,6 +209,14 @@ public class DataManager : MonoBehaviour
         // load (e.g. a bad card id or missing prefab) can never permanently block saving.
         try { RestoreNow(); }
         finally { IsLoading = false; }
+
+        // One more frame, then re-arm the enemy tokens that were armed at save time
+        // (v9). Without this every token loaded inert, so an enemy the save was taken
+        // beside was unclickable until the player stepped away and back. The extra
+        // frame matters: RestoreSpawned instantiates mid-run tokens above, and a token
+        // only learns its own gridPos in Start.
+        yield return null;
+        RestoreAggro(current.run.map.aggroedEnemies);
     }
 
     private void RestoreNow()
@@ -246,6 +254,11 @@ public class DataManager : MonoBehaviour
         // Hotspot tokens register their charges during their Start (the restore
         // coroutine waits a frame), so saved charge state lands on live entries.
         HotspotTracker.Instance.ApplySave(run.hotspots);
+
+        // Shrine tokens register themselves during their Start (the restore
+        // coroutine waits a frame), so saved consumed/guarding state lands on
+        // live entries. Absent entries stay Live (v10).
+        ShrineTracker.Instance.ApplySave(run.shrines);
 
         // Re-clear fog at the cells the player had already revealed.
         var dir = FindAnyObjectByType<ExplorationController>();
@@ -289,6 +302,28 @@ public class DataManager : MonoBehaviour
             new HashSet<string>(run.player.exhaustedSkillIds));
     }
 
+    // Cells of every armed enemy token. Aggro is authored by movement (CheckAggro)
+    // and by fleeing, so it cannot be recomputed from adjacency on load — a token
+    // the player fled is inert while they still stand beside it.
+    private static Cell[] AggroedEnemyCells()
+    {
+        var armed = new List<Cell>();
+        foreach (var token in FindObjectsByType<EnemyToken>())
+            if (token.isAggro) armed.Add(new Cell(token.gridPos.x, token.gridPos.y));
+        return armed.ToArray();
+    }
+
+    // Re-arm exactly the tokens that were armed at save time. Runs a frame after
+    // RestoreNow: mid-run spawns are instantiated there, and a token only learns its
+    // own gridPos in Start, so matching sooner would compare against a default cell.
+    private static void RestoreAggro(Cell[] aggroed)
+    {
+        if (aggroed == null) return; // pre-v9 save: nothing armed
+        var armed = new HashSet<Cell>(aggroed);
+        foreach (var token in FindObjectsByType<EnemyToken>())
+            token.isAggro = armed.Contains(new Cell(token.gridPos.x, token.gridPos.y));
+    }
+
     public SaveFile CaptureRunState()
     {
         var player    = FindAnyObjectByType<Player>();
@@ -305,7 +340,9 @@ public class DataManager : MonoBehaviour
         var crystals  = FindAnyObjectByType<CrystalInventory>();
         var game      = GameManager.Instance;
 
-        var file = new SaveFile { schemaVersion = 7 };
+        // Version comes from the model default, never a literal here — this said 7
+        // while the model was already writing v8 hotspot data.
+        var file = new SaveFile();
         var run  = file.run;
 
         run.player.toughness     = player.PlayerToughness;
@@ -335,11 +372,13 @@ public class DataManager : MonoBehaviour
         run.characterId         = ActiveCharacter != null ? ActiveCharacter.Id : "";
         run.map.seed            = CurrentSeed;
         run.map.defeatedEnemies = MapDelta.ToArray(DefeatedEnemies);
+        run.map.aggroedEnemies  = AggroedEnemyCells();
         run.places = ConquestTracker.Instance.ExportPlaces();
         run.dungeons = DungeonTracker.Instance.Export();
         run.dungeonMidFlagsFired  = DungeonTracker.Instance.MidFired;
         run.dungeonHighFlagsFired = DungeonTracker.Instance.HighFired;
         run.hotspots = HotspotTracker.Instance.Export();
+        run.shrines  = ShrineTracker.Instance.Export();
 
         var dir = FindAnyObjectByType<ExplorationController>();
         if (dir != null && dir.Fog != null)
