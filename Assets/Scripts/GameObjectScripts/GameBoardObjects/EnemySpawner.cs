@@ -16,6 +16,11 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] TileBase dungeonTile;
     [SerializeField] DoomTuningSO tuning;
 
+    // The ground tilemap enemies spawn onto. Exposed so ShrineTracker's guardian
+    // spawn lands on the same map this spawner uses, instead of guessing at the
+    // Grid's first child tilemap (which may be the fog overlay).
+    public Tilemap Ground => ground;
+
     private readonly List<Cell> zones = new();
     // Fresh rng per session: mid-run spawns need no determinism because the
     // alive set is what gets saved.
