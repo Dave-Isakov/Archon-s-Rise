@@ -539,3 +539,37 @@ the underlying ground tile (same as dungeons/towns), so the cell's cost is simpl
 delivers the "harder-to-reach = farm reward" feel without the extra machinery of preserving the
 underlying terrain, spawning on the separate mountains/water tilemaps, or terrain-aware placement — which
 can come later if flat cost proves too samey in playtest.
+
+## 2026-07-27 — Shrines: any-4-crystal one-shot gamble, 50/50 safe-1× vs guardian-2×
+
+**Decision:** A **Shrine** is a stand-on, **one-shot** map place. Engaging costs **any 4 crystals**
+(mixed colors allowed), placed **one at a time** through over-head color buttons; each placement is
+refundable until the last one lands. That last placement is the commit point: it spends the turn's
+action and the crystals **regardless of the outcome**. Then the shrine rolls a type uniformly from
+`{card pick, unit, large exp}` — **no skills, no crystals** — and flips a coin (`goodRollChance`,
+default 0.5, strict less-than):
+
+- **Safe** → **1×** that reward immediately; shrine → `ConsumedDormant`.
+- **Bad** → a **persistent tier-3 guardian** spawns on a free neighbouring cell; shrine → `Guarding`.
+  Defeating it pays **2×** the rolled reward plus its defeat exp and **nothing else** (it is exp-only —
+  no crystal/card rolls of its own; the doubled reward *is* its loot). Fleeing costs the usual 1 wound
+  and leaves it standing; the shrine stays `Guarding` until it falls. Influencing it away also pays —
+  otherwise the shrine would be stranded with no guardian left to defeat.
+
+**Why:** the shrine is the map's one *gambling* beat, distinct from the dungeon's guaranteed-bundle
+grind and the hotspot's passive drip. Paying the crystals up-front and only then learning the outcome
+is what makes it a gamble rather than a purchase; doubling on the fight path keeps the bad roll
+*attractive* instead of merely punishing, so the player is choosing risk, not eating it. One-shot keeps
+it a landmark decision rather than a farm. Skills stay out of the pool because they are a level-up
+channel — mixing them in would blur the two progression tracks.
+
+**Save:** bumped to **v10** — `RunState.shrines` (only non-`Live` shrines; fresh ones re-derive from the
+map seed) plus a `SpawnedEnemy` shrine-reward tag (`shrineRewardType` / `shrineCellX` / `shrineCellY`,
+**`-1` = an ordinary spawn**) so a guardian's debt survives save/reload. **Note:** the plan specified
+v9, but v9 was already claimed by `MapState.aggroedEnemies`, so shrines were renumbered to v10 and every
+migrator test's terminal-version assertion moved with it.
+
+**Payout ordering:** `CombatController` captures the guardian's tag in `NotifyDefeated` — before
+`RecordFieldDefeat` destroys the token — and pays it in `FinishEnd`, *after* the ordinary defeat
+rewards, so the shrine's card pick queues behind the defeat message on the `RewardQueue` instead of
+interrupting it (standing rule, memory `reward-overlap-standing-rule`).

@@ -226,6 +226,41 @@ tag. A new tile type integrates with **zero `HexInteractor` edits**: implement +
 is `true` for place-like tokens (towns/dungeons block move-dispatch), `false` for passive tiles
 (hotspots — you must be able to park on them).
 
+## Shrine — `ShrineSO`
+**Menu:** `ScriptableObjects/Shrine` (spec 2026-07-24, Plan 2)
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `crystalCost` | int | Crystals to engage. **Any colors** — 4 by default; the panel spends one per placement |
+| `goodRollChance` | float (0–1) | Chance of the safe result (instant 1×). Default `0.5` |
+| `rewardTypes` | List&lt;`ShrineReward`&gt; | Types this shrine can roll; drawn uniformly |
+| `unitPool` | List&lt;`UnitsSO`&gt; | Candidates when the rolled type is `Unit` |
+| `largeExp` | int | The 1× large-exp payout (a fight pays 2×) |
+| `cardTier` | int | Tier for the card-pick reward (reuses the `Rewards` card pools) |
+| `summonedEnemy` | `EnemiesSO` | The fixed **tier-3** guardian summoned on the bad roll. **Must be in the `EnemyDeck` pool** or the spawn is skipped with a warning |
+
+Save identity is the **inherited `AllCards.id`** — do **not** re-declare `id` on the subclass (Unity
+errors on a duplicate serialized field), same as `CrystalHotspotSO`.
+
+`ShrineReward` is **append-only** (`CardPick = 0`, `Unit = 1`, `LargeExp = 2`) — saved ints must stay
+stable. **No skills**: skills are a level-up channel, never a shrine payout. Crystals are not a payout
+either; the shrine consumes them.
+
+A shrine is a **stand-on, one-shot** place (`BlocksMove = true`). Opening the panel is a free peek;
+the commit point is the **last** crystal placement, which spends the turn's action and the crystals
+**regardless of the outcome**. Then it resolves: **safe** → 1× the rolled reward immediately, shrine
+→ `ConsumedDormant`; **bad** → a persistent tier-3 guardian on a free neighbouring cell, shrine →
+`Guarding`. Defeating (or influencing away) that guardian pays **2×** the rolled reward plus its
+defeat exp and **nothing else** — the guardian is exp-only, its loot *is* the shrine's doubled
+reward. Fleeing costs the usual 1 wound and leaves it standing; the shrine stays `Guarding` until it
+falls.
+
+Roll math is the pure `ShrineRules` (`IsGood`/`RollType`/`RewardCount`); per-run state is the
+`Cell`-keyed `ShrineLedger` wrapped by the scene `ShrineTracker`. Only non-`Live` shrines are saved
+(`RunState.shrines`, schema **v10**); fresh shrines re-derive from the map seed. The guardian's owed
+reward rides on the mid-run spawn record (`SpawnedEnemy.shrineRewardType` / `shrineCellX` /
+`shrineCellY`; **`-1` = an ordinary spawn**), so it survives save/reload.
+
 ## Location — `LocationsSO`
 **Menu:** `ScriptableObjects/LocationsSO`
 

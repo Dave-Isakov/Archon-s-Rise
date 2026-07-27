@@ -250,6 +250,37 @@ does; tooltip shows town/keep/castle/dungeon/hotspot lines; save mid-run after a
 Spec: `docs/superpowers/specs/2026-07-24-crystal-hotspots-and-shrines-design.md`; plan:
 `docs/superpowers/plans/2026-07-24-hex-tooltip-foundation-and-crystal-hotspots.md`.
 
+## M2.16 — Shrines (Plan 2) — ✅ code complete 2026-07-27 (editor authoring + play acceptance pending)
+**Status:** All C# committed; pure logic TDD-green via the mcs harness (`ShrineRulesTests` 4/4,
+`ShrineLedgerTests` 5/5, `TileDescriptorShrineTests` 3/3, `SaveMigratorV10Tests` 3/3, full SaveData
+suite 29/29 after the v9→v10 current-version assertion bump). Unity glue pattern-matched to
+`DungeonTracker`/`DungeonToken`/`DungeonPanel`; final editor compile + authoring + play acceptance are
+the USER gate.
+**Goal:** one-shot **Shrine** tiles the player gambles at — spend any 4 crystals placed one at a time,
+then a coin flip either pays a reward now or summons a persistent tier-3 guardian owing double.
+**Scope:**
+- Pure rules/state: `ShrineRules` (`IsGood` strict-less-than / `RollType` / `RewardCount` 1× vs 2×),
+  `Cell`-keyed `ShrineLedger` (Live / ConsumedDormant / Guarding; exports only non-Live),
+  `TileDescriptor.Shrine`. All UnityEngine-free / mcs-testable.
+- Content + scene glue: `ShrineSO` (cost/odds/pools/guardian; inherits `AllCards.id`), `ShrineTracker`
+  (ledger wrapper + `SpawnGuardian` + `ShrineSoAt`), `ShrineRuleTile`, stand-on `ShrineToken`
+  (`IHexOccupant`, `BlocksMove = true`), `ShrinePanel` (over-head color buttons, per-placement spend,
+  refundable until commit), `GridGeneration` seeded/spaced placement excluded from enemy/zone cells.
+- Guardian binding: `EnemyToken.shrineRewardType`/`shrineCell`/`shrineSO` carried through
+  `EnemySpawner` export/restore; `CombatController` captures the tag in `NotifyDefeated` (before the
+  token is destroyed) and pays `Rewards.GrantShrineReward` at 2× in `FinishEnd`, behind the ordinary
+  defeat rewards on the `RewardQueue`. The guardian is **exp-only** — no crystal/card rolls of its own.
+- Save **schema v10**: `RunState.shrines` + the `SpawnedEnemy` shrine-reward tag (`-1` = ordinary
+  spawn), with v9→v10 migration. **v9 was already claimed by `MapState.aggroedEnemies`**, so the plan's
+  stated v9 was renumbered.
+**Acceptance (USER):** new run seeds spaced shrines off towns/dungeons/hotspots/start ring; tooltip
+reads `Shrine <crystal>4 — gamble`; open + close costs nothing; placing the 4th crystal spends the
+action and resolves; good → 1× reward + spent, bad → tier-3 guardian + guarding; defeating it pays 2×
++ its exp and nothing else; fleeing leaves it standing; save/reload preserves the guardian, its owed
+reward, and every shrine's state.
+Spec: `docs/superpowers/specs/2026-07-24-crystal-hotspots-and-shrines-design.md`; plan:
+`docs/superpowers/plans/2026-07-24-shrines.md`.
+
 ## M3 — Run setup & meta-unlocks
 **Goal:** framed runs plus between-run progression.
 **Scope:**

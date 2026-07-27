@@ -28,6 +28,14 @@ Where Archon's Rise stands today. Seeded from the code review (`docs/code-review
   extensible **hex-tooltip occupant** model (`IHexOccupant` + `HexOccupantRegistry` + pure
   `TileDescriptor`): towns/keeps/castles/dungeons/hotspots each describe their own tooltip line, and a
   new tile type integrates with zero `HexInteractor` edits.
+- **Shrines** (M2.16 Plan 2, 2026-07-27 — code complete, editor authoring + play acceptance pending):
+  one-shot gamble tiles. Stand on one, place **any 4 crystals** one at a time via over-head color
+  buttons (refundable until the last one lands, which spends the turn's action and the crystals
+  regardless of outcome), then a coin flip: **safe** pays 1× a rolled reward (card pick / unit / large
+  exp — never skills, never crystals) and the shrine goes spent; **bad** summons a persistent tier-3
+  guardian that owes **2×** that reward plus its defeat exp and nothing else. Flee it and it stands;
+  kill it and the shrine retires. Save **v10** (`RunState.shrines` + a `SpawnedEnemy` reward tag so the
+  guardian's debt survives reload). Built on M2.15's `IHexOccupant` / `TileDescriptor` foundation.
 - **Rewards** (Experience/Crystals/Cards at Beginner→Master), all modals serialized through the
   unified **`RewardQueue`** (replaces the M2.4 busy-wait).
 - **Leveling** counters (exp, expToNextLevel, level).
