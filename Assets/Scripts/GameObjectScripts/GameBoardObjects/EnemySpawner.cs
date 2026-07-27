@@ -107,7 +107,10 @@ public class EnemySpawner : MonoBehaviour
                     y = token.gridPos.y,
                     enemyId = token.enemy.id,
                     bonusHP = token.bonusHP,
-                    bonusAttack = token.bonusAttack
+                    bonusAttack = token.bonusAttack,
+                    shrineRewardType = token.shrineRewardType,
+                    shrineCellX = token.shrineCell.x,
+                    shrineCellY = token.shrineCell.y
                 });
         return list.ToArray();
     }
@@ -129,7 +132,18 @@ public class EnemySpawner : MonoBehaviour
                 Debug.LogWarning($"RestoreSpawned: enemy '{sp.enemyId}' not in the EnemyDeck pool — skipped.");
                 continue;
             }
-            deck.GetNewEnemyToken(new Vector3Int(sp.x, sp.y, 0), ground, idx, sp.bonusHP, sp.bonusAttack, true);
+            var token = deck.GetNewEnemyToken(new Vector3Int(sp.x, sp.y, 0), ground, idx, sp.bonusHP, sp.bonusAttack, true);
+
+            // A shrine guardian carries its owed reward across the reload; the
+            // ShrineSO is re-resolved from the ShrineToken standing at the saved
+            // shrine cell (tokens are re-instantiated by the map seed).
+            if (token != null && sp.shrineRewardType >= 0)
+            {
+                var shrineAt = new Vector3Int(sp.shrineCellX, sp.shrineCellY, 0);
+                token.shrineRewardType = sp.shrineRewardType;
+                token.shrineCell = shrineAt;
+                token.shrineSO = ShrineTracker.Instance.ShrineSoAt(shrineAt);
+            }
         }
     }
 }

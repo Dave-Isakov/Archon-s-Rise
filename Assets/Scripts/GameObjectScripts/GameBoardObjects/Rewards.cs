@@ -103,6 +103,37 @@ public class Rewards : MonoBehaviour
         });
     }
 
+    // Shrine payout (spec 2026-07-24): grant `count` of the rolled type. Safe
+    // roll count = 1, guardian defeat count = 2. Card picks self-enqueue on the
+    // RewardQueue; units join the army; exp applies instantly. Crystals are NOT
+    // a shrine reward — the shrine consumes them.
+    public void GrantShrineReward(ShrineReward type, int count, ShrineSO shrine)
+    {
+        if (shrine == null) return;
+        for (int i = 0; i < count; i++)
+        {
+            switch (type)
+            {
+                case ShrineReward.CardPick:
+                    OfferCardChoice(shrine.cardTier);
+                    break;
+                case ShrineReward.Unit:
+                    // A shrine unit is a bonus grant: it bypasses the town
+                    // at-cap disband flow (tuning follow-up, not a blocker).
+                    if (shrine.unitPool != null && shrine.unitPool.Count > 0)
+                    {
+                        var playerRef = FindAnyObjectByType<Player>();
+                        if (playerRef != null)
+                            playerRef.AddUnit(shrine.unitPool[Random.Range(0, shrine.unitPool.Count)]);
+                    }
+                    break;
+                case ShrineReward.LargeExp:
+                    player.PlayerExp += shrine.largeExp;
+                    break;
+            }
+        }
+    }
+
     // Level-up card pick: pool tier scales with player level (spec 2026-07-10).
     public void OfferCardChoiceForLevel(int level, System.Action onClosed = null)
         => OfferCardChoice(RewardRules.CardTierForLevel(level, tuning.Data), onClosed);
