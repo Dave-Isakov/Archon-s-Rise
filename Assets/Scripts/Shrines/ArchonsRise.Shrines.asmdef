@@ -1,0 +1,14 @@
+{
+    "name": "ArchonsRise.Shrines",
+    "rootNamespace": "",
+    "references": ["ArchonsRise.SaveData", "ArchonsRise.Enums"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
