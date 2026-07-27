@@ -573,3 +573,38 @@ migrator test's terminal-version assertion moved with it.
 `RecordFieldDefeat` destroys the token — and pays it in `FinishEnd`, *after* the ordinary defeat
 rewards, so the shrine's card pick queues behind the defeat message on the `RewardQueue` instead of
 interrupting it (standing rule, memory `reward-overlap-standing-rule`).
+
+## 2026-07-27 — Shrine payment UI: a fan of cycling crystal slots, not fixed color buttons
+
+**Decision:** replaced the shrine's four fixed color buttons with a **fan of `crystalCost` slots**
+arced over the shrine (`FanMath` — the hand's solver, not the combat ring; the buttons are small and
+the parabolic dip is exactly the shape wanted). Clicking a slot **cycles** it through the payment
+buckets `[Red, Yellow, Green, Purple, Wild]`, offering only buckets with a crystal still spare after
+the other slots take their claims, then around to **empty**. A checkmark occupies an **appended fan
+seat** once every slot is filled; the arc re-centres as it appears. Clicking off the fan dismisses.
+
+**Why:** the shrine costs "any 4 crystals", so *which* four is pure player choice — surfacing that
+choice is both better agency and better looking than four affordability-gated color buttons. Cycling
+per slot needs no drag, no sub-menu, and no Cancel button: empty is part of the cycle, so a slot
+un-sets itself.
+
+**The structural win — selection became non-destructive.** Slots hold *picks*, not crystals; nothing
+leaves the inventory until Confirm. That deleted the whole refund apparatus
+(`SpendShrineCrystal` / `RefundAllShrineCrystals` / `CommitShrineCrystals` / `shrineSpentCrystals`)
+and, with it, the failure mode where an interrupted panel stranded crystals in a stack. Dismissal is
+now a plain close.
+
+**Two invariants worth keeping:**
+- **An unaffordable payment is unrepresentable.** `ShrinePaymentRules.NextPick` only ever offers a
+  bucket that is genuinely spare, so no reachable set of picks exceeds what the player holds — the
+  confirm button cannot fail, and no validate-on-submit path is needed.
+- **Payment spends exactly what was chosen.** `SpendShrinePayment` deliberately does **not** route
+  through `SelectPayCrystal`, which falls back to a wild when the exact color is absent. That
+  fallback is right for card empower and wrong here: it would quietly spend a wild the player never
+  picked, defeating the entire point of letting them choose.
+
+**Also:** the fan needs no per-hex projection — the player must be standing on the shrine to open it
+and the camera rides `PlayerPosition`, so the shrine is always screen centre (memory
+`canvases-are-screen-space-camera`). The confirm is `UiLock`-dimmed when the turn's action is already
+spent, matching `DungeonPanel`'s Delve gate. Slot art is one prefab with a swapped sprite, so a new
+crystal color is a sprite, not a prefab.

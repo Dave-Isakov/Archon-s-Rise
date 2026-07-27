@@ -246,16 +246,27 @@ errors on a duplicate serialized field), same as `CrystalHotspotSO`.
 stable. **No skills**: skills are a level-up channel, never a shrine payout. Crystals are not a payout
 either; the shrine consumes them.
 
-A shrine is a **stand-on, one-shot** place (`BlocksMove = true`). Opening the panel is a free peek;
-the commit point is the **last** crystal placement, which spends the turn's action and the crystals
-**regardless of the outcome**. Then it resolves: **safe** → 1× the rolled reward immediately, shrine
+A shrine is a **stand-on, one-shot** place (`BlocksMove = true`). Opening the panel is a free peek: a
+fan of `crystalCost` slots arcs over the shrine (`FanMath`, the same solver the hand uses). Clicking a
+slot **cycles** it through the crystals the player can still spare — colors already claimed by other
+slots drop out — and around to empty again, so any slot can be un-set without a Cancel button. Because
+a bucket is only offered while genuinely spare, **an unaffordable payment is unrepresentable** and the
+confirm can never fail. Clicking off the fan dismisses at no cost.
+
+Selection is **non-destructive**: slots hold picks, not crystals. Nothing leaves the inventory until
+the player presses the checkmark that appears (on an appended fan seat) once every slot is filled.
+**That checkmark is the commit point** — it spends the turn's action and the crystals **regardless of
+the outcome**, and is shown `UiLock`-dimmed if the turn's action is already gone. Payment spends the
+exact buckets chosen: a wild is consumed only when the player picked wild, never as a silent
+substitute for a missing color. Then it resolves: **safe** → 1× the rolled reward immediately, shrine
 → `ConsumedDormant`; **bad** → a persistent tier-3 guardian on a free neighbouring cell, shrine →
 `Guarding`. Defeating (or influencing away) that guardian pays **2×** the rolled reward plus its
 defeat exp and **nothing else** — the guardian is exp-only, its loot *is* the shrine's doubled
 reward. Fleeing costs the usual 1 wound and leaves it standing; the shrine stays `Guarding` until it
 falls.
 
-Roll math is the pure `ShrineRules` (`IsGood`/`RollType`/`RewardCount`); per-run state is the
+Roll math is the pure `ShrineRules` (`IsGood`/`RollType`/`RewardCount`) and slot-cycle math the pure
+`ShrinePaymentRules` (`NextPick`/`Spare`/`IsComplete`, `-1` = an empty slot); per-run state is the
 `Cell`-keyed `ShrineLedger` wrapped by the scene `ShrineTracker`. Only non-`Live` shrines are saved
 (`RunState.shrines`, schema **v10**); fresh shrines re-derive from the map seed. The guardian's owed
 reward rides on the mid-run spawn record (`SpawnedEnemy.shrineRewardType` / `shrineCellX` /
