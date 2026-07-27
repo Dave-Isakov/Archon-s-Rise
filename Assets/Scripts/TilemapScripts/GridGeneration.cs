@@ -31,6 +31,11 @@ public class GridGeneration : MonoBehaviour
     [SerializeField] int hotspotCount = 6;         // tuning; TBD in playtest
     [SerializeField] int hotspotMinSpacing = 3;    // tuning; TBD in playtest
     [SerializeField] List<CrystalHotspotSO> hotspotPool = new();
+    [SerializeField] TileBase shrineTile;
+    [SerializeField] GameObject shrineTokenPrefab;
+    [SerializeField] int shrineCount = 3;          // tuning; TBD in playtest
+    [SerializeField] int shrineMinSpacing = 4;     // tuning; TBD in playtest
+    [SerializeField] List<ShrineSO> shrinePool = new();
     [SerializeField] DoomTuningSO doomTuning;
     [SerializeField] EnemySpawner spawner;
     // Spawn zones seeded this generation — deterministic over the map seed,
@@ -250,6 +255,41 @@ public class GridGeneration : MonoBehaviour
             }
         }
 
+        // Shrine placement (spec 2026-07-24, §2): spaced like dungeons, never on
+        // towns/dungeons/hotspots or inside the start safe radius; SOs assigned
+        // seed-randomly. Only consumed/guarding state is saved (ShrineState).
+        if (shrineTile != null && shrineTokenPrefab != null && shrinePool.Count > 0)
+        {
+            var sCandidates = new List<ArchonsRise.SaveData.Cell>();
+            for (int x = 0; x < 20; x++)
+                for (int y = 0; y < 20; y++)
+                {
+                    var pos = new Vector3Int(x, y);
+                    if (!ground.HasTile(pos) || ground.GetTile(pos) == townTile
+                        || ground.GetTile(pos) == dungeonTile || ground.GetTile(pos) == hotspotTile) continue;
+                    var cell = new ArchonsRise.SaveData.Cell(x, y);
+                    if (SpawnRules.Spacing(cell, new ArchonsRise.SaveData.Cell(0, 0)) < doomTuning.tuning.startSafeRadius) continue;
+                    sCandidates.Add(cell);
+                }
+            var shrineCells = SpawnRules.SeedZones(sCandidates, shrineCount, shrineMinSpacing, max => Rng(0, max));
+
+            var sbag = new List<ShrineSO>(shrinePool);
+            foreach (var cell in shrineCells)
+            {
+                if (sbag.Count == 0) sbag.AddRange(shrinePool);
+                var so = sbag[Rng(0, sbag.Count)];
+                sbag.Remove(so);
+
+                var tilePos = new Vector3Int(cell.x, cell.y);
+                ground.SetTile(tilePos, shrineTile);
+                var token = Instantiate(shrineTokenPrefab,
+                    ground.CellToWorld(tilePos) + new Vector3(0, -1), Quaternion.identity, townParentObject);
+                var placed = token.GetComponent<ShrineToken>();
+                placed.shrineSO = so;
+                placed.gridPos = tilePos;
+            }
+        }
+
         // Seed spawn zones across the WHOLE map (replaces the accidental
         // lower-left-only enemy region). Candidates: land cells that aren't
         // towns and sit outside the start's safe radius. Deterministic over
@@ -260,7 +300,7 @@ public class GridGeneration : MonoBehaviour
             for (int y = 0; y < 20; y++)
             {
                 var pos = new Vector3Int(x, y);
-                if (!ground.HasTile(pos) || ground.GetTile(pos) == townTile || ground.GetTile(pos) == dungeonTile || ground.GetTile(pos) == hotspotTile) continue;
+                if (!ground.HasTile(pos) || ground.GetTile(pos) == townTile || ground.GetTile(pos) == dungeonTile || ground.GetTile(pos) == hotspotTile || ground.GetTile(pos) == shrineTile) continue;
                 var cell = new ArchonsRise.SaveData.Cell(x, y);
                 if (SpawnRules.Spacing(cell, new ArchonsRise.SaveData.Cell(0, 0)) < tuning.startSafeRadius) continue;
                 candidates.Add(cell);
@@ -291,7 +331,7 @@ public class GridGeneration : MonoBehaviour
                     if (System.Math.Max(x, y) != d) continue; // ring at Chebyshev distance d
                     if (x > 19 || y > 19) continue;
                     var pos = new Vector3Int(x, y);
-                    if (!ground.HasTile(pos) || ground.GetTile(pos) == townTile || ground.GetTile(pos) == dungeonTile || ground.GetTile(pos) == hotspotTile) continue;
+                    if (!ground.HasTile(pos) || ground.GetTile(pos) == townTile || ground.GetTile(pos) == dungeonTile || ground.GetTile(pos) == hotspotTile || ground.GetTile(pos) == shrineTile) continue;
                     pick = new ArchonsRise.SaveData.Cell(x, y);
                     break;
                 }
@@ -331,7 +371,7 @@ public class GridGeneration : MonoBehaviour
                 var pos = new Vector3Int(c.x, c.y);
                 if (c.x < 0 || c.x > 19 || c.y < 0 || c.y > 19
                     || !ground.HasTile(pos) || ground.GetTile(pos) == townTile
-                    || ground.GetTile(pos) == dungeonTile || ground.GetTile(pos) == hotspotTile)
+                    || ground.GetTile(pos) == dungeonTile || ground.GetTile(pos) == hotspotTile || ground.GetTile(pos) == shrineTile)
                     blocked.Add(c);
             }
 
@@ -365,7 +405,7 @@ public class GridGeneration : MonoBehaviour
                 {
                     var pos = new Vector3Int(x, y);
                     if (!ground.HasTile(pos) || ground.GetTile(pos) == townTile
-                        || ground.GetTile(pos) == dungeonTile || ground.GetTile(pos) == hotspotTile) continue;
+                        || ground.GetTile(pos) == dungeonTile || ground.GetTile(pos) == hotspotTile || ground.GetTile(pos) == shrineTile) continue;
                     starterCandidates.Add(new ArchonsRise.SaveData.Cell(x, y));
                 }
             if (SpawnRules.TryPickStarterCell(starterCandidates, start, tuning.starterEnemyRadius,
