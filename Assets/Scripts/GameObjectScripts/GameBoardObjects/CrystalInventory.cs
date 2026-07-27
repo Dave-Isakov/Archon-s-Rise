@@ -143,35 +143,63 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
         crystal.PopIn();
     }
 
-    // Shrine placement (spec 2026-07-24): each placement spends one crystal that
-    // satisfies the chosen color. Its own LIFO stack, so a cancel before the
-    // engage refunds exactly what the panel placed and nothing else.
-    public Stack<Crystal> shrineSpentCrystals = new();
+    // Shrine payment buckets (spec 2026-07-27): the four colors in HUD order,
+    // then a trailing wild slot at index ShrineWildBucket. A "bucket" index in
+    // ShrinePaymentRules means an index into this layout.
+    public static readonly EmpowerType[] ShrinePaymentColors =
+        { EmpowerType.Red, EmpowerType.Yellow, EmpowerType.Green, EmpowerType.Purple };
+    public const int ShrineWildBucket = 4; // == ShrinePaymentColors.Length
 
-    public bool SpendShrineCrystal(EmpowerType color)
+    // How many crystals the player holds per payment bucket. Unlike GetCounts()
+    // this has no None slot — a shrine is paid with real crystals only.
+    public int[] ShrinePaymentCounts()
     {
-        var crystal = SelectPayCrystal(color);
-        if (crystal == null) return false;
-        shrineSpentCrystals.Push(crystal);
-        crystalsInInventory.Remove(crystal);
-        crystal.FlySpendThenHide(transform.position);
-        return true;
+        var counts = new int[ShrinePaymentColors.Length + 1];
+        foreach (var crystal in crystalsInInventory)
+        {
+            if (crystal == null) continue;
+            if (crystal.isAll) { counts[ShrineWildBucket]++; continue; }
+            int idx = Array.IndexOf(ShrinePaymentColors, crystal.color);
+            if (idx >= 0) counts[idx]++;
+        }
+        return counts;
     }
 
-    public void RefundAllShrineCrystals()
+    // Spend exactly the crystals the player picked, one per bucket in `picks`.
+    //
+    // Deliberately NOT routed through SelectPayCrystal: that substitutes a wild
+    // when the exact color is missing, which would quietly spend a wild the
+    // player never chose. A shrine payment IS the player naming which crystals
+    // leave their inventory, so each pick consumes its own bucket or nothing.
+    //
+    // Nothing is spent until this runs — the panel's slots hold selections only,
+    // so dismissing the shrine costs nothing and needs no refund path.
+    public void SpendShrinePayment(int[] picks)
     {
-        while (shrineSpentCrystals.Count > 0)
+        if (picks == null) return;
+        foreach (int bucket in picks)
         {
-            var crystal = shrineSpentCrystals.Pop();
-            crystal.gameObject.SetActive(true);
-            crystalsInInventory.Add(crystal);
-            crystal.PopIn();
+            if (bucket < 0 || bucket > ShrineWildBucket) continue;
+            var crystal = TakeFromBucket(bucket);
+            if (crystal == null) continue; // ShrinePaymentRules makes this unreachable
+            crystalsInInventory.Remove(crystal);
+            crystal.FlySpendThenHide(transform.position);
         }
     }
 
-    // The engage committed: the placed crystals are gone for good, whatever the
-    // shrine rolls.
-    public void CommitShrineCrystals() => shrineSpentCrystals.Clear();
+    // First held crystal matching a payment bucket exactly. Wild crystals only
+    // satisfy the wild bucket; colors only satisfy their own.
+    Crystal TakeFromBucket(int bucket)
+    {
+        bool wantWild = bucket == ShrineWildBucket;
+        foreach (var crystal in crystalsInInventory)
+        {
+            if (crystal == null) continue;
+            if (wantWild) { if (crystal.isAll) return crystal; }
+            else if (!crystal.isAll && crystal.color == ShrinePaymentColors[bucket]) return crystal;
+        }
+        return null;
+    }
 
     public void UnitCrystallize(EmpowerType color)
     {
