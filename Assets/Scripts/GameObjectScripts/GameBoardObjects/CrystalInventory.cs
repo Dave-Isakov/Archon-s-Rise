@@ -143,6 +143,36 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
         crystal.PopIn();
     }
 
+    // Shrine placement (spec 2026-07-24): each placement spends one crystal that
+    // satisfies the chosen color. Its own LIFO stack, so a cancel before the
+    // engage refunds exactly what the panel placed and nothing else.
+    public Stack<Crystal> shrineSpentCrystals = new();
+
+    public bool SpendShrineCrystal(EmpowerType color)
+    {
+        var crystal = SelectPayCrystal(color);
+        if (crystal == null) return false;
+        shrineSpentCrystals.Push(crystal);
+        crystalsInInventory.Remove(crystal);
+        crystal.FlySpendThenHide(transform.position);
+        return true;
+    }
+
+    public void RefundAllShrineCrystals()
+    {
+        while (shrineSpentCrystals.Count > 0)
+        {
+            var crystal = shrineSpentCrystals.Pop();
+            crystal.gameObject.SetActive(true);
+            crystalsInInventory.Add(crystal);
+            crystal.PopIn();
+        }
+    }
+
+    // The engage committed: the placed crystals are gone for good, whatever the
+    // shrine rolls.
+    public void CommitShrineCrystals() => shrineSpentCrystals.Clear();
+
     public void UnitCrystallize(EmpowerType color)
     {
         unitCreatedCrystals.Push(CreateCrystal(color));
