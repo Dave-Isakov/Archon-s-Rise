@@ -1,3 +1,5 @@
+using ArchonsRise.Shrines;
+
 namespace ArchonsRise.HexTooltipInfo
 {
     // Pure builder of tooltip occupant lines (spec 2026-07-24, §1b). Every string
@@ -30,6 +32,22 @@ namespace ArchonsRise.HexTooltipInfo
         {
             string icon = IconMarkup.Tag(IconConcept.Dungeon);
             return $"{icon} {name} ({defeated}/{total})";
+        }
+
+        // A shrine's one-line state (spec 2026-07-24, §2). Live shows the any-color
+        // crystal cost — the untinted crystal glyph, since any 4 colors pay it.
+        // Consumed/guarding drop the cost: it can no longer be paid.
+        public static string Shrine(ShrineVisualState state, int crystalCost)
+        {
+            switch (state)
+            {
+                case ShrineVisualState.Live:
+                    return $"Shrine {IconMarkup.Cost(IconConcept.Crystal, crystalCost)} — gamble";
+                case ShrineVisualState.Guarding:
+                    return "Shrine — guarded by a guardian";
+                default: // ConsumedDormant
+                    return "Shrine — spent";
+            }
         }
     }
 }
