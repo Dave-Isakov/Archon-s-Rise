@@ -1,39 +1,28 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using ArchonsRise.HexTooltipInfo;
 
-public class TownToken : MonoBehaviour, IPointerClickHandler, IHexOccupant
+// Map-side town/keep/castle identity. Entry, registry and fan handling live in
+// PlaceTokenBase (spec 2026-07-28); this class carries only what is town-specific.
+public class TownToken : PlaceTokenBase
 {
     public TownsSO townSO;
-    // Stable identity over the seeded map; assigned by GridGeneration at spawn.
-    public Vector3Int gridPos;
     [SerializeField] TownDeck deck;
     [SerializeField] TownEvent onClick_OpenTownMenu;
     [SerializeField] TownEvent onClick_GetTownData;
-    private PlayerPosition player;
-    private Grid gameboard;
+    [SerializeField] RecruitPanel recruitPanel;
+    [SerializeField] IntEvent healInfluenceCostEvent; // the SPEND event, not GetCurrentInfluence
+    [SerializeField] TownEvent healTownEvent;
+    [SerializeField] TownEvent onCrystalButtonClick;  // reveals the crystal pop-out
 
-    void Start()
+    protected override string PlaceName => townSO.cardName;
+
+    protected override void OnStart()
     {
-        player = FindAnyObjectByType<PlayerPosition>();
-        gameboard = FindAnyObjectByType<Grid>();
         ConquestTracker.Instance.Register(gridPos, townSO.placeType, townSO.guardians.Count);
-        HexOccupantRegistry.Instance.Register(this);
     }
 
-    void OnDestroy()
-    {
-        if (HexOccupantRegistry.Existing != null) HexOccupantRegistry.Existing.Unregister(this);
-    }
-
-    // IHexOccupant: towns/keeps/castles describe their type + name + conquest
-    // state, and block move-dispatch (entered by standing on the cell).
-    public Vector3Int Cell => gridPos;
-    public bool BlocksMove => true;
-
-    public HexDescriptor Describe()
+    public override HexDescriptor Describe()
         => new HexDescriptor(
             TileDescriptor.Town(townSO.cardName, PlaceTypeIcon(townSO.placeType),
                 ConquestTracker.Instance.IsConquered(gridPos)),
@@ -49,42 +38,76 @@ public class TownToken : MonoBehaviour, IPointerClickHandler, IHexOccupant
         }
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public override List<PlaceAction> BuildActions()
     {
-        if (MapFog.IsHidden(gridPos)) return; // hidden by fog → not interactable
+        int influence = PlayerStats != null ? PlayerStats.playerInfluence : 0;
 
-        // During teleport targeting the interactor owns all clicks (you can teleport
-        // onto a place cell); let it handle this one.
-        if (HexInteractor.Instance != null && HexInteractor.Instance.IsTeleporting) return;
+        bool anyUnitAffordable = townSO.recruitableUnits.Exists(
+            u => u != null && u.influenceCost <= influence);
 
-        // Places are entered by standing on the cell. If the player is adjacent instead,
-        // treat the click as a move request onto this cell (Explore-phase movement); the
-        // menu opens on the next click, once standing here.
-        if (gameboard.LocalToCell(player.transform.position) != gridPos)
+        return PlaceActionRules.ForTown(new TownActionSnapshot(
+            placeType: townSO.placeType,
+            conquered: ConquestTracker.Instance.IsConquered(gridPos),
+            guardiansRemaining: townSO.guardians.Count
+                                - ConquestTracker.Instance.DefeatedCount(gridPos),
+            influence: influence,
+            healCost: townSO.healLevel,
+            crystalCost: townSO.resourceLevel,
+            anyUnitAffordable: anyUnitAffordable,
+            visitCanAct: CanActThisVisit,
+            hasMenu: true));
+    }
+
+    public override void Dispatch(PlaceActionId id)
+    {
+        switch (id)
         {
-            if (ExplorationController.Instance != null && ExplorationController.Instance.IsAdjacent(gridPos))
-                ExplorationController.Instance.Move(gridPos);
-            else
-                GameManager.Instance.ValidationMessage(
-                    $"You must be standing in {townSO.cardName} to enter it.");
-            return;
+            case PlaceActionId.Assault:
+                GuardianAssault.Instance.Begin(this);
+                break;
+
+            case PlaceActionId.Heal:
+                // Same three effects the old HealButton wired, in the same order.
+                if (healTownEvent != null) healTownEvent.Raise(this);
+                if (healInfluenceCostEvent != null) healInfluenceCostEvent.Raise(townSO.healLevel);
+                if (TurnPhaseController.Instance != null)
+                    TurnPhaseController.Instance.CommitVisitAction();
+                break;
+
+            case PlaceActionId.Recruit:
+                if (recruitPanel != null) recruitPanel.Open(this);
+                break;
+
+            case PlaceActionId.Crystal:
+                OpenCrystalPopout();
+                break;
+
+            case PlaceActionId.Cards:
+                break; // M2 stub: the slot renders locked and does nothing
+
+            case PlaceActionId.OpenMenu:
+                GameManager.Instance.townCanvas.enabled = true;
+                deck.CreateTown(this);
+                // Revive any button that hid itself on a previous open so its
+                // listener re-registers before the events below drive
+                // UpdateButtonText.
+                TownMenu.Instance.PrepareButtons();
+                onClick_GetTownData.Raise(this);
+                onClick_OpenTownMenu.Raise(this);
+                break;
         }
+    }
 
-        // Opening a place is a free peek (spec 2026-07-22): the turn's one action is
-        // spent by the first service committed inside (recruit/heal/buy/assault), not
-        // by the menu open. BeginVisit snapshots whether this visit may act — only if
-        // the action is still unspent; a whole visit still counts as the one action.
-        if (TurnPhaseController.Instance != null)
-            TurnPhaseController.Instance.BeginVisit();
-
-        GameManager.Instance.townCanvas.enabled = true;
-        deck.CreateTown(this);
-        // Revive any button that hid itself on a previous open, so its listener
-        // re-registers before the events below drive UpdateButtonText. Without
-        // this, buttons that went inactive (e.g. Recruit on a not-yet-conquered
-        // Keep) never re-appear once conditions change (the Keep is conquered).
+    // The influence and the turn's action are spent by CrystalButton.OnCrystalPurchased
+    // when a colour is picked — not here, so opening the pop-out and clicking away
+    // stays free. That handler reads CrystalButton._town, which ONLY
+    // onClick_GetTownData sets, so the fan route has to raise it too: without this
+    // the purchase silently skips both the deduction and the action commit.
+    // PrepareButtons first, because a button that hid itself is not listening.
+    private void OpenCrystalPopout()
+    {
         TownMenu.Instance.PrepareButtons();
-        onClick_GetTownData.Raise(this);
-        onClick_OpenTownMenu.Raise(this);
+        if (onClick_GetTownData != null) onClick_GetTownData.Raise(this);
+        if (onCrystalButtonClick != null) onCrystalButtonClick.Raise(this);
     }
 }
