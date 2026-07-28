@@ -21,4 +21,6 @@ public enum IconConcept
     Dungeon,
     Empower,
     Refresh,
+    Card,
+    Menu,
 }

@@ -28,6 +28,8 @@ public class IconMarkupTests
         Assert.AreEqual("<sprite=\"dungeon\" index=0>", IconMarkup.Tag(IconConcept.Dungeon));
         Assert.AreEqual("<sprite=\"empower\" index=0>", IconMarkup.Tag(IconConcept.Empower));
         Assert.AreEqual("<sprite=\"refresh\" index=0>", IconMarkup.Tag(IconConcept.Refresh));
+        Assert.AreEqual("<sprite=\"card\" index=0>", IconMarkup.Tag(IconConcept.Card));
+        Assert.AreEqual("<sprite=\"menu\" index=0>", IconMarkup.Tag(IconConcept.Menu));
     }
 
     [Test]

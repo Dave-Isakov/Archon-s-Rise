@@ -32,6 +32,8 @@ public static class IconMarkup
             case IconConcept.Dungeon:    return "dungeon";
             case IconConcept.Empower:    return "empower";
             case IconConcept.Refresh:    return "refresh";
+            case IconConcept.Card:       return "card";
+            case IconConcept.Menu:       return "menu";
             default:                     return "";
         }
     }
