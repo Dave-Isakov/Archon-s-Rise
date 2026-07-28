@@ -21,7 +21,9 @@ NUNIT="$(ls -d Library/PackageCache/com.unity.ext.nunit@*/net472/unity-custom/nu
 mkdir -p Temp/pure-tests
 cp -f "$NUNIT" Temp/pure-tests/
 
-"$UNITY/mcs.bat" -target:exe -out:Temp/pure-tests/t.exe -r:"$NUNIT" \
+# -langversion:latest is required: mcs defaults to C# 7.0, which rejects
+# `readonly struct` (C# 7.2) — a form this codebase already uses.
+"$UNITY/mcs.bat" -target:exe -langversion:latest -out:Temp/pure-tests/t.exe -r:"$NUNIT" \
   "$@" tools/pure-tests/Runner.cs || exit 1
 
 "$UNITY/cli.bat" Temp/pure-tests/t.exe
