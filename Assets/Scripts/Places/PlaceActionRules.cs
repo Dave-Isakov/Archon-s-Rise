@@ -50,6 +50,32 @@ public static class PlaceActionRules
         return list;
     }
 
+    public static List<PlaceAction> ForDungeon(DungeonActionSnapshot s)
+    {
+        var list = new List<PlaceAction>();
+        if (!s.Complete)
+            list.Add(new PlaceAction(PlaceActionId.Delve, IconConcept.Dungeon,
+                IconConcept.Explore, s.DelveCost,
+                s.Explore >= s.DelveCost && s.VisitCanAct));
+
+        AppendMenu(list, s.HasMenu);
+        return list;
+    }
+
+    // A shrine always shows its Engage slot — a spent or guarded one renders
+    // locked rather than firing a message, so the click is never a no-op.
+    // Shrines have no detail menu, hence no ledger slot.
+    public static List<PlaceAction> ForShrine(ShrineActionSnapshot s)
+    {
+        var list = new List<PlaceAction>
+        {
+            new PlaceAction(PlaceActionId.Engage, IconConcept.Crystal,
+                IconConcept.Crystal, s.CrystalCost, s.IsLive && s.VisitCanAct),
+        };
+        AppendMenu(list, false);
+        return list;
+    }
+
     // The ledger slot: always last, always enabled, and only for places that
     // actually have a detail menu (shrines do not, so they get no dead button).
     static void AppendMenu(List<PlaceAction> list, bool hasMenu)

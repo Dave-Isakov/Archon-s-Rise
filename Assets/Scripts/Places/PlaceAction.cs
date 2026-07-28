@@ -51,3 +51,39 @@ public readonly struct TownActionSnapshot
         HasMenu = hasMenu;
     }
 }
+
+public readonly struct DungeonActionSnapshot
+{
+    public readonly bool Complete;
+    public readonly int Explore;
+    public readonly int DelveCost;
+    public readonly bool VisitCanAct;
+    public readonly bool HasMenu;
+
+    public DungeonActionSnapshot(bool complete, int explore, int delveCost,
+        bool visitCanAct, bool hasMenu)
+    {
+        Complete = complete;
+        Explore = explore;
+        DelveCost = delveCost;
+        VisitCanAct = visitCanAct;
+        HasMenu = hasMenu;
+    }
+}
+
+// isLive rather than ShrineVisualState on purpose: it keeps ArchonsRise.Places
+// independent of ArchonsRise.Shrines, and the rule only cares whether the
+// shrine can still be engaged.
+public readonly struct ShrineActionSnapshot
+{
+    public readonly bool IsLive;
+    public readonly int CrystalCost;
+    public readonly bool VisitCanAct;
+
+    public ShrineActionSnapshot(bool isLive, int crystalCost, bool visitCanAct)
+    {
+        IsLive = isLive;
+        CrystalCost = crystalCost;
+        VisitCanAct = visitCanAct;
+    }
+}

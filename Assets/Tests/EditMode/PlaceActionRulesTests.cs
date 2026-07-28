@@ -86,4 +86,71 @@ public class PlaceActionRulesTests
         Assert.IsTrue(actions.Find(a => a.Id == PlaceActionId.OpenMenu).Enabled,
             "the ledger is a free peek and never locks");
     }
+
+    [Test]
+    public void Dungeon_DelveShowsExploreCostThenMenu()
+    {
+        var actions = PlaceActionRules.ForDungeon(
+            new DungeonActionSnapshot(false, 5, 2, true, true));
+        Assert.AreEqual(2, actions.Count);
+        Assert.AreEqual(PlaceActionId.Delve, actions[0].Id);
+        Assert.AreEqual(IconConcept.Explore, actions[0].CostIcon);
+        Assert.AreEqual(2, actions[0].CostAmount);
+        Assert.IsTrue(actions[0].Enabled);
+        Assert.AreEqual(PlaceActionId.OpenMenu, actions[1].Id);
+    }
+
+    [Test]
+    public void Dungeon_DelveLocksBelowExploreCost()
+    {
+        var actions = PlaceActionRules.ForDungeon(
+            new DungeonActionSnapshot(false, 1, 2, true, true));
+        Assert.IsFalse(actions[0].Enabled);
+    }
+
+    [Test]
+    public void Dungeon_DelveLocksOnceTheActionIsSpent()
+    {
+        var actions = PlaceActionRules.ForDungeon(
+            new DungeonActionSnapshot(false, 9, 2, false, true));
+        Assert.IsFalse(actions[0].Enabled);
+        Assert.IsTrue(actions[1].Enabled, "the ledger is a free peek and never locks");
+    }
+
+    [Test]
+    public void Dungeon_CompleteLeavesMenuOnly()
+    {
+        var actions = PlaceActionRules.ForDungeon(
+            new DungeonActionSnapshot(true, 9, 2, true, true));
+        Assert.AreEqual(1, actions.Count);
+        Assert.AreEqual(PlaceActionId.OpenMenu, actions[0].Id);
+    }
+
+    [Test]
+    public void LiveShrine_EngageOnlyWithNoLedgerSlot()
+    {
+        var actions = PlaceActionRules.ForShrine(new ShrineActionSnapshot(true, 4, true));
+        Assert.AreEqual(1, actions.Count, "a shrine has no detail menu, so no ledger slot");
+        Assert.AreEqual(PlaceActionId.Engage, actions[0].Id);
+        Assert.AreEqual(IconConcept.Crystal, actions[0].CostIcon);
+        Assert.AreEqual(4, actions[0].CostAmount);
+        Assert.IsTrue(actions[0].Enabled);
+    }
+
+    [Test]
+    public void SpentOrGuardedShrine_EngagePresentButDisabled()
+    {
+        var actions = PlaceActionRules.ForShrine(new ShrineActionSnapshot(false, 4, true));
+        Assert.AreEqual(1, actions.Count);
+        Assert.AreEqual(PlaceActionId.Engage, actions[0].Id);
+        Assert.IsFalse(actions[0].Enabled,
+            "a spent or guarded shrine shows a locked slot, never a message");
+    }
+
+    [Test]
+    public void Shrine_EngageLocksOnceTheActionIsSpent()
+    {
+        var actions = PlaceActionRules.ForShrine(new ShrineActionSnapshot(true, 4, false));
+        Assert.IsFalse(actions[0].Enabled);
+    }
 }
