@@ -32,10 +32,14 @@ public class CreateCrystalButtons : MonoBehaviour, IPointerClickHandler
         thisButton.onClick.AddListener(() => onCrystalButtonClick_CreateCrystalOfColor.Raise(color));
     }
 
-    private void Update() {
-        if(!GameManager.Instance.townCanvas.enabled)
-        {
-            thisButton.interactable = false;
-        }
+    // The pop-out used to be reachable only from the town canvas, so this gate
+    // keyed off that canvas. The place fan can now open it with the canvas shut
+    // (spec 2026-07-28), so the buttons stay live while EITHER route is open and
+    // are disarmed by HideAll on purchase or click-off.
+    private void Update()
+    {
+        if (GameManager.Instance.townCanvas.enabled) return;
+        if (PlaceFan.Instance != null && PlaceFan.Instance.IsOpen) return;
+        thisButton.interactable = false;
     }
 }

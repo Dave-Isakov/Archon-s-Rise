@@ -458,6 +458,11 @@ public class DataManager : MonoBehaviour
         if (game.cardRewardCanvas != null && game.cardRewardCanvas.enabled) return false;
         if (game.cardListCanvas != null && game.cardListCanvas.enabled) return false;
 
+        // The place fan replaced those canvases as the normal way into a place
+        // (spec 2026-07-28), so it has to join the guard or a mid-visit save
+        // becomes possible where it never was before.
+        if (PlaceFan.Instance != null && PlaceFan.Instance.IsOpen) return false;
+
         // No reward/message modal open or queued (the RewardQueue owns them all).
         if (RewardQueue.Instance.Busy) return false;
 
