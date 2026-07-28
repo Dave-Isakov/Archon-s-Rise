@@ -22,6 +22,16 @@ public class FanPreviewTrigger : PreviewTrigger
         if (canvas != null) uiCam = canvas.rootCanvas.worldCamera;
     }
 
+    // A slot can disappear while the pointer is still over it: clicking Assault
+    // dismisses the fan (root.SetActive(false)), and a shrinking action list
+    // deactivates pooled slots. Unity never delivers OnPointerExit to an object
+    // that is deactivated under the cursor, so without this the preview would
+    // hang on screen — over the combat canvas, with nothing left to close it.
+    //
+    // The town menu never hit this because it closed with Canvas.enabled = false,
+    // which leaves the GameObject active and lets the exit through.
+    void OnDisable() => Unfocus();
+
     protected override IReadOnlyList<EnemyPreviewData> ResolveEntries()
     {
         var host = PlaceFan.Instance != null ? PlaceFan.Instance.CurrentHost : null;
