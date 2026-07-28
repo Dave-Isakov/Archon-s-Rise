@@ -21,6 +21,21 @@ public class HexOccupantRegistry : MonoBehaviour
         }
     }
 
+    // Non-creating accessor. Teardown paths (OnDestroy/OnDisable) MUST use this:
+    // going through Instance there would spawn a fresh registry GameObject while
+    // the scene is closing, which Unity reports as "objects were not cleaned up".
+    public static HexOccupantRegistry Existing => instance;
+
+    void Awake()
+    {
+        if (instance == null) instance = this;
+    }
+
+    void OnDestroy()
+    {
+        if (instance == this) instance = null;
+    }
+
     public void Register(IHexOccupant occ)
     {
         if (!byCell.TryGetValue(occ.Cell, out var list))

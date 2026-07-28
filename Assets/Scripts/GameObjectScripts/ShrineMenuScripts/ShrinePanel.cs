@@ -133,7 +133,7 @@ public class ShrinePanel : MonoBehaviour
         if (current == null || picks == null) return;
 
         bool complete = ShrinePaymentRules.IsComplete(picks);
-        var solved = FanMath.Solve(picks.Length + (complete ? 1 : 0), fan);
+        var solved = FanMath.Solve(picks.Length, fan);
 
         for (int i = 0; i < picks.Length && i < slots.Count; i++)
         {
@@ -145,7 +145,7 @@ public class ShrinePanel : MonoBehaviour
         confirmButton.gameObject.SetActive(complete);
         if (!complete) return;
 
-        Place((RectTransform)confirmButton.transform, solved[picks.Length]);
+        // Place((RectTransform)confirmButton.transform, solved[picks.Length]);
 
         // Opening a shrine is a free peek, so a player who already acted this turn
         // can still fill the slots — but the confirm shows locked (UiLock dim +

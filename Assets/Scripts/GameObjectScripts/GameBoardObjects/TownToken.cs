@@ -25,7 +25,7 @@ public class TownToken : MonoBehaviour, IPointerClickHandler, IHexOccupant
 
     void OnDestroy()
     {
-        if (HexOccupantRegistry.Instance != null) HexOccupantRegistry.Instance.Unregister(this);
+        if (HexOccupantRegistry.Existing != null) HexOccupantRegistry.Existing.Unregister(this);
     }
 
     // IHexOccupant: towns/keeps/castles describe their type + name + conquest

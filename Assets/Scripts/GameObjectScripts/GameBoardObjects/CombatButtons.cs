@@ -17,31 +17,39 @@ public class CombatButtons : MonoBehaviour
     [SerializeField] Button advanceButton;
     [SerializeField] TextMeshProUGUI advanceLabel;
     [SerializeField] Image advanceGlow;               // optional glow plate (UIPulseGlow.mat); tinted per state
-    [SerializeField] float advanceDistance = 220f;    // px opposite the enemy centroid
 
     [Header("Withdraw (last resort)")]
     [SerializeField] Button withdrawButton;
-    [SerializeField] float withdrawDistance = 460f;   // px, further out toward the edge
 
     [Header("State colours")]
     [SerializeField] Color engageColor = Color.white;
     [SerializeField] Color takeHitColor = new Color(0.90f, 0.20f, 0.20f);       // red
     [SerializeField] Color counterattackColor = new Color(0.30f, 0.80f, 0.35f); // strike-back
 
-    [Header("On-screen clamp (px half-extents from centre)")]
-    [SerializeField] Vector2 clampHalfExtents = new Vector2(360f, 260f);
-
-    [Header("Idle sway (owned here so nothing fights the anchor)")]
+    [Header("Idle sway (owned here so nothing fights the parked position)")]
     [SerializeField] float swayPosAmplitude = 4f;    // px
     [SerializeField] float swayTiltAmplitude = 1.5f; // degrees
     [SerializeField] float swayPeriod = 3.2f;        // seconds per cycle
 
     Player player;
+    // Where each button was authored in the scene. Both are parked by hand now
+    // (spec 2026-07-27): anchoring them opposite the enemy cluster made them jump
+    // on every kill and left the enemy layout dodging a moving target. The sway
+    // plays around these, so the script never redefines where a button lives.
+    Vector2 advanceHome, withdrawHome;
 
     void Start()
     {
-        if (advanceButton != null) advanceButton.onClick.AddListener(OnAdvance);
-        if (withdrawButton != null) withdrawButton.onClick.AddListener(OnWithdraw);
+        if (advanceButton != null)
+        {
+            advanceButton.onClick.AddListener(OnAdvance);
+            advanceHome = ((RectTransform)advanceButton.transform).anchoredPosition;
+        }
+        if (withdrawButton != null)
+        {
+            withdrawButton.onClick.AddListener(OnWithdraw);
+            withdrawHome = ((RectTransform)withdrawButton.transform).anchoredPosition;
+        }
     }
 
     void Update()
@@ -54,26 +62,25 @@ public class CombatButtons : MonoBehaviour
         var st = CombatPhaseRules.Advance(cc.Phase, player.PlayerSiege, cc.AnySiegeKillable(player.PlayerSiege),
             player.PlayerDefend, cc.LiveEnemyAttackTotal, player.PlayerToughness);
 
-        RenderAdvance(st, cc);
+        RenderAdvance(st);
         RenderWithdraw(cc);
 
         bool siege = cc.Phase == CombatPhase.Siege;
         cc.SetEnemyActionGlow(siege && player.PlayerSiege > 0, siege && player.PlayerInfluence > 0);
     }
 
-    void RenderAdvance(AdvanceState st, CombatController cc)
+    void RenderAdvance(AdvanceState st)
     {
         bool show = st.Kind != AdvanceKind.Hidden;
         if (advanceButton != null) advanceButton.gameObject.SetActive(show);
         if (!show) return;
 
-        var a = CombatLayoutRules.OppositeAnchor(cc.EnemyCentroidLocal.x, cc.EnemyCentroidLocal.y, advanceDistance);
-        PlaceWithSway((RectTransform)advanceButton.transform, a);
+        PlaceWithSway((RectTransform)advanceButton.transform, advanceHome);
 
         string text; Color color;
         if (st.Kind == AdvanceKind.Engage) { text = "Engage"; color = engageColor; }
         else if (st.Kind == AdvanceKind.Counterattack) { text = "-> Counterattack!"; color = counterattackColor; }
-        else { text = $"Gain {st.Wounds} {IconMarkup.Tag(IconConcept.Wound)} - use {IconMarkup.Tag(IconConcept.Defend)}!!"; color = takeHitColor; }
+        else { text = $"{st.Wounds} {IconMarkup.Tag(IconConcept.Wound)} - use {IconMarkup.Tag(IconConcept.Defend)}!!"; color = takeHitColor; }
 
         if (advanceLabel != null) { advanceLabel.text = text; advanceLabel.color = color; }
         if (advanceGlow != null) advanceGlow.color = color;
@@ -85,19 +92,18 @@ public class CombatButtons : MonoBehaviour
         if (withdrawButton != null) withdrawButton.gameObject.SetActive(show);
         if (!show) return;
 
-        var a = CombatLayoutRules.OppositeAnchor(cc.EnemyCentroidLocal.x, cc.EnemyCentroidLocal.y, withdrawDistance);
-        PlaceWithSway((RectTransform)withdrawButton.transform, a);
+        PlaceWithSway((RectTransform)withdrawButton.transform, withdrawHome);
     }
 
-    // Positions a button at its clamped anchor plus a subtle idle sway. Owning
-    // both here (rather than a separate EnemyCardIdleSway on the button) keeps a
-    // single writer of the RectTransform, so the sway can never fight the anchor.
-    void PlaceWithSway(RectTransform rt, CombatLayoutRules.Anchor a)
+    // Nudges a button around its authored home with a subtle idle sway. Owning
+    // the write here (rather than a separate sway component) keeps one writer of
+    // the RectTransform, so nothing can drift the button off its parked spot.
+    void PlaceWithSway(RectTransform rt, Vector2 home)
     {
         float w = Time.time / Mathf.Max(0.01f, swayPeriod) * Mathf.PI * 2f;
         Vector2 sway = new Vector2(Mathf.Sin(w) * swayPosAmplitude,
                                    Mathf.Cos(w * 0.5f) * swayPosAmplitude * 0.5f);
-        rt.anchoredPosition = Clamp(new Vector2(a.X, a.Y)) + sway;
+        rt.anchoredPosition = home + sway;
         rt.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(w) * swayTiltAmplitude);
     }
 
@@ -118,8 +124,4 @@ public class CombatButtons : MonoBehaviour
         if (advanceButton != null) advanceButton.gameObject.SetActive(false);
         if (withdrawButton != null) withdrawButton.gameObject.SetActive(false);
     }
-
-    Vector2 Clamp(Vector2 p) => new Vector2(
-        Mathf.Clamp(p.x, -clampHalfExtents.x, clampHalfExtents.x),
-        Mathf.Clamp(p.y, -clampHalfExtents.y, clampHalfExtents.y));
 }

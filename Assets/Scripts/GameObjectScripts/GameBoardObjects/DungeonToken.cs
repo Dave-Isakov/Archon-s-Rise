@@ -26,7 +26,7 @@ public class DungeonToken : MonoBehaviour, IPointerClickHandler, IHexOccupant
 
     void OnDestroy()
     {
-        if (HexOccupantRegistry.Instance != null) HexOccupantRegistry.Instance.Unregister(this);
+        if (HexOccupantRegistry.Existing != null) HexOccupantRegistry.Existing.Unregister(this);
     }
 
     // IHexOccupant: dungeons describe their delve progress and block move-dispatch

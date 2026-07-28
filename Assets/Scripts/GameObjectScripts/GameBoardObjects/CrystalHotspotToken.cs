@@ -27,7 +27,7 @@ public class CrystalHotspotToken : MonoBehaviour, IHexOccupant
 
     void OnDestroy()
     {
-        if (HexOccupantRegistry.Instance != null) HexOccupantRegistry.Instance.Unregister(this);
+        if (HexOccupantRegistry.Existing != null) HexOccupantRegistry.Existing.Unregister(this);
     }
 
     public HexDescriptor Describe()

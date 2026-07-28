@@ -17,5 +17,5 @@ MonoBehaviour:
   m_DefaultColliderType: 1
   m_TilingRules: []
   m_FlatTop: 0
-  exploreCost: 0
+  exploreCost: 1
   terrain: 1

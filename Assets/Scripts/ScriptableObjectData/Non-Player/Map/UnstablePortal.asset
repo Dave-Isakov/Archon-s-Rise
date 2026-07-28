@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69e95128aab9b544b92193f8e2bb55d5, type: 3}
+  m_Name: UnstablePortal
+  m_EditorClassIdentifier: Assembly-CSharp::ShrineSO
+  id: unstable_portal
+  cardName: Unstable Portal
+  cardDescription: Crystals are drawn to it like a magnet.
+  crystalCost: 4
+  goodRollChance: 0.5
+  rewardTypes: 000000000100000002000000
+  unitPool: []
+  largeExp: 15
+  cardTier: 3
+  summonedEnemy: {fileID: 11400000, guid: 9abcb77e941bd0d48bf0c36cccaef4c8, type: 2}

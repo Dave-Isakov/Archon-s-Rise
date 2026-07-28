@@ -12,6 +12,12 @@ public class PlayerAvatar : MonoBehaviour
     public static PlayerAvatar Instance { get; private set; }
 
     [SerializeField] Animator animator;
+    // Where the avatar rests relative to the hex it stands on. The character art
+    // pivots at the feet, so a rest of zero puts the FEET in the hex centre and
+    // floats the body above it; half a cell down centres the character himself.
+    // Every walk settles here rather than at zero, so the offset survives a move —
+    // a rest position the transform owns would be wiped by the first walk.
+    [SerializeField] Vector3 restLocalPosition = new Vector3(0f, -0.5f, 0f);
     [SerializeField] float moveDuration = 0.25f;
     // How long a Fight/Hurt clip owns the avatar before it resumes. Kept as a
     // scalar rather than read from clip length so an override controller with
@@ -31,6 +37,11 @@ public class PlayerAvatar : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(this); return; }
         Instance = this;
+
+        // Claim the rest position up front: this is a RectTransform whose anchors
+        // would otherwise derive it from the parent's rect, and a save restore can
+        // land before the first walk would have settled it.
+        transform.localPosition = restLocalPosition;
 
         // Per-character clips arrive as an AnimatorOverrideController on the
         // CharacterSO. A null one leaves the base controller in place, so a
@@ -80,7 +91,7 @@ public class PlayerAvatar : MonoBehaviour
     IEnumerator WalkRoutine(Vector3 offset)
     {
         isMoving = true;
-        // The slide always runs (the avatar must end up at its parent's origin),
+        // The slide always runs (the avatar must end up at its rest position),
         // but the walk CLIP only takes over if it wins against what is playing.
         bool animate = AvatarStateRules.ShouldPlay(current, AvatarState.Walk);
         if (animate)
@@ -93,10 +104,11 @@ public class PlayerAvatar : MonoBehaviour
         while (t < moveDuration)
         {
             t += Time.deltaTime;
-            transform.localPosition = Vector3.Lerp(offset, Vector3.zero, t / moveDuration);
+            transform.localPosition =
+                Vector3.Lerp(restLocalPosition + offset, restLocalPosition, t / moveDuration);
             yield return null;
         }
-        transform.localPosition = Vector3.zero;
+        transform.localPosition = restLocalPosition;
 
         isMoving = false;
         if (animate)
