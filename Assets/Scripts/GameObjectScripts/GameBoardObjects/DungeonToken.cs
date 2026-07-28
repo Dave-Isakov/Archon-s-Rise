@@ -1,71 +1,59 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using ArchonsRise.HexTooltipInfo;
 
-// Map-side dungeon identity (M2.9): assigned SO + grid cell, visual state
-// (flagged / cleared markers), and the stand-on-cell entry rule (TownToken
-// pattern — dungeons are place-like, adjacency is not enough).
-public class DungeonToken : MonoBehaviour, IPointerClickHandler, IHexOccupant
+// Map-side dungeon identity (M2.9). Entry, registry and fan handling all live in
+// PlaceTokenBase (spec 2026-07-28); this class carries only what is dungeon-specific:
+// its SO, its visual state markers, and what its fan offers.
+public class DungeonToken : PlaceTokenBase
 {
     public DungeonsSO dungeonSO;
-    // Stable identity over the seeded map; assigned by GridGeneration at spawn.
-    public Vector3Int gridPos;
     [SerializeField] GameObject flagMarker;    // active while flagged, until cleared
     [SerializeField] GameObject clearedMarker; // active once complete
-    private PlayerPosition player;
-    private Grid gameboard;
+    [SerializeField] VoidEvent onDungeonOpenTutorial; // M2.12 one-shot, raised on fan open
 
-    void Start()
+    protected override string PlaceName => dungeonSO.cardName;
+
+    protected override void OnStart()
     {
-        player = FindAnyObjectByType<PlayerPosition>();
-        gameboard = FindAnyObjectByType<Grid>();
         DungeonTracker.Instance.Register(gridPos, dungeonSO.id);
-        HexOccupantRegistry.Instance.Register(this);
         RefreshVisual();
     }
 
-    void OnDestroy()
-    {
-        if (HexOccupantRegistry.Existing != null) HexOccupantRegistry.Existing.Unregister(this);
-    }
-
-    // IHexOccupant: dungeons describe their delve progress and block move-dispatch
-    // (they are entered by standing on the cell, not walked through).
-    public Vector3Int Cell => gridPos;
-    public bool BlocksMove => true;
-
-    public HexDescriptor Describe()
+    public override HexDescriptor Describe()
         => new HexDescriptor(
             TileDescriptor.Dungeon(dungeonSO.cardName,
                 DungeonTracker.Instance.DefeatedCount(gridPos), DungeonRules.DelveCount),
             TileDescriptor.PlacePriority);
 
-    public void OnPointerClick(PointerEventData eventData)
+    public override List<PlaceAction> BuildActions()
+        => PlaceActionRules.ForDungeon(new DungeonActionSnapshot(
+            complete: DungeonTracker.Instance.IsComplete(gridPos),
+            explore: PlayerStats != null ? PlayerStats.PlayerExplore : 0,
+            delveCost: dungeonSO.exploreCost,
+            visitCanAct: CanActThisVisit,
+            hasMenu: true));
+
+    public override void Dispatch(PlaceActionId id)
     {
-        if (MapFog.IsHidden(gridPos)) return; // hidden by fog → not interactable
-
-        // During teleport targeting the interactor owns all clicks; let it handle this.
-        if (HexInteractor.Instance != null && HexInteractor.Instance.IsTeleporting) return;
-
-        // Dungeons are entered by standing on the cell. If adjacent instead, treat the
-        // click as a move request onto this cell (Explore-phase movement).
-        if (gameboard.LocalToCell(player.transform.position) != gridPos)
+        switch (id)
         {
-            if (ExplorationController.Instance != null && ExplorationController.Instance.IsAdjacent(gridPos))
-                ExplorationController.Instance.Move(gridPos);
-            else
-                GameManager.Instance.ValidationMessage(
-                    $"You must be standing at {dungeonSO.cardName} to enter it.");
-            return;
+            case PlaceActionId.Delve:
+                DungeonPanel.PerformDelve(this);
+                break;
+
+            case PlaceActionId.OpenMenu:
+                FindAnyObjectByType<DungeonPanel>(FindObjectsInactive.Include).Open(this);
+                break;
         }
+    }
 
-        // Opening the dungeon panel is a free peek (spec 2026-07-22): the turn's one
-        // action is spent by pressing Delve, not by opening the menu. BeginVisit
-        // snapshots whether this visit may act (only if the action is still unspent).
-        if (TurnPhaseController.Instance != null)
-            TurnPhaseController.Instance.BeginVisit();
-
-        FindAnyObjectByType<DungeonPanel>(FindObjectsInactive.Include).Open(this);
+    // The M2.12 one-shot used to key off DungeonPanel.Open. The fan is the normal
+    // path now, so it fires here instead — otherwise it would never fire again
+    // once players stop opening the panel.
+    protected override void OnFanOpening()
+    {
+        if (onDungeonOpenTutorial != null) onDungeonOpenTutorial.Raise();
     }
 
     public void RefreshVisual()

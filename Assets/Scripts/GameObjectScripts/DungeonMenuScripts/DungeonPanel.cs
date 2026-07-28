@@ -20,7 +20,6 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
     // current total, so the Delve gate updates live as the player pays cards while
     // the panel is open (instead of a one-shot check when the menu opens).
     [SerializeField] IntEvent onExploreChanged;
-    [SerializeField] VoidEvent onDungeonOpenTutorial; // M2.12 one-shot trigger
 
     private DungeonToken current;
 
@@ -46,7 +45,8 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
     {
         current = token;
         GameManager.Instance.dungeonCanvas.enabled = true;
-        if (onDungeonOpenTutorial != null) onDungeonOpenTutorial.Raise();
+        // The M2.12 tutorial one-shot moved to DungeonToken.OnFanOpening: the fan
+        // is the normal entry now, so keying it off the panel would rarely fire.
         Refresh();
     }
 
@@ -57,30 +57,36 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
         GameManager.Instance.dungeonCanvas.enabled = false;
     }
 
-    // Wired to the Delve button's OnClick.
+    // Wired to the panel's Delve button's OnClick.
     public void Delve()
     {
         if (current == null) return;
+        var token = current;
+        Close();
+        PerformDelve(token);
+    }
+
+    // The delve itself, shared by the panel button and the place fan's Delve slot.
+    public static void PerformDelve(DungeonToken token)
+    {
+        if (token == null) return;
         var player = FindAnyObjectByType<Player>();
-        int cost = current.dungeonSO.exploreCost;
+        int cost = token.dungeonSO.exploreCost;
         if (player.PlayerExplore < cost)
         {
             GameManager.Instance.ValidationMessage(
-                $"You need {cost} Explore to delve into {current.dungeonSO.cardName}.");
+                $"You need {cost} Explore to delve into {token.dungeonSO.cardName}.");
             return;
         }
         player.PlayerExplore -= cost;
         player.GetCurrentExplore();
-        // Delving is the visit's committed action (spec 2026-07-22): spend the turn's
-        // action now (the Delve button is gated so this only fires when the visit
-        // still owns it). This also commits the movement stack.
+        // Delving is the visit's committed action (spec 2026-07-22): spend the
+        // turn's action now. This also commits the movement stack.
         if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.CommitVisitAction();
         // Delving is a firm decision: commit all pending plays so the explore
         // that paid for it can't be undone into a negative total.
         GameManager.Instance.commands.ClearStack();
 
-        var token = current;
-        Close();
         DungeonDelve.Instance.Begin(token);
     }
 
