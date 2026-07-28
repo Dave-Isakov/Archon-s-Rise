@@ -125,27 +125,30 @@ public class ShrinePanel : MonoBehaviour
         }
     }
 
-    // Lays the fan out and paints each slot. The checkmark rides an APPENDED fan
-    // position, so solving for one extra seat re-centres the arc as it appears —
-    // and re-centres back if a slot is cycled to empty again.
+    // Reused every Refresh so laying the fan out allocates nothing per frame.
+    private readonly List<RectTransform> seats = new();
+
+    // Lays the fan out (through the shared FanLayout) and paints each slot. The
+    // checkmark is NOT a fan seat: it keeps its authored position, so the arc
+    // solves for the payment slots alone and does not shift as it appears.
     private void Refresh()
     {
         if (current == null || picks == null) return;
 
         bool complete = ShrinePaymentRules.IsComplete(picks);
-        var solved = FanMath.Solve(picks.Length, fan);
 
+        seats.Clear();
         for (int i = 0; i < picks.Length && i < slots.Count; i++)
         {
-            Place((RectTransform)slots[i].transform, solved[i]);
+            seats.Add((RectTransform)slots[i].transform);
             slots[i].Show(SpriteFor(picks[i]));
         }
+
+        FanLayout.Place(seats, fan);
 
         if (confirmButton == null) return;
         confirmButton.gameObject.SetActive(complete);
         if (!complete) return;
-
-        // Place((RectTransform)confirmButton.transform, solved[picks.Length]);
 
         // Opening a shrine is a free peek, so a player who already acted this turn
         // can still fill the slots — but the confirm shows locked (UiLock dim +
@@ -153,12 +156,6 @@ public class ShrinePanel : MonoBehaviour
         bool canAct = TurnPhaseController.Instance == null || TurnPhaseController.Instance.VisitCanAct;
         confirmButton.interactable = canAct;
         UiLock.Apply(confirmGroup, !canAct);
-    }
-
-    private static void Place(RectTransform rt, FanSlot slot)
-    {
-        rt.anchoredPosition = slot.AnchoredPosition;
-        rt.localRotation = Quaternion.Euler(0f, 0f, slot.TiltZ);
     }
 
     private Sprite SpriteFor(int bucket)
