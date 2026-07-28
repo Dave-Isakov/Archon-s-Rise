@@ -283,6 +283,35 @@ reward, and every shrine's state.
 Spec: `docs/superpowers/specs/2026-07-24-crystal-hotspots-and-shrines-design.md`; plan:
 `docs/superpowers/plans/2026-07-24-shrines.md`.
 
+## M2.17 — Minimal place UI + player log — 📐 design approved 2026-07-28 (planning next)
+**Goal:** generalise the shrine's over-the-head fan to every place, and replace click-to-dismiss
+message modals with non-blocking toasts plus an openable history. No game rule changes.
+
+**Phase A — the place fan:**
+- Pure `PlaceActionRules` (in the existing `ArchonsRise.Places` asmdef) returns an ordered
+  `PlaceAction` list from a town or dungeon snapshot; `OpenMenu` is always last and always enabled.
+- One `PlaceFan` + `PlaceFanSlot` renderer, laid out by the existing `FanMath`, parked above screen
+  centre (no per-hex projection needed — entry requires standing on the cell). Towns and dungeons
+  both drive it; `ShrinePanel` is deliberately left alone.
+- `FanPreviewTrigger : PreviewTrigger` gives Assault and Delve slots the shipped enemy preview.
+- Live re-gating by snapshot diff in `Update`, replacing five per-button `Update()` loops and
+  retiring the `TownMenu.PrepareButtons` revival hack.
+- One `ClickOffCatcher` everywhere; exit buttons removed except the card-pick Skip.
+
+**Phase B — toast rail + log:**
+- New `ArchonsRise.Log` asmdef (+ tests-asmdef reference): `PlayerLogCore` ring buffer, cap 100,
+  newest-first, day dividers derived at render time.
+- `GameLog` scene singleton, `ToastRail` (4 visible, ~3.5s dwell, `blocksRaycasts = false`),
+  `LogPanel`. `ValidationMessage` → forwarder → mechanical rename → message canvas deleted.
+
+**Acceptance (USER):** unconquered Keep fans Assault + ledger with a guardian hover preview;
+conquered Castle fans its services and re-gates live as influence changes; ledger opens the unchanged
+full menu; dungeon Delve shows its Explore cost and hover-previews the next enemy; clicking off any
+surface closes it with nothing spent; a multi-kill fight stacks reward toasts that fade on their own
+while the card pick opens underneath; the HUD log lists the run's messages newest-first by day.
+
+Spec: `docs/superpowers/specs/2026-07-28-minimal-place-ui-and-player-log-design.md`.
+
 ## M3 — Run setup & meta-unlocks
 **Goal:** framed runs plus between-run progression.
 **Scope:**

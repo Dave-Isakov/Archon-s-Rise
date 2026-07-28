@@ -608,3 +608,52 @@ and the camera rides `PlayerPosition`, so the shrine is always screen centre (me
 `canvases-are-screen-space-camera`). The confirm is `UiLock`-dimmed when the turn's action is already
 spent, matching `DungeonPanel`'s Delve gate. Slot art is one prefab with a swapped sprite, so a new
 crystal color is a sprite, not a prefab.
+
+## 2026-07-28 — Minimal place UI (the shrine pattern generalised) + a player log instead of message modals
+
+**Decision:** Places stop opening full-screen canvases on click. A small arc of icon buttons fans over
+the player's head — one slot per service that is genuinely available right now — with a **ledger slot**
+appended that opens the existing full menu for players who want the detail. Separately, the blocking
+message canvas is retired: informational events become non-blocking corner toasts plus entries in an
+openable, in-memory history.
+
+**Why the fan.** The shrine's fan (2026-07-27) turned out to be the right interaction shape for the
+whole map layer, not just shrines: a player deep in a run wants the two or three things they can
+actually do, over their character, not a menu that covers the board they are reading. The fan is
+*more* informative than the menu it replaces, because a slot only exists when the service is real.
+
+**Why a pure descriptor rather than re-parenting `TownButtons`.** The cheap route — swap the
+`VerticalLayoutGroup` for `FanMath` and keep the five button MonoBehaviours — leaves visibility logic
+spread across five `Update()` loops, untestable, and needs a second answer for dungeons. A pure
+`PlaceActionRules` returning an ordered `PlaceAction` list is ~60 lines, is mcs-testable, and is the
+piece both callers share. It also **retires the `TownMenu.PrepareButtons` revival hack**: the fan is
+rebuilt from the descriptor on every open, so the self-disabling-`GameEventListener` failure mode
+(a button that hides itself can never re-show) becomes structurally impossible rather than patched.
+
+**Why the `?` is NOT the menu opener.** The original sketch overloaded `HelpIcon`. But `HelpIcon`
+zeroes its alpha and raycasts when tips are off — overloading it would strand a tips-off player with
+no route to the full menu. The ledger gets its own slot; `?` keeps meaning help.
+
+**Click-off everywhere, no exit buttons.** One `ClickOffCatcher` component replaces
+`CrystalDismissCatcher`, `RecruitPanel.cancelButton`, `DungeonPanel`'s Close button and the shrine's
+hand-rolled catcher. Two deliberate exceptions: the run-end screen (terminal), and the card-pick
+reward canvas — click-off there means *forfeit a card*, which is unrecoverable on a mis-click. The
+rule that makes both fall out: **click-off dismisses anything that costs nothing to reopen.**
+
+**The log, and the routing rule.** *Anything needing a decision stays a modal; anything that merely
+informs becomes a toast + log entry.* No exceptions, so all 36 `ValidationMessage` call sites demote
+and the shim can be deleted after a mechanical rename. This is the "map event log" deferred at
+2026-07-24, generalised past map events to everything. Kept **in-memory, capped at 100, grouped by
+day, not saved** — the log answers "what did I just miss", which a session covers, and persisting it
+would cost a save-schema bump plus a migrator plus every migrator test that asserts the version.
+
+**Consequence accepted:** `PayReward` no longer serialises its defeat message ahead of the card pick,
+so the toast floats over the card choice instead of preceding it. That is the point — the rail sets
+`blocksRaycasts = false` and sorts on top, so it never eats a click. `RewardQueue` is left arbitrating
+card and skill picks only.
+
+**Carry-overs that would silently break:** `DungeonPanel.Open` raises `onDungeonOpenTutorial` and the
+town help pulse keys off panel opens. Both must move to fan-open, or the one-shots never fire once
+players stop opening panels.
+
+Spec: `docs/superpowers/specs/2026-07-28-minimal-place-ui-and-player-log-design.md`.
