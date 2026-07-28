@@ -89,32 +89,10 @@ public class GameManager : MonoBehaviour
     // The old per-frame "Round/Turn" label is now the event-driven day countdown +
     // phase label driven by PhaseHud off the controller's events (spec 2026-07-21).
 
-    // Dismiss callback for the queued message currently on screen; set by the
-    // ValidationMessage job, consumed exactly once by ReturnButton.
-    private System.Action messageDone;
-
-    public void ReturnButton()
-    {
-        messageCanvas.enabled = false;
-        var done = messageDone;
-        messageDone = null;
-        done?.Invoke();
-    }
-
-    public void ValidationMessage(string message)
-    {
-        // The run-end screen is terminal: no popup may appear over it.
-        if (RunEndController.HasEnded) return;
-        RewardQueue.Instance.Enqueue(done =>
-        {
-            if (RunEndController.HasEnded) { done(); return; } // run ended while queued
-            if (messageCanvas.enabled)
-                Debug.LogError("ValidationMessage: message canvas already open — modal routing bug.");
-            messageDone = done;
-            messageCanvas.enabled = true;
-            messageText.text = message;
-        });
-    }
+    // Deprecated shim (spec 2026-07-28): messages are no longer blocking modals.
+    // Kept for one commit so every call site keeps compiling while the game is
+    // play-tested; Task 6 renames the call sites and deletes this.
+    public void ValidationMessage(string message) => GameLog.Instance.Post(message);
 
     public void TurnPlus()
     {
