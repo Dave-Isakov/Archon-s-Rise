@@ -10,7 +10,6 @@ public class TownToken : PlaceTokenBase
     [SerializeField] TownDeck deck;
     [SerializeField] TownEvent onClick_OpenTownMenu;
     [SerializeField] TownEvent onClick_GetTownData;
-    [SerializeField] RecruitPanel recruitPanel;
     [SerializeField] IntEvent healInfluenceCostEvent; // the SPEND event, not GetCurrentInfluence
     [SerializeField] TownEvent healTownEvent;
     [SerializeField] TownEvent onCrystalButtonClick;  // reveals the crystal pop-out
@@ -75,7 +74,12 @@ public class TownToken : PlaceTokenBase
                 break;
 
             case PlaceActionId.Recruit:
-                if (recruitPanel != null) recruitPanel.Open(this);
+                // Resolved at click time, not serialized: this token is spawned from
+                // a prefab asset (GridGeneration) while RecruitPanel lives only in
+                // the scene, so the reference is unauthorable. Same resolution
+                // DungeonToken and ShrineToken use for their panels. Once per
+                // click, so the scene scan costs nothing.
+                FindAnyObjectByType<RecruitPanel>(FindObjectsInactive.Include).Open(this);
                 break;
 
             case PlaceActionId.Crystal:
