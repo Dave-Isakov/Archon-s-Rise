@@ -1,7 +1,7 @@
 {
     "name": "ArchonsRise.Places",
     "rootNamespace": "",
-    "references": ["ArchonsRise.SaveData"],
+    "references": ["ArchonsRise.SaveData", "ArchonsRise.UiLanguage"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
