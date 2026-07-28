@@ -1,79 +1,40 @@
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using ArchonsRise.HexTooltipInfo;
 using ArchonsRise.Shrines;
 
-// Map-side shrine identity (spec 2026-07-24). Stand-on-cell, click-to-interact
-// (DungeonToken pattern). Registers with ShrineTracker + HexOccupantRegistry on
-// Start. Visual states: live / consumed-dormant / guarding.
-public class ShrineToken : MonoBehaviour, IHexOccupant, IPointerClickHandler
+// Map-side shrine identity (spec 2026-07-24). Entry lives in PlaceTokenBase
+// (spec 2026-07-28). A spent or guarded shrine now shows a LOCKED Engage slot
+// rather than firing a message — the same way towns and dungeons show state.
+public class ShrineToken : PlaceTokenBase
 {
     public ShrineSO shrineSO;
-    // Stable identity over the seeded map; assigned by GridGeneration at spawn.
-    public Vector3Int gridPos;
     [SerializeField] GameObject liveMarker;
     [SerializeField] GameObject dormantMarker;
     [SerializeField] GameObject guardingMarker;
-    private PlayerPosition player;
-    private Grid gameboard;
 
-    // IHexOccupant: a shrine is place-like — it is used by standing on the cell,
-    // so an adjacent click dispatches a move rather than walking through it.
-    public Vector3Int Cell => gridPos;
-    public bool BlocksMove => true;
+    protected override string PlaceName => shrineSO.cardName;
 
-    void Start()
+    protected override void OnStart()
     {
-        player = FindAnyObjectByType<PlayerPosition>();
-        gameboard = FindAnyObjectByType<Grid>();
         ShrineTracker.Instance.Register(gridPos, shrineSO.id);
-        HexOccupantRegistry.Instance.Register(this);
         RefreshVisual();
     }
 
-    void OnDestroy()
-    {
-        if (HexOccupantRegistry.Existing != null) HexOccupantRegistry.Existing.Unregister(this);
-    }
-
-    public HexDescriptor Describe()
+    public override HexDescriptor Describe()
         => new HexDescriptor(
             TileDescriptor.Shrine(ShrineTracker.Instance.State(gridPos), shrineSO.crystalCost),
             TileDescriptor.PlacePriority);
 
-    public void OnPointerClick(PointerEventData eventData)
+    public override List<PlaceAction> BuildActions()
+        => PlaceActionRules.ForShrine(new ShrineActionSnapshot(
+            isLive: ShrineTracker.Instance.State(gridPos) == ShrineVisualState.Live,
+            crystalCost: shrineSO.crystalCost,
+            visitCanAct: CanActThisVisit));
+
+    public override void Dispatch(PlaceActionId id)
     {
-        if (MapFog.IsHidden(gridPos)) return; // hidden by fog → not interactable
-
-        // During teleport targeting the interactor owns all clicks; let it handle this.
-        if (HexInteractor.Instance != null && HexInteractor.Instance.IsTeleporting) return;
-
-        // Stand-on-cell entry (DungeonToken pattern): if adjacent, treat as a move.
-        if (gameboard.LocalToCell(player.transform.position) != gridPos)
-        {
-            if (ExplorationController.Instance != null && ExplorationController.Instance.IsAdjacent(gridPos))
-                ExplorationController.Instance.Move(gridPos);
-            else
-                GameManager.Instance.ValidationMessage(
-                    $"You must be standing at {shrineSO.cardName} to use it.");
-            return;
-        }
-
-        // A consumed shrine only peeks; a guarding shrine points at its guardian.
-        var state = ShrineTracker.Instance.State(gridPos);
-        if (state != ShrineVisualState.Live)
-        {
-            GameManager.Instance.ValidationMessage(state == ShrineVisualState.Guarding
-                ? "A guardian holds this shrine's reward — defeat it."
-                : "This shrine is spent.");
-            return;
-        }
-
-        // Opening is a free peek (spec 2026-07-22); the action commits when the
-        // engage is confirmed inside the panel (ShrinePanel calls CommitVisitAction).
-        if (TurnPhaseController.Instance != null)
-            TurnPhaseController.Instance.BeginVisit();
-
+        if (id != PlaceActionId.Engage) return;
         FindAnyObjectByType<ShrinePanel>(FindObjectsInactive.Include).Open(this);
     }
 
