@@ -657,3 +657,50 @@ town help pulse keys off panel opens. Both must move to fan-open, or the one-sho
 players stop opening panels.
 
 Spec: `docs/superpowers/specs/2026-07-28-minimal-place-ui-and-player-log-design.md`.
+
+## 2026-07-28 (addendum) — Scope widened to a full UI overhaul after a canvas-by-canvas survey
+
+**Trigger:** "the more menus and features that are added the more rework that'll have to be done."
+So the spec was re-scoped from "convert two menus" to "put a spine under place interaction, then
+convert everything that hangs off it."
+
+**Survey result.** Every UI surface classified. The fan treatment fits exactly three — town, dungeon,
+shrine — confirming the initial instinct. But the survey found the actual rework-magnet is *not* the
+menus: `TownToken`, `DungeonToken` and `ShrineToken` each carry a near-identical ~25-line
+`OnPointerClick` (fog → teleport deferral → adjacency move → "must be standing here" → `BeginVisit`)
+plus their own registry register/unregister. A fourth place type copies it a fourth time. Hence
+**`PlaceTokenBase`**: a new place implements `Describe()`, `BuildActions()`, `Dispatch()` and nothing
+else. `Dispatch` lives on the *token*, not the fan, so `PlaceFan` never learns about place types.
+
+**Reversal — the shrine is folded in.** The earlier call was to leave `ShrinePanel` alone because its
+cycling payment slots are not an action list. That reasoning still holds for *payment*, and payment
+stays untouched. But *entry* does unify: a live shrine fans `[Engage]`, and Engage swaps in the
+payment widget. This also removes an inconsistency — dormant/guarding shrines currently fire a
+`ValidationMessage` where towns and dungeons show UI; they now show a disabled Engage slot. The
+reusable seam is a **`FanLayout`** component (pooling, `FanMath.Solve`, placement, click-off,
+screen-centre parking) shared by `PlaceFan` and the payment widget, rather than one god-abstraction.
+
+**`hasMenu` is a pure input, not an assumption.** Shrines have no detail menu, so `OpenMenu` is
+appended by the rules only when the snapshot says the place has one — otherwise the ledger slot would
+be a dead button on every shrine.
+
+**Combat stays out.** Same philosophy, but `2026-07-24-combat-feel-on-board` and
+`2026-07-27-combat-enemy-placement` are already moving it on-board and touch the same files.
+
+**Three silent breakages the survey caught**, each of which would have shipped unnoticed:
+- `CreateCrystalButtons.Update` force-disables every crystal button whenever `townCanvas.enabled` is
+  false. Opening the picker from the fan would leave the pop-out permanently dead.
+- `DataManager.CanSave` blocks saving while the town/dungeon canvas is open; the fan replaces those
+  as the normal path and must join the guard, or mid-visit saves become possible.
+- `DungeonPanel.Open` raises `onDungeonOpenTutorial` and the town help pulse keys off panel opens —
+  once players stop opening panels, those one-shots never fire.
+
+**Deleting the message canvas has a five-site tail:** `MessageController` (exists solely for it),
+`DataManager:101`, `HandFocusController:26`, `UnitsLane:51`, `UnitInspectorNavController:30`. Every
+guard drops rather than moves — they existed because the canvas blocked input, and toasts do not.
+
+**Exit buttons removed game-wide** (`RecruitPanel` cancel, `UnitPickerPanel` done, `HelpPopup` X,
+town/dungeon close, plus the bespoke `CrystalDismissCatcher`), leaving exactly two deliberate
+holdouts: the card-pick Skip and the terminal run-end screen.
+
+Spec: `docs/superpowers/specs/2026-07-28-minimal-place-ui-and-player-log-design.md`.

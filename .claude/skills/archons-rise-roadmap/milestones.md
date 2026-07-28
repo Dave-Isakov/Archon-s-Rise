@@ -283,26 +283,42 @@ reward, and every shrine's state.
 Spec: `docs/superpowers/specs/2026-07-24-crystal-hotspots-and-shrines-design.md`; plan:
 `docs/superpowers/plans/2026-07-24-shrines.md`.
 
-## M2.17 — Minimal place UI + player log — 📐 design approved 2026-07-28 (planning next)
-**Goal:** generalise the shrine's over-the-head fan to every place, and replace click-to-dismiss
-message modals with non-blocking toasts plus an openable history. No game rule changes.
+## M2.17 — Minimal place UI + player log (full UI overhaul) — 📐 design approved 2026-07-28 (planning next)
+**Goal:** put an extensibility spine under place interaction, generalise the shrine's over-the-head
+fan to every place, make click-off universal, and replace click-to-dismiss message modals with
+non-blocking toasts plus an openable history. No game rule changes.
 
-**Phase A — the place fan:**
-- Pure `PlaceActionRules` (in the existing `ArchonsRise.Places` asmdef) returns an ordered
-  `PlaceAction` list from a town or dungeon snapshot; `OpenMenu` is always last and always enabled.
-- One `PlaceFan` + `PlaceFanSlot` renderer, laid out by the existing `FanMath`, parked above screen
-  centre (no per-hex projection needed — entry requires standing on the cell). Towns and dungeons
-  both drive it; `ShrinePanel` is deliberately left alone.
+**Phase A — spine + the place fan:**
+- `PlaceTokenBase` absorbs the ~25-line entry sequence (fog → teleport deferral → adjacency move →
+  `BeginVisit`) plus registry register/unregister that `TownToken`/`DungeonToken`/`ShrineToken` each
+  duplicate today. A new place type = one subclass (`Describe`/`BuildActions`/`Dispatch`) + one rules
+  method. `Dispatch` lives on the token, so `PlaceFan` never learns about place types.
+- Pure `PlaceActionRules` (existing `ArchonsRise.Places` asmdef): `ForTown` / `ForDungeon` /
+  `ForShrine` return an ordered `PlaceAction` list. `OpenMenu` is appended last and always enabled —
+  but only when the snapshot's `hasMenu` is true, so shrines get no dead ledger slot.
+- `FanLayout` extracted from `ShrinePanel` (pooling, `FanMath`, placement, click-off, screen-centre
+  parking) and shared by `PlaceFan` and the shrine payment widget. **Shrine entry is unified;
+  shrine payment semantics are untouched.** Dormant/guarding shrines show a disabled Engage instead
+  of a `ValidationMessage`.
 - `FanPreviewTrigger : PreviewTrigger` gives Assault and Delve slots the shipped enemy preview.
-- Live re-gating by snapshot diff in `Update`, replacing five per-button `Update()` loops and
+- Live re-gating by action-list diff in `Update`, replacing five per-button `Update()` loops and
   retiring the `TownMenu.PrepareButtons` revival hack.
-- One `ClickOffCatcher` everywhere; exit buttons removed except the card-pick Skip.
+- Universal `ClickOffCatcher` across 11 surfaces; every exit button deleted except the card-pick
+  Skip and the terminal screens. `CrystalDismissCatcher` deleted.
+- **Three silent breakages to fix in the same pass:** `CreateCrystalButtons.Update` gating on
+  `townCanvas.enabled`; `DataManager.CanSave` not knowing about the fan; `onDungeonOpenTutorial` and
+  the town help pulse keying off panel opens.
 
 **Phase B — toast rail + log:**
 - New `ArchonsRise.Log` asmdef (+ tests-asmdef reference): `PlayerLogCore` ring buffer, cap 100,
   newest-first, day dividers derived at render time.
 - `GameLog` scene singleton, `ToastRail` (4 visible, ~3.5s dwell, `blocksRaycasts = false`),
-  `LogPanel`. `ValidationMessage` → forwarder → mechanical rename → message canvas deleted.
+  `LogPanel`. `ValidationMessage` → forwarder → mechanical rename → message canvas deleted, along
+  with `MessageController` and the five `messageCanvas.enabled` guards that only existed because the
+  old canvas blocked input.
+
+**Out of scope:** combat UI (already being moved on-board by the 2026-07-24 / 2026-07-27 combat
+specs, which touch the same files), the main menu, and the run-end screen.
 
 **Acceptance (USER):** unconquered Keep fans Assault + ledger with a guardian hover preview;
 conquered Castle fans its services and re-gates live as influence changes; ledger opens the unchanged
