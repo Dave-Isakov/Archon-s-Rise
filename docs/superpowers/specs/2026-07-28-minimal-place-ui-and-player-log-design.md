@@ -196,9 +196,10 @@ as today.
 
 ### 2.3 Carry-overs that will silently break if missed
 
-- `DungeonPanel.Open` raises `onDungeonOpenTutorial`, and the town help pulse keys off panel opens.
-  Once the fan is the normal path, players stop opening panels and those one-shots never fire.
-  **Both raises move to fan-open.**
+- `DungeonPanel.Open` raises `onDungeonOpenTutorial`. Once the fan is the normal path, players stop
+  opening the panel and that one-shot never fires. **The raise moves to fan-open.** (There is no town
+  equivalent — the town `?` lives on the town canvas and stays reachable through the ledger slot, so
+  nothing else needs moving. Any future panel-open one-shot must use the same fan-open hook.)
 - `CreateCrystalButtons.Update` force-disables the crystal buttons whenever `townCanvas.enabled` is
   false. Opening the picker from the fan would leave every crystal permanently non-interactable.
   **That gate must key off the pop-out's own open state.**
