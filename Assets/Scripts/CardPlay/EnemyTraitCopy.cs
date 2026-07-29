@@ -38,7 +38,7 @@ public static class EnemyTraitCopy
             case EnemyTrait.Brutal:
                 return "Unblocked, it strikes for " + (1 + tuning.brutalSurchargeMult) + "x";
             case EnemyTrait.Toxic:
-                return "Its " + wound + " are doubled into your discard";
+                return "Copies " + tuning.toxicCopies + "x its " + wound + " into your discard";
             case EnemyTrait.Leech:
                 return "Steals " + tuning.leechCrystals + " " + cryst + " per " + wound;
             case EnemyTrait.Vengeful:
