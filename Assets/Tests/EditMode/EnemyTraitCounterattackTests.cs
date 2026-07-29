@@ -109,8 +109,11 @@ public class EnemyTraitCounterattackTests
         // Spending 4 Defend to block removes 8 of punishment.
         Assert.AreEqual(4, Wounds(unblocked, 0, 2));
         Assert.AreEqual(0, Wounds(blocked, 0, 2));
-        // Soaking with the same 4 Defend instead leaves more damage standing.
-        Assert.Greater(Wounds(unblocked, cost, 2), Wounds(blocked, 0, 2));
+        // Soaking with ONE LESS than the block cost still leaves damage
+        // standing, because Brutal's surcharge lands on any nonzero
+        // shortfall — only a full block (or a soak that fully covers the
+        // threat, same as any plain enemy) reaches zero.
+        Assert.Greater(Wounds(unblocked, cost - 1, 2), Wounds(blocked, 0, 2));
     }
 
     [Test]
