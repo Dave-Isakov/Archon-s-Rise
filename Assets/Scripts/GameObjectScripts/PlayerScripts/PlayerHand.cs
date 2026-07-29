@@ -81,13 +81,13 @@ public class PlayerHand : MonoBehaviour
         player.PendingHandPenalty = 0;
         var cardDiff = target - cardsInPlay.Count;
         DrawCards(cardDiff);
-        CheckWoundHand();
+        CheckWoundHand(target);
     }
 
     public void DrawCardsAtRoundEnd()
     {
         DrawCards(player.PlayerHandSize);
-        CheckWoundHand();
+        CheckWoundHand(player.PlayerHandSize);
     }
 
     // Round end is a full reset: unplayed hand cards go back into the deck too,
@@ -169,12 +169,12 @@ public class PlayerHand : MonoBehaviour
     }
 
     // A hand that tops up to full holding nothing but wounds is unplayable — loss.
-    private void CheckWoundHand()
+    private void CheckWoundHand(int handSize)
     {
         int wounds = 0;
         foreach (var c in cardsInPlay)
             if (c != null && c.cardSO != null && c.cardSO.cardType == StatType.Wound) wounds++;
-        if (RunEndRules.IsWoundHand(cardsInPlay.Count, wounds, player.PlayerHandSize))
+        if (RunEndRules.IsWoundHand(cardsInPlay.Count, wounds, handSize))
             RunEndController.RequestEnd(RunOutcome.WoundHandLoss);
     }
 
