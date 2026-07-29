@@ -41,6 +41,9 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
     [SerializeField] public Button fightButton;
     [SerializeField] public Button siegeButton;
     [SerializeField] public Button influenceButton;
+    [SerializeField] public Button defendButton;          // Defend phase: block this enemy
+    [SerializeField] TextMeshProUGUI traitBadges;         // compact badge row, no words
+    [SerializeField] TextMeshProUGUI defendButtonText;    // shows the block cost
     [SerializeField] GameObject siegeGlow;     // lit while staged Siege can spend here (spec 2026-07-24)
     [SerializeField] GameObject influenceGlow; // lit while staged Influence can spend here
     [SerializeField] TextMeshProUGUI fightButtonText;
@@ -80,6 +83,22 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
         Debug.Log($"{enemySO.name} ({this.gameObject.name}) has entered the battlefield.");
         fightButton.onClick.AddListener(() => DefeatMonster());
         siegeButton.onClick.AddListener(() => SiegeMonster());
+        RefreshTraitBadges();
+    }
+
+    // Badges only — no words. The preview panel is the legend (spec §8.3), so a
+    // bare letter is never a dead end.
+    public void RefreshTraitBadges()
+    {
+        if (traitBadges == null) return;
+        var parts = new System.Text.StringBuilder();
+        foreach (var t in EnemyTraitCopy.Split(Traits))
+        {
+            if (parts.Length > 0) parts.Append(' ');
+            parts.Append(IconMarkup.TraitBadgeTinted(t));
+        }
+        traitBadges.text = parts.ToString();
+        traitBadges.gameObject.SetActive(parts.Length > 0);
     }
     public void DefeatMonster()
     {
@@ -129,5 +148,42 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
         if (siegeButton != null)     siegeButton.interactable     = CombatPhaseRules.CanSiege(phase);
         if (fightButton != null)     fightButton.interactable     = CombatPhaseRules.CanNormalAttack(phase);
         if (influenceButton != null) influenceButton.interactable = CombatPhaseRules.CanInfluence(phase) && enemySO.canInfluence;
+    }
+
+    // All four per-enemy buttons route through CombatPhaseRules so no button
+    // manages its own phase state (spec §7.5).
+    public void RefreshPhaseButtons(CombatPhase phase, int defendLeft, int blockCost)
+    {
+        if (siegeButton != null)     siegeButton.gameObject.SetActive(CombatPhaseRules.CanSiege(phase));
+        if (influenceButton != null) influenceButton.gameObject.SetActive(
+            CombatPhaseRules.CanInfluence(phase) && enemySO.canInfluence);
+        if (fightButton != null)     fightButton.gameObject.SetActive(CombatPhaseRules.CanNormalAttack(phase));
+
+        if (defendButton == null) return;
+        bool live = CombatPhaseRules.CanBlock(phase) && !Blocked;
+        defendButton.gameObject.SetActive(CombatPhaseRules.CanBlock(phase));
+
+        bool affordable = live && defendLeft >= blockCost;
+        defendButton.interactable = affordable;
+        UiLock.Apply(defendButton.GetComponent<CanvasGroup>(), !affordable);
+
+        if (defendButtonText != null)
+            defendButtonText.text = Blocked
+                ? IconMarkup.Tag(IconConcept.Defend) + " Blocked"
+                : IconMarkup.Cost(IconConcept.Defend, blockCost);
+    }
+
+    // Wired to defendButton.onClick in the prefab.
+    public void OnDefendClicked()
+    {
+        var controller = FindAnyObjectByType<CombatController>();
+        var player = FindAnyObjectByType<Player>();
+        if (controller == null || player == null) return;
+        if (!CombatPhaseRules.CanBlock(controller.Phase) || Blocked) return;
+
+        int cost = controller.BlockCostFor(this);
+        if (player.PlayerDefend < cost) return;
+
+        GameManager.Instance.commands.AddCommand(new BlockCommand(this, player, cost));
     }
 }

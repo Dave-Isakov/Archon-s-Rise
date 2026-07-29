@@ -120,6 +120,17 @@ public class CombatController : MonoBehaviour
 
     public CounterattackPreview Preview() => EnemyTraitRules.BuildPreview(Roster(), Tuning);
 
+    // What this enemy costs to block: its trait-adjusted threat (spec §7.1).
+    // This number IS the trait readout — the one place a player sees a trait's
+    // cost as something they must actually pay.
+    public int BlockCostFor(EnemyCard card)
+    {
+        var roster = Roster();
+        for (int i = 0; i < live.Count; i++)
+            if (live[i] == card) return EnemyTraitRules.Threat(i, roster, Tuning);
+        return card.EffectiveAttack;
+    }
+
     // Blocks last one Defend phase only.
     public void ClearBlocks()
     {
@@ -134,6 +145,22 @@ public class CombatController : MonoBehaviour
     }
 
     void Awake() { Instance = this; Phase = CombatPhase.Resolved; }
+
+    // Keeps every live enemy's Defend button (and the other three) in sync each
+    // frame — mirrors CombatButtons.Update()'s InCombat-guarded per-frame refresh.
+    // A phase-change-only refresh (via SetPhase/ApplyPhase) would leave the block
+    // button's affordability stale as the player spends/gains Defend mid-phase.
+    void Update()
+    {
+        if (!InCombat) return;
+        var player = FindAnyObjectByType<Player>();
+        if (player == null) return;
+
+        var roster = Roster();
+        for (int i = 0; i < live.Count; i++)
+            live[i].RefreshPhaseButtons(Phase, player.PlayerDefend,
+                EnemyTraitRules.Threat(i, roster, Tuning));
+    }
 
     // Opens a phased fight. The source varies by context — guardianPlace for a
     // Guardian assault, fieldToken for a Field encounter, dungeonToken for a
