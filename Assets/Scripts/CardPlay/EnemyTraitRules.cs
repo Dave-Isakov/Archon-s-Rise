@@ -23,4 +23,44 @@ public static class EnemyTraitRules
 
     public static EnemyTrait EffectiveTraits(EnemyCombatant e, IReadOnlyList<EnemyCombatant> roster)
         => e.Traits | GrantedByAuras(roster);
+
+    // §4.2 Warlord grants real Attack to every OTHER survivor. Additive, so two
+    // Warlords stack — unlike granting auras, which are idempotent by OR.
+    public static int WarlordAura(int index, IReadOnlyList<EnemyCombatant> roster, EnemyTraitTuning t)
+    {
+        int count = 0;
+        for (int i = 0; i < roster.Count; i++)
+            if (i != index && roster[i].Traits.HasFlag(EnemyTrait.Warlord)) count++;
+        return count * t.warlordBonus;
+    }
+
+    public static int BaseAttack(int index, IReadOnlyList<EnemyCombatant> roster, EnemyTraitTuning t)
+        => roster[index].Attack + WarlordAura(index, roster, t);
+
+    // The bar Defend must clear. Swift raises it WITHOUT raising the punishment.
+    public static int Threat(int index, IReadOnlyList<EnemyCombatant> roster, EnemyTraitTuning t)
+    {
+        int b = BaseAttack(index, roster, t);
+        return EffectiveTraits(roster[index], roster).HasFlag(EnemyTrait.Swift) ? b * t.swiftThreatMult : b;
+    }
+
+    // What can become wounds. Never scaled by Swift — that is the cap's job.
+    public static int Basis(int index, IReadOnlyList<EnemyCombatant> roster, EnemyTraitTuning t)
+        => BaseAttack(index, roster, t);
+
+    // Elusive returns int.MaxValue rather than needing a separate bool, so the
+    // Siege phase keeps exactly one comparison.
+    public static int SiegeCost(int index, IReadOnlyList<EnemyCombatant> roster, EnemyTraitTuning t)
+    {
+        var traits = EffectiveTraits(roster[index], roster);
+        if (traits.HasFlag(EnemyTrait.Elusive)) return int.MaxValue;
+        int hp = roster[index].HP;
+        return traits.HasFlag(EnemyTrait.Armored) ? hp * t.armorSiegeMult : hp;
+    }
+
+    public static int AttackCost(int index, IReadOnlyList<EnemyCombatant> roster, EnemyTraitTuning t)
+    {
+        int hp = roster[index].HP;
+        return EffectiveTraits(roster[index], roster).HasFlag(EnemyTrait.Hulking) ? hp * t.hulkAttackMult : hp;
+    }
 }
