@@ -46,7 +46,7 @@ public class SkillToken : MonoBehaviour, IPointerClickHandler
     {
         if (skillSO.cadence == SkillCadence.Passive)
         {
-            GameManager.Instance.ValidationMessage($"{skillSO.cardName} is always active.");
+            GameLog.Instance.Post($"{skillSO.cardName} is always active.");
             return;
         }
         if (!IsUsed)
@@ -56,7 +56,7 @@ public class SkillToken : MonoBehaviour, IPointerClickHandler
         else
         {
             string refresh = skillSO.cadence == SkillCadence.PerTurn ? "next turn" : "next round";
-            GameManager.Instance.ValidationMessage($"{skillSO.cardName} is exhausted until {refresh}. Undo to revert if it was just used.");
+            GameLog.Instance.Post($"{skillSO.cardName} is exhausted until {refresh}. Undo to revert if it was just used.");
         }
     }
 }

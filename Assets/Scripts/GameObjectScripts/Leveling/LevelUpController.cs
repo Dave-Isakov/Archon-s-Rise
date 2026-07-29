@@ -19,7 +19,7 @@ public class LevelUpController : MonoBehaviour
 
     public void EnqueueLevelRewards(int level, LevelRewardEntry entry)
     {
-        GameManager.Instance.ValidationMessage($"You reached level {level}!");
+        GameLog.Instance.Post($"You reached level {level}!");
         if (entry == null) return;
 
         for (int i = 0; i < entry.skillPicks; i++)

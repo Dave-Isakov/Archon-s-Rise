@@ -102,7 +102,7 @@ public class ExplorationController : MonoBehaviour
     {
         if (TurnPhaseController.Instance != null && !TurnPhaseController.Instance.CanMove)
         {
-            GameManager.Instance.ValidationMessage("You can only move during the Explore phase.");
+            GameLog.Instance.Post("You can only move during the Explore phase.");
             return false;
         }
         return true;
@@ -115,13 +115,13 @@ public class ExplorationController : MonoBehaviour
         if (!CanMovePhase()) return;
         if (EnemyOccupies(targetCell))
         {
-            GameManager.Instance.ValidationMessage("An enemy blocks the way — attack it instead!");
+            GameLog.Instance.Post("An enemy blocks the way — attack it instead!");
             return;
         }
         if (!TryTerrain(targetCell, out int cost)) return;
         if (playerExplore < cost)
         {
-            GameManager.Instance.ValidationMessage($"Need {cost} to explore!");
+            GameLog.Instance.Post($"Need {cost} to explore!");
             return;
         }
         var from = player.transform.position;
@@ -138,7 +138,7 @@ public class ExplorationController : MonoBehaviour
         if (!CanMovePhase()) return;
         if (playerExplore < fogCost)
         {
-            GameManager.Instance.ValidationMessage($"Need {fogCost} to scout this fog!");
+            GameLog.Instance.Post($"Need {fogCost} to scout this fog!");
             return;
         }
         playerExplore -= fogCost;

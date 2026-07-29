@@ -96,10 +96,6 @@ public class DataManager : MonoBehaviour
     private void Update() {
         if (!GameControls.Gameplay.Menu.WasPressedThisFrame()) return;
 
-        // A validation message modally captures input; Menu is suppressed so it can't
-        // open the main menu over the message (dismiss it with A/B first).
-        if (GameManager.Instance.messageCanvas.enabled) return;
-
         // The run-end screen is terminal; the menu key must not open UI over it.
         if (RunEndController.HasEnded) return;
 

@@ -112,7 +112,7 @@ public class CardInspector : MonoBehaviour
                 string need = Card.cardSO.empowerType.IsAllColors()
                     ? $"any crystal {IconMarkup.CrystalTag(EmpowerType.None)}"
                     : $"a {Card.cardSO.empowerType} {IconMarkup.CrystalTag(Card.cardSO.empowerType)} or wild crystal";
-                GameManager.Instance.ValidationMessage($"You need {need} to empower this card.");
+                GameLog.Instance.Post($"You need {need} to empower this card.");
                 Raise();
                 return;
             }
@@ -154,7 +154,7 @@ public class CardInspector : MonoBehaviour
         {
             if (TurnPhaseController.Instance != null && !TurnPhaseController.Instance.CanMove)
             {
-                GameManager.Instance.ValidationMessage("You can only teleport during the Explore phase.");
+                GameLog.Instance.Post("You can only teleport during the Explore phase.");
                 return; // leave the inspector open so the player can cancel/back out
             }
             _reserved = null;

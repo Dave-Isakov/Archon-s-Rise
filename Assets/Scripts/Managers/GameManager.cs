@@ -9,7 +9,6 @@ public class GameManager : MonoBehaviour
     private static GameManager instance;
     public static GameManager Instance { get { return instance; } }
 
-    public Canvas messageCanvas;
     public Canvas mainMenuCanvas;
     public GameObject enlargeCardPosition;
     public GameObject enlargeTownCardPosition;
@@ -43,8 +42,6 @@ public class GameManager : MonoBehaviour
     private int turnNum;
     public int Round { get => roundNum; set => roundNum = value; }
     public int Turn  { get => turnNum;  set => turnNum  = value; }
-    public Button returnButton;
-    public TextMeshProUGUI messageText;
     public TextMeshProUGUI roundTurnText;
 
     private void Awake()
@@ -66,8 +63,6 @@ public class GameManager : MonoBehaviour
         cardListCanvas.enabled = false;
         cardRewardCanvas.gameObject.SetActive(true);
         cardRewardCanvas.enabled = false;
-        messageCanvas.gameObject.SetActive(true);
-        messageCanvas.enabled = false;
         mainMenuCanvas.gameObject.SetActive(true);
         mainMenuCanvas.enabled = false;
         townCanvas.gameObject.SetActive(true);
@@ -88,11 +83,6 @@ public class GameManager : MonoBehaviour
 
     // The old per-frame "Round/Turn" label is now the event-driven day countdown +
     // phase label driven by PhaseHud off the controller's events (spec 2026-07-21).
-
-    // Deprecated shim (spec 2026-07-28): messages are no longer blocking modals.
-    // Kept for one commit so every call site keeps compiling while the game is
-    // play-tested; Task 6 renames the call sites and deletes this.
-    public void ValidationMessage(string message) => GameLog.Instance.Post(message);
 
     public void TurnPlus()
     {
@@ -174,7 +164,7 @@ public class GameManager : MonoBehaviour
     public void PayReward(string enemyName, RewardSummary summary)
     {
         if (onEnemyResolvedTutorial != null) onEnemyResolvedTutorial.Raise();
-        ValidationMessage(DefeatMessage.Compose(enemyName, summary.exp, summary.crystal, summary.cardPick));
+        GameLog.Instance.Post(DefeatMessage.Compose(enemyName, summary.exp, summary.crystal, summary.cardPick));
         if (summary.cardPick) rewards.OfferCardChoice(summary.tier);
     }
 

@@ -74,7 +74,6 @@ public class RunEndController : MonoBehaviour
         if (gm != null)
         {
             RewardQueue.Instance.Flush();
-            if (gm.messageCanvas != null)    gm.messageCanvas.enabled = false;
             if (gm.combatCanvas != null)     gm.combatCanvas.enabled = false;
             if (gm.townCanvas != null)       gm.townCanvas.enabled = false;
             if (gm.dungeonCanvas != null)    gm.dungeonCanvas.enabled = false;

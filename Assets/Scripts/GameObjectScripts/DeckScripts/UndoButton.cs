@@ -11,7 +11,7 @@ public class UndoButton : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         if(!undoButton.interactable)
-            GameManager.Instance.ValidationMessage("There is nothing to undo.");
+            GameLog.Instance.Post("There is nothing to undo.");
     }
 
     // Gamepad path: same behavior as clicking the button, including the
@@ -19,7 +19,7 @@ public class UndoButton : MonoBehaviour, IPointerClickHandler
     public void Trigger()
     {
         if (undoButton.interactable) GameManager.Instance.commands.UndoCommand();
-        else GameManager.Instance.ValidationMessage("There is nothing to undo.");
+        else GameLog.Instance.Post("There is nothing to undo.");
     }
 
     private void Start() 

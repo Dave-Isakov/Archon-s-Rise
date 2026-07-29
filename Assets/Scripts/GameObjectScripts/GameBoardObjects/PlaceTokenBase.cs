@@ -79,7 +79,7 @@ public abstract class PlaceTokenBase : MonoBehaviour, IPointerClickHandler, IHex
             if (ExplorationController.Instance != null && ExplorationController.Instance.IsAdjacent(gridPos))
                 ExplorationController.Instance.Move(gridPos);
             else
-                GameManager.Instance.ValidationMessage(
+                GameLog.Instance.Post(
                     $"You must be standing at {PlaceName} to enter it.");
             return;
         }

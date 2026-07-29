@@ -18,7 +18,7 @@ public class Unit : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     {
         if (isPlayed)
         {
-            GameManager.Instance.ValidationMessage($"{unitSO.cardName} has already been played, undo to revert action.");
+            GameLog.Instance.Post($"{unitSO.cardName} has already been played, undo to revert action.");
             return;
         }
         FindAnyObjectByType<UnitInspector>().Open(this);

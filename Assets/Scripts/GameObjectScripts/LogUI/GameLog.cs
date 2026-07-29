@@ -2,8 +2,8 @@ using System;
 using UnityEngine;
 
 // The one entry point for player-facing messages (spec 2026-07-28). Replaces
-// GameManager.ValidationMessage and its blocking canvas: Post appends to the
-// history AND raises a toast, and never blocks input.
+// the old blocking message canvas: Post appends to the history AND raises a
+// toast, and never blocks input.
 //
 // Lazily creates its own scene GameObject (the RewardQueue / ConquestTracker
 // pattern) so no scene wiring is required; being scene-scoped means a new run
@@ -42,7 +42,7 @@ public class GameLog : MonoBehaviour
     {
         if (string.IsNullOrEmpty(message)) return;
         // The run-end screen is terminal: nothing may appear over it. Same guard
-        // ValidationMessage carried.
+        // the retired message canvas carried.
         if (RunEndController.HasEnded) return;
 
         int day = GameManager.Instance != null ? GameManager.Instance.Round : 0;

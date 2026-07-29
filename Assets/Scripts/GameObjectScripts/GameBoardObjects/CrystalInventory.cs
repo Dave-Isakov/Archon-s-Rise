@@ -68,7 +68,7 @@ public class CrystalInventory : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            GameManager.Instance.ValidationMessage($"You cannot empower without {_card.cardSO.empowerType} crystals or an Allcrystal!");
+            GameLog.Instance.Post($"You cannot empower without {_card.cardSO.empowerType} crystals or an Allcrystal!");
             empower.isOn = false;
         }
     }

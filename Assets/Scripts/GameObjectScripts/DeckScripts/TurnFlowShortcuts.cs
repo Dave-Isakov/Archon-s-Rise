@@ -15,8 +15,7 @@ public class TurnFlowShortcuts : MonoBehaviour
     {
         if (InputContextState.Current == InputContext.Inspector) return;
         var gm = GameManager.Instance;
-        if (gm == null || gm.mainMenuCanvas.enabled || gm.cardListCanvas.enabled
-            || gm.messageCanvas.enabled) return;
+        if (gm == null || gm.mainMenuCanvas.enabled || gm.cardListCanvas.enabled) return;
 
         if (GameControls.Gameplay.Undo.WasPressedThisFrame())
             undo.Trigger();

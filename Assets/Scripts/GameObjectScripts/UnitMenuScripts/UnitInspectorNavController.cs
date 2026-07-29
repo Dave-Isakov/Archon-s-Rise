@@ -14,7 +14,6 @@ public class UnitInspectorNavController : MonoBehaviour
     int _pos;
     bool _latched;
     bool _wasOpen;
-    bool _messageWasUp;
 
     void Update()
     {
@@ -26,9 +25,6 @@ public class UnitInspectorNavController : MonoBehaviour
             if (focusOutline != null) focusOutline.gameObject.SetActive(false);
             return;
         }
-
-        if (GameManager.Instance.messageCanvas.enabled) { _messageWasUp = true; return; }
-        if (_messageWasUp) { _messageWasUp = false; return; }
 
         if (!_wasOpen)
         {

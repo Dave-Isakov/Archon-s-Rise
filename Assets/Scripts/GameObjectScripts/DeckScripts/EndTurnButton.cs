@@ -28,7 +28,7 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
         if (!endTurnButton.interactable) return false;
         if (HandFullUnplayed())
         {
-            GameManager.Instance.ValidationMessage("You cannot end the turn with a full hand.");
+            GameLog.Instance.Post("You cannot end the turn with a full hand.");
             return true;
         }
         TurnPhaseController.Instance.EndTurnPressed();
@@ -53,7 +53,7 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
         {
             if (HandFullUnplayed())
             {
-                GameManager.Instance.ValidationMessage("You cannot end the turn with a full hand.");
+                GameLog.Instance.Post("You cannot end the turn with a full hand.");
                 return;
             }
             TurnPhaseController.Instance.EndTurnPressed();

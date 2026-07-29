@@ -352,7 +352,7 @@ public class CombatController : MonoBehaviour
         GameManager.Instance.commands.ClearStack();   // taking the hit is a commit point
 
         if (wounds > 0)
-            GameManager.Instance.ValidationMessage($"The enemies strike back! You are wounded {wounds} times.");
+            GameLog.Instance.Post($"The enemies strike back! You are wounded {wounds} times.");
 
         SetPhase(CombatPhase.Attack);
     }
@@ -441,7 +441,7 @@ public class CombatController : MonoBehaviour
         int cost = context == CombatContext.Guardian ? PlaceRules.RetreatWoundCount : 1;
         for (int i = 0; i < cost; i++) hand.AddWound();
 
-        GameManager.Instance.ValidationMessage(context == CombatContext.Guardian
+        GameLog.Instance.Post(context == CombatContext.Guardian
             ? $"You retreat from the assault and suffer {cost} wounds. Your progress is kept."
             : "You flee the battle and suffer a wound!");
 
@@ -518,7 +518,7 @@ public class CombatController : MonoBehaviour
         if (!paidFlee && context == CombatContext.Guardian && guardianPlace != null
             && ConquestTracker.Instance.IsConquered(guardianPlace.gridPos))
         {
-            GameManager.Instance.ValidationMessage(
+            GameLog.Instance.Post(
                 $"{guardianPlace.townSO.cardName} is conquered! Its services are now open to you.");
             if (RunEndRules.IsVictory(ConquestTracker.Instance.ConqueredCastleCount()))
                 RunEndController.RequestEnd(RunOutcome.Victory);

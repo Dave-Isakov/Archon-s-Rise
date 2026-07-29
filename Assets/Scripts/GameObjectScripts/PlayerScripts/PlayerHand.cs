@@ -42,7 +42,7 @@ public class PlayerHand : MonoBehaviour
         switch (DrawGate.Evaluate(deck.CardsInDeck.Count, cardsInPlay.Count, player.PlayerHandSize))
         {
             case DrawVerdict.HandFull:
-                GameManager.Instance.ValidationMessage($"Your max hand size is {player.PlayerHandSize}, you cannot draw anymore cards.");
+                GameLog.Instance.Post($"Your max hand size is {player.PlayerHandSize}, you cannot draw anymore cards.");
                 return false;
             case DrawVerdict.DeckEmpty:
                 // Deck-empty needs no player action now: End Turn auto-ends the day

@@ -134,7 +134,7 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
         {
             if (!TurnPhaseController.Instance.CanInteract)
             {
-                GameManager.Instance.ValidationMessage("You've already taken your action this turn.");
+                GameLog.Instance.Post("You've already taken your action this turn.");
                 yield break;
             }
             TurnPhaseController.Instance.BeginAction();

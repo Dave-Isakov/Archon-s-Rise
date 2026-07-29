@@ -50,7 +50,7 @@ public class DungeonTracker : MonoBehaviour
     {
         var targets = DungeonRules.PickFlagTargets(ledger.FlagCandidates(), count, max => rng.Next(max));
         if (targets.Count > 0)
-            GameManager.Instance.ValidationMessage(
+            GameLog.Instance.Post(
                 "Corruption seeps into a dungeon! It pushes the Doom Clock higher every round until cleared.");
         foreach (var cell in targets)
             ledger.SetFlagged(cell);
@@ -68,7 +68,7 @@ public class DungeonTracker : MonoBehaviour
     public void CompleteDungeon(DungeonToken token)
     {
         bool wasFlagged = ledger.IsFlagged(ToCell(token.gridPos));
-        GameManager.Instance.ValidationMessage($"{token.dungeonSO.cardName} is cleared!"
+        GameLog.Instance.Post($"{token.dungeonSO.cardName} is cleared!"
             + (wasFlagged ? " The corruption lifts." : ""));
         FindAnyObjectByType<Rewards>().GrantDungeonCompletion(token.dungeonSO.tier, token.dungeonSO.rewardCount);
         DoomClock.Instance.Add(-DungeonRules.Relief(wasFlagged, DoomClock.Instance.Tuning));

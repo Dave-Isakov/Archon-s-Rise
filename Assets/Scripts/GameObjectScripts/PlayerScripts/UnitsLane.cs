@@ -48,7 +48,7 @@ public class UnitsLane : MonoBehaviour
         if (!_active) return;
         var gm = GameManager.Instance;
         if (gm == null) return;
-        if (gm.messageCanvas.enabled || gm.cardCanvas.enabled || gm.unitCanvas.enabled) return;
+        if (gm.cardCanvas.enabled || gm.unitCanvas.enabled) return;
 
         var units = CurrentUnits();
         if (units.Count == 0) { ExitToHand(); return; }
@@ -77,7 +77,7 @@ public class UnitsLane : MonoBehaviour
         {
             var unit = units[_index];
             if (unit.IsPlayed)
-                GameManager.Instance.ValidationMessage($"{unit.unitSO.cardName} has already been played, undo to revert action.");
+                GameLog.Instance.Post($"{unit.unitSO.cardName} has already been played, undo to revert action.");
             else
                 inspector.Open(unit);
         }

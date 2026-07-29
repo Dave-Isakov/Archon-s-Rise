@@ -127,7 +127,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         }
         else
         {
-            GameManager.Instance.ValidationMessage(
+            GameLog.Instance.Post(
                 $"{cardSO.name} has already been played. Click Undo on the Gameboard to undo previous plays.");
         }
     }

@@ -74,7 +74,7 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
         int cost = token.dungeonSO.exploreCost;
         if (player.PlayerExplore < cost)
         {
-            GameManager.Instance.ValidationMessage(
+            GameLog.Instance.Post(
                 $"You need {cost} Explore to delve into {token.dungeonSO.cardName}.");
             return;
         }

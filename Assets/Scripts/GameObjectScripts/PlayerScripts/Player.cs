@@ -345,7 +345,7 @@ public class Player : MonoBehaviour
         if (!CombatRules.CanDefeat(kind, playerAttack, playerSiege, hp))
         {
             string need = kind == AttackKind.Siege ? "Siege" : "Attack";
-            GameManager.Instance.ValidationMessage($"You need {hp} {need} to defeat this enemy.");
+            GameLog.Instance.Post($"You need {hp} {need} to defeat this enemy.");
             return;
         }
 
@@ -365,7 +365,7 @@ public class Player : MonoBehaviour
         int cost = enemy.enemySO.influenceCost;
         if (playerInfluence < cost)
         {
-            GameManager.Instance.ValidationMessage($"You need {cost} Influence to sway {enemy.enemySO.cardName}.");
+            GameLog.Instance.Post($"You need {cost} Influence to sway {enemy.enemySO.cardName}.");
             return;
         }
 
@@ -384,7 +384,7 @@ public class Player : MonoBehaviour
     void CompleteInfluence(EnemyCard enemy, bool recruit)
     {
         if (recruit) AddUnit(enemy.enemySO.recruitedUnit);
-        GameManager.Instance.ValidationMessage(recruit
+        GameLog.Instance.Post(recruit
             ? $"{enemy.enemySO.cardName} joins your army!"
             : $"{enemy.enemySO.cardName} departs peacefully.");
         Influence(enemy.enemySO.influenceCost); // spend + clear undo stack (standard for influence spends)

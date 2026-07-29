@@ -23,7 +23,6 @@ public class InspectorNavController : MonoBehaviour
     InspectorNavPosition _pos;
     bool _latched;
     bool _wasOpen;
-    bool _messageWasUp;
     bool _lastWasPad;
 
     void Update()
@@ -37,20 +36,6 @@ public class InspectorNavController : MonoBehaviour
             return;
         }
 
-        if (GameManager.Instance.messageCanvas.enabled)
-        {
-            // A validation message modally captures input (MessageController owns it);
-            // don't drive the pop-out while it's up.
-            _messageWasUp = true;
-            return;
-        }
-        if (_messageWasUp)
-        {
-            // Swallow the frame the message closed on so its dismiss A/B can't also
-            // act on the pop-out (independent of Update ordering).
-            _messageWasUp = false;
-            return;
-        }
 
         UpdateBackVisibility();
 

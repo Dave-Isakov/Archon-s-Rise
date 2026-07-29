@@ -1,6 +1,6 @@
 // Post-combat defeat + reward line in the icon language (spec 2026-07-16).
 // Pure/mcs-testable: no UnityEngine dependency. GameManager.ResolveDefeat feeds
-// the RewardSummary fields in and routes the result through ValidationMessage.
+// the RewardSummary fields in and routes the result through the player log.
 public static class DefeatMessage
 {
     public static string Compose(string enemyName, int exp, EmpowerType? crystal, bool cardPick)

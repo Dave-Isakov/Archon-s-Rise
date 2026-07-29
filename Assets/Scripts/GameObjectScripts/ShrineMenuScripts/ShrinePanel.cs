@@ -69,7 +69,7 @@ public class ShrinePanel : MonoBehaviour
         // frame the action was spent must not slip through.
         if (TurnPhaseController.Instance != null && !TurnPhaseController.Instance.VisitCanAct)
         {
-            GameManager.Instance.ValidationMessage("You've already taken your action this turn.");
+            GameLog.Instance.Post("You've already taken your action this turn.");
             return;
         }
 
@@ -99,7 +99,7 @@ public class ShrinePanel : MonoBehaviour
         else
         {
             ShrineTracker.Instance.SpawnGuardian(cell, so, type);
-            GameManager.Instance.ValidationMessage("The shrine's bargain turns sour — a guardian rises!");
+            GameLog.Instance.Post("The shrine's bargain turns sour — a guardian rises!");
         }
     }
 
