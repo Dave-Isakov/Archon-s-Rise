@@ -37,6 +37,10 @@ public class Player : MonoBehaviour
     // at or below the current level. Same derivation on load, so saves can't drift.
     public int PlayerHandSize =>
         LevelRules.DerivedHandSize(Character.HandSize, playerLevel, Character.LevelTable.Entries);
+    // Harrying: a one-turn hand-size cut applied at the NEXT top-up, then
+    // cleared. Hand size is derived from level + table and never stored, so this
+    // is transient run state rather than a schema change (spec 5.1).
+    public int PendingHandPenalty { get; set; }
     public int PlayerAttack { get => playerAttack; set => playerAttack = value; }
     public int PlayerDefend { get => playerDefend; set => playerDefend = value;}
     public int PlayerInfluence { get => playerInfluence; set => playerInfluence = value;}

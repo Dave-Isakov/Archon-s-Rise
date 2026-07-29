@@ -444,6 +444,20 @@ public class CombatController : MonoBehaviour
             GameManager.Instance.CaptureReward(card,
                 expOnly: pendingShrineType >= 0 || context == CombatContext.Dungeon)));
 
+        // Attack-phase kills are otherwise wound-free at point of use; Vengeful
+        // is the one exception. Siege and Influence kills stay clean. Phase is
+        // still Attack here (wasLast hasn't flipped it to Resolved yet), and
+        // Siege-phase kills never reach this branch since Siege only runs while
+        // Phase == Siege.
+        if (!wasInfluence && Phase == CombatPhase.Attack)
+        {
+            var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
+            int vengeful = EnemyTraitRules.VengefulWounds(card.ToCombatant(), Roster(), Tuning);
+            for (int i = 0; i < vengeful; i++) hand.AddWound(WoundDestination.Hand);
+            if (vengeful > 0)
+                GameLog.Instance.Post($"It strikes as it falls — you take {vengeful} wound(s).");
+        }
+
         // On the final kill, gate further input (Resolved) but keep the canvas
         // open; the fight only closes once the death FX finishes (spec 2026-07-22),
         // so the player actually sees the dissolve/fade.
@@ -481,6 +495,10 @@ public class CombatController : MonoBehaviour
     {
         if (Phase != CombatPhase.Attack) return;
 
+        // Capture the roster BEFORE EndFight/FinishEnd clears `live` — Harrying
+        // needs the fleeing enemies' traits, not the empty post-flee state.
+        var rosterBeforeFlee = Roster();
+
         var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
         int cost = context == CombatContext.Guardian ? PlaceRules.RetreatWoundCount : 1;
         for (int i = 0; i < cost; i++) hand.AddWound();
@@ -488,6 +506,14 @@ public class CombatController : MonoBehaviour
         GameLog.Instance.Post(context == CombatContext.Guardian
             ? $"You retreat from the assault and suffer {cost} wounds. Your progress is kept."
             : "You flee the battle and suffer a wound!");
+
+        int harry = EnemyTraitRules.HarryPenalty(rosterBeforeFlee, Tuning);
+        if (harry > 0)
+        {
+            var player = FindAnyObjectByType<Player>();
+            player.PendingHandPenalty += harry;
+            GameLog.Instance.Post($"They harry your retreat — you draw {harry} fewer card(s) next turn.");
+        }
 
         EndFight(paidFlee: true);
     }

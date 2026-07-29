@@ -75,7 +75,11 @@ public class PlayerHand : MonoBehaviour
 
     public void DrawCardsAtTurnEnd()
     {
-        var cardDiff = player.PlayerHandSize - cardsInPlay.Count;
+        // Harrying (spec 2026-07-29 §4): the cut applies to exactly this one
+        // top-up, then clears — PlayerHandSize itself stays derived/untouched.
+        int target = Mathf.Max(1, player.PlayerHandSize - player.PendingHandPenalty);
+        player.PendingHandPenalty = 0;
+        var cardDiff = target - cardsInPlay.Count;
         DrawCards(cardDiff);
         CheckWoundHand();
     }

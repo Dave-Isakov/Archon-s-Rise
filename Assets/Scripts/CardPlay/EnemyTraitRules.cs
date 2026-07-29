@@ -124,6 +124,23 @@ public static class EnemyTraitRules
 
     public static int CrystalsStolen(CounterattackPreview p, int defendLeft, int toughness, EnemyTraitTuning t)
         => Bite(Share(p, defendLeft, p.LeechContribution), toughness) * t.leechCrystals;
+
+    // Vengeful punishes the ATTACK phase only, so the Siege wound-free promise
+    // in mechanics.md is preserved and rewarded rather than broken. This is the
+    // trait that makes Siege matter in a solo fight.
+    public static int VengefulWounds(EnemyCombatant e, IReadOnlyList<EnemyCombatant> roster, EnemyTraitTuning t)
+        => EffectiveTraits(e, roster).HasFlag(EnemyTrait.Vengeful) ? t.vengefulWounds : 0;
+
+    // Harrying costs hand size on the turn AFTER a flee. Flat, not per-enemy:
+    // it is a property of the fight you fled, so two harriers do not cost two
+    // cards. Blocked enemies still count — blocking is not killing.
+    public static int HarryPenalty(IReadOnlyList<EnemyCombatant> roster, EnemyTraitTuning t)
+    {
+        for (int i = 0; i < roster.Count; i++)
+            if (EffectiveTraits(roster[i], roster).HasFlag(EnemyTrait.Harrying))
+                return t.harryHandPenalty;
+        return 0;
+    }
 }
 
 // One pass over the unblocked survivors, so CombatPhaseRules.Advance takes a
