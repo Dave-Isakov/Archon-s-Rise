@@ -22,4 +22,13 @@ public class CombatPhaseRulesTests
         Assert.IsTrue(CombatPhaseRules.CanNormalAttack(CombatPhase.Attack));
         Assert.IsFalse(CombatPhaseRules.CanNormalAttack(CombatPhase.Resolved));
     }
+
+    [Test]
+    public void CanBlock_OnlyInDefendPhase()
+    {
+        Assert.IsFalse(CombatPhaseRules.CanBlock(CombatPhase.Siege));
+        Assert.IsTrue(CombatPhaseRules.CanBlock(CombatPhase.Defend));
+        Assert.IsFalse(CombatPhaseRules.CanBlock(CombatPhase.Attack));
+        Assert.IsFalse(CombatPhaseRules.CanBlock(CombatPhase.Resolved));
+    }
 }

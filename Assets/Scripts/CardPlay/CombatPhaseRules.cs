@@ -9,15 +9,23 @@ public static class CombatPhaseRules
     // Normal attacks land only after the counterattack (Attack phase).
     public static bool CanNormalAttack(CombatPhase phase) => phase == CombatPhase.Attack;
 
+    // Blocking is the Defend phase's per-enemy action (spec §7.5), the same
+    // shape as CanSiege/CanInfluence/CanNormalAttack.
+    public static bool CanBlock(CombatPhase phase) => phase == CombatPhase.Defend;
+
     // The advance button's display state, as pure data so the MonoBehaviour only
     // renders (spec 2026-07-24 phase controls). Siege hides the button while the
     // player has staged siege that can actually kill something (they should spend
     // it on a target); Defend previews the incoming wounds and flips to a
-    // strike-back prompt once Defend covers the group attack; Attack/Resolved
+    // strike-back prompt once the unblocked enemies are covered; Attack/Resolved
     // hide it (the win comes from clearing enemies, and Withdraw is its own
     // control).
+    //
+    // Takes a CounterattackPreview rather than a raw attack total (spec §7.5):
+    // the parameter list was already six long, and blocking adds three more
+    // numbers that always travel together.
     public static AdvanceState Advance(CombatPhase phase, int playerSiege, bool anySiegeKillable,
-        int playerDefend, int enemyAttackTotal, int toughness)
+        int defendLeft, CounterattackPreview preview, int toughness)
     {
         if (phase == CombatPhase.Siege)
         {
@@ -26,7 +34,7 @@ public static class CombatPhaseRules
         }
         if (phase == CombatPhase.Defend)
         {
-            int wounds = CombatRules.GroupWoundCount(playerDefend, enemyAttackTotal, toughness);
+            int wounds = EnemyTraitRules.HandWounds(preview, defendLeft, toughness);
             return wounds == 0
                 ? new AdvanceState(AdvanceKind.Counterattack, 0)
                 : new AdvanceState(AdvanceKind.TakeHit, wounds);
