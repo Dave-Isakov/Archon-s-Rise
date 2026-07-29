@@ -102,24 +102,49 @@ public class PlayerHand : MonoBehaviour
         Relayout();
     }
 
-    public void AddWound()
+    // Wounds are this game's health system, so placement is explicit (spec §6).
+    // Hand is the historical behaviour and stays the default, which keeps every
+    // existing call site correct. Discard is what Toxic needs.
+    //
+    // Contract (spec §6.3): every wound has exactly one destination; every add
+    // re-runs the wound-out check at the moment of add (correct because wound
+    // adds are not undoable, so a crossed threshold can never be un-crossed).
+    public void AddWound(WoundDestination dest = WoundDestination.Hand)
     {
         // Parent to the fan container (like drawn/rebuilt cards) — HandFanLayout
         // only lays out cards whose parent is the container, so a wound parented
         // elsewhere stays stacked at the origin until something reparents it.
         playerCard = Instantiate(card, handLayout.Container);
         var woundCard = playerCard.GetComponent<Card>();
-        woundCard.InHand = true;
-        woundCard.InDeck = false;
-        cardsInPlay.Add(woundCard);
         woundCard.cardSO = wound;
         playerCard.name = woundCard.name;
+
+        if (dest == WoundDestination.Discard)
+        {
+            woundCard.InHand = false;
+            woundCard.InDeck = false;
+            var discardPile = FindAnyObjectByType<DiscardPile>();
+            if (discardPile != null) discardPile.AddCardToDiscard(woundCard);
+            else                     AddWoundToHandZone(woundCard);  // contract rule 7: never drop a wound
+        }
+        else
+        {
+            AddWoundToHandZone(woundCard);
+        }
+
         Relayout();
         if (onWoundTutorial != null) onWoundTutorial.Raise();
         // Wound adds are not undoable commands, so a threshold crossed here
         // can never be un-done back under it — check at the moment of add.
         if (RunEndRules.IsWoundOut(TotalWoundCount()))
             RunEndController.RequestEnd(RunOutcome.WoundOutLoss);
+    }
+
+    void AddWoundToHandZone(Card woundCard)
+    {
+        woundCard.InHand = true;
+        woundCard.InDeck = false;
+        cardsInPlay.Add(woundCard);
     }
 
     // Wound-out counts every Wound card the run owns: hand + deck + discard.
