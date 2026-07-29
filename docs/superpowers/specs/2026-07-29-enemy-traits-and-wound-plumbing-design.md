@@ -48,7 +48,7 @@ fight collapses into a single forced kill order.
 
 **At least half of all fights are solo.** Field enemies are single-enemy encounters and are the
 majority of combats in a run. A trait that is inert or degenerate in a solo fight is only half a
-trait. Ten of the fourteen below are fully live solo; the four that are not are auras, and auras
+trait. Nine of the thirteen below are fully live solo; the four that are not are auras, and auras
 are reserved for guardian rosters by authoring rule (§5.3).
 
 ### The cap/surcharge symmetry
@@ -77,11 +77,11 @@ public enum EnemyTrait
 {
     None      = 0,
     // self
-    Armored   = 1,     Elusive = 2,     Hulking = 4,     Swift   = 8,
-    Brutal    = 16,    Toxic   = 32,    Leech   = 64,    Venal   = 128,
-    Harrying  = 256,   Vengeful = 512,
+    Armored   = 1,     Elusive = 2,     Hulking  = 4,     Swift    = 8,
+    Brutal    = 16,    Toxic   = 32,    Leech    = 64,    Harrying = 128,
+    Vengeful  = 256,
     // aura
-    Warlord   = 1024,  Miasma  = 2048,  Ironclad = 4096,  Outrider = 8192,
+    Warlord   = 512,   Miasma  = 1024,  Ironclad = 2048,  Outrider = 4096,
 }
 ```
 
@@ -108,7 +108,6 @@ keyword is learnable after a single fight, and a playtest retune of all armor is
 | `leechCrystals` | 1 | Leech: crystals stolen per wound in its share |
 | `vengefulWounds` | 1 | Vengeful: wounds on an Attack-phase kill |
 | `harryHandPenalty` | 1 | Harrying: hand-size reduction next turn |
-| `venalInfluenceDiv` | 2 | Venal: Influence cost divisor (rounded up, min 1) |
 
 ### 3.3 `EnemyTraitRules`
 
@@ -158,10 +157,10 @@ siegeCost_e = Elusive ? int.MaxValue                          // unreachable by 
             : Armored ? EffectiveHP(e) * armorSiegeMult
             : EffectiveHP(e)
 atkCost_e   = Hulking ? EffectiveHP(e) * hulkAttackMult : EffectiveHP(e)
-
-infCost_e   = Venal ? ceil(influenceCost / venalInfluenceDiv)  // min 1
-            : influenceCost
 ```
+
+**No trait modifies Influence cost.** See §5.5 — Influence is already the strongest removal in the
+game and its balance lever is scarcity, not price.
 
 `Elusive` uses `int.MaxValue` rather than a separate bool so the Siege phase keeps exactly one
 comparison. The Siege button is `UiLock`-dimmed for an Elusive enemy rather than silently failing.
@@ -243,7 +242,6 @@ Row 8 is the payoff of §4.1: the Miasma case required no code beyond the OR.
 | **Brutal** | while unblocked, adds its Attack again **past the cap** | `surcharge` |
 | **Toxic** | its share of wounds is doubled; copies go to **discard** | `payout` |
 | **Leech** | each wound in its share also **steals 1 crystal** | `payout` |
-| **Venal** | its **Influence cost is halved** (rounded up, min 1) | `influence` |
 | **Vengeful** | defeating it **in the Attack phase costs 1 wound** (to `Hand`, per kill) | `payout` |
 | **Harrying** | fleeing costs **−1 hand size** on the next turn's top-up | `flee` |
 
@@ -257,12 +255,6 @@ player either eats the counterattack or pays it off.
 **Vengeful** is the trait that makes Siege matter in a *solo* fight, where Siege is otherwise just a
 differently-coloured currency. It punishes the Attack phase only, so the Siege wound-free promise
 in mechanics.md is preserved and rewarded rather than broken.
-
-**Venal is the only trait in the catalogue with positive valence** — every other trait is a
-downside, which would make "this enemy has traits" read as pure bad news. Venal instead makes an
-enemy *attractive to buy off*, and it is the one trait that rewards an Influence build. It costs no
-new state and no new UI. Given that units become an Influence-priced healing channel (§6.4), a trait
-that seeds cheap Influence targets pulls in the same direction.
 
 **Harrying** replaced an earlier Explore-tax design. Fleeing should be a strategic choice made with
 full information, and a player who flees is usually willing to re-engage next turn — so an Explore
@@ -288,8 +280,11 @@ instead: you flee, you take a wound *into hand*, and you draw one fewer card nex
 - **Aura enemies are authored at low HP (2–4)** so the Siege targeting puzzle is winnable.
 - **Tier 1:** at most one self trait, never an aura. **Tier 2:** one or two self traits, or one weak
   aura. **Tier 3:** an aura plus a self trait.
-- **Never author Elusive with Armored** (the second is dead text), or **Vengeful/Elusive on tier 1**
-  (a player meeting one must have Influence or a second turn available).
+- **Never author Elusive with Armored** (the second is dead text), or **Vengeful/Elusive on tier 1**.
+- **An Elusive enemy must have `canInfluence = true`.** Elusive removes the Siege option, so without
+  an Influence out it is simply "you will eat the counterattack" — a removed choice rather than a
+  redirected one. Pairing them gives Elusive a clear identity ("bribe it, don't besiege it") and
+  points the player at the Influence economy instead of into a wall.
 - **Traits are additive to the tier system, not a replacement.** Tier still drives rewards and doom
   gating; traits drive texture.
 
@@ -304,12 +299,49 @@ than this spec, and one that would rewrite the phase machine.
 the actual phase rules**: Influence is a Siege-phase action and Engage is the commit that *ends* the
 Siege phase, so there is no window in which the doubled cost could ever be paid. Any "cost rises
 under pressure" trait requires Influence to remain available past the Siege phase — a change to the
-phase machine, not a trait. Deferred (§10). **Venal** ships in its slot.
+phase machine, not a trait. Deferred (§10). No replacement — see §5.5, no trait touches Influence.
+
+**Venal ("Influence cost halved").** Drafted as Proud's replacement and scrapped on review: it
+pushes the wrong lever. Influence is already the strongest removal in the game (§5.5), so a trait
+making it *cheaper* worsens the imbalance it was meant to add texture to. The catalogue ships at
+thirteen rather than padding the count.
 
 **Warded ("only empowered stat points count against it").** The most on-pillar idea considered, and
 cut on cost: the stat pools are bare `int`s, so it needs a parallel empowered-origin counter threaded
 through `Player` stat banking and the undo stack. That is a subsystem, not a trait. **Leech** is the
 crystal-touching trait that ships. Warded is a strong candidate for a later spec.
+
+### 5.5 Influence is not a trait surface — scarcity is its only lever
+
+**No trait in this catalogue modifies Influence cost, and none should.** Recorded here because it
+constrains every future trait as well.
+
+Compare the three removals available in the Siege phase:
+
+| | wound-free | full rewards | improvisable | can recruit |
+|---|---|---|---|---|
+| **Attack** (Attack phase) | no | yes | yes | no |
+| **Siege** | yes | yes | **no** | no |
+| **Influence** | yes | yes | **yes** | yes (w/ Charismatic) |
+
+Influence dominates Siege on every axis. It is wound-free and pays full rewards exactly like Siege,
+it can additionally recruit, and unlike Siege it is **improvisable** from `CharacterSO.improvInfluence` —
+so a player with no cards can still produce it. Siege's whole identity is that it cannot be
+improvised and comes only from advanced cards and units (a stated pillar); Influence quietly has the
+same power without that constraint.
+
+**The only thing holding Influence in check is `canInfluence` availability.** That makes availability
+the balance lever, and it must be defended:
+
+- **Target ~30% of enemies with `canInfluence = true`.** Below that, Influence builds have nothing to
+  buy; much above it and Siege stops being valuable, which collapses the reason non-improvisable
+  Siege exists at all.
+- A trait that lowers Influence cost pushes directly against this and is forbidden. A trait that
+  *raises* it needs Influence to remain available past the Siege phase (§5.4, deferred).
+- The 30% figure is a **map-wide authoring target across the enemy pool**, not a per-roster rule.
+
+This also sets the price of the Elusive pairing rule in §5.3: Elusive enemies must be influenceable,
+so they consume part of the 30% budget. Author them as a deliberate slice of it rather than on top.
 
 ---
 
@@ -428,8 +460,8 @@ not the legacy Framework `csc`, which is C# 5 and rejects expression-bodied memb
 cap never exceeds `totalBasis`; surcharge survives the cap; `shortfall == 0` short-circuits all
 payout traits; aura OR-ing is idempotent across duplicate aura enemies; Warlord excludes itself;
 Warlord stacks additively; `Share` guards `totalContribution == 0`; Elusive's siege cost is
-unreachable by any pool; Armored and Hulking touch only their own cost; Venal rounds up and never
-returns 0 for a cost of 1.
+unreachable by any pool; Armored and Hulking touch only their own cost; no trait path alters
+`influenceCost` (§5.5).
 
 **`WoundPlacementRules`** — placement counts match hand/discard splits; an all-`Hand` list for a
 trait-free fight is byte-identical to today's behaviour.
@@ -449,10 +481,12 @@ boundary, and preview text.
 - **`mechanics.md`** — a Traits section under Combat; the cap/surcharge rule in the wound math;
   **correct line 74** ("shuffles Wound cards into the deck" → wounds are added to the **hand**, and
   may now be placed into the **discard**).
-- **`balance.md`** — the §3.2 starting values and the tier guidance.
-- **`decisions-log.md`** — the four decisions of 2026-07-29: traits are flags with shared tuning;
+- **`balance.md`** — the §3.2 starting values, the tier guidance, and the **~30% `canInfluence`
+  target** (§5.5) as a standing authoring rule for the enemy pool.
+- **`decisions-log.md`** — the five decisions of 2026-07-29: traits are flags with shared tuning;
   Swift is capped and Brutal is surcharged; auras grant existing self traits rather than inventing
-  new ones; unit wounds will not count toward wound-out.
+  new ones; unit wounds will not count toward wound-out; **Influence is balanced by scarcity (~30%
+  of enemies), never by trait-modified cost**.
 
 ---
 
