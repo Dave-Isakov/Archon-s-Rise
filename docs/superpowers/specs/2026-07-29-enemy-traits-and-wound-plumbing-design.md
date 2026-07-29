@@ -550,17 +550,71 @@ cannot be undone afterwards.
 
 ## 8. Presentation
 
-**No new icons.** Fourteen new glyphs would be a large art and registry cost (each needs a sprite
-asset, an `IconConcept`, an `IconMarkup.TmpName` case, and an `IconRegistry` entry). Trait **names**
-render as text; trait **rule lines** use the existing canonical sprite tags via `IconMarkup`. No
-hand-rolled `<sprite=…>` literals anywhere, per the UI-language contract — `IconRegistryValidationTests`
-enforces this.
+**No new icons yet — single-character TMP badges instead.** Thirteen new glyphs is a large art and
+registry cost (each needs a sprite asset, an `IconConcept`, an `IconMarkup.TmpName` case, and an
+`IconRegistry` entry), but traits are unreadable without *some* per-enemy marker and a full text
+line per trait will not fit on an enemy card. A single character is the interim.
 
-- **`EnemyCard`** gains a traits line beside the existing HP/Attack readouts.
-- **Enemy preview** (the `PreviewRules.CanPreview` gate) lists each enemy's traits and its rule line.
+### 8.1 The badge and its upgrade seam
+
+```csharp
+// IconMarkup — the single owner of every glyph string, badges included.
+public static string TraitBadge(EnemyTrait t)   // "A" today; "<sprite=…>" when art lands
+```
+
+**Call sites never change.** When the icons are authored, this one function body swaps from a letter
+to a sprite tag and every panel updates at once. Nothing else in the codebase learns that traits
+became icons. This is the whole reason badges route through `IconMarkup` rather than being formatted
+at the point of use — the same rule that already forbids hand-rolled `<sprite=…>` literals.
+
+| Trait | Badge | | Trait | Badge |
+|---|---|---|---|---|
+| Armored | **A** | | Vengeful | **V** |
+| Brutal | **B** | | *aura:* Warlord | **W** |
+| Elusive | **E** | | *aura:* Miasma | **M** |
+| Harrying | **H** | | *aura:* Ironclad | **I** |
+| Hulking | **K** | | *aura:* Outrider | **O** |
+| Leech | **L** | | | |
+| Swift | **S** | | | |
+| Toxic | **T** | | | |
+
+Every badge is its trait's first letter except **Hulking = K** (`hulK`), which yields to Harrying.
+Letters are arbitrary and cheap to change; what matters is that they are unique and centrally owned.
+
+**Auras render in a distinct tint** (self traits neutral, auras amber) via `IconMarkup`'s existing
+`<color>` handling. One colour pair, no new assets, and it makes the single most important read in a
+guarded fight — *which of these is buffing the others* — instant. Auras drive the Siege targeting
+puzzle (§2); the player should not have to hover to find them.
+
+### 8.2 Rule text is generated, never authored
+
+A trait's one-line rule is built **from the tuning values at runtime**, not written as a string:
+
+```
+Armored → $"Siege must cover {armorSiegeMult}× {hp-icon}"
+```
+
+If `armorSiegeMult` is retuned to 3, every readout follows. Authored rule text would silently go
+stale the first time a number moves, and §3.2 exists precisely so numbers can move freely.
+
+Longer explanations belong in a **`HelpEntrySO`** for a Traits panel, reached by the standard `?`
+— consistent with the existing rule that short reactive copy points at a help entry for the durable
+version.
+
+### 8.3 Where badges appear
+
+- **`EnemyCard`** gains a compact badge row beside the existing HP/Attack readouts — badges only,
+  no words. Trait count is small enough (§5.3 caps tier 1 at one trait, tier 3 at two) that the row
+  never overflows.
+- **Enemy preview** (the `PreviewRules.CanPreview` gate) is **the legend**. It lists each trait as
+  `badge + name + generated rule line`, which is what makes a bare letter on the card learnable:
+  see the badge, hover, read the rule. A badge is never shown anywhere the player cannot reach a
+  preview.
   Preview must show **roster-aware effective values** — a Warlord changes the ogre's displayed
   Attack, and an Ironclad changes its Siege cost. Showing raw SO values here would be a lie the
   player only discovers after committing.
+- **The Defend button** (§7.1) shows `threat_e`, which is itself a trait readout — it is the one
+  place the player sees a trait's cost as a number they must actually pay.
 - **Trait effects report through `GameLog`, never a modal.** "The spider's venom festers — 1 wound
   to your discard." This follows the established preference for tooltip+log over per-event popups,
   and it is required by the existing rule that no mid-fight event may pop a modal that interrupts a
@@ -588,6 +642,12 @@ soaks the unblocked remainder; blocking every enemy yields zero wounds; **auras 
 still apply** (§7.4); `CanBlock` is true only in the Defend phase; and the §7.3 verdicts hold
 numerically — blocking a Brutal prevents more than it costs, blocking a Swift prevents less.
 
+**Trait badges (§8.1)** — a validation test in the shape of the existing `IconRegistryValidationTests`:
+**every `EnemyTrait` member has a badge**, and **all badges are unique**. Written as an exhaustive
+sweep over the enum, so adding a fourteenth trait without a badge fails the build rather than
+shipping an invisible trait. A second assertion pins that every trait produces a non-empty generated
+rule line (§8.2), so a retuned value can never leave a blank readout.
+
 **`WoundPlacementRules`** — placement counts match hand/discard splits; an all-`Hand` list for a
 trait-free fight is byte-identical to today's behaviour.
 
@@ -603,7 +663,9 @@ Defend pool and the advance button's wound preview.
 ## 10. Documentation updates (same change)
 
 - **`content-rules.md`** — `EnemyTrait` in the enum list; `traits` on the `EnemiesSO` table; a new
-  `EnemyTraitTuningSO` section; §5.3 authoring rules.
+  `EnemyTraitTuningSO` section; §5.3 authoring rules; and a note under the UI-language section that
+  **`IconMarkup.TraitBadge` is the sole owner of trait glyphs**, currently letters, later sprites —
+  so the "never hand-roll a glyph" rule covers badges too.
 - **`mechanics.md`** — a Traits section under Combat; the cap/surcharge rule in the wound math;
   **rewrite the Defend-phase description** — it is no longer a single summed comparison but
   per-enemy blocking plus residual soak (§7), and blocking does not suppress auras;
@@ -626,4 +688,6 @@ None blocking. Deferred by choice:
 - **Warded** — needs empowered-origin tracking in the stat pools (§5.4).
 - **Proud / escalating Influence costs** — needs Influence to be available past the Siege phase (§5.4).
 - **Enemy HP as a real pool** — would unlock Regenerator and chip damage; large, separate.
-- **Trait icons** — if playtest shows the text lines are too heavy in the preview panel.
+- **Trait icons** — thirteen sprite assets replacing the letter badges. Deliberately deferred, not
+  dropped: §8.1 exists so the swap is a single function body. Worth doing once the catalogue has
+  survived playtest and the letters have proven which traits players actually confuse.
