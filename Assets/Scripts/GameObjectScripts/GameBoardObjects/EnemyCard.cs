@@ -15,6 +15,23 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
     public int bonusAttack;
     public int EffectiveHP => enemySO.enemyHP + bonusHP;
     public int EffectiveAttack => enemySO.enemyAttack + bonusAttack;
+
+    // Blocked for this Defend phase. A blocked enemy is ALIVE — its auras still
+    // apply (spec §7.4), which is what keeps Siege strictly better than blocking.
+    public bool Blocked { get; set; }
+
+    public EnemyTrait Traits => enemySO != null ? enemySO.traits : EnemyTrait.None;
+
+    // The pure projection every rule consumes, so EnemyTraitRules never sees a
+    // MonoBehaviour and stays CLI-testable.
+    public EnemyCombatant ToCombatant() => new EnemyCombatant
+    {
+        Attack = EffectiveAttack,
+        HP = EffectiveHP,
+        Traits = Traits,
+        Blocked = Blocked,
+    };
+
     [SerializeField] private TextMeshProUGUI enemyName;
     [SerializeField] private TextMeshProUGUI enemyHP;
     [SerializeField] private TextMeshProUGUI enemyAttack;
