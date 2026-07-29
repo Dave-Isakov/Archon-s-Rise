@@ -60,7 +60,7 @@ public class CombatButtons : MonoBehaviour
         if (player == null) { HideAll(); return; }
 
         var st = CombatPhaseRules.Advance(cc.Phase, player.PlayerSiege, cc.AnySiegeKillable(player.PlayerSiege),
-            player.PlayerDefend, cc.LiveEnemyAttackTotal, player.PlayerToughness);
+            player.PlayerDefend, cc.Preview(), player.PlayerToughness);
 
         RenderAdvance(st);
         RenderWithdraw(cc);
