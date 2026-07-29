@@ -24,10 +24,14 @@ public class ToastRail : MonoBehaviour
         // (the convention everywhere else) silently swallows every toast, so the
         // invariant is asserted here rather than left to the inspector.
         var canvas = GetComponentInParent<Canvas>();
+        bool wasEnabled = canvas != null && canvas.enabled;
         if (canvas != null) canvas.enabled = true;
 
         GameLog.Instance.Posted += OnPosted;
-        Debug.Log($"[ToastDiag] Rail subscribed. prefab={(toastPrefab == null ? "NULL" : toastPrefab.name)} " +
+        Debug.LogWarning($"[ToastDiag] OnEnable on '{name}' (id={GetEntityId()}) " +
+                  $"canvasFound={(canvas == null ? "NULL" : canvas.name + " id=" + canvas.GetEntityId())} " +
+                  $"enabledBefore={wasEnabled} enabledAfter={(canvas != null && canvas.enabled)} " +
+                  $"prefab={(toastPrefab == null ? "NULL" : toastPrefab.name)} " +
                   $"container={(container == null ? "NULL" : container.name)}");
     }
 
@@ -74,7 +78,7 @@ public class ToastRail : MonoBehaviour
                   $"size={(rt != null ? rt.rect.size.ToString() : "n/a")} " +
                   $"pos={(rt != null ? rt.position.ToString() : "n/a")} " +
                   $"containerChildren={container.childCount} " +
-                  $"canvas={(canvas == null ? "NONE" : canvas.name)} " +
+                  $"canvas={(canvas == null ? "NONE" : canvas.name + " id=" + canvas.GetEntityId())} " +
                   $"canvasEnabled={(canvas != null && canvas.enabled)} " +
                   $"sortOrder={(canvas != null ? canvas.sortingOrder : -1)}");
     }
