@@ -133,7 +133,7 @@ section):
 across the enemy pool (not per-roster). Reasoning: Influence dominates Siege on every axis it can be
 compared on — wound-free (like Siege), full rewards (like Siege), but also **improvisable** (unlike
 Siege, which is deliberately non-improvisable — a stated pillar) and **can recruit** (with
-Charismatic). With no cost lever available to traits (§5.5 — no trait may modify `influenceCost`),
+Charismatic). With no cost lever available to traits (see content-rules.md §5.3 — no trait may modify `influenceCost`),
 **availability is Influence's only balance lever**: too far below ~30% and Influence builds have
 nothing to spend on; much above it and Siege stops mattering, which collapses the reason
 non-improvisable Siege exists at all. This target also funds the Elusive-pairing authoring rule

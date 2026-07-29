@@ -131,7 +131,7 @@ authored `cardDescription`.
 | `influenceCost` | int | Forced to 0 when `canInfluence` is false |
 | `recruitedUnit` | `UnitsSO` | Optional. When set AND the player owns Charismatic, paying the influence cost recruits this unit (rewards + unit). Null = pay-to-leave only. |
 | `tier` | int | Doom-gated difficulty tier (1–3) |
-| `traits` | `EnemyTrait` (flags) | Authored combat traits (spec 2026-07-29); `None` by default. Never modifies `influenceCost` — see §5.3/§5.5 below |
+| `traits` | `EnemyTrait` (flags) | Authored combat traits (spec 2026-07-29); `None` by default. Never modifies `influenceCost` — see §5.3 below |
 
 ## Enemy Trait Tuning — `EnemyTraitTuningSO`
 **Menu:** `ScriptableObjects/EnemyTraitTuning` — one shared asset, wired onto `CombatController`
