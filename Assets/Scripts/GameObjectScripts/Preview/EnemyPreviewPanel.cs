@@ -60,10 +60,22 @@ public class EnemyPreviewPanel : MonoBehaviour
         if (PreviewRules.EncounterVisible(visible))
         {
             blindState.SetActive(false);
+
+            // Roster-aware trait math (Task 14, spec §4/§8.3): a Warlord or
+            // Outrider among these SAME previewed entries changes another
+            // entry's effective Attack, so the roster must be built from the
+            // entries shown together. CombatController.Roster() cannot be used
+            // here — this preview always runs BEFORE the fight it describes
+            // ever opens, so CombatController's live set is empty.
+            var roster = BuildRoster(entries);
+            var tuning = CombatController.Instance != null
+                ? CombatController.Instance.Tuning
+                : new EnemyTraitTuning();
+
             for (int i = 0; i < entries.Count; i++)
             {
                 var entry = Instantiate(entryPrefab, entryContainer);
-                entry.Populate(entries[i]);
+                entry.Populate(entries[i], i, roster, tuning);
             }
         }
         else
@@ -76,6 +88,25 @@ public class EnemyPreviewPanel : MonoBehaviour
 
         root.SetActive(true);
         PositionPanel(screenPosition);
+    }
+
+    // The pure roster every trait rule consumes (Task 14), built from the
+    // entries being previewed together — mirrors CombatController.Roster()'s
+    // own EnemyCard -> EnemyCombatant projection (raw authored traits, doom-
+    // scaled Attack/HP), so EnemyTraitRules sees the same shape it would once
+    // the fight actually opens.
+    static List<EnemyCombatant> BuildRoster(IReadOnlyList<EnemyPreviewData> entries)
+    {
+        var roster = new List<EnemyCombatant>(entries.Count);
+        foreach (var e in entries)
+            roster.Add(new EnemyCombatant
+            {
+                Attack = e.enemy.enemyAttack + e.bonusAttack,
+                HP = e.enemy.enemyHP + e.bonusHP,
+                Traits = e.enemy.traits,
+                Blocked = false,
+            });
+        return roster;
     }
 
     // Anchors the panel near the hovered icon (nudged off it by `offset`) and

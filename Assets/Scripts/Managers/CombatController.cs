@@ -413,6 +413,10 @@ public class CombatController : MonoBehaviour
 
         if (wounds > 0)
             GameLog.Instance.Post($"The enemies strike back! You are wounded {wounds} times.");
+        if (discardWounds > 0)
+            GameLog.Instance.Post($"Venom festers — {discardWounds} wound(s) rot in your discard.");
+        if (stolen > 0)
+            GameLog.Instance.Post($"Leeched! You lose {stolen} crystal(s).");
 
         if (stolen > 0)
         {
