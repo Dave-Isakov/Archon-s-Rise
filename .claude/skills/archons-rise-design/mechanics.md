@@ -40,10 +40,17 @@ The phases (button caption in **bold**):
   Charismatic + `recruitedUnit`) remove enemies *before* the counterattack. Thinning the roster here
   shrinks the coming counterattack. Pressing **Engage** commits: the **Siege pool is cleared** (a
   Siege-phase-only currency) and combat enters Defend. No wounds yet.
-- **Defend** (**Defend**) — a window to play defense cards and build the Defend pool. Pressing
-  **Defend** resolves the **group counterattack**: every surviving enemy's Attack is **summed into
-  one comparison** against Defend, and the shortfall becomes Wounds in HP-sized bites
-  (`CombatRules.GroupWoundCount`). Then combat enters Attack.
+- **Defend** (**Defend**) — a window to play defense cards and build the Defend pool, **plus a
+  per-enemy allocation decision** (spec 2026-07-29 §7): each enemy card shows a **Defend button**
+  displaying its trait-adjusted **threat**, clickable once `defendLeft >= threat`. Clicking **blocks**
+  that enemy (all-or-nothing — no partial payment), spending that much Defend and removing it from
+  the group comparison. **Blocking is not killing** — a blocked enemy is still alive, so its **auras
+  still apply**; only removal (Siege, Influence, or an Attack-phase kill) strips one. Leftover Defend
+  after all blocks is never wasted: it still **soaks the group counterattack** from every enemy still
+  unblocked, exactly as today's single summed comparison did when nobody blocks (compatibility
+  guarantee — blocking never needs re-tuning an enemy). The shortfall against the unblocked group
+  becomes Wounds in Toughness-sized bites (`CombatRules.WoundCount`, via `EnemyTraitRules`). Then
+  combat enters Attack.
 - **Attack** (**Withdraw**) — spend the **Attack** pool to defeat remaining enemies (the counterattack
   already happened, so normal kills here are wound-free at point of use). **Withdraw** flees: field/
   dungeon costs **1 wound**, a guardian assault costs **3 wounds** with conquest progress kept.
@@ -56,6 +63,34 @@ interrupts a Siege/Attack decision. Defeats play a **two-track FX** — a shake�
 Attack kills, a fade-and-drift for Influence — and the fight **holds the canvas open until the FX
 finishes** before closing. The shared HUD phase label doubles as the combat sub-phase readout
 (**Siege/Defend/Attack**), returning to **Action** when combat resolves.
+
+### Traits (spec 2026-07-29)
+Enemies carry `EnemyTrait` flags (`EnemiesSO.traits`) that bend the combat math above rather than
+adding ad-hoc special cases. Two kinds do different jobs:
+- **Self traits** make one enemy harder to remove (e.g. Armored raises its Siege cost, Toxic
+  diverts part of its wound share to the discard). They are fully live even in a solo fight — at
+  least half of all fights are single-enemy, so a trait that only matters in a group is only half a
+  trait.
+- **Aura traits** (Warlord, Miasma, Ironclad, Outrider) are guardian-only and make the whole fight
+  worse while their owner lives, by **granting an existing self trait to every survivor** (Miasma
+  grants Toxic, Ironclad grants Armored, Outrider grants Swift) rather than inventing new vocabulary.
+  Granting **auras resolve to a per-enemy effective-trait mask before the pipeline runs** — every
+  downstream step (threat, siege/attack cost, the counterattack, share attribution) reads only the
+  resolved mask and needs no separate aura awareness. Granting is a bitwise OR, so two aura enemies
+  of the same kind are idempotent (no double-stacking); Warlord is the deliberate exception — its
+  Attack bonus is additive and stacks, which is why its magnitude is kept small.
+
+**The cap/surcharge symmetry** is the traits system's central pair, read together:
+- **Swift** raises the *bar*, not the punishment: its threat doubles (harder to block/clear), but
+  wounds from failing to block it are still **capped** at its un-doubled base Attack — missing a
+  Swift enemy entirely costs no more than missing an ordinary one.
+- **Brutal** raises the *punishment*, not the bar: its threat is unchanged, but going unblocked adds
+  a **surcharge** on top of the shared cap — it deliberately makes the worst case worse.
+
+One is a wall (block it or don't, no extra cost either way), the other is a cliff (leaving it
+unblocked is actively dangerous). Because they modify different halves of the wound formula, a
+Swift+Brutal enemy composes both effects cleanly and stays readable to a player who has met each
+trait alone.
 
 ## Win — Conquer 2 Castles
 Map places are typed: **Town / Keep / Castle** (+ existing Dungeons). Guarded places (Keep 1
@@ -70,10 +105,11 @@ allowed (unlike enemies). **Conquer 2 Castles to win** — territory is the sole
 Level/Influence gate. Exact rosters and castle count are tuning — see [balance.md](balance.md).
 
 ## Lose — Wounds (tactical)
-Losing a fight (insufficient Defend vs the enemy's Attack) shuffles **Wound** cards into the deck.
-Wounds are dead draws that clog the deck; accumulating too many — a count threshold (see
-[balance.md](balance.md)) — ends the run. **Heal/Mend** cards remove Wounds, so wound management is
-an ongoing tactical cost.
+Losing a fight (insufficient Defend vs the enemy's Attack) adds **Wound** cards to the **hand**
+(`PlayerHand.AddWound`) — never shuffled into the deck. A trait (Toxic, spec 2026-07-29) can instead
+place a wound into the **discard**; both destinations count toward wound-out. Wounds are dead draws
+that clog the hand/deck; accumulating too many — a count threshold (see [balance.md](balance.md)) —
+ends the run. **Heal/Mend** cards remove Wounds, so wound management is an ongoing tactical cost.
 
 **Toughness is a divisor, not a health pool** (decision 2026-07-06, renamed 2026-07-23): Toughness
 divides the Defend shortfall into Toughness-sized bites, one Wound per bite (`CombatRules.WoundCount`).

@@ -108,6 +108,39 @@ _Starting bands — tune in playtest._
   inspector-tunable per level with no code change.
 - _Starting values — tune in playtest._ Adjust the `+12` constant to speed up or slow down leveling.
 
+## Enemy Traits (spec 2026-07-29)
+Starting values on the shared `EnemyTraitTuningSO` (`content-rules.md`'s `EnemyTraitTuningSO`
+section):
+
+| Field | Start |
+|-------|-------|
+| `armorSiegeMult` | 2 |
+| `hulkAttackMult` | 2 |
+| `swiftThreatMult` | 2 |
+| `brutalSurchargeMult` | 1 |
+| `warlordBonus` | 1 |
+| `toxicCopies` | 1 |
+| `leechCrystals` | 1 |
+| `vengefulWounds` | 1 |
+| `harryHandPenalty` | 1 |
+
+**Tier guidance:**
+- **Tier 1:** at most 1 self trait, no auras.
+- **Tier 2:** one–two self traits, or one weak aura.
+- **Tier 3:** an aura plus a self trait.
+
+**`canInfluence` availability target: ~30% of enemies map-wide.** This is a standing authoring rule
+across the enemy pool (not per-roster). Reasoning: Influence dominates Siege on every axis it can be
+compared on — wound-free (like Siege), full rewards (like Siege), but also **improvisable** (unlike
+Siege, which is deliberately non-improvisable — a stated pillar) and **can recruit** (with
+Charismatic). With no cost lever available to traits (§5.5 — no trait may modify `influenceCost`),
+**availability is Influence's only balance lever**: too far below ~30% and Influence builds have
+nothing to spend on; much above it and Siege stops mattering, which collapses the reason
+non-improvisable Siege exists at all. This target also funds the Elusive-pairing authoring rule
+(`content-rules.md` §5.3) — Elusive enemies must be `canInfluence = true`, so author them as a
+deliberate slice of the 30% rather than on top of it.
+- _Starting values — tune in playtest._
+
 ## Unit Recruit Costs
 - Per-unit **Influence** price bands: **cheap 2–3** (single-effect / utility), **standard 3–4**
   (two solid options), **premium 5+** (strong or dual costed options).

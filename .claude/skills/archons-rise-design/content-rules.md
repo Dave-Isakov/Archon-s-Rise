@@ -19,6 +19,10 @@ field here ever disagrees with those scripts, the scripts win — update this fi
 - **`TownSize`**: `Town, Village, Fortress, City`.
 - **`PlaceType`**: `Town=0, Keep=1, Castle=2` (source: `Assets/Scripts/Places/`).
 - **`PlaceService`** `[Flags]`: `None=0, Recruit=1, Heal=2, Cards=4` (source: `Assets/Scripts/Places/`).
+- **`EnemyTrait`** `[Flags]` (spec 2026-07-29, append-only): `None=0`; self —
+  `Armored=1, Elusive=2, Hulking=4, Swift=8, Brutal=16, Toxic=32, Leech=64, Harrying=128,
+  Vengeful=256`; aura — `Warlord=512, Miasma=1024, Ironclad=2048, Outrider=4096`. Not saved — read
+  from `EnemiesSO.traits` via the enemy's stable id, like `enemyHP`.
 
 ---
 
@@ -55,6 +59,10 @@ authored `cardDescription`.
 - **Adding a new icon:** one single-glyph TMP Sprite Asset in
   `Assets/TextMesh Pro/Resources/Sprite Assets/` (asset name = tag), plus an `IconConcept` member,
   its `IconMarkup.TmpName` case, and an `IconRegistry.asset` entry — then the validation tests green.
+- **`IconMarkup.TraitBadge` is the sole owner of trait glyphs** (spec 2026-07-29 §8.1): it returns a
+  single-character letter badge today (e.g. `"A"` for Armored) and will return a `<sprite=…>` tag
+  once trait art lands — call sites never change either way. The "never hand-roll a glyph" rule
+  covers trait badges exactly like every other icon concept.
 
 ---
 
@@ -123,6 +131,48 @@ authored `cardDescription`.
 | `influenceCost` | int | Forced to 0 when `canInfluence` is false |
 | `recruitedUnit` | `UnitsSO` | Optional. When set AND the player owns Charismatic, paying the influence cost recruits this unit (rewards + unit). Null = pay-to-leave only. |
 | `tier` | int | Doom-gated difficulty tier (1–3) |
+| `traits` | `EnemyTrait` (flags) | Authored combat traits (spec 2026-07-29); `None` by default. Never modifies `influenceCost` — see §5.3/§5.5 below |
+
+## Enemy Trait Tuning — `EnemyTraitTuningSO`
+**Menu:** `ScriptableObjects/EnemyTraitTuning` — one shared asset, wired onto `CombatController`
+(spec 2026-07-29, same pattern as `RewardTuningSO` on `Rewards` and `DoomTuning`). Enemies tick
+trait boxes; this asset owns every magnitude, so a keyword (e.g. "Armored") means one fixed thing
+game-wide and a playtest retune is a single field edit.
+
+| Field | Meaning |
+|-------|---------|
+| `armorSiegeMult` | Armored: Siege cost multiplier |
+| `hulkAttackMult` | Hulking: Attack cost multiplier |
+| `swiftThreatMult` | Swift: threat multiplier |
+| `brutalSurchargeMult` | Brutal: multiples of base Attack added past the cap |
+| `warlordBonus` | Warlord: Attack granted to each *other* survivor |
+| `toxicCopies` | Toxic: discard copies per wound in its share |
+| `leechCrystals` | Leech: crystals stolen per wound in its share |
+| `vengefulWounds` | Vengeful: wounds on an Attack-phase kill |
+| `harryHandPenalty` | Harrying: hand-size reduction next turn |
+
+Starting values: see [balance.md](balance.md).
+
+### §5.3 Enemy trait authoring rules
+- **Field (solo) enemies draw only from self traits.** A granting aura on a solo enemy silently
+  degenerates into its own self trait (solo Miasma ≡ Toxic) — wasted authoring and a confusing first
+  encounter with the keyword.
+- **Auras are guardian-only** (Keep/Castle rosters), keeping guarded places structurally different
+  from map fights rather than merely bigger.
+- **Aura enemies are authored at low HP (2–4)** so the Siege-targeting puzzle they create stays
+  winnable.
+- **Tier caps:** tier 1 — at most one self trait, never an aura. Tier 2 — one or two self traits, or
+  one weak aura. Tier 3 — an aura plus a self trait.
+- **Never author Elusive with Armored** (the second is dead text — Elusive already removes Siege
+  entirely), and never author Vengeful or Elusive on tier 1.
+- **An Elusive enemy must have `canInfluence = true`.** Elusive removes the Siege option, so without
+  an Influence out it is simply "you will eat the counterattack" — a removed choice, not a redirected
+  one. Pairing them gives Elusive a clear identity ("bribe it, don't besiege it") and spends part of
+  the ~30% `canInfluence` budget deliberately (see [balance.md](balance.md)).
+- **Traits are additive to the tier system, not a replacement** — tier still drives rewards and doom
+  gating; traits drive texture.
+- **No trait modifies `influenceCost`.** Influence's balance lever is scarcity, never trait-modified
+  price (see [balance.md](balance.md)).
 
 ## Town — `TownsSO`
 **Menu:** `ScriptableObjects/Cards/TownCards`

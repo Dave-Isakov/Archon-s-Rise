@@ -704,3 +704,20 @@ town/dungeon close, plus the bespoke `CrystalDismissCatcher`), leaving exactly t
 holdouts: the card-pick Skip and the terminal run-end screen.
 
 Spec: `docs/superpowers/specs/2026-07-28-minimal-place-ui-and-player-log-design.md`.
+
+- **2026-07-29 — Enemy traits are a `[Flags]` enum with magnitudes on one shared tuning asset, so a
+  keyword means one fixed thing game-wide.**
+
+- **2026-07-29 — Swift is capped (raises the bar, not the punishment); Brutal is surcharged (raises
+  the punishment, not the bar).**
+
+- **2026-07-29 — Granting auras grant existing self traits rather than inventing new ones — one
+  vocabulary, and OR-ing makes them idempotent.**
+
+- **2026-07-29 — Unit wounds will not count toward wound-out, making units a wound sink that trades
+  run-loss pressure for army capability.**
+
+- **2026-07-29 — Influence is balanced by scarcity (~30% of enemies), never by trait-modified cost.**
+
+- **2026-07-29 — Defend is per-enemy blocking with residual soak, and blocking never suppresses
+  auras.**
