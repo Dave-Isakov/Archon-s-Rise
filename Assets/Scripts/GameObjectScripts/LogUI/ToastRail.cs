@@ -19,6 +19,13 @@ public class ToastRail : MonoBehaviour
 
     void OnEnable()
     {
+        // The rail has no closed state — it is an always-on overlay, unlike the
+        // modal canvases GameManager.Awake force-disables. Authoring it disabled
+        // (the convention everywhere else) silently swallows every toast, so the
+        // invariant is asserted here rather than left to the inspector.
+        var canvas = GetComponentInParent<Canvas>();
+        if (canvas != null) canvas.enabled = true;
+
         GameLog.Instance.Posted += OnPosted;
         Debug.Log($"[ToastDiag] Rail subscribed. prefab={(toastPrefab == null ? "NULL" : toastPrefab.name)} " +
                   $"container={(container == null ? "NULL" : container.name)}");
