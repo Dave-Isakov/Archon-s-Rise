@@ -1,4 +1,4 @@
-# Enemy Traits & Wound Plumbing — Design
+# Enemy Traits, Per-Enemy Blocking & Wound Plumbing — Design
 
 **Date:** 2026-07-29
 **Status:** Approved for planning
@@ -15,9 +15,22 @@ phased engine (Siege → Defend → Attack) built a decision *structure* in M2 t
 never given the player a reason to use: with no reason to prefer one target over another, the Siege
 phase degenerates into "spend Siege if you happen to have some."
 
-This spec adds **enemy traits** — authored flags that bend the combat math — and rebuilds the
-**wound placement plumbing** they require into something the next phase (unit wounds) can extend
-without rework.
+The Defend phase has the same problem in a second form. Siege and Attack are per-enemy click
+actions, but Defend is a single global threshold — one number you either clear or don't. It is the
+only phase with no per-enemy decision, and no summed comparison can ever show the player what an
+individual enemy's traits actually cost them.
+
+This spec therefore has three parts:
+
+1. **Enemy traits** — authored flags that bend the combat math (§3–5).
+2. **Per-enemy blocking** — the Defend phase becomes an allocation decision, which is also what
+   gives every trait a per-enemy readout (§7).
+3. **Wound plumbing** — rebuilt into something the next phase (unit wounds) can extend without
+   rework (§6).
+
+The three are one spec because they are one mechanism: traits set what an enemy costs to block,
+blocking decides which enemies reach the wound math, and the wound math decides where the wounds
+land.
 
 ### Why the wound plumbing is in the same spec
 
@@ -173,16 +186,25 @@ indirection rather than introducing a parallel one.
 
 Replaces the `GroupWoundCount` call at `CombatController.cs:343`.
 
+Every sum runs over **unblocked survivors only** (§7). `defendLeft` is the Defend pool *after* blocks
+were paid for. With no blocks placed, `unblocked` is the whole roster and `defendLeft` is the whole
+pool — making this **identical to today's behaviour**, which is the compatibility guarantee that
+lets blocking be added without re-tuning any enemy.
+
 ```
- 1. totalThreat = Σ threat_e
- 2. totalBasis  = Σ basis_e
- 3. shortfall   = max(0, totalThreat - defend)
+ 0. unblocked   = survivors where not Blocked(e)                FILTER    (§7)
+ 1. totalThreat = Σ threat_e            over unblocked
+ 2. totalBasis  = Σ basis_e             over unblocked
+ 3. shortfall   = max(0, totalThreat - defendLeft)
  4. if shortfall == 0  →  no wounds, no surcharge, no toxic, no leech. DONE.
  5. capped      = min(shortfall, totalBasis)                    CAP       (Swift's guarantee)
- 6. surcharge   = Σ (base_e * brutalSurchargeMult) for Brutal survivors
+ 6. surcharge   = Σ (base_e * brutalSurchargeMult) for Brutal ∈ unblocked
  7. effective   = capped + surcharge                            SURCHARGE (Brutal's punishment)
  8. handWounds  = bite(effective, toughness)
 ```
+
+**Auras are computed over all living survivors, not just unblocked ones** (§4.1 is unchanged).
+A blocked enemy is alive — see §7.4.
 
 Step 5 before step 7 is load-bearing. The cap exists to stop Swift inflating the punishment; the
 surcharge exists to let Brutal inflate exactly that. Applying them in the other order would let the
@@ -194,8 +216,8 @@ The summed counterattack has no notion of whose wound is whose, so per-enemy pay
 **share of the contribution**:
 
 ```
-contribution_e    = basis_e + (Brutal ? base_e * brutalSurchargeMult : 0)
-totalContribution = Σ contribution_e
+contribution_e    = basis_e + (Brutal ? base_e * brutalSurchargeMult : 0)    // unblocked only
+totalContribution = Σ contribution_e     over unblocked
 
 Share(trait) = effective * (Σ contribution_e where trait ∈ EffectiveTraits(e)) / totalContribution
                // integer division, floor. Guard totalContribution == 0 → 0.
@@ -299,7 +321,7 @@ than this spec, and one that would rewrite the phase machine.
 the actual phase rules**: Influence is a Siege-phase action and Engage is the commit that *ends* the
 Siege phase, so there is no window in which the doubled cost could ever be paid. Any "cost rises
 under pressure" trait requires Influence to remain available past the Siege phase — a change to the
-phase machine, not a trait. Deferred (§10). No replacement — see §5.5, no trait touches Influence.
+phase machine, not a trait. Deferred (§11). No replacement — see §5.5, no trait touches Influence.
 
 **Venal ("Influence cost halved").** Drafted as Proud's replacement and scrapped on review: it
 pushes the wrong lever. Influence is already the strongest removal in the game (§5.5), so a trait
@@ -358,7 +380,7 @@ today's behaviour. The `Discard` path instantiates the wound card and hands it t
 `DiscardPile.AddCardToDiscard(Card)` rather than parenting it to `handLayout.Container`.
 
 Note that wounds **already** go to hand, not the deck. `mechanics.md:74` claims they are "shuffled
-into the deck"; that is stale and is corrected by this spec (§9).
+into the deck"; that is stale and is corrected by this spec (§10).
 
 ### 6.2 The placement list is the seam
 
@@ -431,7 +453,102 @@ The seam above means they cost no rework.
 
 ---
 
-## 7. Presentation
+## 7. Per-enemy blocking (Defend phase)
+
+The Defend phase is currently the only phase with no per-enemy interaction: Siege and Attack are
+per-enemy clicks, while Defend is a single global threshold you either clear or don't. This section
+makes Defend an **allocation decision** and, in doing so, gives every trait a per-enemy readout.
+
+### 7.1 The interaction
+
+Each enemy card gains a **Defend button**, live only in the Defend phase. It displays that enemy's
+**`threat_e`** — the full trait-adjusted number, so a Swift enemy with Attack 3 reads `6`. That
+display *is* the answer to "what do this enemy's traits cost me," which no summed comparison could
+ever show.
+
+- The button is clickable only when `defendLeft >= threat_e`; otherwise `UiLock`-dimmed at alpha 0.4
+  on top of `Button.interactable`, per the UI-language contract.
+- Clicking **blocks** that enemy: `defendLeft -= threat_e`, and the enemy leaves the unblocked set.
+- Blocking is **all-or-nothing per enemy**. There is no partial payment.
+- **Residual soak:** whatever Defend is left over still feeds the group comparison in §4.3 against
+  everyone still unblocked. No point of Defend is ever wasted.
+
+### 7.2 Why residual soak rather than pure all-or-nothing
+
+Without it, sub-threshold Defend is worth exactly nothing (enemy Attack 5, Toughness 2: Defend 0 →
+3 wounds, Defend 4 → 3 wounds), which turns every Defend card into a lottery ticket and stacks a
+silent difficulty spike on top of traits that already multiply wounds. Residual soak keeps the
+allocation decision while preserving partial credit, and — critically — makes "block nobody" exactly
+identical to today's math.
+
+### 7.3 The payoff: traits decide what is worth blocking
+
+This is the reason to build it. Blocking cost is `threat_e` but blocking *prevents* `contribution_e`,
+and traits drive those two apart:
+
+| Enemy | Cost to block | What blocking prevents | Verdict |
+|---|---|---|---|
+| **Brutal** (Atk 4) | 4 | basis 4 **+ surcharge 4** | **block** — 4 buys 8 |
+| **Toxic** (Atk 3) | 3 | basis 3 **+ its discard copies** | **block** — stops the doubling |
+| **Leech** (Atk 3) | 3 | basis 3 **+ crystal theft** | **block** — protects the crystals |
+| **Swift** (Atk 3) | **6** | basis 3 (already capped) | **soak** — 6 to prevent 3 is a trap |
+| **plain** (Atk 4) | 4 | basis 4 | neutral — pure allocation |
+
+Swift now reads as *"fast and hard to pin down, but not that dangerous — don't waste your shield."*
+Brutal reads as *"stop this one or else."* The §2 wall/cliff symmetry stops being a math curiosity
+and becomes the fight's central decision.
+
+### 7.4 Blocking is not killing
+
+**A blocked enemy is still alive, so its auras still apply.** A blocked Warlord still grants +1
+Attack to every other survivor; a blocked Miasma herald still makes the roster Toxic. Only removal
+(Siege, Influence, or an Attack-phase kill) strips an aura.
+
+This is deliberate and load-bearing: it keeps **Siege strictly better than blocking** and preserves
+the Siege-phase targeting puzzle that the aura traits exist to create (§2). If blocking suppressed
+auras, the cheap-herald-first decision would evaporate and the Siege phase would go back to being a
+formality.
+
+### 7.5 Phase gating
+
+`CombatPhaseRules` already owns per-phase gating as pure predicates. Blocking follows the pattern
+with one added member:
+
+```csharp
+public static bool CanBlock(CombatPhase phase) => phase == CombatPhase.Defend;
+```
+
+Target button policy — `EnemyCard` routes **all four** buttons through `CombatPhaseRules` uniformly
+rather than each managing its own state:
+
+| Phase | Live per-enemy buttons | Advance button |
+|---|---|---|
+| Siege | Siege, Influence | Engage (hidden while a siege kill is staged) |
+| Defend | **Defend** | TakeHit (n wounds) → Counterattack at zero |
+| Attack | Attack | hidden; Withdraw is its own control |
+| Resolved | none | hidden |
+
+The advance button needs **no new behaviour**: `Advance()` already returns `TakeHit` with a live
+wound count and flips to `Counterattack` when Defend covers the attack. Only its *inputs* change —
+it reads the unblocked totals and `defendLeft`. Since the parameter list is already six long, the
+per-enemy pipeline results should be gathered into a single `CounterattackPreview` struct
+(`unblockedThreat`, `unblockedBasis`, `brutalSurcharge`) and passed as one argument rather than
+growing the signature further.
+
+### 7.6 Undo and the commit point
+
+Each block is an undoable command (`BlockCommand`) on the existing stack, symmetric with card plays
+and unit uses: undo restores `defendLeft` and returns the enemy to the unblocked set. The wound
+preview on the advance button re-renders after every block and undo, so the player always sees the
+consequence of the current allocation before committing.
+
+Pressing the advance button is the **commit point**, exactly as Engage already is: it resolves the
+counterattack and calls `commands.ClearStack()` (the precedent is `CombatController.cs:327`). Blocks
+cannot be undone afterwards.
+
+---
+
+## 8. Presentation
 
 **No new icons.** Fourteen new glyphs would be a large art and registry cost (each needs a sprite
 asset, an `IconConcept`, an `IconMarkup.TmpName` case, and an `IconRegistry` entry). Trait **names**
@@ -451,7 +568,7 @@ enforces this.
 
 ---
 
-## 8. Testing
+## 9. Testing
 
 All new rules are pure and testable through the CLI harness (compiled with MonoBleedingEdge `mcs`,
 not the legacy Framework `csc`, which is C# 5 and rejects expression-bodied members).
@@ -463,6 +580,14 @@ Warlord stacks additively; `Share` guards `totalContribution == 0`; Elusive's si
 unreachable by any pool; Armored and Hulking touch only their own cost; no trait path alters
 `influenceCost` (§5.5).
 
+**Blocking (§7)** — the compatibility guarantee is the headline test: **with no blocks placed, the
+pipeline result equals today's `GroupWoundCount` for every roster**, which is what allows blocking to
+ship without re-tuning a single enemy. Plus: blocked enemies contribute nothing to threat, basis,
+surcharge, or share; `defendLeft` decrements by `threat_e` (not `basis_e`); leftover Defend still
+soaks the unblocked remainder; blocking every enemy yields zero wounds; **auras from a blocked enemy
+still apply** (§7.4); `CanBlock` is true only in the Defend phase; and the §7.3 verdicts hold
+numerically — blocking a Brutal prevents more than it costs, blocking a Swift prevents less.
+
 **`WoundPlacementRules`** — placement counts match hand/discard splits; an all-`Hand` list for a
 trait-free fight is byte-identical to today's behaviour.
 
@@ -470,27 +595,31 @@ trait-free fight is byte-identical to today's behaviour.
 pipeline has drifted from §3.3 and that is the bug.
 
 **Not unit-tested (verify in-editor):** the discard visual path, hand-size reduction across a turn
-boundary, and preview text.
+boundary, preview text, the Defend button's prefab wiring, and undo of a block restoring both the
+Defend pool and the advance button's wound preview.
 
 ---
 
-## 9. Documentation updates (same change)
+## 10. Documentation updates (same change)
 
 - **`content-rules.md`** — `EnemyTrait` in the enum list; `traits` on the `EnemiesSO` table; a new
   `EnemyTraitTuningSO` section; §5.3 authoring rules.
 - **`mechanics.md`** — a Traits section under Combat; the cap/surcharge rule in the wound math;
+  **rewrite the Defend-phase description** — it is no longer a single summed comparison but
+  per-enemy blocking plus residual soak (§7), and blocking does not suppress auras;
   **correct line 74** ("shuffles Wound cards into the deck" → wounds are added to the **hand**, and
   may now be placed into the **discard**).
 - **`balance.md`** — the §3.2 starting values, the tier guidance, and the **~30% `canInfluence`
   target** (§5.5) as a standing authoring rule for the enemy pool.
-- **`decisions-log.md`** — the five decisions of 2026-07-29: traits are flags with shared tuning;
+- **`decisions-log.md`** — the six decisions of 2026-07-29: traits are flags with shared tuning;
   Swift is capped and Brutal is surcharged; auras grant existing self traits rather than inventing
   new ones; unit wounds will not count toward wound-out; **Influence is balanced by scarcity (~30%
-  of enemies), never by trait-modified cost**.
+  of enemies), never by trait-modified cost**; **Defend is per-enemy blocking with residual soak,
+  and blocking never suppresses auras**.
 
 ---
 
-## 10. Open items
+## 11. Open items
 
 None blocking. Deferred by choice:
 
