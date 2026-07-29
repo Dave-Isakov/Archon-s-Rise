@@ -28,6 +28,13 @@ public class ToastRail : MonoBehaviour
         if (canvas != null) canvas.enabled = true;
 
         GameLog.Instance.Posted += OnPosted;
+        if (canvas != null)
+        {
+            var names = new List<string>();
+            foreach (var c in canvas.GetComponents<Component>())
+                if (c != null) names.Add(c.GetType().Name);
+            Debug.LogWarning($"[ToastDiag] Components on '{canvas.name}': {string.Join(", ", names)}");
+        }
         Debug.LogWarning($"[ToastDiag] OnEnable on '{name}' (id={GetEntityId()}) " +
                   $"canvasFound={(canvas == null ? "NULL" : canvas.name + " id=" + canvas.GetEntityId())} " +
                   $"enabledBefore={wasEnabled} enabledAfter={(canvas != null && canvas.enabled)} " +
