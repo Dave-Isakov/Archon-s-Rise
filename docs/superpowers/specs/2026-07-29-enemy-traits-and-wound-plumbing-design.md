@@ -321,7 +321,7 @@ than this spec, and one that would rewrite the phase machine.
 the actual phase rules**: Influence is a Siege-phase action and Engage is the commit that *ends* the
 Siege phase, so there is no window in which the doubled cost could ever be paid. Any "cost rises
 under pressure" trait requires Influence to remain available past the Siege phase — a change to the
-phase machine, not a trait. Deferred (§11). No replacement — see §5.5, no trait touches Influence.
+phase machine, not a trait. No replacement — see §5.5, no trait touches Influence.
 
 **Venal ("Influence cost halved").** Drafted as Proud's replacement and scrapped on review: it
 pushes the wrong lever. Influence is already the strongest removal in the game (§5.5), so a trait
@@ -683,11 +683,8 @@ Defend pool and the advance button's wound preview.
 
 ## 11. Open items
 
-None blocking. Deferred by choice:
+None blocking.
 
-- **Warded** — needs empowered-origin tracking in the stat pools (§5.4).
-- **Proud / escalating Influence costs** — needs Influence to be available past the Siege phase (§5.4).
-- **Enemy HP as a real pool** — would unlock Regenerator and chip damage; large, separate.
 - **Trait icons** — thirteen sprite assets replacing the letter badges. Deliberately deferred, not
   dropped: §8.1 exists so the swap is a single function body. Worth doing once the catalogue has
   survived playtest and the letters have proven which traits players actually confuse.
