@@ -20,6 +20,8 @@ public class ToastRail : MonoBehaviour
     void OnEnable()
     {
         GameLog.Instance.Posted += OnPosted;
+        Debug.Log($"[ToastDiag] Rail subscribed. prefab={(toastPrefab == null ? "NULL" : toastPrefab.name)} " +
+                  $"container={(container == null ? "NULL" : container.name)}");
     }
 
     void OnDisable()
@@ -32,7 +34,13 @@ public class ToastRail : MonoBehaviour
 
     void OnPosted(string text)
     {
-        if (toastPrefab == null || container == null) return;
+        Debug.Log($"[ToastDiag] OnPosted fired: \"{text}\"");
+        if (toastPrefab == null || container == null)
+        {
+            Debug.LogError($"[ToastDiag] BAILED — toastPrefab={(toastPrefab == null ? "NULL" : "ok")} " +
+                           $"container={(container == null ? "NULL" : "ok")}");
+            return;
+        }
 
         live.RemoveAll(t => t == null);
 
@@ -48,5 +56,19 @@ public class ToastRail : MonoBehaviour
         var toast = Instantiate(toastPrefab, container);
         live.Add(toast);
         toast.Play(text, dwellSeconds);
+
+        var rt = toast.transform as RectTransform;
+        var canvas = GetComponentInParent<Canvas>();
+        Debug.Log($"[ToastDiag] spawned '{toast.name}' " +
+                  $"activeInHierarchy={toast.gameObject.activeInHierarchy} " +
+                  $"prefabRootActive={toastPrefab.gameObject.activeSelf} " +
+                  $"alpha={toast.GetComponent<CanvasGroup>().alpha} " +
+                  $"scale={(rt != null ? rt.lossyScale.ToString() : "n/a")} " +
+                  $"size={(rt != null ? rt.rect.size.ToString() : "n/a")} " +
+                  $"pos={(rt != null ? rt.position.ToString() : "n/a")} " +
+                  $"containerChildren={container.childCount} " +
+                  $"canvas={(canvas == null ? "NONE" : canvas.name)} " +
+                  $"canvasEnabled={(canvas != null && canvas.enabled)} " +
+                  $"sortOrder={(canvas != null ? canvas.sortingOrder : -1)}");
     }
 }
