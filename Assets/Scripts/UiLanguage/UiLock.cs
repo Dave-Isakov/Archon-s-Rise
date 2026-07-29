@@ -6,7 +6,7 @@ using UnityEngine;
 // their current appearance instead of throwing.
 public static class UiLock
 {
-    public const float LockedAlpha = 0.4f;
+    public const float LockedAlpha = 1.0f;
 
     public static void Apply(CanvasGroup group, bool locked)
     {

@@ -13,7 +13,6 @@ public class DisbandPanel : MonoBehaviour
 {
     [SerializeField] Transform entryContainer;    // vertical layout for unit buttons
     [SerializeField] GameObject entryButtonPrefab; // Button + TMP label
-    [SerializeField] Button cancelButton;
 
     // M2.12: the tutorial banner hides while any picker is open.
     public static bool AnyOpen { get; private set; }
@@ -26,8 +25,6 @@ public class DisbandPanel : MonoBehaviour
 
     void Start()
     {
-        cancelButton.onClick.RemoveAllListeners();
-        cancelButton.onClick.AddListener(Close);
         AnyOpen = false;
         Canvas.enabled = false; // start closed regardless of the authored state
     }
@@ -59,7 +56,9 @@ public class DisbandPanel : MonoBehaviour
         Close();
     }
 
-    void Close()
+    // Public so the ClickOffCatcher can bind to it. Cancelling never runs the
+    // continuation, so no influence is spent and no unit is lost.
+    public void Close()
     {
         AnyOpen = false;
         ClearEntries();

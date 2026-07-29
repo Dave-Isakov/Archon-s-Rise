@@ -254,10 +254,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3bc1063288c6274393580c8ab12f7da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DungeonToken
-  dungeonSO: {fileID: 0}
   gridPos: {x: 0, y: 0, z: 0}
+  dungeonSO: {fileID: 0}
   flagMarker: {fileID: 6997832071454220370}
   clearedMarker: {fileID: 5154531901334786124}
+  onDungeonOpenTutorial: {fileID: 11400000, guid: 7f12ab54e716061438c87eff25ebd001, type: 2}
 --- !u!1 &6997832071454220370
 GameObject:
   m_ObjectHideFlags: 0

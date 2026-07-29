@@ -12,14 +12,13 @@ using UnityEngine.UI;
 //
 // Visibility convention (shared with DisbandPanel and the other modals): the
 // GameObject stays active and we toggle the Canvas component; Start() force-
-// closes it so the authored checkbox can't leave it stuck, and always runs to
-// wire the cancel button. See DisbandPanel for the full rationale.
+// closes it so the authored checkbox can't leave it stuck. Dismissal is the
+// shared ClickOffCatcher (spec 2026-07-28) — there is no Cancel button.
 [RequireComponent(typeof(Canvas))]
 public class RecruitPanel : MonoBehaviour
 {
     [SerializeField] Transform entryContainer;
     [SerializeField] GameObject entryButtonPrefab; // Button + TMP label
-    [SerializeField] Button cancelButton;
     [SerializeField] DisbandPanel disbandPanel;
 
     readonly List<GameObject> spawned = new();
@@ -29,8 +28,6 @@ public class RecruitPanel : MonoBehaviour
 
     void Start()
     {
-        cancelButton.onClick.RemoveAllListeners();
-        cancelButton.onClick.AddListener(Close);
         Canvas.enabled = false; // start closed regardless of the authored state
     }
 
@@ -80,7 +77,9 @@ public class RecruitPanel : MonoBehaviour
         if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.CommitVisitAction();
     }
 
-    void Close()
+    // Public so the ClickOffCatcher's UnityEvent can bind to it (spec 2026-07-28).
+    // Cancelling a hire is free: nothing is spent until Hire runs.
+    public void Close()
     {
         ClearEntries();
         Canvas.enabled = false;

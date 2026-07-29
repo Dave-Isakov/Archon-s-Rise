@@ -21,8 +21,8 @@ MonoBehaviour:
     index=0>
 
 
-    <sprite="Siege" index=0> 4'
-  attack: 0
+    <sprite="siege" index=0> 4'
+  attack: 1
   defend: 0
   explore: 0
   influence: 0

@@ -8,7 +8,7 @@ public class HelpPopup : MonoBehaviour
 {
     public static HelpPopup Instance { get; private set; }
 
-    [SerializeField] GameObject root; // outside-click catcher + panel
+    [SerializeField] GameObject root; // ClickOffCatcher + panel
     [SerializeField] TextMeshProUGUI titleText;
     [SerializeField] TextMeshProUGUI bodyText;
 
@@ -28,6 +28,7 @@ public class HelpPopup : MonoBehaviour
             TutorialManager.Instance.MarkHelpSeen(entry.panelId);
     }
 
-    // Wired to the X button AND the full-screen outside-click catcher.
+    // Wired to the full-screen ClickOffCatcher. The X button was removed in the
+    // 2026-07-28 sweep: click-off is the one dismiss gesture.
     public void Close() => root.SetActive(false);
 }

@@ -7,14 +7,13 @@ using UnityEngine.UI;
 // own Canvas toggled on/off, one button per unit, continuation callback. Opens
 // with a refresh budget; only exhausted units list, entries over the remaining
 // budget show disabled, each pick deducts the unit's influenceCost (min 1) and
-// readies it via the callback. Done — or nothing left affordable — closes.
+// readies it via the callback. Clicking off — or nothing left affordable — closes.
 // Not a reward modal: opens directly, never through RewardQueue.
 [RequireComponent(typeof(Canvas))]
 public class UnitPickerPanel : MonoBehaviour
 {
     [SerializeField] Transform entryContainer;     // vertical layout for unit buttons
     [SerializeField] GameObject entryButtonPrefab; // Button + TMP label
-    [SerializeField] Button doneButton;
     [SerializeField] TextMeshProUGUI titleLabel;   // "Refresh — 3 left"
 
     // M2.12: the tutorial banner hides while any picker is open.
@@ -29,8 +28,6 @@ public class UnitPickerPanel : MonoBehaviour
 
     void Start()
     {
-        doneButton.onClick.RemoveAllListeners();
-        doneButton.onClick.AddListener(Close);
         AnyOpen = false;
         Canvas.enabled = false; // start closed regardless of the authored state
     }
@@ -80,7 +77,10 @@ public class UnitPickerPanel : MonoBehaviour
         Rebuild(); // unit stood up, so it drops off the list; budget re-renders
     }
 
-    void Close()
+    // Public so the ClickOffCatcher can bind to it. Closing early forfeits any
+    // unspent refresh budget, which is the shipped rule (spec 2026-07-14) — the
+    // old Done button did exactly the same thing.
+    public void Close()
     {
         AnyOpen = false;
         ClearEntries();

@@ -50,3 +50,7 @@ MonoBehaviour:
     sprite: {fileID: 7905702907389527245, guid: 7b6752340ca37c04892e8fd19cbdd9e9, type: 3}
   - concept: 17
     sprite: {fileID: -8687029706193621143, guid: 99587b0e12308c94fbe5d282c2c63663, type: 3}
+  - concept: 18
+    sprite: {fileID: 21300000, guid: 5915cdc174101e540b3349e21ee2cd74, type: 3}
+  - concept: 19
+    sprite: {fileID: 7042847911465117151, guid: 1e450627fbe791e40af069fa94e61b99, type: 3}
