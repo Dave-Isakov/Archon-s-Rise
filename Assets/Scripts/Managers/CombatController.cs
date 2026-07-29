@@ -14,6 +14,8 @@ public class CombatController : MonoBehaviour
 
     [SerializeField] VoidEvent onCombatPhaseChanged; // HUD phase label listens
 
+    [SerializeField] EnemyTraitTuningSO traitTuning;   // wired in Task 11 step 5
+
     [Header("Enemy placement — ring (guardian / multi, spec 2026-07-27)")]
     [SerializeField] float ringRadius = 200f;              // px out from the ring centre
     [SerializeField] Vector2 ringNudge = new Vector2(0f, 40f); // ring centre, relative to the player
@@ -101,6 +103,27 @@ public class CombatController : MonoBehaviour
     public void SetEnemyActionGlow(bool siegeLit, bool influenceLit)
     {
         foreach (var c in live) if (c != null) c.SetActionGlow(siegeLit, influenceLit);
+    }
+
+    // The pure roster every rule consumes. Rebuilt on demand so it always
+    // reflects current kills and blocks.
+    // Public: the preview panel (Task 14) needs both to show roster-aware values.
+    public List<EnemyCombatant> Roster()
+    {
+        var list = new List<EnemyCombatant>();
+        foreach (var card in live) list.Add(card.ToCombatant());
+        return list;
+    }
+
+    public EnemyTraitTuning Tuning =>
+        traitTuning != null ? traitTuning.tuning : new EnemyTraitTuning();
+
+    public CounterattackPreview Preview() => EnemyTraitRules.BuildPreview(Roster(), Tuning);
+
+    // Blocks last one Defend phase only.
+    public void ClearBlocks()
+    {
+        foreach (var card in live) card.Blocked = false;
     }
 
     public struct EnemySpawn
@@ -337,22 +360,43 @@ public class CombatController : MonoBehaviour
         if (Phase != CombatPhase.Defend) return;
         var player = FindAnyObjectByType<Player>();
 
-        int total = 0;
-        foreach (var card in live) total += card.EffectiveAttack;
+        var preview = Preview();
+        int defendLeft = player.PlayerDefend;
+        int toughness = player.PlayerToughness;
 
-        int wounds = CombatRules.GroupWoundCount(player.PlayerDefend, total, player.PlayerToughness);
+        int handWounds    = EnemyTraitRules.HandWounds(preview, defendLeft, toughness);
+        int discardWounds = EnemyTraitRules.DiscardWounds(preview, defendLeft, toughness, Tuning);
+        int stolen        = EnemyTraitRules.CrystalsStolen(preview, defendLeft, toughness, Tuning);
+
+        // The placement list is the seam (spec §6.2): today a pure rule produces
+        // it, next phase an interactive picker does. This consumer depends only
+        // on IReadOnlyList<WoundDestination> and never learns what a unit is.
+        var placements = WoundPlacementRules.Place(handWounds, discardWounds);
         var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
-        for (int i = 0; i < wounds; i++) hand.AddWound();
+        foreach (var dest in placements) hand.AddWound(dest);
+
+        int wounds = placements.Count;
 
         // Taking the group counterattack reads on the avatar (spec D4).
         if (wounds > 0 && PlayerAvatar.Instance != null)
             PlayerAvatar.Instance.Play(AvatarState.Hurt);
 
-        player.PlayerDefend = Mathf.Max(0, player.PlayerDefend - total);
+        player.PlayerDefend = Mathf.Max(0, player.PlayerDefend - preview.UnblockedThreat);
         GameManager.Instance.commands.ClearStack();   // taking the hit is a commit point
 
         if (wounds > 0)
             GameLog.Instance.Post($"The enemies strike back! You are wounded {wounds} times.");
+
+        if (stolen > 0)
+        {
+            var crystals = FindAnyObjectByType<CrystalInventory>();
+            if (crystals != null)
+            {
+                int n = Mathf.Min(stolen, crystals.crystalsInInventory.Count);
+                for (int i = 0; i < n; i++) crystals.crystalsInInventory[0].RemoveCrystal();
+            }
+        }
+        ClearBlocks();
 
         SetPhase(CombatPhase.Attack);
     }
