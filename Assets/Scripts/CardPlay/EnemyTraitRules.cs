@@ -109,6 +109,21 @@ public static class EnemyTraitRules
 
     static int Bite(int amount, int toughness)
         => amount <= 0 ? 0 : CombatRules.WoundCount(AttackKind.Normal, 0, amount, toughness);
+
+    // §4.4 The summed counterattack has no notion of whose wound is whose, so
+    // payout traits claim a share of the total contribution. One function
+    // serves both Toxic and Leech.
+    static int Share(CounterattackPreview p, int defendLeft, int traitContribution)
+    {
+        if (p.TotalContribution <= 0 || traitContribution <= 0) return 0;
+        return Effective(p, defendLeft) * traitContribution / p.TotalContribution; // floor
+    }
+
+    public static int DiscardWounds(CounterattackPreview p, int defendLeft, int toughness, EnemyTraitTuning t)
+        => Bite(Share(p, defendLeft, p.ToxicContribution), toughness) * t.toxicCopies;
+
+    public static int CrystalsStolen(CounterattackPreview p, int defendLeft, int toughness, EnemyTraitTuning t)
+        => Bite(Share(p, defendLeft, p.LeechContribution), toughness) * t.leechCrystals;
 }
 
 // One pass over the unblocked survivors, so CombatPhaseRules.Advance takes a
