@@ -18,6 +18,13 @@ public class EnemiesSO : AllCards
     // the stable save identity for mid-run spawns — never rename ids.
     public int tier = 1;
 
+    // Authored traits (spec 2026-07-29). NOT saved — read from this SO via the
+    // stable AllCards.id exactly like enemyHP, so no save schema bump.
+    // Authoring rules (spec §5.3): field enemies use self traits only; granting
+    // auras are reserved for guardian rosters; an Elusive enemy must also have
+    // canInfluence = true, or it removes a choice instead of redirecting one.
+    public EnemyTrait traits = EnemyTrait.None;
+
     // Per-enemy portrait shown on the combat card (spec 2026-07-24). Nullable:
     // an unauthored enemy shows the plain card, never a broken frame. Art is
     // authored later (M3 content).
