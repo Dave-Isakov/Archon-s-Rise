@@ -21,17 +21,6 @@ public static class PreviewRules
         return true;
     }
 
-    // The guardians still standing: the tail of the roster after the first
-    // defeatedCount have fallen. Generic so it stays Unity-free and testable.
-    public static IReadOnlyList<T> RemainingGuardians<T>(IReadOnlyList<T> roster, int defeatedCount)
-    {
-        int start = defeatedCount < 0 ? 0 : defeatedCount;
-        var remaining = new List<T>();
-        for (int i = start; i < roster.Count; i++)
-            remaining.Add(roster[i]);
-        return remaining;
-    }
-
     // Keeps the preview panel fully on-screen on one axis. Given the panel's
     // lower edge, its extent, the screen extent, and a margin, returns the lower
     // edge clamped so the whole panel stays within [margin, screenSize - margin].

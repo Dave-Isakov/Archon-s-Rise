@@ -21,15 +21,6 @@ public class PreviewRulesTests
     }
 
     [Test]
-    public void RemainingGuardians_ReturnsTailAfterDefeats()
-    {
-        var roster = new List<string> { "a", "b", "c" };
-        Assert.AreEqual(new[] { "a", "b", "c" }, PreviewRules.RemainingGuardians(roster, 0));
-        Assert.AreEqual(new[] { "c" }, PreviewRules.RemainingGuardians(roster, 2));
-        Assert.AreEqual(new string[0], PreviewRules.RemainingGuardians(roster, 3)); // conquered → empty
-    }
-
-    [Test]
     public void ClampAxis_KeepsPanelFullyOnScreen()
     {
         // already fully inside → position unchanged
