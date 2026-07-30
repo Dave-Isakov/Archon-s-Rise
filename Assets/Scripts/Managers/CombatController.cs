@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 using ArchonsRise.Shrines;
 
 public enum CombatContext { Field, Guardian, Dungeon }
@@ -36,6 +37,10 @@ public class CombatController : MonoBehaviour
     // clear them already, so it ignores this.
     [SerializeField] Rect buttonKeepOut = new Rect(40f, -120f, 300f, 240f);
 
+    [Header("Blind state (spec 2026-07-30 §3.1)")]
+    [SerializeField] GameObject blindState;   // the "You cannot see..." object; toggled, never destroyed
+    [SerializeField] TextMeshProUGUI blindText;
+
     // Where the fan is centred and how far out it reaches, in the parent rect's
     // local space — which the anchor normalisation below makes "pixels from the
     // player". Cached at fight-open; the layout runs once and never re-fans.
@@ -58,6 +63,12 @@ public class CombatController : MonoBehaviour
     // first fight (the enum's default is Siege, which would otherwise report
     // combat when none is running).
     public bool InCombat => Phase != CombatPhase.Resolved || resolving;
+
+    // True once the player has spent something on this fight — the turn's
+    // action, a visit's action, Explore, Siege, or Influence (spec 2026-07-30
+    // §2). False from OpenFight until the first Engage/Siege-kill/Influence.
+    public bool Committed { get; private set; }
+    System.Action pendingOnCommit; // this fight's context-specific cost payment, run once by Commit()
 
     readonly List<EnemyCard> live = new();   // logical set; resolution keys off THIS, not childCount
     CombatContext context;
@@ -166,12 +177,15 @@ public class CombatController : MonoBehaviour
     // Guardian assault, fieldToken for a Field encounter, dungeonToken for a
     // Dungeon delve — and drives that context's win bookkeeping (Task 9).
     public void OpenFight(List<EnemySpawn> spawns, CombatContext context,
-        TownToken guardianPlace = null, EnemyToken fieldToken = null, DungeonToken dungeonToken = null)
+        TownToken guardianPlace = null, EnemyToken fieldToken = null, DungeonToken dungeonToken = null,
+        System.Action onCommit = null)
     {
         this.context = context;
         this.guardianPlace = guardianPlace;
         this.fieldToken = fieldToken;
         this.dungeonToken = dungeonToken;
+        this.pendingOnCommit = onCommit;
+        Committed = false;
         live.Clear();
         pendingShrineType = -1;   // a new fight inherits no owed shrine reward
         pendingShrineSo = null;
@@ -181,6 +195,26 @@ public class CombatController : MonoBehaviour
         // card) so a new fight never inherits stale cards.
         foreach (var stale in parent.GetComponentsInChildren<EnemyCard>())
             Destroy(stale.gameObject);
+
+        // Blind-source gate (spec 2026-07-30 §3.1): the same aggregation the
+        // deleted EnemyPreviewPanel used, now checked once at open time instead
+        // of by a separate hover screen. Nothing sets a blind source today
+        // (CanPreview always returns true), so this path is not yet reachable —
+        // it exists so a future blindness source has somewhere to land.
+        var visible = new List<bool>(spawns.Count);
+        for (int i = 0; i < spawns.Count; i++) visible.Add(PreviewRules.CanPreview());
+        bool blind = !PreviewRules.EncounterVisible(visible);
+        if (blindState != null) blindState.SetActive(blind);
+        if (blind)
+        {
+            if (blindText != null)
+                blindText.text = spawns.Count == 1
+                    ? "You cannot see the enemy you are about to confront."
+                    : "You cannot see the enemies you are about to confront.";
+            GameManager.Instance.combatCanvas.enabled = true;
+            SetPhase(CombatPhase.Siege);
+            return; // no cards, nothing to Engage/Siege/Influence against — Decline() is the only exit
+        }
 
         var prefab = FindAnyObjectByType<EnemyDeck>().PrefabEnemyCard;
         foreach (var s in spawns)
@@ -213,6 +247,19 @@ public class CombatController : MonoBehaviour
         Phase = phase;
         foreach (var card in live) card.ApplyPhase(phase);
         if (onCombatPhaseChanged != null) onCombatPhaseChanged.Raise();
+    }
+
+    // The one funnel (spec 2026-07-30 §2.2): every player-facing action that
+    // starts spending something on this fight passes through Engage() or
+    // NotifyDefeated() before doing anything else. Idempotent, so calling it
+    // from both is safe — by the time NotifyDefeated fires for an Attack-phase
+    // kill, Engage() already committed and this is a no-op.
+    void Commit()
+    {
+        if (Committed) return;
+        Committed = true;
+        pendingOnCommit?.Invoke();
+        pendingOnCommit = null;
     }
 
     // Centre-anchors a spawned card so its anchoredPosition means "pixels from
@@ -371,6 +418,7 @@ public class CombatController : MonoBehaviour
     public void Engage()
     {
         if (Phase != CombatPhase.Siege) return;
+        Commit();
 
         var player = FindAnyObjectByType<Player>();
         player.PlayerSiege = 0;                       // Siege doesn't carry past Engage
@@ -437,6 +485,7 @@ public class CombatController : MonoBehaviour
     public void NotifyDefeated(EnemyCard card, bool wasInfluence)
     {
         if (!live.Remove(card)) return;
+        Commit();
 
         // No re-layout: survivors hold the slots they opened the fight in.
 
@@ -518,6 +567,60 @@ public class CombatController : MonoBehaviour
         token.RefreshVisual();
         if (DungeonTracker.Instance.IsComplete(token.gridPos))
             DungeonTracker.Instance.CompleteDungeon(token);
+    }
+
+    // Free "never mind" exit (spec 2026-07-30 §2.4), available only before
+    // anything was spent. Deliberately NOT Withdraw() with the penalty removed
+    // — Withdraw() pays a flee cost and banks partial progress for a fight that
+    // was actually fought; nothing here was fought, so none of that applies.
+    public void Decline()
+    {
+        if (Committed) return;
+
+        Phase = CombatPhase.Resolved;
+        pendingOnCommit = null;
+        if (blindState != null) blindState.SetActive(false);
+
+        if (context == CombatContext.Field && fieldToken != null && live.Count > 0)
+        {
+            StartCoroutine(MorphAwayThenClose());
+            return;
+        }
+        CloseDeclined();
+    }
+
+    IEnumerator MorphAwayThenClose()
+    {
+        Vector2 toLocal = OriginLocalPoint(OriginWorld());
+        var cards = new List<EnemyCard>(live);
+        int pending = 0;
+        foreach (var card in cards)
+            if (card != null && card.GetComponent<EnemyCardMorph>() != null) pending++;
+
+        foreach (var card in cards)
+        {
+            if (card == null) continue;
+            var morph = card.GetComponent<EnemyCardMorph>();
+            if (morph != null) morph.MorphBack(toLocal, () => pending--);
+        }
+        if (pending > 0) yield return new WaitUntil(() => pending <= 0);
+
+        fieldToken.SetBoardVisible(true);
+        CloseDeclined();
+    }
+
+    void CloseDeclined()
+    {
+        foreach (var card in live)
+            if (card != null) Destroy(card.gameObject);
+        live.Clear();
+
+        GameManager.Instance.CloseCombatCanvas();
+        guardianPlace = null;
+        fieldToken = null;
+        dungeonToken = null;
+
+        if (onCombatPhaseChanged != null) onCombatPhaseChanged.Raise();
     }
 
     // The multi-purpose button in the Attack phase. Survivors alive => this IS
