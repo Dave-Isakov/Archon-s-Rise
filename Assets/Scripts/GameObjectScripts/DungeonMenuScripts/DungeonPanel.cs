@@ -11,7 +11,6 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
     [SerializeField] TextMeshProUGUI nameText;
     [SerializeField] TextMeshProUGUI descriptionText;
     [SerializeField] TextMeshProUGUI progressText;
-    [SerializeField] TextMeshProUGUI previewText;
     [SerializeField] TextMeshProUGUI flaggedText;
     [SerializeField] Button delveButton;
     [SerializeField] TextMeshProUGUI delveButtonText;
@@ -78,16 +77,20 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
                 $"You need {cost} Explore to delve into {token.dungeonSO.cardName}.");
             return;
         }
-        player.PlayerExplore -= cost;
-        player.GetCurrentExplore();
-        // Delving is the visit's committed action (spec 2026-07-22): spend the
-        // turn's action now. This also commits the movement stack.
-        if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.CommitVisitAction();
-        // Delving is a firm decision: commit all pending plays so the explore
-        // that paid for it can't be undone into a negative total.
-        GameManager.Instance.commands.ClearStack();
 
-        DungeonDelve.Instance.Begin(token);
+        // Opening the delve is now a free look (spec 2026-07-30 §2.3): the
+        // affordability check above still gates opening, but paying Explore,
+        // committing the visit's action, and locking the undo stack all wait
+        // for a real commit inside the fight.
+        DungeonDelve.Instance.Begin(token, onCommit: () =>
+        {
+            player.PlayerExplore -= cost;
+            player.GetCurrentExplore();
+            if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.CommitVisitAction();
+            // Delving is a firm decision: commit all pending plays so the explore
+            // that paid for it can't be undone into a negative total.
+            GameManager.Instance.commands.ClearStack();
+        });
     }
 
     private void Refresh()
@@ -107,10 +110,6 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
         delveButtonText.text = $"Delve — {IconMarkup.Cost(IconConcept.Explore, so.exploreCost)}";
         var player = FindAnyObjectByType<Player>();
         UpdateDelveInteractable(player != null ? player.PlayerExplore : 0);
-
-        if (complete) { previewText.text = ""; return; }
-
-        UpdatePreview(so, cleared);
     }
 
     // Gate the Delve button on the player having enough explore. Called on open and
@@ -123,13 +122,5 @@ public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
         // locked. Null-safe for scenes without a controller.
         bool visitCanAct = TurnPhaseController.Instance == null || TurnPhaseController.Instance.VisitCanAct;
         delveButton.interactable = currentExplore >= current.dungeonSO.exploreCost && visitCanAct;
-    }
-
-    private void UpdatePreview(DungeonsSO so, int cleared)
-    {
-        var next = so.enemies[cleared];
-        previewText.text = PreviewRules.CanPreview()
-            ? $"Next: {next.cardName}   {IconMarkup.Cost(IconConcept.Attack, next.enemyAttack)}   {IconMarkup.Cost(IconConcept.Hp, next.enemyHP)}"
-            : "You cannot see the enemy you are about to confront.";
     }
 }

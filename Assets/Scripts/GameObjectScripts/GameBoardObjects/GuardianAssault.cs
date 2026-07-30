@@ -19,11 +19,6 @@ public class GuardianAssault : MonoBehaviour
 
     public void Begin(TownToken town)
     {
-        // Assaulting is the visit's committed action (spec 2026-07-22): spend the
-        // turn's action now (the AssaultButton is gated so this only fires when the
-        // visit still owns it).
-        if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.CommitVisitAction();
-
         // Tear down the place menu the button click came from.
         foreach (var card in FindObjectsByType<TownCard>())
             Destroy(card.gameObject);
@@ -36,6 +31,10 @@ public class GuardianAssault : MonoBehaviour
         for (int i = already; i < roster.Count; i++)
             spawns.Add(new CombatController.EnemySpawn(roster[i], 0, 0)); // guardians unscaled
 
-        CombatController.Instance.OpenFight(spawns, CombatContext.Guardian, town);
+        // Opening the assault is now a free look (spec 2026-07-30 §2.3);
+        // assaulting is still the visit's committed action, but only once the
+        // player actually commits inside the fight.
+        CombatController.Instance.OpenFight(spawns, CombatContext.Guardian, town,
+            onCommit: () => { if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.CommitVisitAction(); });
     }
 }

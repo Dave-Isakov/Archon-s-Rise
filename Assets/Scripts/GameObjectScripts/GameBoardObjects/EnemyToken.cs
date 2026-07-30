@@ -127,17 +127,13 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
 
     IEnumerator StartCombat()
     {
-        // A fight is the turn's one action (spec 2026-07-21): block a second
-        // encounter, and taking this one performs the implicit Explore->Action
-        // transition (commits the movement stack, locks further movement).
-        if (TurnPhaseController.Instance != null)
+        // Opening is a free look (spec 2026-07-30 §2.3): still gated on the
+        // turn's action being available at all (no point opening a fight you
+        // can't commit to), but BeginAction() itself waits for a real commit.
+        if (TurnPhaseController.Instance != null && !TurnPhaseController.Instance.CanInteract)
         {
-            if (!TurnPhaseController.Instance.CanInteract)
-            {
-                GameLog.Instance.Post("You've already taken your action this turn.");
-                yield break;
-            }
-            TurnPhaseController.Instance.BeginAction();
+            GameLog.Instance.Post("You've already taken your action this turn.");
+            yield break;
         }
 
         GameManager.Instance.activeCombatant = this;
@@ -146,6 +142,7 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
         {
             new CombatController.EnemySpawn(enemy, bonusHP, bonusAttack)
         };
-        CombatController.Instance.OpenFight(spawns, CombatContext.Field, fieldToken: this);
+        CombatController.Instance.OpenFight(spawns, CombatContext.Field, fieldToken: this,
+            onCommit: () => { if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.BeginAction(); });
     }
 }

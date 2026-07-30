@@ -18,7 +18,7 @@ public class DungeonDelve : MonoBehaviour
         }
     }
 
-    public void Begin(DungeonToken token)
+    public void Begin(DungeonToken token, System.Action onCommit)
     {
         GameManager.Instance.CombatCanvasActive();
 
@@ -27,6 +27,6 @@ public class DungeonDelve : MonoBehaviour
         {
             new CombatController.EnemySpawn(token.dungeonSO.enemies[slot], 0, 0)
         };
-        CombatController.Instance.OpenFight(spawns, CombatContext.Dungeon, dungeonToken: token);
+        CombatController.Instance.OpenFight(spawns, CombatContext.Dungeon, dungeonToken: token, onCommit: onCommit);
     }
 }
