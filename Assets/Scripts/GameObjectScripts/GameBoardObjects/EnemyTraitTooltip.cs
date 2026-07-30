@@ -49,9 +49,10 @@ public class EnemyTraitTooltip : MonoBehaviour
         if (root != null) root.SetActive(true);
         if (label != null) label.text = text;
 
+        if (panelRect == null) return;
+
         PlaceAtScreenPoint((Vector2)screenPosition + offset);
 
-        if (panelRect == null) return;
         LayoutRebuilder.ForceRebuildLayoutImmediate(panelRect);
         var corners = new Vector3[4];
         panelRect.GetWorldCorners(corners);

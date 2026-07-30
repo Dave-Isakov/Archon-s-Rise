@@ -20,11 +20,12 @@ public static class PreviewRules
         return true;
     }
 
-    // Keeps the preview panel fully on-screen on one axis. Given the panel's
-    // lower edge, its extent, the screen extent, and a margin, returns the lower
-    // edge clamped so the whole panel stays within [margin, screenSize - margin].
-    // If the panel is too big to fit, it pins to the margin (near edge visible).
-    // Float-only so it stays Unity-free; the panel calls it once per axis.
+    // Keeps a UI panel fully on-screen on one axis (used by EnemyTraitTooltip).
+    // Given the panel's lower edge, its extent, the screen extent, and a margin,
+    // returns the lower edge clamped so the whole panel stays within
+    // [margin, screenSize - margin]. If the panel is too big to fit, it pins to
+    // the margin (near edge visible). Float-only so it stays Unity-free; the
+    // caller invokes it once per axis.
     public static float ClampAxis(float lowerEdge, float size, float screenSize, float margin)
     {
         float max = screenSize - margin - size;

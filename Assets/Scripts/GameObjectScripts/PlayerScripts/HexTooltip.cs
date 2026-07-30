@@ -8,7 +8,7 @@ using TMPro;
 // Placement note: every canvas here is Screen Space - Camera, so a RectTransform's
 // position is WORLD space on the canvas plane, not screen pixels. We convert the board
 // world anchor to a screen point (board camera), then project that screen point back
-// onto the canvas plane via RectTransformUtility — the same approach EnemyPreviewPanel
+// onto the canvas plane via RectTransformUtility — the same approach EnemyTraitTooltip
 // uses. Setting panel.position to a raw screen-pixel vector (the old bug) parked the
 // panel at screen centre, i.e. over the player (the camera is under PlayerPosition).
 public class HexTooltip : MonoBehaviour

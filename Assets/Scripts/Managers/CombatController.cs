@@ -578,6 +578,11 @@ public class CombatController : MonoBehaviour
     {
         if (Committed) return;
 
+        // SetPhase (not a raw Phase assignment) so live cards actually lose
+        // their interactable Siege/Influence buttons during MorphAwayThenClose's
+        // coroutine window — CloseDeclined() raises onCombatPhaseChanged again
+        // right after, but every listener is idempotent, so the double-raise is
+        // harmless.
         SetPhase(CombatPhase.Resolved);
         pendingOnCommit = null;
         if (blindState != null) blindState.SetActive(false);
