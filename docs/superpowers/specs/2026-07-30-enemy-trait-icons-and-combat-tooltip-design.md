@@ -1,3 +1,10 @@
+**Superseded** by `2026-07-30-combat-preview-and-trait-icons-design.md` — the review that
+followed this spec concluded the new tooltip layer it proposed (§6) was solving the wrong
+problem: it added a *third* hover layer on top of an already-existing one
+(`EnemyPreviewPanel`), rather than asking why enemy info needs two separate screens at
+all. The icon selection in §4 and the badge-rendering plumbing in §5.1-5.2 carry forward
+unchanged into the new spec; §5.3-6 (the standalone tooltip) do not.
+
 # Enemy trait icons and combat tooltip
 
 2026-07-30. Follows up on `2026-07-29-enemy-traits-and-wound-plumbing-design.md`, which
