@@ -97,21 +97,27 @@ public static class IconMarkup
     // First letter throughout, except Hulking = K (hulK) which yields to Harrying.
     public static string TraitBadge(EnemyTrait t)
     {
+        string name = TraitSpriteName(t);
+        return name.Length == 0 ? "" : $"<sprite=\"{name}\" index=0>";
+    }
+
+    static string TraitSpriteName(EnemyTrait t)
+    {
         switch (t)
         {
-            case EnemyTrait.Armored:  return "A";
-            case EnemyTrait.Brutal:   return "B";
-            case EnemyTrait.Elusive:  return "E";
-            case EnemyTrait.Harrying: return "H";
-            case EnemyTrait.Hulking:  return "K";
-            case EnemyTrait.Ironclad: return "I";
-            case EnemyTrait.Leech:    return "L";
-            case EnemyTrait.Miasma:   return "M";
-            case EnemyTrait.Outrider: return "O";
-            case EnemyTrait.Swift:    return "S";
-            case EnemyTrait.Toxic:    return "T";
-            case EnemyTrait.Vengeful: return "V";
-            case EnemyTrait.Warlord:  return "W";
+            case EnemyTrait.Armored:  return "traitArmored";
+            case EnemyTrait.Brutal:   return "traitBrutal";
+            case EnemyTrait.Elusive:  return "traitElusive";
+            case EnemyTrait.Harrying: return "traitHarrying";
+            case EnemyTrait.Hulking:  return "traitHulking";
+            case EnemyTrait.Ironclad: return "traitIronclad";
+            case EnemyTrait.Leech:    return "traitLeech";
+            case EnemyTrait.Miasma:   return "traitMiasma";
+            case EnemyTrait.Outrider: return "traitOutrider";
+            case EnemyTrait.Swift:    return "traitSwift";
+            case EnemyTrait.Toxic:    return "traitToxic";
+            case EnemyTrait.Vengeful: return "traitVengeful";
+            case EnemyTrait.Warlord:  return "traitWarlord";
             default: return "";
         }
     }
@@ -145,7 +151,17 @@ public static class IconMarkup
 
     public const string AuraTint = "#F5D90A";
 
-    // A badge ready to render: tinted for auras, plain for self traits.
+    // Auras render tinted so "which of these is buffing the others" — the read
+    // the Siege targeting puzzle depends on — needs no hover. TMP sprites only
+    // honor color as an attribute ON the <sprite> tag (and only with Tint
+    // enabled on the glyph) — NOT a wrapping <color> rich-text tag, which is
+    // why this builds the tag directly instead of wrapping TraitBadge's output.
     public static string TraitBadgeTinted(EnemyTrait t)
-        => IsAuraTrait(t) ? "<color=" + AuraTint + ">" + TraitBadge(t) + "</color>" : TraitBadge(t);
+    {
+        string name = TraitSpriteName(t);
+        if (name.Length == 0) return "";
+        return IsAuraTrait(t)
+            ? $"<sprite=\"{name}\" index=0 color=#{AuraTint.TrimStart('#')}>"
+            : $"<sprite=\"{name}\" index=0>";
+    }
 }

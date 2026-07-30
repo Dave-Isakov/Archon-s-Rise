@@ -43,10 +43,45 @@ public class EnemyTraitCopyTests
     }
 
     [Test]
-    public void HulkingIsK_BecauseHarryingTookH()
+    public void TraitBadge_ReturnsItsSpriteAssetName()
     {
-        Assert.AreEqual("K", IconMarkup.TraitBadge(EnemyTrait.Hulking));
-        Assert.AreEqual("H", IconMarkup.TraitBadge(EnemyTrait.Harrying));
+        Assert.AreEqual("<sprite=\"traitArmored\" index=0>", IconMarkup.TraitBadge(EnemyTrait.Armored));
+        Assert.AreEqual("<sprite=\"traitElusive\" index=0>", IconMarkup.TraitBadge(EnemyTrait.Elusive));
+        Assert.AreEqual("<sprite=\"traitHulking\" index=0>", IconMarkup.TraitBadge(EnemyTrait.Hulking));
+        Assert.AreEqual("<sprite=\"traitSwift\" index=0>", IconMarkup.TraitBadge(EnemyTrait.Swift));
+        Assert.AreEqual("<sprite=\"traitBrutal\" index=0>", IconMarkup.TraitBadge(EnemyTrait.Brutal));
+        Assert.AreEqual("<sprite=\"traitToxic\" index=0>", IconMarkup.TraitBadge(EnemyTrait.Toxic));
+        Assert.AreEqual("<sprite=\"traitLeech\" index=0>", IconMarkup.TraitBadge(EnemyTrait.Leech));
+        Assert.AreEqual("<sprite=\"traitHarrying\" index=0>", IconMarkup.TraitBadge(EnemyTrait.Harrying));
+        Assert.AreEqual("<sprite=\"traitVengeful\" index=0>", IconMarkup.TraitBadge(EnemyTrait.Vengeful));
+        Assert.AreEqual("<sprite=\"traitWarlord\" index=0>", IconMarkup.TraitBadge(EnemyTrait.Warlord));
+        Assert.AreEqual("<sprite=\"traitMiasma\" index=0>", IconMarkup.TraitBadge(EnemyTrait.Miasma));
+        Assert.AreEqual("<sprite=\"traitIronclad\" index=0>", IconMarkup.TraitBadge(EnemyTrait.Ironclad));
+        Assert.AreEqual("<sprite=\"traitOutrider\" index=0>", IconMarkup.TraitBadge(EnemyTrait.Outrider));
+    }
+
+    [Test]
+    public void TraitBadgeTinted_AurasCarryColorAsSpriteAttribute_NotAWrappingColorTag()
+    {
+        // TMP sprites only honor color as an attribute ON the <sprite> tag itself
+        // (and only with Tint enabled on the glyph) — a wrapping <color> tag does
+        // nothing to a sprite glyph. See IconMarkup.CrystalTag for the existing
+        // precedent this must match.
+        Assert.AreEqual("<sprite=\"traitWarlord\" index=0 color=#F5D90A>",
+            IconMarkup.TraitBadgeTinted(EnemyTrait.Warlord));
+        Assert.AreEqual("<sprite=\"traitMiasma\" index=0 color=#F5D90A>",
+            IconMarkup.TraitBadgeTinted(EnemyTrait.Miasma));
+        Assert.AreEqual("<sprite=\"traitIronclad\" index=0 color=#F5D90A>",
+            IconMarkup.TraitBadgeTinted(EnemyTrait.Ironclad));
+        Assert.AreEqual("<sprite=\"traitOutrider\" index=0 color=#F5D90A>",
+            IconMarkup.TraitBadgeTinted(EnemyTrait.Outrider));
+    }
+
+    [Test]
+    public void TraitBadgeTinted_SelfTraitsAreUntinted()
+    {
+        Assert.AreEqual("<sprite=\"traitArmored\" index=0>", IconMarkup.TraitBadgeTinted(EnemyTrait.Armored));
+        Assert.AreEqual("<sprite=\"traitBrutal\" index=0>", IconMarkup.TraitBadgeTinted(EnemyTrait.Brutal));
     }
 
     [Test]
