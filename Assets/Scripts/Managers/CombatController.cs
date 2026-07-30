@@ -118,7 +118,8 @@ public class CombatController : MonoBehaviour
 
     // The pure roster every rule consumes. Rebuilt on demand so it always
     // reflects current kills and blocks.
-    // Public: the preview panel (Task 14) needs both to show roster-aware values.
+    // Public: BlockCostFor/Preview and other outside consumers need roster-aware
+    // values.
     public List<EnemyCombatant> Roster()
     {
         var list = new List<EnemyCombatant>();
@@ -417,7 +418,7 @@ public class CombatController : MonoBehaviour
     // can play defense first.
     public void Engage()
     {
-        if (Phase != CombatPhase.Siege) return;
+        if (Phase != CombatPhase.Siege || live.Count == 0) return;
         Commit();
 
         var player = FindAnyObjectByType<Player>();
@@ -577,7 +578,7 @@ public class CombatController : MonoBehaviour
     {
         if (Committed) return;
 
-        Phase = CombatPhase.Resolved;
+        SetPhase(CombatPhase.Resolved);
         pendingOnCommit = null;
         if (blindState != null) blindState.SetActive(false);
 

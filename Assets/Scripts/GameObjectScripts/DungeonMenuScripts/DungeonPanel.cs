@@ -2,10 +2,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// The dungeon place menu (M2.9): progress, next-enemy preview (through the
-// PreviewRules blind gate), flagged banner, and the Delve button that spends
-// the dungeon's exploreCost and starts the fight. Opened by DungeonToken when
-// the player stands on the cell.
+// The dungeon place menu (M2.9): progress, flagged banner, and the Delve
+// button that spends the dungeon's exploreCost and starts the fight. Opened
+// by DungeonToken when the player stands on the cell.
 public class DungeonPanel : MonoBehaviour, IGameEventListener<int>
 {
     [SerializeField] TextMeshProUGUI nameText;

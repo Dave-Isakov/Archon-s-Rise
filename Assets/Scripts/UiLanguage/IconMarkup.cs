@@ -82,9 +82,8 @@ public static class IconMarkup
     }
 
     // --- Enemy trait badges (spec 2026-07-29 §8.1) ---
-    // TraitBadge returns a LETTER today and a <sprite=…> tag once trait art
-    // exists. Call sites never change: that swap is this one method's body.
-    // This is why badges route through IconMarkup like every other glyph.
+    // Badges route through IconMarkup like every other glyph, so call sites
+    // never touch a raw sprite name.
 
     public static readonly EnemyTrait[] AllTraits =
     {
@@ -94,7 +93,6 @@ public static class IconMarkup
         EnemyTrait.Warlord, EnemyTrait.Miasma,  EnemyTrait.Ironclad, EnemyTrait.Outrider,
     };
 
-    // First letter throughout, except Hulking = K (hulK) which yields to Harrying.
     public static string TraitBadge(EnemyTrait t)
     {
         string name = TraitSpriteName(t);
@@ -151,11 +149,10 @@ public static class IconMarkup
 
     public const string AuraTint = "#F5D90A";
 
-    // Auras render tinted so "which of these is buffing the others" — the read
-    // the Siege targeting puzzle depends on — needs no hover. TMP sprites only
-    // honor color as an attribute ON the <sprite> tag (and only with Tint
-    // enabled on the glyph) — NOT a wrapping <color> rich-text tag, which is
-    // why this builds the tag directly instead of wrapping TraitBadge's output.
+    // TMP sprites only honor color as an attribute ON the <sprite> tag (and
+    // only with Tint enabled on the glyph) — NOT a wrapping <color> rich-text
+    // tag, which is why this builds the tag directly instead of wrapping
+    // TraitBadge's output.
     public static string TraitBadgeTinted(EnemyTrait t)
     {
         string name = TraitSpriteName(t);

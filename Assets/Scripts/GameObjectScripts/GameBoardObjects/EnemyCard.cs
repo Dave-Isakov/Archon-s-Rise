@@ -86,8 +86,8 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
         RefreshTraitBadges();
     }
 
-    // Badges only — no words. The preview panel is the legend (spec §8.3), so a
-    // bare letter is never a dead end.
+    // Badges only — no words. The hover tooltip (EnemyTraitTooltip, spec §8.3)
+    // is the legend now, so a bare badge is never a dead end.
     public void RefreshTraitBadges()
     {
         if (traitBadges == null) return;

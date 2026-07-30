@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 
-// Pure preview-visibility rules. No scene/Unity dependency so the blind gate,
-// the whole-panel aggregation, and the roster-tail math are unit-testable via
-// the CLI mcs harness (mirrors CombatRules). The MonoBehaviour panel reads
-// EnemiesSO and passes these primitive values in.
+// Pure preview-visibility rules. No scene/Unity dependency so the blind gate
+// and the whole-panel aggregation are unit-testable via the CLI mcs harness
+// (mirrors CombatRules).
 public static class PreviewRules
 {
     // The single blind gate. One enemy is previewable unless something hides it.

@@ -51,6 +51,7 @@ public class EnemyTraitTooltip : MonoBehaviour
 
         PlaceAtScreenPoint((Vector2)screenPosition + offset);
 
+        if (panelRect == null) return;
         LayoutRebuilder.ForceRebuildLayoutImmediate(panelRect);
         var corners = new Vector3[4];
         panelRect.GetWorldCorners(corners);

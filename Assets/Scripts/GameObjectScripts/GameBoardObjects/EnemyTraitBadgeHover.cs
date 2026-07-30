@@ -28,4 +28,13 @@ public class EnemyTraitBadgeHover : MonoBehaviour, IPointerEnterHandler, IPointe
     {
         if (EnemyTraitTooltip.Instance != null) EnemyTraitTooltip.Instance.Hide();
     }
+
+    // Unity never delivers OnPointerExit to an object that is deactivated or
+    // destroyed under the cursor (a card being killed, or Decline() tearing
+    // down the fight), so without this the tooltip would hang on screen with
+    // nothing left to close it.
+    void OnDisable()
+    {
+        if (EnemyTraitTooltip.Instance != null) EnemyTraitTooltip.Instance.Hide();
+    }
 }

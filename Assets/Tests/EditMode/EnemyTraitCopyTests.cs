@@ -93,6 +93,17 @@ public class EnemyTraitCopyTests
     }
 
     [Test]
+    public void EveryTraitHasANonEmptyLegendLine()
+    {
+        var tuning = new EnemyTraitTuning();
+        foreach (EnemyTrait t in System.Enum.GetValues(typeof(EnemyTrait)))
+        {
+            if (t == EnemyTrait.None) continue;
+            Assert.IsFalse(string.IsNullOrEmpty(EnemyTraitCopy.LegendLine(t, tuning)), "no legend line for " + t);
+        }
+    }
+
+    [Test]
     public void RuleTextTracksTuning_NotHardcoded()
     {
         var a = new EnemyTraitTuning { armorSiegeMult = 2 };
