@@ -115,4 +115,30 @@ public class EnemyTraitCopyTests
     {
         Assert.AreEqual(0, EnemyTraitCopy.Split(EnemyTrait.None).Count);
     }
+
+    [Test]
+    public void LegendLine_IsBadgeThenNameThenRule()
+    {
+        var tuning = new EnemyTraitTuning();
+        string expected = IconMarkup.TraitBadgeTinted(EnemyTrait.Armored) + " " +
+                           IconMarkup.TraitName(EnemyTrait.Armored) + " — " +
+                           EnemyTraitCopy.Rule(EnemyTrait.Armored, tuning);
+        Assert.AreEqual(expected, EnemyTraitCopy.LegendLine(EnemyTrait.Armored, tuning));
+    }
+
+    [Test]
+    public void Legend_JoinsOneLegendLinePerSetTrait()
+    {
+        var tuning = new EnemyTraitTuning();
+        var mask = EnemyTrait.Armored | EnemyTrait.Toxic;
+        string expected = EnemyTraitCopy.LegendLine(EnemyTrait.Armored, tuning) + "\n" +
+                           EnemyTraitCopy.LegendLine(EnemyTrait.Toxic, tuning);
+        Assert.AreEqual(expected, EnemyTraitCopy.Legend(mask, tuning));
+    }
+
+    [Test]
+    public void Legend_NoneIsEmpty()
+    {
+        Assert.AreEqual("", EnemyTraitCopy.Legend(EnemyTrait.None, new EnemyTraitTuning()));
+    }
 }
