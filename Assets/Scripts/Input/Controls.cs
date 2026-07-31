@@ -267,6 +267,24 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToggleMap"",
+                    ""type"": ""Button"",
+                    ""id"": ""8a1b0000-0000-4000-8000-00000000020a"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MapPan"",
+                    ""type"": ""Value"",
+                    ""id"": ""8a1b0000-0000-4000-8000-00000000020b"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -500,6 +518,149 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""action"": ""SectionImprovise"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8a1b0000-0000-4000-8000-00000000022f"",
+                    ""path"": ""<Keyboard>/m"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleMap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8a1b0000-0000-4000-8000-000000000230"",
+                    ""path"": ""<Gamepad>/select"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleMap"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8a1b0000-0000-4000-8000-000000000231"",
+                    ""path"": ""<Gamepad>/leftStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MapPan"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""WASD"",
+                    ""id"": ""8a1b0000-0000-4000-8000-000000000232"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MapPan"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""8a1b0000-0000-4000-8000-000000000233"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MapPan"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""8a1b0000-0000-4000-8000-000000000234"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MapPan"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""8a1b0000-0000-4000-8000-000000000235"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MapPan"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""8a1b0000-0000-4000-8000-000000000236"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MapPan"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""MapArrows"",
+                    ""id"": ""8a1b0000-0000-4000-8000-000000000237"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MapPan"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""8a1b0000-0000-4000-8000-000000000238"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MapPan"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""8a1b0000-0000-4000-8000-000000000239"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MapPan"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""8a1b0000-0000-4000-8000-00000000023a"",
+                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MapPan"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""8a1b0000-0000-4000-8000-00000000023b"",
+                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MapPan"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -525,6 +686,8 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         m_Gameplay_Empower = m_Gameplay.FindAction("Empower", throwIfNotFound: true);
         m_Gameplay_SectionChoice = m_Gameplay.FindAction("SectionChoice", throwIfNotFound: true);
         m_Gameplay_SectionImprovise = m_Gameplay.FindAction("SectionImprovise", throwIfNotFound: true);
+        m_Gameplay_ToggleMap = m_Gameplay.FindAction("ToggleMap", throwIfNotFound: true);
+        m_Gameplay_MapPan = m_Gameplay.FindAction("MapPan", throwIfNotFound: true);
     }
 
     ~@Controls()
@@ -766,6 +929,8 @@ public partial class @Controls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Gameplay_Empower;
     private readonly InputAction m_Gameplay_SectionChoice;
     private readonly InputAction m_Gameplay_SectionImprovise;
+    private readonly InputAction m_Gameplay_ToggleMap;
+    private readonly InputAction m_Gameplay_MapPan;
     /// <summary>
     /// Provides access to input actions defined in input action map "Gameplay".
     /// </summary>
@@ -813,6 +978,14 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Gameplay/SectionImprovise".
         /// </summary>
         public InputAction @SectionImprovise => m_Wrapper.m_Gameplay_SectionImprovise;
+        /// <summary>
+        /// Provides access to the underlying input action "Gameplay/ToggleMap".
+        /// </summary>
+        public InputAction @ToggleMap => m_Wrapper.m_Gameplay_ToggleMap;
+        /// <summary>
+        /// Provides access to the underlying input action "Gameplay/MapPan".
+        /// </summary>
+        public InputAction @MapPan => m_Wrapper.m_Gameplay_MapPan;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -866,6 +1039,12 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @SectionImprovise.started += instance.OnSectionImprovise;
             @SectionImprovise.performed += instance.OnSectionImprovise;
             @SectionImprovise.canceled += instance.OnSectionImprovise;
+            @ToggleMap.started += instance.OnToggleMap;
+            @ToggleMap.performed += instance.OnToggleMap;
+            @ToggleMap.canceled += instance.OnToggleMap;
+            @MapPan.started += instance.OnMapPan;
+            @MapPan.performed += instance.OnMapPan;
+            @MapPan.canceled += instance.OnMapPan;
         }
 
         /// <summary>
@@ -904,6 +1083,12 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @SectionImprovise.started -= instance.OnSectionImprovise;
             @SectionImprovise.performed -= instance.OnSectionImprovise;
             @SectionImprovise.canceled -= instance.OnSectionImprovise;
+            @ToggleMap.started -= instance.OnToggleMap;
+            @ToggleMap.performed -= instance.OnToggleMap;
+            @ToggleMap.canceled -= instance.OnToggleMap;
+            @MapPan.started -= instance.OnMapPan;
+            @MapPan.performed -= instance.OnMapPan;
+            @MapPan.canceled -= instance.OnMapPan;
         }
 
         /// <summary>
@@ -1057,5 +1242,19 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSectionImprovise(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleMap" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleMap(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "MapPan" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnMapPan(InputAction.CallbackContext context);
     }
 }

@@ -50,6 +50,7 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
         endTurnButton.onClick.RemoveAllListeners();
         endTurnButton.onClick.AddListener(() =>
         {
+            if (InputContextState.MapOpen) return; // map mode: look, don't touch
             if (HandFullUnplayed())
             {
                 GameLog.Instance.Post("You cannot end the turn with a full hand.");

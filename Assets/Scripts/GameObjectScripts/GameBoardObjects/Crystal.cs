@@ -64,6 +64,7 @@ public class Crystal : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (InputContextState.MapOpen) return; // map mode: look, don't touch
         this.RemoveCrystal();
     }
 

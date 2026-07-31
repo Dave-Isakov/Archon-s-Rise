@@ -16,6 +16,7 @@ public class Unit : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (InputContextState.MapOpen) return; // map mode: look, don't touch
         if (isPlayed)
         {
             GameLog.Instance.Post($"{unitSO.cardName} has already been played, undo to revert action.");

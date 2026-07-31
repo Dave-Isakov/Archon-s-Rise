@@ -22,7 +22,11 @@ public class UndoButton : MonoBehaviour, IPointerClickHandler
 
     private void Start()
     {
-        undoButton.onClick.AddListener(() => GameManager.Instance.commands.UndoCommand());
+        undoButton.onClick.AddListener(() =>
+        {
+            if (InputContextState.MapOpen) return; // map mode: look, don't touch
+            GameManager.Instance.commands.UndoCommand();
+        });
     }
 
     static bool InCombat

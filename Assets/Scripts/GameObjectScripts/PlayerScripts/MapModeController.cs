@@ -62,8 +62,9 @@ public class MapModeController : MonoBehaviour
     {
         if (!IsOpen) return;
         IsOpen = false;
-        if (InputContextState.Current == InputContext.Map)
-            InputContextState.Current = InputContext.Board;
+        // Must go through ReleaseMap: the context latch ignores any plain write that
+        // would leave Map, which is exactly what stops other surfaces stealing it.
+        InputContextState.ReleaseMap();
     }
 
     void Update()

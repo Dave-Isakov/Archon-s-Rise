@@ -106,6 +106,9 @@ public class Card : MonoBehaviour, IPointerClickHandler
     public void ToggleInspect()
     {
         if (GameManager.Instance.cardListCanvas.enabled) return;
+        // Map mode is look-only: opening the card menu is the only route to playing
+        // a card, so this one guard is what makes "no card play from the map" true.
+        if (InputContextState.MapOpen) return;
 
         var inspector = FindAnyObjectByType<CardInspector>();
         if (inspector == null) return;
