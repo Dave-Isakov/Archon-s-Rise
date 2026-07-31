@@ -94,10 +94,20 @@ public class DataManager : MonoBehaviour
     }
 
     private void Update() {
+        HandleMapKey();
+
         if (!GameControls.Gameplay.Menu.WasPressedThisFrame()) return;
 
         // The run-end screen is terminal; the menu key must not open UI over it.
         if (RunEndController.HasEnded) return;
+
+        // While the map is open, Escape/Start closes it rather than stacking the
+        // main menu over it — same rule the pop-out already follows below.
+        if (InputContextState.Current == InputContext.Map)
+        {
+            MapModeController.Instance?.Close();
+            return;
+        }
 
         // While the pop-out is open, Escape/Start acts as Cancel (closes the
         // pop-out) instead of opening the main menu over it.
@@ -107,6 +117,28 @@ public class DataManager : MonoBehaviour
             return;
         }
         GameManager.Instance.mainMenuCanvas.enabled = !GameManager.Instance.mainMenuCanvas.enabled;
+    }
+
+    // M toggles map mode (spec 2026-07-31). Closing is unconditional and works from
+    // any state; opening requires a clear board. IsBoardClear covers the modal
+    // canvases, the place fan, the reward queue, the run-end screen and mid-load;
+    // mainMenuCanvas is checked separately because IsBoardClear deliberately allows
+    // autosaving under the pause menu.
+    void HandleMapKey()
+    {
+        if (!GameControls.Gameplay.ToggleMap.WasPressedThisFrame()) return;
+
+        var map = MapModeController.Instance;
+        if (map == null) return;
+
+        if (map.IsOpen) { map.Close(); return; }
+
+        if (InputContextState.Current != InputContext.Board) return;
+        if (!IsBoardClear()) return;
+        var game = GameManager.Instance;
+        if (game != null && game.mainMenuCanvas != null && game.mainMenuCanvas.enabled) return;
+
+        map.Open();
     }
 
     // public void CardsOnGameBoardList(GameObject playerCard)

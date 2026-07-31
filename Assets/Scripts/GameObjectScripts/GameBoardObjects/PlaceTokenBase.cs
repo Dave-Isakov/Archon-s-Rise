@@ -67,6 +67,7 @@ public abstract class PlaceTokenBase : MonoBehaviour, IPointerClickHandler, IHex
     public void OnPointerClick(PointerEventData eventData)
     {
         if (MapFog.IsHidden(gridPos)) return; // hidden by fog → not interactable
+        if (InputContextState.Current == InputContext.Map) return; // map mode: look, don't touch
 
         // During teleport targeting the interactor owns all clicks (you can
         // teleport onto a place cell); let it handle this one.

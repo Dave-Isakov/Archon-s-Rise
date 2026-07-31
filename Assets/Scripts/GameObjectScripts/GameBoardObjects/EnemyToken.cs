@@ -110,6 +110,7 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
     public void OnPointerClick(PointerEventData eventData)
     {
         if (MapFog.IsHidden(gridPos)) return; // hidden by fog → not interactable
+        if (InputContextState.Current == InputContext.Map) return; // map mode: look, don't touch
 
         // Out-of-combat-range tokens are not clickable (spec 2026-07-24 follow-up).
         // The old else-branch opened a preview card on the combat canvas, but its

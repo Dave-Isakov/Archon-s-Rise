@@ -53,9 +53,24 @@ public partial class HexInteractor : MonoBehaviour
         var verdict = Classify(cell, out bool placeOnCell);
         Render(cell, verdict);
 
-        if (pointer.ConfirmPressed)
+        // Map mode keeps the pointer path fully live — hover still classifies,
+        // highlights and describes the cell — but swallows the click.
+        if (pointer.ConfirmPressed && DispatchAllowed(verdict.Kind))
             Dispatch(cell, verdict, placeOnCell);
     }
+
+    // In map mode only a teleport may be dispatched. teleportMode is false today,
+    // so HexActionRules never produces TeleportTarget and this branch is inert —
+    // but it means map-teleport needs no new gating code later, only
+    // `teleportMode = true` while the map is open.
+    bool DispatchAllowed(HexActionKind kind)
+        => InputContextState.Current != InputContext.Map
+           || kind == HexActionKind.TeleportTarget;
+
+    // A fog scout armed by a first click cannot be confirmed from map mode, so
+    // MapModeController disarms it on open. armedFogCell is private; this is the
+    // seam rather than reaching into the field.
+    public void DisarmFogScout() => armedFogCell = null;
 
     HexAction Classify(Vector3Int cell, out bool placeOnCell)
     {

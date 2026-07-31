@@ -14,6 +14,7 @@ public class TurnFlowShortcuts : MonoBehaviour
     void Update()
     {
         if (InputContextState.Current == InputContext.Inspector) return;
+        if (InputContextState.Current == InputContext.Map) return;
         var gm = GameManager.Instance;
         if (gm == null || gm.mainMenuCanvas.enabled || gm.cardListCanvas.enabled) return;
 

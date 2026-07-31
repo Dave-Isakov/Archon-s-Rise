@@ -42,6 +42,11 @@ public class HandFocusController : MonoBehaviour
 
         if (gm.mainMenuCanvas.enabled || gm.cardListCanvas.enabled) return;
 
+        // Map mode: the per-frame mouse hit-test would otherwise focus cards the
+        // player is panning over, and arrow keys are pan input there, not fan
+        // navigation.
+        if (InputContextState.Current == InputContext.Map) return;
+
         // The units lane owns input while active (entered by crossing up from the fan).
         if (unitsLane != null && unitsLane.IsActive) return;
 
