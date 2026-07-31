@@ -439,7 +439,15 @@ public class DataManager : MonoBehaviour
         return revealed.ToArray();
     }
 
-    public bool IsSettledState()
+    // The "nothing is up" half of IsSettledState: no modal sub-screen, nothing
+    // queued, run not over, no load in flight. Split out so map mode (spec
+    // 2026-07-31) can gate on it WITHOUT the command-stack clause below — the
+    // stack is legitimately non-empty for most of a turn, which would lock the
+    // map out. Anything added here gates both saving and the map.
+    //
+    // Deliberately does NOT check mainMenuCanvas: autosaving under the pause
+    // menu is allowed. Map mode adds that check on its own side.
+    public bool IsBoardClear()
     {
         var game = GameManager.Instance;
         if (game == null) return false;
@@ -463,7 +471,15 @@ public class DataManager : MonoBehaviour
         // No reward/message modal open or queued (the RewardQueue owns them all).
         if (RewardQueue.Instance.Busy) return false;
 
+        return true;
+    }
+
+    public bool IsSettledState()
+    {
+        if (!IsBoardClear()) return false;
+
         // Undo/command stack empty (no card mid-play).
+        var game = GameManager.Instance;
         if (game.commands != null && !game.commands.IsEmpty) return false;
 
         return true;
