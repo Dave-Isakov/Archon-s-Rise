@@ -1019,9 +1019,9 @@ On the same `Trait` GameObject from Step 2 (inside `EnemyCard.prefab`), add the 
 
 In the scene that hosts the combat canvas (check where the deleted `EnemyPreviewPanel` used to live — same canvas), create a new UI GameObject for the tooltip: a root panel (with a `CanvasGroup`, auto-added by `EnemyTraitTooltip.Awake` if missing) containing a `TextMeshProUGUI` label. Add the `EnemyTraitTooltip` component, wire `root`/`panelRect`/`label` in its inspector.
 
-> **Careful — two-object layout, and don't start the component's own object inactive.** Put the `EnemyTraitTooltip` component on an **always-active parent**, and point its `root` field at the **child** panel it shows/hides. `Awake()` deactivates `root` for you, so there is nothing to "start inactive" by hand. If you instead put the component on the same object you deactivate, `Awake()` never runs, `Instance` stays null, and every hover silently does nothing with no error to tell you why. This mirrors how the deleted `EnemyPreviewPanel` was laid out.
+> **Layout is flexible — `root` may be this GameObject or a child, active or inactive.** This was originally a strict two-object requirement: putting the component on the same object it deactivates meant `Awake()` never ran, `Instance` stayed null, and every hover silently did nothing with no error. That trap was removed in code (2026-07-30) — `Instance` now resolves lazily via `FindAnyObjectByType<EnemyTraitTooltip>(FindObjectsInactive.Include)`, the same idiom `DungeonToken`/`ShrineToken`/`TownToken` already use to reach an inactive panel, and initialisation is lazy so it runs on first `Show()` regardless. Visibility is CanvasGroup alpha, not `SetActive`.
 >
-> `panelRect` in particular must be wired — `Show()` returns early without it, so the tooltip would never appear.
+> `panelRect` still must be wired — `Show()` returns early without it, so the tooltip would never appear.
 
 - [ ] **Step 5: Add the blind-state UI in the combat canvas**
 

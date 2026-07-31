@@ -11,11 +11,28 @@ using UnityEngine.UI;
 // onto the canvas plane, then slide the box back on-screen via
 // PreviewRules.ClampAxis if it would clip an edge. That math wasn't the
 // problem being fixed; having two competing content sources was.
+//
+// Scene layout is deliberately flexible: `root` may be this GameObject or a
+// child, and the GameObject may be authored active or inactive. See EnsureInit.
 public class EnemyTraitTooltip : MonoBehaviour
 {
-    public static EnemyTraitTooltip Instance { get; private set; }
+    // Resolved lazily, INCLUDING inactive objects. A hidden tooltip is the normal
+    // state, so authoring its GameObject inactive in the scene is the natural
+    // instinct — and that used to mean Awake never ran, Instance stayed null, and
+    // every hover silently returned at EnemyTraitBadgeHover's first guard with no
+    // error to explain it (2026-07-30). Finding it lazily removes that trap.
+    static EnemyTraitTooltip instance;
+    public static EnemyTraitTooltip Instance
+    {
+        get
+        {
+            if (instance == null)
+                instance = FindAnyObjectByType<EnemyTraitTooltip>(FindObjectsInactive.Include);
+            return instance;
+        }
+    }
 
-    [SerializeField] GameObject root;          // toggled on Show/Hide
+    [SerializeField] GameObject root;          // the panel shown/hidden; may be this GameObject
     [SerializeField] RectTransform panelRect;  // moved to the screen position
     [SerializeField] TextMeshProUGUI label;
     [SerializeField] Vector2 offset = new Vector2(0f, 30f); // nudge off the badge row (screen px)
@@ -23,31 +40,49 @@ public class EnemyTraitTooltip : MonoBehaviour
 
     Canvas canvas;
     RectTransform canvasRect;
+    CanvasGroup group;
+    bool initialised;
 
     void Awake()
     {
-        Instance = this;
-        canvas = GetComponentInParent<Canvas>();
-        if (canvas != null) canvas = canvas.rootCanvas;
+        instance = this;
+        EnsureInit();
+    }
+
+    // Idempotent, and safe on an inactive GameObject — Show() calls it too, so the
+    // tooltip works whether or not Awake ever fired, and whether `root` is this
+    // GameObject or a child.
+    //
+    // Visibility is CanvasGroup alpha rather than SetActive on purpose: when root
+    // IS this GameObject, toggling active would make Unity run Awake in the middle
+    // of Show() and immediately re-hide the tooltip we were opening.
+    void EnsureInit()
+    {
+        if (initialised) return;
+        initialised = true; // set first: activating below can re-enter via Awake
+
+        var parentCanvas = GetComponentInParent<Canvas>(true); // true: we may be inactive
+        if (parentCanvas != null) canvas = parentCanvas.rootCanvas;
         if (canvas != null) canvasRect = canvas.transform as RectTransform;
 
-        if (root != null)
-        {
-            var cg = root.GetComponent<CanvasGroup>();
-            if (cg == null) cg = root.AddComponent<CanvasGroup>();
-            cg.blocksRaycasts = false; // never steal the hover it's drawn over
-            cg.interactable = false;
-            root.SetActive(false);
-        }
+        var host = root != null ? root : gameObject;
+        group = host.GetComponent<CanvasGroup>();
+        if (group == null) group = host.AddComponent<CanvasGroup>();
+        group.blocksRaycasts = false; // never steal the hover it's drawn over
+        group.interactable = false;
+        if (!host.activeSelf) host.SetActive(true); // once — alpha owns visibility now
+        group.alpha = 0f;
     }
 
     public void Show(EnemyTrait traits, EnemyTraitTuning tuning, Vector3 screenPosition)
     {
+        EnsureInit();
+
         string text = EnemyTraitCopy.Legend(traits, tuning);
         if (string.IsNullOrEmpty(text)) { Hide(); return; }
 
-        if (root != null) root.SetActive(true);
         if (label != null) label.text = text;
+        if (group != null) group.alpha = 1f;
 
         if (panelRect == null) return;
 
@@ -69,7 +104,7 @@ public class EnemyTraitTooltip : MonoBehaviour
 
     public void Hide()
     {
-        if (root != null) root.SetActive(false);
+        if (group != null) group.alpha = 0f;
     }
 
     void PlaceAtScreenPoint(Vector2 screenPoint)
