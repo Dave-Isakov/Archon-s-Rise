@@ -193,6 +193,11 @@ town / dungeon / card-reward / card-list canvases, `PlaceFan.IsOpen`, and
 Save-gate behaviour is unchanged, there is no second modal list to drift, and any modal
 added later gates the map for free.
 
+Note that `IsSettledState` deliberately does **not** check `mainMenuCanvas` — autosaving
+while the pause menu is open is allowed. The map must not open under the pause menu, so
+that one check lives in `MapModeController` on top of `IsBoardClear()`, rather than being
+pushed down into the shared predicate where it would change save behaviour.
+
 **M always closes the map**, with no gate at all.
 
 ## 9. Future teleport
