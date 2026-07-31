@@ -30,7 +30,9 @@
                 {"name": "Menu", "type": "Button", "id": "8a1b0000-0000-4000-8000-000000000206", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
                 {"name": "Empower", "type": "Button", "id": "8a1b0000-0000-4000-8000-000000000207", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
                 {"name": "SectionChoice", "type": "Button", "id": "8a1b0000-0000-4000-8000-000000000208", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
-                {"name": "SectionImprovise", "type": "Button", "id": "8a1b0000-0000-4000-8000-000000000209", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false}
+                {"name": "SectionImprovise", "type": "Button", "id": "8a1b0000-0000-4000-8000-000000000209", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "ToggleMap", "type": "Button", "id": "8a1b0000-0000-4000-8000-00000000020a", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "MapPan", "type": "Value", "id": "8a1b0000-0000-4000-8000-00000000020b", "expectedControlType": "Vector2", "processors": "", "interactions": "", "initialStateCheck": true}
             ],
             "bindings": [
                 {"name": "", "id": "8a1b0000-0000-4000-8000-000000000211", "path": "<Gamepad>/dpad", "interactions": "", "processors": "", "groups": "", "action": "Navigate", "isComposite": false, "isPartOfComposite": false},
@@ -53,7 +55,20 @@
                 {"name": "", "id": "8a1b0000-0000-4000-8000-00000000022b", "path": "<Gamepad>/rightShoulder", "interactions": "", "processors": "", "groups": "", "action": "SectionChoice", "isComposite": false, "isPartOfComposite": false},
                 {"name": "", "id": "8a1b0000-0000-4000-8000-00000000022c", "path": "<Keyboard>/e", "interactions": "", "processors": "", "groups": "", "action": "SectionChoice", "isComposite": false, "isPartOfComposite": false},
                 {"name": "", "id": "8a1b0000-0000-4000-8000-00000000022d", "path": "<Gamepad>/leftShoulder", "interactions": "", "processors": "", "groups": "", "action": "SectionImprovise", "isComposite": false, "isPartOfComposite": false},
-                {"name": "", "id": "8a1b0000-0000-4000-8000-00000000022e", "path": "<Keyboard>/q", "interactions": "", "processors": "", "groups": "", "action": "SectionImprovise", "isComposite": false, "isPartOfComposite": false}
+                {"name": "", "id": "8a1b0000-0000-4000-8000-00000000022e", "path": "<Keyboard>/q", "interactions": "", "processors": "", "groups": "", "action": "SectionImprovise", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "8a1b0000-0000-4000-8000-00000000022f", "path": "<Keyboard>/m", "interactions": "", "processors": "", "groups": "", "action": "ToggleMap", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "8a1b0000-0000-4000-8000-000000000230", "path": "<Gamepad>/select", "interactions": "", "processors": "", "groups": "", "action": "ToggleMap", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "8a1b0000-0000-4000-8000-000000000231", "path": "<Gamepad>/leftStick", "interactions": "", "processors": "", "groups": "", "action": "MapPan", "isComposite": false, "isPartOfComposite": false},
+                {"name": "WASD", "id": "8a1b0000-0000-4000-8000-000000000232", "path": "2DVector", "interactions": "", "processors": "", "groups": "", "action": "MapPan", "isComposite": true, "isPartOfComposite": false},
+                {"name": "up", "id": "8a1b0000-0000-4000-8000-000000000233", "path": "<Keyboard>/w", "interactions": "", "processors": "", "groups": "", "action": "MapPan", "isComposite": false, "isPartOfComposite": true},
+                {"name": "down", "id": "8a1b0000-0000-4000-8000-000000000234", "path": "<Keyboard>/s", "interactions": "", "processors": "", "groups": "", "action": "MapPan", "isComposite": false, "isPartOfComposite": true},
+                {"name": "left", "id": "8a1b0000-0000-4000-8000-000000000235", "path": "<Keyboard>/a", "interactions": "", "processors": "", "groups": "", "action": "MapPan", "isComposite": false, "isPartOfComposite": true},
+                {"name": "right", "id": "8a1b0000-0000-4000-8000-000000000236", "path": "<Keyboard>/d", "interactions": "", "processors": "", "groups": "", "action": "MapPan", "isComposite": false, "isPartOfComposite": true},
+                {"name": "MapArrows", "id": "8a1b0000-0000-4000-8000-000000000237", "path": "2DVector", "interactions": "", "processors": "", "groups": "", "action": "MapPan", "isComposite": true, "isPartOfComposite": false},
+                {"name": "up", "id": "8a1b0000-0000-4000-8000-000000000238", "path": "<Keyboard>/upArrow", "interactions": "", "processors": "", "groups": "", "action": "MapPan", "isComposite": false, "isPartOfComposite": true},
+                {"name": "down", "id": "8a1b0000-0000-4000-8000-000000000239", "path": "<Keyboard>/downArrow", "interactions": "", "processors": "", "groups": "", "action": "MapPan", "isComposite": false, "isPartOfComposite": true},
+                {"name": "left", "id": "8a1b0000-0000-4000-8000-00000000023a", "path": "<Keyboard>/leftArrow", "interactions": "", "processors": "", "groups": "", "action": "MapPan", "isComposite": false, "isPartOfComposite": true},
+                {"name": "right", "id": "8a1b0000-0000-4000-8000-00000000023b", "path": "<Keyboard>/rightArrow", "interactions": "", "processors": "", "groups": "", "action": "MapPan", "isComposite": false, "isPartOfComposite": true}
             ]
         }
     ],
