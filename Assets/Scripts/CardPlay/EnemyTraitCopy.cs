@@ -57,11 +57,10 @@ public static class EnemyTraitCopy
         }
     }
 
-    // Badge + name + rule, one line — the format both the live card's hover
-    // tooltip (Task 6) and (formerly) the pre-fight preview render identically,
-    // because there is exactly one implementation of it.
+    // Badge + name + rule, one line — the format the live card's hover tooltip
+    // renders, with exactly one implementation of it.
     public static string LegendLine(EnemyTrait t, EnemyTraitTuning tuning)
-        => IconMarkup.TraitBadgeTinted(t) + " " + IconMarkup.TraitName(t) + " — " + Rule(t, tuning);
+        => IconMarkup.TraitBadge(t) + " " + IconMarkup.TraitName(t) + " — " + Rule(t, tuning);
 
     // One LegendLine per set trait in mask, newline-joined. "" for EnemyTrait.None.
     public static string Legend(EnemyTrait mask, EnemyTraitTuning tuning)

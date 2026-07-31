@@ -977,29 +977,35 @@ git commit -m "feat: add the trait badge hover tooltip"
 
 This task has no code changes. Do these in order; each depends on the previous compiling clean, which Tasks 1-6 already established.
 
-- [ ] **Step 1: Create the 13 TMP Sprite Assets**
+- [ ] **Step 1: Create the 13 TMP Sprite Assets — ⛔ PARKED 2026-07-30, BLOCKED ON ART**
 
-For each row, import the PNG from `Assets/Images/500FreeSkillIcons/Icons/` as a Sprite (2D and UI), then right-click it → Create → TextMeshPro → Sprite Asset (same process already used for the existing 25 glyphs like `Sword.asset`/`shield.asset`). Rename each generated asset to the exact name in the second column — `IconMarkup.TraitSpriteName` (Task 1) references these names literally.
+> **Do not do this step with the current PNGs.** Two things changed since this plan was written; both are recorded in spec §5.1 and §7.
+>
+> **(a) There is no "Tint" step, and never needed to be.** This step originally said to enable a per-glyph **Tint** option on 4 aura icons. No such option exists. Verified against this project's TMP: sprite assets carry no tint field in their character or glyph tables (the shipped `crystal.asset`, which tints correctly today, has none), and `TMP_Text.cs` applies the `color` attribute to a sprite whether or not tinting is flagged. The separate `tint=1` *tag attribute* means only "also multiply by the surrounding text colour." The material's colour field is material-wide and would tint every use of a glyph — not the right lever; leave it white.
+>
+> **(b) The amber aura tint is dropped entirely, and the source art is unusable.** `IconMarkup.TraitBadgeTinted`/`AuraTint`/`IsAuraTrait` are deleted; all call sites use plain `TraitBadge`. TMP tints by *multiplying*, so a colour only reads on white/near-white art — and these are full-colour painted scenes (Warlord blue, Miasma green, Outrider purple all go muddy; Ironclad is already gold, so it's a no-op). Independently of the tint, the art is wrong for inline badges: all 13 are **RGB with no alpha channel**, so each renders as an opaque square block in a text run, where every working glyph in the game (e.g. `crystal.png`) is an RGBA cutout. At badge size (~24px) `Toxic`/`Miasma` collapse into one green mass and `Leech`/`Brutal` into one red mass; `Elusive`/`Hulking`/`Harrying` are full figures with no readable silhouette; `Swift` is a modern running shoe.
+>
+> **What's needed to unpark:** flat, single-subject, high-contrast glyphs on transparency — monochrome if the amber aura tint is ever to come back. Then create all 13 identically (no per-glyph tint step) and place them in `Assets/TextMesh Pro/Resources/Sprite Assets/` alongside the existing glyphs, named exactly as the table below — `IconMarkup.TraitSpriteName` references these literally.
+>
+> **Steps 2-8 below do not depend on this and should proceed now.** Badges keep rendering as the previous letters until real art lands.
 
-| Source PNG | TMP Sprite Asset name | Tint? |
-|---|---|---|
-| `skill_133.png` | `traitArmored` | no |
-| `skill_067.png` | `traitElusive` | no |
-| `skill_336.png` | `traitHulking` | no |
-| `skill_349.png` | `traitSwift` | no |
-| `skill_233.png` | `traitBrutal` | no |
-| `skill_204.png` | `traitToxic` | no |
-| `skill_174.png` | `traitLeech` | no |
-| `skill_512.png` | `traitHarrying` | no |
-| `skill_218.png` | `traitVengeful` | no |
-| `skill_490.png` | `traitWarlord` | **yes** |
-| `skill_162.png` | `traitMiasma` | **yes** |
-| `skill_379.png` | `traitIronclad` | **yes** |
-| `skill_374.png` | `traitOutrider` | **yes** |
+The 13 names `IconMarkup.TraitSpriteName` expects (source column is the *current, rejected* art, already renamed in place under `Assets/Images/500FreeSkillIcons/Icons/`):
 
-For the 4 "yes" rows: open the generated Sprite Asset, select its one glyph in the glyph table, and enable **Tint** in its Sprite inspector. Skipping this makes the amber aura recolor (`IconMarkup.TraitBadgeTinted`, Task 1) silently do nothing for that trait.
-
-Place all 13 in `Assets/TextMesh Pro/Resources/Sprite Assets/` alongside the existing glyphs (required — `IconMarkup.Tag`-style lookups resolve TMP sprite assets from that Resources path).
+| Current (rejected) PNG | TMP Sprite Asset name |
+|---|---|
+| `traitArmored.png` | `traitArmored` |
+| `traitElusive.png` | `traitElusive` |
+| `traitHulking.png` | `traitHulking` |
+| `traitSwift.png` | `traitSwift` |
+| `traitBrutal.png` | `traitBrutal` |
+| `traitToxic.png` | `traitToxic` |
+| `traitLeech.png` | `traitLeech` |
+| `traitHarrying.png` | `traitHarrying` |
+| `traitVengeful.png` | `traitVengeful` |
+| `traitWarlord.png` | `traitWarlord` |
+| `traitMiasma.png` | `traitMiasma` |
+| `traitIronclad.png` | `traitIronclad` |
+| `traitOutrider.png` | `traitOutrider` |
 
 - [ ] **Step 2: Fix `EnemyCard`'s `traitBadges` RectTransform**
 
@@ -1011,7 +1017,11 @@ On the same `Trait` GameObject from Step 2 (inside `EnemyCard.prefab`), add the 
 
 - [ ] **Step 4: Place `EnemyTraitTooltip` in the combat scene**
 
-In the scene that hosts the combat canvas (check where the deleted `EnemyPreviewPanel` used to live — same canvas), create a new UI GameObject for the tooltip: a root panel (with a `CanvasGroup`, auto-added by `EnemyTraitTooltip.Awake` if missing) containing a `TextMeshProUGUI` label. Add the `EnemyTraitTooltip` component to the root, wire `root`/`panelRect`/`label` in its inspector. Start the root inactive.
+In the scene that hosts the combat canvas (check where the deleted `EnemyPreviewPanel` used to live — same canvas), create a new UI GameObject for the tooltip: a root panel (with a `CanvasGroup`, auto-added by `EnemyTraitTooltip.Awake` if missing) containing a `TextMeshProUGUI` label. Add the `EnemyTraitTooltip` component, wire `root`/`panelRect`/`label` in its inspector.
+
+> **Careful — two-object layout, and don't start the component's own object inactive.** Put the `EnemyTraitTooltip` component on an **always-active parent**, and point its `root` field at the **child** panel it shows/hides. `Awake()` deactivates `root` for you, so there is nothing to "start inactive" by hand. If you instead put the component on the same object you deactivate, `Awake()` never runs, `Instance` stays null, and every hover silently does nothing with no error to tell you why. This mirrors how the deleted `EnemyPreviewPanel` was laid out.
+>
+> `panelRect` in particular must be wired — `Show()` returns early without it, so the tooltip would never appear.
 
 - [ ] **Step 5: Add the blind-state UI in the combat canvas**
 
@@ -1020,6 +1030,8 @@ In the scene that hosts the combat canvas (check where the deleted `EnemyPreview
 - [ ] **Step 6: Wire the click-off decline**
 
 The combat canvas needs a `ClickOffCatcher` (`Assets/Scripts/GameObjectScripts/PlaceUI/ClickOffCatcher.cs`, existing component — same click-off idiom used elsewhere in this game) sitting at sibling index 0 behind the canvas content, sized to fill the canvas. Wire its `onClickOff` UnityEvent to `CombatController.Decline()`. No `SetArmed` calls needed — the combat canvas is toggled via `Canvas.enabled`, which the catcher's own doc comment confirms needs no arming, and `Decline()` itself already no-ops once `Committed` is true, so click-off is automatically inert during a real fight.
+
+> **Check the sort order against the hand/HUD canvas before you trust it.** Sibling index 0 only puts the catcher behind *this* canvas's content — it says nothing about the separate hand canvas. If the combat canvas sorts above the hand, a full-screen catcher will swallow the card clicks the entire Siege phase depends on. Either confirm the sort order leaves the hand clickable, or size the catcher to exclude the hand band (`CombatController` already reserves `handKeepOut`, 200px).
 
 - [ ] **Step 7: Delete the retired prefab and orphaned scene references**
 
@@ -1036,7 +1048,7 @@ With everything wired, in Play mode:
 3. Reopen the same encounter, press Siege on a killable enemy (or Engage if none is affordable) — confirm the turn action is now spent, and click-off no longer closes the canvas.
 4. Repeat steps 1-3 for a guardian assault (visit action) and a dungeon delve (Explore + visit action).
 5. Hover a multi-trait enemy's badge row, both before and after committing — confirm the same legend text (badge + name + rule per trait) appears both times, positioned near the badges and never clipped off-screen near a screen edge.
-6. Confirm aura-trait badges (Warlord/Miasma/Ironclad/Outrider) render with the amber tint; self-trait badges render untinted.
+6. ~~Confirm aura-trait badges render with the amber tint.~~ **Dropped 2026-07-30** — the amber aura tint is gone (see Step 1). Badges render untinted; auras are told apart by their own icon and the hover legend. Nothing to verify here until real badge art lands.
 7. Confirm no "Missing Script" warnings remain in the Console when opening any scene touched in Step 7.
 
 - [ ] **Step 9: Commit the asset/scene/prefab changes**

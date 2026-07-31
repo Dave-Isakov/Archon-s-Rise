@@ -95,7 +95,7 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
         foreach (var t in EnemyTraitCopy.Split(Traits))
         {
             if (parts.Length > 0) parts.Append(' ');
-            parts.Append(IconMarkup.TraitBadgeTinted(t));
+            parts.Append(IconMarkup.TraitBadge(t));
         }
         traitBadges.text = parts.ToString();
         traitBadges.gameObject.SetActive(parts.Length > 0);

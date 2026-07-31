@@ -141,24 +141,16 @@ public static class IconMarkup
         }
     }
 
-    // Auras render tinted so "which of these is buffing the others" — the read
-    // the Siege targeting puzzle depends on — needs no hover.
-    public static bool IsAuraTrait(EnemyTrait t)
-        => t == EnemyTrait.Warlord || t == EnemyTrait.Miasma
-        || t == EnemyTrait.Ironclad || t == EnemyTrait.Outrider;
-
-    public const string AuraTint = "#F5D90A";
-
-    // TMP sprites only honor color as an attribute ON the <sprite> tag (and
-    // only with Tint enabled on the glyph) — NOT a wrapping <color> rich-text
-    // tag, which is why this builds the tag directly instead of wrapping
-    // TraitBadge's output.
-    public static string TraitBadgeTinted(EnemyTrait t)
-    {
-        string name = TraitSpriteName(t);
-        if (name.Length == 0) return "";
-        return IsAuraTrait(t)
-            ? $"<sprite=\"{name}\" index=0 color=#{AuraTint.TrimStart('#')}>"
-            : $"<sprite=\"{name}\" index=0>";
-    }
+    // Aura traits (Warlord/Miasma/Ironclad/Outrider) once rendered amber-tinted
+    // so "which of these is buffing the others" read without a hover. Dropped
+    // 2026-07-30: TMP tints by MULTIPLYING the glyph, so a colour tint only
+    // reads on white/near-white art, and the trait icons are full-colour
+    // painted art (blue Warlord, green Miasma, already-gold Ironclad) that
+    // turns muddy under it. Auras are now distinguished by their own icon plus
+    // the hover legend. Restoring the tint needs monochrome badge art first —
+    // then this is `<sprite="name" index=0 color=#F5D90A>`, colour as an
+    // attribute ON the sprite tag, never a wrapping <color> tag.
+    //
+    // The aura COMBAT rules are unaffected and live in EnemyTraitRules
+    // (GrantedByAuras/WarlordAura); nothing here ever fed them.
 }

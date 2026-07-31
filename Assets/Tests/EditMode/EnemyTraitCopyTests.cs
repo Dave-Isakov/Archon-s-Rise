@@ -32,17 +32,6 @@ public class EnemyTraitCopyTests
     }
 
     [Test]
-    public void AurasAreFlaggedAsAuras()
-    {
-        Assert.IsTrue(IconMarkup.IsAuraTrait(EnemyTrait.Warlord));
-        Assert.IsTrue(IconMarkup.IsAuraTrait(EnemyTrait.Miasma));
-        Assert.IsTrue(IconMarkup.IsAuraTrait(EnemyTrait.Ironclad));
-        Assert.IsTrue(IconMarkup.IsAuraTrait(EnemyTrait.Outrider));
-        Assert.IsFalse(IconMarkup.IsAuraTrait(EnemyTrait.Armored));
-        Assert.IsFalse(IconMarkup.IsAuraTrait(EnemyTrait.Toxic));
-    }
-
-    [Test]
     public void TraitBadge_ReturnsItsSpriteAssetName()
     {
         Assert.AreEqual("<sprite=\"traitArmored\" index=0>", IconMarkup.TraitBadge(EnemyTrait.Armored));
@@ -61,27 +50,16 @@ public class EnemyTraitCopyTests
     }
 
     [Test]
-    public void TraitBadgeTinted_AurasCarryColorAsSpriteAttribute_NotAWrappingColorTag()
+    public void TraitBadge_CarriesNoColorAttribute_AurasIncluded()
     {
-        // TMP sprites only honor color as an attribute ON the <sprite> tag itself
-        // (and only with Tint enabled on the glyph) — a wrapping <color> tag does
-        // nothing to a sprite glyph. See IconMarkup.CrystalTag for the existing
-        // precedent this must match.
-        Assert.AreEqual("<sprite=\"traitWarlord\" index=0 color=#F5D90A>",
-            IconMarkup.TraitBadgeTinted(EnemyTrait.Warlord));
-        Assert.AreEqual("<sprite=\"traitMiasma\" index=0 color=#F5D90A>",
-            IconMarkup.TraitBadgeTinted(EnemyTrait.Miasma));
-        Assert.AreEqual("<sprite=\"traitIronclad\" index=0 color=#F5D90A>",
-            IconMarkup.TraitBadgeTinted(EnemyTrait.Ironclad));
-        Assert.AreEqual("<sprite=\"traitOutrider\" index=0 color=#F5D90A>",
-            IconMarkup.TraitBadgeTinted(EnemyTrait.Outrider));
-    }
-
-    [Test]
-    public void TraitBadgeTinted_SelfTraitsAreUntinted()
-    {
-        Assert.AreEqual("<sprite=\"traitArmored\" index=0>", IconMarkup.TraitBadgeTinted(EnemyTrait.Armored));
-        Assert.AreEqual("<sprite=\"traitBrutal\" index=0>", IconMarkup.TraitBadgeTinted(EnemyTrait.Brutal));
+        // The amber aura tint was dropped 2026-07-30: TMP tints by multiplying
+        // the glyph, so a colour attribute only reads on white/near-white art,
+        // and the trait icons are full-colour painted art. Auras read via their
+        // own icon plus the hover legend instead. If monochrome badge art ever
+        // lands and the tint returns, this test is the one to revisit.
+        foreach (var t in IconMarkup.AllTraits)
+            Assert.IsFalse(IconMarkup.TraitBadge(t).Contains("color="),
+                $"{t} badge should carry no colour attribute");
     }
 
     [Test]
@@ -131,7 +109,7 @@ public class EnemyTraitCopyTests
     public void LegendLine_IsBadgeThenNameThenRule()
     {
         var tuning = new EnemyTraitTuning();
-        string expected = IconMarkup.TraitBadgeTinted(EnemyTrait.Armored) + " " +
+        string expected = IconMarkup.TraitBadge(EnemyTrait.Armored) + " " +
                            IconMarkup.TraitName(EnemyTrait.Armored) + " — " +
                            EnemyTraitCopy.Rule(EnemyTrait.Armored, tuning);
         Assert.AreEqual(expected, EnemyTraitCopy.LegendLine(EnemyTrait.Armored, tuning));

@@ -198,25 +198,39 @@ badges.
 ## 5. Code changes
 
 ### 5.1 `IconMarkup.cs`
-Replace the letter switch inside `TraitBadge`/`TraitBadgeTinted` with the sprite-asset names
-from §4. Call sites don't change — that's what the seam (`2026-07-29` spec §8.1) was for.
+Replace the letter switch inside `TraitBadge` with the sprite-asset names from §4. Call
+sites don't change — that's what the seam (`2026-07-29` spec §8.1) was for.
 
-`TraitBadgeTinted` currently wraps the letter in a `<color=#hex></color>` rich-text tag for
-auras. **That does not tint a TMP sprite glyph** — sprites only honor a `color=` *attribute
-on the `<sprite>` tag itself* (and only if the glyph's Tint option is on), the way
-`IconMarkup.CrystalTag` already does it for the crystal glyph. Switch `TraitBadgeTinted` to
-that same inline-attribute form, e.g. `<sprite="traitWarlord" index=0 color=#F5D90A>`.
+**AMENDED 2026-07-30 — the amber aura tint is dropped.** `TraitBadgeTinted`, `AuraTint`, and
+`IconMarkup.IsAuraTrait` are deleted; every call site uses plain `TraitBadge`. Two findings
+killed it:
 
-**Manual step (you, in-editor):** the 4 aura icons (Warlord, Miasma, Ironclad, Outrider)
-need **Tint** enabled on their glyph entry when the TMP Sprite Asset is created (§7), or the
-amber aura recolor silently does nothing. The 9 self-trait icons don't need it.
+1. **There is no per-glyph "Tint" option.** Verified against this project's TMP
+   (`com.unity.ugui`): a sprite asset's character/glyph tables carry no tint field — the
+   shipped `crystal.asset`, which tints correctly today, has none. `TMP_Text.cs` maps the
+   `color` attribute straight to `m_spriteColor` and applies it either way; the separate
+   `tint=1` *tag attribute* only means "also multiply by the surrounding text colour."
+   So a `color=` attribute would have worked with no manual step at all.
+2. **But the art can't carry a tint anyway.** TMP tints by *multiplying* the glyph, so a
+   colour only reads on white/near-white source art. The 13 trait icons are full-colour
+   painted art — Warlord blue, Miasma green, Outrider purple all turn muddy under amber,
+   and Ironclad is already gold, so the tint is a no-op on it. The distinction fails in
+   all four directions.
+
+Auras are now distinguished by their own icon plus the hover legend (§6). Restoring the
+tint requires monochrome badge art first; it is then one method emitting
+`<sprite="name" index=0 color=#F5D90A>` — colour as an attribute ON the sprite tag, never a
+wrapping `<color>` tag, matching `IconMarkup.CrystalTag`.
+
+The aura **combat** rules are untouched and live in `EnemyTraitRules`
+(`GrantedByAuras`/`WarlordAura`); the deleted display helpers never fed them.
 
 ### 5.2 `EnemyTraitCopy.cs`
 Extract the "badge + name + rule" line format into a shared pure method, used by the one
 surviving legend renderer (§6):
 ```
 public static string LegendLine(EnemyTrait t, EnemyTraitTuning tuning)
-    => IconMarkup.TraitBadgeTinted(t) + " " + IconMarkup.TraitName(t) + " — " + Rule(t, tuning);
+    => IconMarkup.TraitBadge(t) + " " + IconMarkup.TraitName(t) + " — " + Rule(t, tuning);
 
 public static string Legend(EnemyTrait mask, EnemyTraitTuning tuning)
     // one LegendLine per Split(mask), newline-joined; "" for EnemyTrait.None
@@ -300,7 +314,18 @@ its own `Rule()` line rather than duplicating a badge onto every other card).
 
 1. **13 TMP Sprite Assets** — for each PNG in §4: import as a Sprite, then right-click ->
    Create -> TextMeshPro -> Sprite Asset (same process as the existing 25 glyphs). Name each
-   per the table. Enable **Tint** on the 4 aura ones (§5.1).
+   per the table. All 13 are treated identically — there is no per-glyph Tint step (§5.1).
+
+   **BLOCKED 2026-07-30 on art.** The current `500FreeSkillIcons` PNGs are unsuitable for
+   inline badges and this step is parked until replacements land: all 13 are RGB with **no
+   alpha channel**, so each renders as an opaque square block in a text run (every working
+   glyph in the game — e.g. `crystal.png` — is an RGBA cutout); they are 512x512 painted
+   scene art rather than icons, so at badge size (~24px) `Toxic`/`Miasma` collapse to one
+   green mass and `Leech`/`Brutal` to one red mass, while `Elusive`/`Hulking`/`Harrying`
+   (full figures) lose any readable silhouette; and `Swift` is a modern running shoe. What
+   is needed: flat, single-subject, high-contrast glyphs on transparency — monochrome if
+   the aura tint is ever to return. The rest of §7 does not depend on this and proceeds;
+   badges keep rendering as the previous letters until real art arrives.
 2. **Fix `EnemyCard`'s `traitBadges` RectTransform** — currently anchored at a fixed
    `(25, 35)` pixel offset with `m_SizeDelta: {0,0}` (a leftover from the half-finished
    attempt). Needs to sit in the card's existing HP/Attack/Influence row (or immediately
