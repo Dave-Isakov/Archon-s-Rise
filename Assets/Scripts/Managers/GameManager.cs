@@ -19,14 +19,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] Rewards rewards;
     [SerializeField] CombatBackdrop combatBackdrop; // fades the battlefield after the intro
     [SerializeField] TextMeshProUGUI combatBanner; // the "Combat!" intro text
-    [SerializeField] string combatIntroState = "CombatIntro";
-    [SerializeField] float combatIntroDuration = 1.5f;
+    [SerializeField] float combatIntroDuration = 1.5f; // how long the banner holds
     // The enemy token whose combat is currently open. Set when combat starts,
-    // read by FleeCombat() to de-aggro the right token, cleared on teardown.
-    // Non-null ONLY during a real fight, never while merely previewing a token.
+    // cleared on teardown by EndCombat().
     [HideInInspector] public EnemyToken activeCombatant;
-    // Flee control. The combat canvas is reused to preview enemy tokens out of
-    // range, so the Flee button is shown only during a real fight.
+    // Flee control. Shown whenever a fight canvas is open; the actual flee
+    // (CombatController.Withdraw) is gated on the Attack phase, so pressing it
+    // during an uncommitted free look (spec 2026-07-30) is a no-op.
     public Button fleeButton;
     // M2.12 tutorial triggers, raised at the real sites so the rail and
     // one-shots key off actual play. Null-safe until wired.
@@ -110,28 +109,25 @@ public class GameManager : MonoBehaviour
     {
         if (onCombatStartedTutorial != null) onCombatStartedTutorial.Raise();
         combatCanvas.enabled = true;
-        combatCanvas.GetComponentInChildren<Animator>().enabled = true;
         if (combatBanner != null) combatBanner.enabled = false; // no intro flash for guardian/dungeon
         if (fleeButton != null) fleeButton.gameObject.SetActive(true);
         if (combatBackdrop != null) combatBackdrop.FadeToBattle();
     }
 
-    // Field-combat intro: enable the canvas, replay the authored banner clip from
-    // frame 0 (deterministic — no longer keyed off the banner TMP's enabled flag,
-    // which never reset and made the intro play only once), wait its duration.
+    // Field-combat intro: enable the canvas, show the "Combat!" banner for
+    // combatIntroDuration, then hide it and fade the backdrop into the fight.
+    // The banner used to be an authored Animator clip; the combat canvas has no
+    // Animator any more (2026-07-30), so the hold is the coroutine's own wait and
+    // the banner is toggled explicitly — including OFF at the end, which the clip
+    // used to do. Without that it would stay on screen for the whole fight.
     public IEnumerator PlayCombatIntro()
     {
         if (onCombatStartedTutorial != null) onCombatStartedTutorial.Raise();
         combatCanvas.enabled = true;
-        var animator = combatCanvas.GetComponentInChildren<Animator>(true);
         if (combatBanner != null) combatBanner.enabled = true;
-        if (animator != null)
-        {
-            animator.enabled = true;
-            animator.Play(combatIntroState, 0, 0f);
-        }
         if (fleeButton != null) fleeButton.gameObject.SetActive(true);
         yield return new WaitForSeconds(combatIntroDuration);
+        if (combatBanner != null) combatBanner.enabled = false;
         if (combatBackdrop != null) combatBackdrop.FadeToBattle();
     }
 
@@ -148,7 +144,7 @@ public class GameManager : MonoBehaviour
     {
         if (combatBackdrop != null) combatBackdrop.Restore();
         combatCanvas.enabled = false;
-        combatCanvas.GetComponentInChildren<Animator>().enabled = false;
+        if (combatBanner != null) combatBanner.enabled = false;
         EndCombat();
     }
 
