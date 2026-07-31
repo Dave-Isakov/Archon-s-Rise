@@ -9,6 +9,24 @@ public class EnemyTraitBadgeHover : MonoBehaviour, IPointerEnterHandler, IPointe
 {
     [SerializeField] EnemyCard card;
 
+    // Unity raycasts against the RectTransform's rect, NOT the rendered glyphs, so
+    // a zero-area rect can never receive a pointer event — the text still draws
+    // (TMP overflows a zero rect happily), which makes it look like the hover code
+    // is broken when the row is simply unhoverable. This bit the badge row for real
+    // (2026-07-30): it shipped at the placeholder Size Delta (0,0), and every hover
+    // silently did nothing. Warn loudly instead of failing silently.
+    void Start()
+    {
+        var rt = transform as RectTransform;
+        if (rt == null) return;
+        if (rt.rect.width > 0f && rt.rect.height > 0f) return;
+
+        Debug.LogWarning(
+            $"[EnemyTraitBadgeHover] '{name}' has a {rt.rect.width}x{rt.rect.height} rect, so it can " +
+            "never receive hover events and the trait tooltip will never open. Give the badge row a " +
+            "real width and height.", this);
+    }
+
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (EnemyTraitTooltip.Instance == null || card == null) return;

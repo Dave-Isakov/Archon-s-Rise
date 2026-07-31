@@ -1009,7 +1009,9 @@ The 13 names `IconMarkup.TraitSpriteName` expects (source column is the *current
 
 - [ ] **Step 2: Fix `EnemyCard`'s `traitBadges` RectTransform**
 
-Open `Assets/Prefabs/EnemyCard.prefab`. Find the `Trait` GameObject (holds the `traitBadges` TMP text, wired in `EnemyCard`'s inspector). It's currently anchored at a fixed `(25, 35)` pixel offset with `Size Delta (0, 0)` — a leftover from when it held one placeholder letter. Re-anchor it to sit in the card's existing HP/Attack/Influence stat row (or immediately below it), with enough width to lay out several icon glyphs side by side without overlapping neighboring elements. Enter Play mode afterward and confirm a multi-trait enemy's badges render side by side, fully visible, not clipped by the card's edge.
+> **This is a hard prerequisite for Step 3, not just cosmetics.** Unity raycasts against the RectTransform's **rect**, not the rendered glyphs. At `Size Delta (0, 0)` the row has zero area, so `EnemyTraitBadgeHover` can never receive a pointer event and the tooltip silently never opens — while the badge still *draws*, because TMP overflows a zero rect happily. This is exactly what happened on the first attempt (2026-07-30). `EnemyTraitBadgeHover.Start` now logs a warning if the rect is degenerate, so check the Console if the tooltip doesn't appear.
+
+Open `Assets/Prefabs/EnemyCard.prefab`. Find the `Trait` GameObject (holds the `traitBadges` TMP text, wired in `EnemyCard`'s inspector). It's currently anchored at a fixed `(25, 35)` pixel offset with `Size Delta (0, 0)` — a leftover from when it held one placeholder letter. Re-anchor it to sit in the card's existing HP/Attack/Influence stat row (or immediately below it), with **a real width and height** big enough to lay out several icon glyphs side by side without overlapping neighboring elements. Enter Play mode afterward and confirm a multi-trait enemy's badges render side by side, fully visible, not clipped by the card's edge — and that the row is actually hoverable.
 
 - [ ] **Step 3: Wire `EnemyTraitBadgeHover` onto the badge row**
 
