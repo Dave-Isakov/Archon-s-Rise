@@ -17,9 +17,12 @@ public class GameManager : MonoBehaviour
     public Canvas combatCanvas;
     public GameObject enemyCardCombatPosition;
     [SerializeField] Rewards rewards;
-    [SerializeField] CombatBackdrop combatBackdrop; // fades the battlefield after the intro
-    [SerializeField] TextMeshProUGUI combatBanner; // the "Combat!" intro text
-    [SerializeField] float combatIntroDuration = 1.5f; // how long the banner holds
+    // The combat canvas has no intro beat and no backdrop fade (2026-07-30).
+    // Both were driven by an Animator clip that no longer exists; what survived
+    // the clip's removal was a 1.5s dead wait and a CombatBackdrop that only
+    // ever faded a spriteless white Image to opaque — a full-screen white flash.
+    // Field fights now open exactly like guardian/dungeon ones.
+
     // The enemy token whose combat is currently open. Set when combat starts,
     // cleared on teardown by EndCombat().
     [HideInInspector] public EnemyToken activeCombatant;
@@ -109,26 +112,18 @@ public class GameManager : MonoBehaviour
     {
         if (onCombatStartedTutorial != null) onCombatStartedTutorial.Raise();
         combatCanvas.enabled = true;
-        if (combatBanner != null) combatBanner.enabled = false; // no intro flash for guardian/dungeon
         if (fleeButton != null) fleeButton.gameObject.SetActive(true);
-        if (combatBackdrop != null) combatBackdrop.FadeToBattle();
     }
 
-    // Field-combat intro: enable the canvas, show the "Combat!" banner for
-    // combatIntroDuration, then hide it and fade the backdrop into the fight.
-    // The banner used to be an authored Animator clip; the combat canvas has no
-    // Animator any more (2026-07-30), so the hold is the coroutine's own wait and
-    // the banner is toggled explicitly — including OFF at the end, which the clip
-    // used to do. Without that it would stay on screen for the whole fight.
+    // Field combat used to hold on an authored "Combat!" banner clip here. The
+    // intro beat was dropped with the canvas's animation (2026-07-30), so a field
+    // fight now opens exactly like a guardian/dungeon one. Kept as a coroutine so
+    // EnemyToken.StartCombat's `yield return` call site needs no change; it simply
+    // completes on the first frame.
     public IEnumerator PlayCombatIntro()
     {
-        if (onCombatStartedTutorial != null) onCombatStartedTutorial.Raise();
-        combatCanvas.enabled = true;
-        if (combatBanner != null) combatBanner.enabled = true;
-        if (fleeButton != null) fleeButton.gameObject.SetActive(true);
-        yield return new WaitForSeconds(combatIntroDuration);
-        if (combatBanner != null) combatBanner.enabled = false;
-        if (combatBackdrop != null) combatBackdrop.FadeToBattle();
+        CombatCanvasActive();
+        yield break;
     }
 
     // Clears combat state shared by every way combat can end (win or flee).
@@ -139,12 +134,10 @@ public class GameManager : MonoBehaviour
     }
 
     // Shared canvas teardown for every non-victory combat exit (token flee,
-    // assault retreat).
+    // assault retreat, and the uncommitted decline).
     public void CloseCombatCanvas()
     {
-        if (combatBackdrop != null) combatBackdrop.Restore();
         combatCanvas.enabled = false;
-        if (combatBanner != null) combatBanner.enabled = false;
         EndCombat();
     }
 
