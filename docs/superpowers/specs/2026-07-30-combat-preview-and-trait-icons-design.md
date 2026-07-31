@@ -352,5 +352,7 @@ its own `Rule()` line rather than duplicating a badge onto every other card).
   and the turn action is still available, click off, confirm the token is back and nothing
   changed; reopen, press Siege on a killable enemy, confirm the turn action is now spent and
   click-off no longer closes the canvas; repeat for a guardian assault (visit action) and a
-  dungeon delve (Explore + visit action); hover a multi-trait enemy's badge row and confirm
-  the tooltip shows the same legend text in both the pre-commit and post-Engage states.
+  dungeon delve (Explore + visit action); hover the badge row on both a single-trait and a
+  multi-trait enemy and confirm the tooltip shows the same legend text in both the pre-commit
+  and post-Engage states. The tooltip is not gated on trait count — any enemy with at least
+  one trait gets one. A trait-less enemy has no badge row to hover (§5.5), so no tooltip.

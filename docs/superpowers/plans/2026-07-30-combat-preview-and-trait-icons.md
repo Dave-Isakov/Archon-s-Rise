@@ -1047,7 +1047,10 @@ With everything wired, in Play mode:
 2. Click off (click anywhere outside the cards/buttons) — confirm the canvas closes, the token reappears on the map, and nothing changed (still no action spent).
 3. Reopen the same encounter, press Siege on a killable enemy (or Engage if none is affordable) — confirm the turn action is now spent, and click-off no longer closes the canvas.
 4. Repeat steps 1-3 for a guardian assault (visit action) and a dungeon delve (Explore + visit action).
-5. Hover a multi-trait enemy's badge row, both before and after committing — confirm the same legend text (badge + name + rule per trait) appears both times, positioned near the badges and never clipped off-screen near a screen edge.
+5. Hover the badge row, both before and after committing — confirm the same legend text (badge + name + rule per trait) appears both times, positioned near the badges and never clipped off-screen near a screen edge. Check **three** enemies, because the trait count is what varies:
+   - a **single-trait** enemy — one legend line, tooltip still shows (there is no multi-trait requirement anywhere in the code);
+   - a **multi-trait** enemy — one line per trait, newline-joined; this is the widest box, so it's the one most likely to clip at a screen edge;
+   - a **trait-less** enemy — the badge row is deactivated entirely (`RefreshTraitBadges` only activates it when there's at least one badge), so there is nothing to hover and no tooltip. That's correct, not a bug.
 6. ~~Confirm aura-trait badges render with the amber tint.~~ **Dropped 2026-07-30** — the amber aura tint is gone (see Step 1). Badges render untinted; auras are told apart by their own icon and the hover legend. Nothing to verify here until real badge art lands.
 7. Confirm no "Missing Script" warnings remain in the Console when opening any scene touched in Step 7.
 
