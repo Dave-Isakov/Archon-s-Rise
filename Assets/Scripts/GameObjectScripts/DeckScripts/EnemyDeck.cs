@@ -44,13 +44,20 @@ public class EnemyDeck : Deck<EnemiesSO>, IPointerClickHandler
 
     public EnemyToken GetNewEnemyToken(Vector3Int gridPosition, Tilemap ground, int enemyIndex,
         int bonusHP = 0, int bonusAttack = 0, bool isMidRunSpawn = false)
+        => GetNewEnemyToken(gridPosition, ground, enemies[enemyIndex], bonusHP, bonusAttack, isMidRunSpawn);
+
+    // Spawns a specific enemy asset directly, bypassing the roaming pool, for an
+    // enemy authored explicitly rather than picked from `enemies`. The int
+    // overload above delegates here after resolving its index.
+    public EnemyToken GetNewEnemyToken(Vector3Int gridPosition, Tilemap ground, EnemiesSO enemy,
+        int bonusHP = 0, int bonusAttack = 0, bool isMidRunSpawn = false)
     {
         enemyToken = Instantiate(prefabEnemyToken, ground.CellToLocal(gridPosition), Quaternion.identity);
         enemyToken.name = enemyToken.name.ToString() + enemyID;
         enemyID++;
         enemyToken.transform.SetParent(inPlayEnemies.transform, false);
         var token = enemyToken.GetComponent<EnemyToken>();
-        token.enemy = enemies[enemyIndex];
+        token.enemy = enemy;
         token.bonusHP = bonusHP;
         token.bonusAttack = bonusAttack;
         token.isMidRunSpawn = isMidRunSpawn;

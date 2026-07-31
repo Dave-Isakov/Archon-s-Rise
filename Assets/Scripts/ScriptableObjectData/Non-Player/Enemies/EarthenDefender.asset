@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d1b2ea550f080147a7e32918142ea1b, type: 3}
+  m_Name: EarthenDefender
+  m_EditorClassIdentifier: 
+  id: enemy-earthen-defender
+  cardName: Earthen Defender
+  cardDescription: Large tortoises endurance as hard as the earth.
+  enemyHP: 10
+  enemyAttack: 2
+  canInfluence: 0
+  influenceCost: 0
+  recruitedUnit: {fileID: 0}
+  tier: 2
+  traits: 17
+  cardArt: {fileID: 4856406019679437287, guid: 0d21c10db868b1743892b55738a7a370, type: 3}

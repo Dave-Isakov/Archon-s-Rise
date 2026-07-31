@@ -107,31 +107,53 @@ public class Rewards : MonoBehaviour
     // roll count = 1, guardian defeat count = 2. Card picks self-enqueue on the
     // RewardQueue; units join the army; exp applies instantly. Crystals are NOT
     // a shrine reward — the shrine consumes them.
+    //
+    // Both payout paths (the safe roll's 1x and the guardian's 2x) come through
+    // here, so the message below is the one place a shrine reward is announced.
+    // Without it exp and units landed in total silence and a card pick opened a
+    // picker that never said where it came from (2026-07-31).
     public void GrantShrineReward(ShrineReward type, int count, ShrineSO shrine)
     {
         if (shrine == null) return;
+
+        int exp = 0;
+        var unitNames = new List<string>();
+        int cardPicks = 0;
+
         for (int i = 0; i < count; i++)
         {
             switch (type)
             {
                 case ShrineReward.CardPick:
-                    OfferCardChoice(shrine.cardTier);
+                    cardPicks++;
                     break;
                 case ShrineReward.Unit:
                     // A shrine unit is a bonus grant: it bypasses the town
                     // at-cap disband flow (tuning follow-up, not a blocker).
                     if (shrine.unitPool != null && shrine.unitPool.Count > 0)
                     {
+                        var unit = shrine.unitPool[Random.Range(0, shrine.unitPool.Count)];
                         var playerRef = FindAnyObjectByType<Player>();
-                        if (playerRef != null)
-                            playerRef.AddUnit(shrine.unitPool[Random.Range(0, shrine.unitPool.Count)]);
+                        if (playerRef != null && unit != null)
+                        {
+                            playerRef.AddUnit(unit);
+                            unitNames.Add(unit.cardName);
+                        }
                     }
                     break;
                 case ShrineReward.LargeExp:
                     player.PlayerExp += shrine.largeExp;
+                    exp += shrine.largeExp;
                     break;
             }
         }
+
+        // Announce BEFORE the picks enqueue, so the toast reads ahead of the
+        // picker rather than behind it (the defeat message's ordering rule).
+        GameLog.Instance.Post(ShrineRewardMessage.Compose(exp, unitNames, cardPicks));
+
+        for (int i = 0; i < cardPicks; i++)
+            OfferCardChoice(shrine.cardTier);
     }
 
     // Level-up card pick: pool tier scales with player level (spec 2026-07-10).

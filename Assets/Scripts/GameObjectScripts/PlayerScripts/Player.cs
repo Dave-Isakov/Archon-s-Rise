@@ -345,18 +345,31 @@ public class Player : MonoBehaviour
     // No per-enemy counterattack here — the group counterattack ran at Engage.
     void ResolveAttack(EnemyCard enemy, AttackKind kind)
     {
-        int hp = enemy.EffectiveHP;
-        if (!CombatRules.CanDefeat(kind, playerAttack, playerSiege, hp))
+        var combat = CombatController.Instance;
+
+        // Elusive: the Siege button stays live and normal-looking, and the press
+        // explains itself. Named before the cost check because SiegeCost prices an
+        // Elusive enemy at int.MaxValue — a sentinel, never a number to show.
+        if (kind == AttackKind.Siege && !combat.CanBeSieged(enemy))
         {
-            string need = kind == AttackKind.Siege ? "Siege" : "Attack";
-            GameLog.Instance.Post($"You need {hp} {need} to defeat this enemy.");
+            GameLog.Instance.Post("Cannot be Sieged - " + IconMarkup.TraitBadge(EnemyTrait.Elusive));
             return;
         }
 
-        if (kind == AttackKind.Siege) playerSiege -= hp;
-        else                          playerAttack -= hp;   // Attack phase: no Siege pool left to borrow
+        // The TRAIT-ADJUSTED cost. Reading enemy.EffectiveHP here is what made
+        // Elusive, Armored and Hulking inert at the one place they are paid.
+        int cost = combat.CostFor(enemy, kind);
+        if (!CombatRules.CanDefeat(kind, playerAttack, playerSiege, cost))
+        {
+            string need = kind == AttackKind.Siege ? "Siege" : "Attack";
+            GameLog.Instance.Post($"You need {cost} {need} to defeat this enemy.");
+            return;
+        }
 
-        CombatController.Instance.NotifyDefeated(enemy, wasInfluence: false);
+        if (kind == AttackKind.Siege) playerSiege -= cost;
+        else                          playerAttack -= cost;   // Attack phase: no Siege pool left to borrow
+
+        combat.NotifyDefeated(enemy, wasInfluence: false);
     }
 
     // Influence resolution (spec 2026-07-09): pay the cost to end the fight

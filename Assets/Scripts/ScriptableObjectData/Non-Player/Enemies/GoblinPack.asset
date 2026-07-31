@@ -21,4 +21,5 @@ MonoBehaviour:
   influenceCost: 0
   recruitedUnit: {fileID: 0}
   tier: 1
-  cardArt: {fileID: 1435813858662126931, guid: f14d034ef5d7140fd97bc02541c6db83, type: 3}
+  traits: 0
+  cardArt: {fileID: 2572365745140355499, guid: ca26e0566ced90a48a9ad645c6b9cea8, type: 3}

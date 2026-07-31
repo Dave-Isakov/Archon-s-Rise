@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: deck-empty
   m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialOneShotSO
   id: deck-empty
-  bannerText: Your deck is dry. Press End the Day, it reshuffles your discard into
-    a fresh hand and advances the day.
+  bannerText: "Your deck couldn't fully refill your hand — End Turn will end
+    the day next."
   highlightTargetId: end-turn-button
   triggerEventId: deck-cant-refill

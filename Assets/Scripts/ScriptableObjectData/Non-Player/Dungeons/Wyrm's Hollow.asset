@@ -20,6 +20,6 @@ MonoBehaviour:
   enemies:
   - {fileID: 11400000, guid: 247e967b80c7c7848b7d9c12d40d86dd, type: 2}
   - {fileID: 11400000, guid: cb1748b6b852ae347bad82411a4af31f, type: 2}
-  - {fileID: 11400000, guid: 9a49473bd8ef61f44a3854c22571506b, type: 2}
+  - {fileID: 11400000, guid: 9e035bd7315514d42ba884d064901bb0, type: 2}
   tier: 3
   rewardCount: 2

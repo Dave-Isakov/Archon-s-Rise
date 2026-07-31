@@ -73,11 +73,19 @@ public class PlayerHand : MonoBehaviour
         }
     }
 
+    // Harrying (spec 2026-07-29 §4): the cut applies to exactly this one top-up,
+    // then clears via DrawCardsAtTurnEnd — PlayerHandSize itself stays derived/untouched.
+    int TargetHandSizeAtTurnEnd() => Mathf.Max(1, player.PlayerHandSize - player.PendingHandPenalty);
+    int NeededDrawsAtTurnEnd() => TargetHandSizeAtTurnEnd() - cardsInPlay.Count;
+
+    // Read-only preview of this turn's top-up (spec 2026-07-30): does NOT consume
+    // PendingHandPenalty, so TurnPhaseController can check whether the refill will
+    // fall short before DrawCardsAtTurnEnd actually consumes it.
+    public bool CanFullyRefillAtTurnEnd() => RoundRules.CanFullyRefill(deck.CardsInDeck.Count, NeededDrawsAtTurnEnd());
+
     public void DrawCardsAtTurnEnd()
     {
-        // Harrying (spec 2026-07-29 §4): the cut applies to exactly this one
-        // top-up, then clears — PlayerHandSize itself stays derived/untouched.
-        int target = Mathf.Max(1, player.PlayerHandSize - player.PendingHandPenalty);
+        int target = TargetHandSizeAtTurnEnd();
         player.PendingHandPenalty = 0;
         var cardDiff = target - cardsInPlay.Count;
         DrawCards(cardDiff);

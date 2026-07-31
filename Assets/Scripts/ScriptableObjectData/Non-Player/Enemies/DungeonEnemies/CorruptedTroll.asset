@@ -18,15 +18,9 @@ MonoBehaviour:
     violent and agressive.
   enemyHP: 9
   enemyAttack: 6
-  defeatRewards:
-  - {fileID: 11400000, guid: a1cb957134a14fb40b7e088653b837f6, type: 2}
-  - {fileID: 11400000, guid: 801808a54bf0af149a951360447b236b, type: 2}
-  - {fileID: 11400000, guid: f2938072afcf12849ac8627270fc4512, type: 2}
-  - {fileID: 11400000, guid: 5b04350b69bdeb747b132895ad7a86b4, type: 2}
-  - {fileID: 11400000, guid: f2938072afcf12849ac8627270fc4512, type: 2}
-  - {fileID: 11400000, guid: d66c121b4ed097c4899e402c8266e7af, type: 2}
-  - {fileID: 11400000, guid: 5363adeb3deb22540a958fd3648bfbfe, type: 2}
   canInfluence: 0
   influenceCost: 0
   recruitedUnit: {fileID: 0}
   tier: 3
+  traits: 48
+  cardArt: {fileID: 4189353577452319699, guid: 3ea4b6acdcd96f548915d61e0f0f5f45, type: 3}

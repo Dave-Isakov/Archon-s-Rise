@@ -17,13 +17,9 @@ MonoBehaviour:
   cardDescription: A towering brute who respects strength - and a heavy purse.
   enemyHP: 8
   enemyAttack: 3
-  defeatRewards:
-  - {fileID: 11400000, guid: a1cb957134a14fb40b7e088653b837f6, type: 2}
-  - {fileID: 11400000, guid: 801808a54bf0af149a951360447b236b, type: 2}
-  - {fileID: 11400000, guid: 5707311b4bc7394478310c26d58dfbd5, type: 2}
-  - {fileID: 11400000, guid: f2938072afcf12849ac8627270fc4512, type: 2}
-  - {fileID: 11400000, guid: 5b04350b69bdeb747b132895ad7a86b4, type: 2}
   canInfluence: 1
   influenceCost: 6
   recruitedUnit: {fileID: 11400000, guid: 7cfdb099477ce6e45933c02491282419, type: 2}
   tier: 3
+  traits: 528
+  cardArt: {fileID: -8779681549725420321, guid: 7c4b1cc34bbe54f4db34c22104ae2816, type: 3}

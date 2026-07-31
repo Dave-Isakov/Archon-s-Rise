@@ -24,9 +24,16 @@ public static class CombatPhaseRules
     // Takes a CounterattackPreview rather than a raw attack total (spec §7.5):
     // the parameter list was already six long, and blocking adds three more
     // numbers that always travel together.
+    //
+    // canCommit false is a PREVIEW-ONLY fight (2026-07-31): the player opened a
+    // guardian they can no longer act against this turn. Nothing can be advanced,
+    // so the button never appears — showing an Engage that refuses the press
+    // would be a lie. Defaults true so ordinary fights read unchanged.
     public static AdvanceState Advance(CombatPhase phase, int playerSiege, bool anySiegeKillable,
-        int defendLeft, CounterattackPreview preview, int toughness)
+        int defendLeft, CounterattackPreview preview, int toughness, bool canCommit = true)
     {
+        if (!canCommit) return new AdvanceState(AdvanceKind.Hidden, 0);
+
         if (phase == CombatPhase.Siege)
         {
             bool hide = playerSiege > 0 && anySiegeKillable;

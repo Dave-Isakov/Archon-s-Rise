@@ -62,16 +62,26 @@ public static class PlaceActionRules
         return list;
     }
 
-    // A shrine always shows its Engage slot — a spent or guarded one renders
-    // locked rather than firing a message, so the click is never a no-op.
+    // A shrine shows one slot. Live or spent, that is Engage (the crystal
+    // bargain), locked when it can't be taken rather than firing a message, so
+    // the click is never a no-op. Once a sour bargain leaves a guardian on it,
+    // the slot becomes Assault instead: the fight, at no further crystal cost.
     // Shrines have no detail menu, hence no ledger slot.
+    //
+    // The Assault slot is deliberately NEVER disabled. A player who already
+    // spent the turn's action may still open the guardian to read it — that
+    // opens preview-only, which is the dispatcher's call, not a reason to hide
+    // the button (2026-07-31).
     public static List<PlaceAction> ForShrine(ShrineActionSnapshot s)
     {
-        var list = new List<PlaceAction>
-        {
-            new PlaceAction(PlaceActionId.Engage, IconConcept.Crystal,
-                IconConcept.Crystal, s.CrystalCost, s.IsLive && s.VisitCanAct),
-        };
+        var list = new List<PlaceAction>();
+
+        if (s.IsGuarded)
+            list.Add(new PlaceAction(PlaceActionId.Assault, IconConcept.Attack, null, 0, true));
+        else
+            list.Add(new PlaceAction(PlaceActionId.Engage, IconConcept.Crystal,
+                IconConcept.Crystal, s.CrystalCost, s.IsLive && s.VisitCanAct));
+
         AppendMenu(list, false);
         return list;
     }

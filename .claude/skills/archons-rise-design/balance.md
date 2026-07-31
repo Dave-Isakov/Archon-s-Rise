@@ -136,9 +136,10 @@ Siege, which is deliberately non-improvisable — a stated pillar) and **can rec
 Charismatic). With no cost lever available to traits (see content-rules.md §5.3 — no trait may modify `influenceCost`),
 **availability is Influence's only balance lever**: too far below ~30% and Influence builds have
 nothing to spend on; much above it and Siege stops mattering, which collapses the reason
-non-improvisable Siege exists at all. This target also funds the Elusive-pairing authoring rule
-(`content-rules.md` §5.3) — Elusive enemies must be `canInfluence = true`, so author them as a
-deliberate slice of the 30% rather than on top of it.
+non-improvisable Siege exists at all. Elusive enemies hold no standing claim on this budget — the
+mandatory Elusive/`canInfluence` pairing was dropped 2026-07-31 (`content-rules.md` §5.3), so the
+whole ~30% is free to sit wherever Influence is most interesting. An Elusive enemy left at
+`canInfluence = false` is a deliberate "Defend, Attack, or flee" fight, not an authoring error.
 - _Starting values — tune in playtest._
 
 ## Unit Recruit Costs

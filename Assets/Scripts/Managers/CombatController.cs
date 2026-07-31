@@ -4,7 +4,10 @@ using UnityEngine;
 using TMPro;
 using ArchonsRise.Shrines;
 
-public enum CombatContext { Field, Guardian, Dungeon }
+// Shrine: the bad-roll guardian, fought FROM its shrine rather than from a map
+// token (2026-07-31) — the source object is a ShrineToken, so none of Field's
+// EnemyToken bookkeeping (board visibility, defeat cells, de-aggro) applies.
+public enum CombatContext { Field, Guardian, Dungeon, Shrine }
 
 // Owns one phased fight (spec 2026-07-21, Spec 2): the CombatPhase machine, the
 // logical live-enemy set, the per-fight context, and the single multi-purpose
@@ -70,11 +73,19 @@ public class CombatController : MonoBehaviour
     public bool Committed { get; private set; }
     System.Action pendingOnCommit; // this fight's context-specific cost payment, run once by Commit()
 
+    // A look, not a fight (2026-07-31): the turn's action is already spent, so
+    // this fight can never be committed to. Everything that would spend — Engage,
+    // and the per-card Siege/Influence buttons — is withheld, and clicking off
+    // (Decline) is the only exit. Purely a gate: the cards, stats, traits and
+    // counterattack preview all render normally.
+    public bool PreviewOnly { get; private set; }
+
     readonly List<EnemyCard> live = new();   // logical set; resolution keys off THIS, not childCount
     CombatContext context;
     TownToken guardianPlace;   // Guardian: the assaulted place
     EnemyToken fieldToken;     // Field: the map token, destroyed + save-recorded on defeat
     DungeonToken dungeonToken; // Dungeon: depth/completion tracked on defeat
+    ShrineToken shrineToken;   // Shrine: the guarding shrine, retired when its guardian falls
 
     // Captured (enemy name, reward) pairs for killed enemies; the exp/crystal is
     // banked immediately by CaptureReward, but the naming message + card pick are
@@ -83,10 +94,9 @@ public class CombatController : MonoBehaviour
     readonly List<(string name, RewardSummary summary)> pendingRewards = new();
 
     // Shrine-guardian binding (spec 2026-07-24, §3). Captured in NotifyDefeated
-    // — RecordFieldDefeat destroys the token, so the owed reward must be read
-    // off it first — and paid in FinishEnd, after the ordinary defeat rewards,
-    // so the shrine's card pick queues behind the "you defeated X" message
-    // rather than interrupting it. -1 = this fight owes no shrine reward.
+    // off the shrine's ledger entry, and paid in FinishEnd after the ordinary
+    // defeat rewards, so the shrine's card pick queues behind the "you defeated
+    // X" message rather than interrupting it. -1 = this fight owes nothing.
     int pendingShrineType = -1;
     Vector3Int pendingShrineCell;
     ShrineSO pendingShrineSo;
@@ -102,18 +112,36 @@ public class CombatController : MonoBehaviour
         get { int t = 0; foreach (var c in live) if (c != null) t += c.EffectiveAttack; return t; }
     }
 
+    // Must use the TRAIT-ADJUSTED cost, not raw HP: pricing an Elusive enemy at
+    // its HP would report "you can still spend that Siege" forever, and Advance
+    // hides itself while that is true — stranding the player in the Siege phase
+    // with no Engage and no legal target.
     public bool AnySiegeKillable(int siege)
     {
-        foreach (var c in live) if (c != null && c.EffectiveHP <= siege) return true;
+        var roster = Roster();
+        for (int i = 0; i < live.Count; i++)
+            if (live[i] != null && EnemyTraitRules.SiegeCost(i, roster, Tuning) <= siege) return true;
         return false;
     }
 
     // Lights every live enemy's Siege/Influence buttons (spec 2026-07-24 phase
     // controls). Driven by the advance-button controller off the staged pools;
     // keeps the live set encapsulated.
+    //
+    // The Siege glow is an INVITATION to spend here, so it never lights on an
+    // Elusive enemy. The Siege button itself stays visible and pressable there on
+    // purpose — the press is what names the trait (see Player.ResolveAttack), and
+    // a missing button would explain nothing. Influence needs no such gate: its
+    // glow is a child of the Influence button, which RefreshPhaseButtons already
+    // hides on a !canInfluence enemy.
     public void SetEnemyActionGlow(bool siegeLit, bool influenceLit)
     {
-        foreach (var c in live) if (c != null) c.SetActionGlow(siegeLit, influenceLit);
+        var roster = Roster();
+        for (int i = 0; i < live.Count; i++)
+        {
+            if (live[i] == null) continue;
+            live[i].SetActionGlow(siegeLit && EnemyTraitRules.CanBeSieged(i, roster), influenceLit);
+        }
     }
 
     // The pure roster every rule consumes. Rebuilt on demand so it always
@@ -141,6 +169,28 @@ public class CombatController : MonoBehaviour
         for (int i = 0; i < live.Count; i++)
             if (live[i] == card) return EnemyTraitRules.Threat(i, roster, Tuning);
         return card.EffectiveAttack;
+    }
+
+    // What removing this enemy costs, by kind — the trait-adjusted price, not raw
+    // HP. Same shape and same fallback as BlockCostFor: a card outside the live
+    // set (an out-of-range peek) has no roster index, so it prices at plain HP.
+    public int CostFor(EnemyCard card, AttackKind kind)
+    {
+        var roster = Roster();
+        for (int i = 0; i < live.Count; i++)
+            if (live[i] == card) return EnemyTraitRules.CostFor(kind, i, roster, Tuning);
+        return card.EffectiveHP;
+    }
+
+    // Whether Siege can touch this enemy at all (false = Elusive). Separate from
+    // CostFor so the Siege button can name the reason instead of quoting the
+    // int.MaxValue sentinel.
+    public bool CanBeSieged(EnemyCard card)
+    {
+        var roster = Roster();
+        for (int i = 0; i < live.Count; i++)
+            if (live[i] == card) return EnemyTraitRules.CanBeSieged(i, roster);
+        return true;
     }
 
     // Blocks last one Defend phase only.
@@ -171,7 +221,7 @@ public class CombatController : MonoBehaviour
         var roster = Roster();
         for (int i = 0; i < live.Count; i++)
             live[i].RefreshPhaseButtons(Phase, player.PlayerDefend,
-                EnemyTraitRules.Threat(i, roster, Tuning));
+                EnemyTraitRules.Threat(i, roster, Tuning), canCommit: !PreviewOnly);
     }
 
     // Opens a phased fight. The source varies by context — guardianPlace for a
@@ -179,13 +229,15 @@ public class CombatController : MonoBehaviour
     // Dungeon delve — and drives that context's win bookkeeping (Task 9).
     public void OpenFight(List<EnemySpawn> spawns, CombatContext context,
         TownToken guardianPlace = null, EnemyToken fieldToken = null, DungeonToken dungeonToken = null,
-        System.Action onCommit = null)
+        ShrineToken shrineToken = null, System.Action onCommit = null, bool previewOnly = false)
     {
         this.context = context;
         this.guardianPlace = guardianPlace;
         this.fieldToken = fieldToken;
         this.dungeonToken = dungeonToken;
+        this.shrineToken = shrineToken;
         this.pendingOnCommit = onCommit;
+        PreviewOnly = previewOnly;
         Committed = false;
         live.Clear();
         pendingShrineType = -1;   // a new fight inherits no owed shrine reward
@@ -280,7 +332,10 @@ public class CombatController : MonoBehaviour
     // icon instead, so the card still reads as "that thing over there".
     void PlaceFight()
     {
-        bool ring = context == CombatContext.Guardian || live.Count >= 2;
+        // The shrine rings too: its guardian's "token" is the shrine the player is
+        // standing on, so the token fan would seat the card on top of the player.
+        bool ring = context == CombatContext.Guardian || context == CombatContext.Shrine
+                    || live.Count >= 2;
         layoutCentre = ring ? PlayerLocal() + ringNudge : TokenCentreLocal();
         layoutRadius = ring ? ringRadius : tokenFanRadius;
         LayoutLive();
@@ -404,6 +459,7 @@ public class CombatController : MonoBehaviour
         if (context == CombatContext.Field && fieldToken != null) return fieldToken.transform.position;
         if (context == CombatContext.Guardian && guardianPlace != null) return guardianPlace.transform.position;
         if (context == CombatContext.Dungeon && dungeonToken != null) return dungeonToken.transform.position;
+        if (context == CombatContext.Shrine && shrineToken != null) return shrineToken.transform.position;
         return GameManager.Instance.enemyCardCombatPosition.transform.position; // fallback: centre
     }
 
@@ -419,6 +475,15 @@ public class CombatController : MonoBehaviour
     public void Engage()
     {
         if (Phase != CombatPhase.Siege || live.Count == 0) return;
+
+        // The button is already withheld in a preview-only fight; this catches
+        // any other route in (a rebind, a stale click) rather than letting a
+        // spent turn buy a fight.
+        if (PreviewOnly)
+        {
+            GameLog.Instance.Post("You've already taken your action this turn.");
+            return;
+        }
         Commit();
 
         var player = FindAnyObjectByType<Player>();
@@ -498,18 +563,20 @@ public class CombatController : MonoBehaviour
         GameManager.Instance.commands.ClearStack();   // a kill is irreversible
 
         // Shrine-guardian binding (spec 2026-07-24, §3): read the owed reward off
-        // the token BEFORE RecordFieldDefeat tears it down. An Influence removal
-        // counts too — the guardian is gone either way, and leaving the shrine
-        // Guarding with nothing to fight would strand its reward forever.
-        if (context == CombatContext.Field && fieldToken != null && fieldToken.shrineRewardType >= 0)
+        // the shrine's ledger entry. An Influence removal counts too — the
+        // guardian is gone either way, and leaving the shrine Guarding with
+        // nothing to fight would strand its reward forever.
+        if (context == CombatContext.Shrine && shrineToken != null)
         {
-            pendingShrineType = fieldToken.shrineRewardType;
-            pendingShrineCell = fieldToken.shrineCell;
-            pendingShrineSo = fieldToken.shrineSO;
+            pendingShrineType = ShrineTracker.Instance.OwedReward(shrineToken.gridPos);
+            pendingShrineCell = shrineToken.gridPos;
+            pendingShrineSo = shrineToken.shrineSO;
         }
 
         // Per-context win bookkeeping, banked at kill time (parallels how the
         // guardian ConquestTracker record used to fire from GuardianAssault.Update).
+        // Shrine needs none: nothing of it lives on the board, and its payout +
+        // retirement happen in FinishEnd.
         if (context == CombatContext.Guardian && guardianPlace != null)
             ConquestTracker.Instance.RecordDefeat(guardianPlace.gridPos);
         else if (context == CombatContext.Field && fieldToken != null)
@@ -523,7 +590,7 @@ public class CombatController : MonoBehaviour
         // beyond its defeat exp — the shrine's doubled reward IS its loot.
         pendingRewards.Add((card.enemySO.cardName,
             GameManager.Instance.CaptureReward(card,
-                expOnly: pendingShrineType >= 0 || context == CombatContext.Dungeon)));
+                expOnly: context == CombatContext.Shrine || context == CombatContext.Dungeon)));
 
         // Attack-phase kills are otherwise wound-free at point of use; Vengeful
         // is the one exception. Siege and Influence kills stay clean. Phase is
@@ -585,6 +652,7 @@ public class CombatController : MonoBehaviour
         // harmless.
         SetPhase(CombatPhase.Resolved);
         pendingOnCommit = null;
+        PreviewOnly = false;
         if (blindState != null) blindState.SetActive(false);
 
         if (context == CombatContext.Field && fieldToken != null && live.Count > 0)
@@ -625,6 +693,7 @@ public class CombatController : MonoBehaviour
         guardianPlace = null;
         fieldToken = null;
         dungeonToken = null;
+        shrineToken = null;
 
         if (onCombatPhaseChanged != null) onCombatPhaseChanged.Raise();
     }
@@ -746,6 +815,8 @@ public class CombatController : MonoBehaviour
         guardianPlace = null;
         fieldToken = null;
         dungeonToken = null;
+        shrineToken = null;
+        PreviewOnly = false;
 
         // Resolved: the shared phase label falls back to the turn phase (Action,
         // since a fight is the turn's action) — see PhaseHud.OnCombatPhaseChanged.

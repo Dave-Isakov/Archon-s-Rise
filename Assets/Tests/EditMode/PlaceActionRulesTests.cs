@@ -129,7 +129,8 @@ public class PlaceActionRulesTests
     [Test]
     public void LiveShrine_EngageOnlyWithNoLedgerSlot()
     {
-        var actions = PlaceActionRules.ForShrine(new ShrineActionSnapshot(true, 4, true));
+        var actions = PlaceActionRules.ForShrine(
+            new ShrineActionSnapshot(isLive: true, isGuarded: false, crystalCost: 4, visitCanAct: true));
         Assert.AreEqual(1, actions.Count, "a shrine has no detail menu, so no ledger slot");
         Assert.AreEqual(PlaceActionId.Engage, actions[0].Id);
         Assert.AreEqual(IconConcept.Crystal, actions[0].CostIcon);
@@ -138,19 +139,41 @@ public class PlaceActionRulesTests
     }
 
     [Test]
-    public void SpentOrGuardedShrine_EngagePresentButDisabled()
+    public void SpentShrine_EngagePresentButDisabled()
     {
-        var actions = PlaceActionRules.ForShrine(new ShrineActionSnapshot(false, 4, true));
+        var actions = PlaceActionRules.ForShrine(
+            new ShrineActionSnapshot(isLive: false, isGuarded: false, crystalCost: 4, visitCanAct: true));
         Assert.AreEqual(1, actions.Count);
         Assert.AreEqual(PlaceActionId.Engage, actions[0].Id);
         Assert.IsFalse(actions[0].Enabled,
-            "a spent or guarded shrine shows a locked slot, never a message");
+            "a spent shrine shows a locked slot, never a message");
     }
 
     [Test]
     public void Shrine_EngageLocksOnceTheActionIsSpent()
     {
-        var actions = PlaceActionRules.ForShrine(new ShrineActionSnapshot(true, 4, false));
+        var actions = PlaceActionRules.ForShrine(
+            new ShrineActionSnapshot(isLive: true, isGuarded: false, crystalCost: 4, visitCanAct: false));
         Assert.IsFalse(actions[0].Enabled);
+    }
+
+    [Test]
+    public void GuardedShrine_ShowsAssaultWithNoCrystalCost()
+    {
+        var actions = PlaceActionRules.ForShrine(
+            new ShrineActionSnapshot(isLive: false, isGuarded: true, crystalCost: 4, visitCanAct: true));
+        Assert.AreEqual(1, actions.Count);
+        Assert.AreEqual(PlaceActionId.Assault, actions[0].Id);
+        Assert.AreEqual(IconConcept.Attack, actions[0].Icon);
+        Assert.AreEqual(0, actions[0].CostAmount, "the crystals were paid at the bargain, not again");
+    }
+
+    [Test]
+    public void GuardedShrine_AssaultStaysEnabledWithTheActionSpent()
+    {
+        var actions = PlaceActionRules.ForShrine(
+            new ShrineActionSnapshot(isLive: false, isGuarded: true, crystalCost: 4, visitCanAct: false));
+        Assert.IsTrue(actions[0].Enabled,
+            "a spent action opens the guardian preview-only; it never hides the slot");
     }
 }

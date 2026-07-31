@@ -11,7 +11,7 @@ public class SaveMigratorV8Tests
 
         SaveMigrator.Migrate(file);
 
-        Assert.AreEqual(10, file.schemaVersion);
+        Assert.AreEqual(12, file.schemaVersion);
         Assert.IsNotNull(file.run.hotspots);
         Assert.AreEqual(0, file.run.hotspots.Length);
     }

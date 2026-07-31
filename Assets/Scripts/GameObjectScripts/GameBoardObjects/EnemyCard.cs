@@ -152,11 +152,16 @@ public class EnemyCard : MonoBehaviour, IPointerClickHandler
 
     // All four per-enemy buttons route through CombatPhaseRules so no button
     // manages its own phase state (spec §7.5).
-    public void RefreshPhaseButtons(CombatPhase phase, int defendLeft, int blockCost)
+    //
+    // canCommit false is a preview-only fight (2026-07-31): Siege and Influence
+    // are the two spends reachable in the Siege phase, so both are withheld.
+    // Defend and Fight need no gate — their phases are unreachable without an
+    // Engage, which preview-only already refuses.
+    public void RefreshPhaseButtons(CombatPhase phase, int defendLeft, int blockCost, bool canCommit = true)
     {
-        if (siegeButton != null)     siegeButton.gameObject.SetActive(CombatPhaseRules.CanSiege(phase));
+        if (siegeButton != null)     siegeButton.gameObject.SetActive(CombatPhaseRules.CanSiege(phase) && canCommit);
         if (influenceButton != null) influenceButton.gameObject.SetActive(
-            CombatPhaseRules.CanInfluence(phase) && enemySO.canInfluence);
+            CombatPhaseRules.CanInfluence(phase) && enemySO.canInfluence && canCommit);
         if (fightButton != null)     fightButton.gameObject.SetActive(CombatPhaseRules.CanNormalAttack(phase));
 
         if (defendButton == null) return;

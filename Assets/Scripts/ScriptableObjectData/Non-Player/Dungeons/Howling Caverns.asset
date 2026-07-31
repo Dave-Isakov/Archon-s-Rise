@@ -17,8 +17,8 @@ MonoBehaviour:
   cardDescription: "Wind screams through these caves \u2014 and it is not alone."
   exploreCost: 3
   enemies:
-  - {fileID: 11400000, guid: 7ea7f0d9b1bbfb34b90040a327829972, type: 2}
-  - {fileID: 11400000, guid: cb1748b6b852ae347bad82411a4af31f, type: 2}
+  - {fileID: 11400000, guid: f6eeea390d0336b419b0a99cef36cf98, type: 2}
+  - {fileID: 11400000, guid: 14dc08625802bb94bb529f72fca6a59e, type: 2}
   - {fileID: 11400000, guid: 0965c728631f4cf4f96a727e56419d2b, type: 2}
   tier: 3
   rewardCount: 1

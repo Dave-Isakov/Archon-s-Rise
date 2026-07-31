@@ -3,7 +3,8 @@ using UnityEngine;
 // Owns the turn/round phase state (spec 2026-07-21). Strict Explore->Action->End
 // turns inside a Doom-band-scaled "day". The Explore->Action transition is
 // implicit (taking the action); End Turn is the only turn-flow control; the
-// round auto-ends when its turn budget is spent or the deck can't refill.
+// round auto-ends when its turn budget is spent, or one turn after the deck
+// first fails to fully refill the hand (spec 2026-07-30's one-turn buffer).
 public class TurnPhaseController : MonoBehaviour
 {
     public static TurnPhaseController Instance { get; private set; }
@@ -16,6 +17,10 @@ public class TurnPhaseController : MonoBehaviour
 
     public TurnPhase CurrentPhase { get; private set; }
     public int TurnsRemaining { get; private set; }
+    // True entering a turn means last turn's end-of-turn hand top-up came up
+    // short (deck couldn't fully refill the hand) — this turn's End Turn ends
+    // the round no matter how much of the hand gets played (spec 2026-07-30).
+    public bool DeckShortfallPending { get; private set; }
     bool actionTaken;
     bool visitCanAct;
 
@@ -60,18 +65,27 @@ public class TurnPhaseController : MonoBehaviour
     }
 
     // The only turn-flow control. Commits, runs the turn-end chain, decrements the
-    // day, and auto-ends the round when the budget is spent or the deck is dry.
+    // day, and auto-ends the round when the budget is spent or last turn's hand
+    // refill already fell short (spec 2026-07-30).
     public void EndTurnPressed()
     {
         GameManager.Instance.commands.ClearStack();
 
-        bool deckCanRefill = RoundRules.DeckCanRefill(CurrentDrawVerdict());
+        // Read after the commit above (a just-played card has already left the
+        // hand by here), so "needed draws" reflects what this turn's top-up will
+        // actually attempt — but decide THIS press's round-over using LAST turn's
+        // outcome, not this one (that's the one-turn buffer).
+        var hand = FindAnyObjectByType<PlayerHand>();
+        bool refillFallsShortThisTurn = hand != null && !hand.CanFullyRefillAtTurnEnd();
+        bool forceRoundOver = DeckShortfallPending;
+
         HarvestHotspotIfParked();
         endTheTurn.Raise(); // pools reset, hand top-up, TurnPlus (existing chain)
 
         int next = RoundRules.NextTurnsRemaining(TurnsRemaining);
-        if (RoundRules.IsRoundOver(next, deckCanRefill))
+        if (RoundRules.IsRoundOver(next, forceRoundOver))
         {
+            DeckShortfallPending = false; // fresh round, fresh deck
             endTheRound.Raise(); // reshuffle + Doom tick + unit/skill refresh (existing chain)
             if (RunEndController.HasEnded) return; // Doom tick may have lost the run
             StartRound();        // budget from the post-tick band
@@ -80,6 +94,7 @@ public class TurnPhaseController : MonoBehaviour
         {
             TurnsRemaining = next;
             onTurnsRemainingChanged.Raise(TurnsRemaining);
+            DeckShortfallPending = refillFallsShortThisTurn; // carried into next turn
             BeginTurn();
         }
     }
@@ -102,10 +117,12 @@ public class TurnPhaseController : MonoBehaviour
         HotspotTracker.Instance.RefreshTokenVisuals();
     }
 
-    // Load path: restore the remaining budget; phase always resets to Explore.
-    public void LoadState(int turnsRemaining)
+    // Load path: restore the remaining budget and the deck-shortfall buffer state;
+    // phase always resets to Explore.
+    public void LoadState(int turnsRemaining, bool deckShortfallPending)
     {
         TurnsRemaining = turnsRemaining;
+        DeckShortfallPending = deckShortfallPending;
         onTurnsRemainingChanged.Raise(TurnsRemaining);
         BeginTurn();
     }
@@ -114,6 +131,7 @@ public class TurnPhaseController : MonoBehaviour
     {
         int doom = DoomClock.Instance != null ? DoomClock.Instance.Doom : 0;
         TurnsRemaining = DoomRules.TurnsForBand(doom, doomTuning.tuning);
+        DeckShortfallPending = false; // fresh round always starts with a full deck
         onTurnsRemainingChanged.Raise(TurnsRemaining);
         BeginTurn();
     }
@@ -130,12 +148,8 @@ public class TurnPhaseController : MonoBehaviour
         if (onPhaseChanged != null) onPhaseChanged.Raise();
     }
 
-    DrawVerdict CurrentDrawVerdict()
-    {
-        var deck = FindAnyObjectByType<PlayerDeck>();
-        var hand = FindAnyObjectByType<PlayerHand>();
-        var player = FindAnyObjectByType<Player>();
-        if (deck == null || hand == null || player == null) return DrawVerdict.Draw;
-        return DrawGate.Evaluate(deck.CardsInDeck.Count, hand.cardsInPlay.Count, player.PlayerHandSize);
-    }
+    // Whether ending the CURRENT turn (right now, mid-turn) would end the round —
+    // used by EndTurnButton's label. Mirrors EndTurnPressed's own decision.
+    public bool NextPressEndsRound =>
+        RoundRules.IsRoundOver(RoundRules.NextTurnsRemaining(TurnsRemaining), DeckShortfallPending);
 }

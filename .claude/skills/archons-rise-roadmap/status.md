@@ -33,10 +33,14 @@ Where Archon's Rise stands today. Seeded from the code review (`docs/code-review
   through the crystals you can still spare (and back to empty), so you choose **which** crystals to
   pay. Nothing is spent until the checkmark, which costs the turn's action and the crystals
   regardless of outcome. Then a coin flip: **safe** pays 1× a rolled reward (card pick / unit / large
-  exp — never skills, never crystals) and the shrine goes spent; **bad** summons a persistent tier-3
-  guardian that owes **2×** that reward plus its defeat exp and nothing else. Flee it and it stands;
-  kill it and the shrine retires. Save **v10** (`RunState.shrines` + a `SpawnedEnemy` reward tag so the
-  guardian's debt survives reload). Built on M2.15's `IHexOccupant` / `TileDescriptor` foundation.
+  exp — never skills, never crystals) and the shrine goes spent; **bad** opens the combat canvas on
+  the spot against a tier-3 guardian owing **2×** that reward plus its defeat exp and nothing else.
+  That first fight is free to take (the action was already paid) and free to walk away from. The
+  guardian is **shrine state, never a map token** (2026-07-31): the shrine stays `Guarding` and its
+  fan slot becomes `Assault`, which re-opens the fight on any later visit — preview-only if the
+  turn's action is already spent. Flee it and it stands; kill or influence it away and the shrine
+  pays out and retires, announced through the log. Save **v12** (`RunState.shrines` +
+  `ShrineState.owedReward`). Built on M2.15's `IHexOccupant` / `TileDescriptor` foundation.
 - **Rewards** (Experience/Crystals/Cards at Beginner→Master), all modals serialized through the
   unified **`RewardQueue`** (replaces the M2.4 busy-wait).
 - **Leveling** counters (exp, expToNextLevel, level).

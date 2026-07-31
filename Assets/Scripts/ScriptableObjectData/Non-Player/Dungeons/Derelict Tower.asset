@@ -17,8 +17,8 @@ MonoBehaviour:
   cardDescription: A leaning spire whose upper floors still hum with residual sorcery.
   exploreCost: 2
   enemies:
-  - {fileID: 11400000, guid: 247e967b80c7c7848b7d9c12d40d86dd, type: 2}
-  - {fileID: 11400000, guid: f399ee2a44cbc454fa93885e7fa7511b, type: 2}
-  - {fileID: 11400000, guid: 5e1e6b87496053548b95c311db7fc5da, type: 2}
+  - {fileID: 11400000, guid: 5629c37b02842f647b279b54e0797c1d, type: 2}
+  - {fileID: 11400000, guid: f0a98594f36e54a4e98700da19e5dcb9, type: 2}
+  - {fileID: 11400000, guid: 1af650e4b53ba4d4dbc1c2f086a309a3, type: 2}
   tier: 3
   rewardCount: 1

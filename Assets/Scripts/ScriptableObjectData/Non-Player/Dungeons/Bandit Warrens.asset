@@ -19,7 +19,7 @@ MonoBehaviour:
   exploreCost: 2
   enemies:
   - {fileID: 11400000, guid: 46f5d3a8bf5ea234198cf0f02b227bcf, type: 2}
-  - {fileID: 11400000, guid: f399ee2a44cbc454fa93885e7fa7511b, type: 2}
+  - {fileID: 11400000, guid: f0a98594f36e54a4e98700da19e5dcb9, type: 2}
   - {fileID: 11400000, guid: 9a49473bd8ef61f44a3854c22571506b, type: 2}
   tier: 3
   rewardCount: 1

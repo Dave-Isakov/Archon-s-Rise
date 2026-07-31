@@ -48,14 +48,17 @@ public static class EnemyTraitRules
     public static int Basis(int index, IReadOnlyList<EnemyCombatant> roster, EnemyTraitTuning t)
         => BaseAttack(index, roster, t);
 
-    // Elusive returns int.MaxValue rather than needing a separate bool, so the
-    // Siege phase keeps exactly one comparison.
+    // The one source of truth for Elusive. SiegeCost's int.MaxValue keeps the
+    // arithmetic to a single comparison, but the UI must not quote that number at
+    // the player — it branches on this instead and says "cannot be Sieged".
+    public static bool CanBeSieged(int index, IReadOnlyList<EnemyCombatant> roster)
+        => !EffectiveTraits(roster[index], roster).HasFlag(EnemyTrait.Elusive);
+
     public static int SiegeCost(int index, IReadOnlyList<EnemyCombatant> roster, EnemyTraitTuning t)
     {
-        var traits = EffectiveTraits(roster[index], roster);
-        if (traits.HasFlag(EnemyTrait.Elusive)) return int.MaxValue;
+        if (!CanBeSieged(index, roster)) return int.MaxValue;
         int hp = roster[index].HP;
-        return traits.HasFlag(EnemyTrait.Armored) ? hp * t.armorSiegeMult : hp;
+        return EffectiveTraits(roster[index], roster).HasFlag(EnemyTrait.Armored) ? hp * t.armorSiegeMult : hp;
     }
 
     public static int AttackCost(int index, IReadOnlyList<EnemyCombatant> roster, EnemyTraitTuning t)
@@ -63,6 +66,13 @@ public static class EnemyTraitRules
         int hp = roster[index].HP;
         return EffectiveTraits(roster[index], roster).HasFlag(EnemyTrait.Hulking) ? hp * t.hulkAttackMult : hp;
     }
+
+    // What a removal actually costs, by kind. The kill path used to price every
+    // enemy at raw HP, which made Elusive/Armored/Hulking inert at the only place
+    // they matter; routing through here means a cost can never be read raw again.
+    public static int CostFor(AttackKind kind, int index, IReadOnlyList<EnemyCombatant> roster,
+        EnemyTraitTuning t)
+        => kind == AttackKind.Siege ? SiegeCost(index, roster, t) : AttackCost(index, roster, t);
 
     // §4.3 step 0-2 + 6, plus the §4.4 attribution weights, in one pass.
     // BLOCKED ENEMIES ARE SKIPPED — but they were already counted for auras,

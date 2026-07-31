@@ -17,13 +17,9 @@ MonoBehaviour:
   cardDescription: A lone spellcaster wandering the wilds, open to persuasion.
   enemyHP: 4
   enemyAttack: 4
-  defeatRewards:
-  - {fileID: 11400000, guid: a1cb957134a14fb40b7e088653b837f6, type: 2}
-  - {fileID: 11400000, guid: 801808a54bf0af149a951360447b236b, type: 2}
-  - {fileID: 11400000, guid: 5707311b4bc7394478310c26d58dfbd5, type: 2}
-  - {fileID: 11400000, guid: f2938072afcf12849ac8627270fc4512, type: 2}
-  - {fileID: 11400000, guid: 5b04350b69bdeb747b132895ad7a86b4, type: 2}
   canInfluence: 1
-  influenceCost: 5
+  influenceCost: 7
   recruitedUnit: {fileID: 11400000, guid: ea8086c45ba792c47b0d4f4208dd79b5, type: 2}
   tier: 2
+  traits: 64
+  cardArt: {fileID: 7264182050183361747, guid: 7ba4178767e424c47b91888898a1fdc4, type: 3}

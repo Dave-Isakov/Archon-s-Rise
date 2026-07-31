@@ -21,8 +21,9 @@ public class EnemiesSO : AllCards
     // Authored traits (spec 2026-07-29). NOT saved — read from this SO via the
     // stable AllCards.id exactly like enemyHP, so no save schema bump.
     // Authoring rules (spec §5.3): field enemies use self traits only; granting
-    // auras are reserved for guardian rosters; an Elusive enemy must also have
-    // canInfluence = true, or it removes a choice instead of redirecting one.
+    // auras are reserved for guardian rosters. Elusive needs NO canInfluence
+    // pairing (that rule was dropped 2026-07-31) — closing the wound-free routes
+    // and forcing Defend-then-Attack, or a flee, is the pressure it exists to apply.
     public EnemyTrait traits = EnemyTrait.None;
 
     // Per-enemy portrait shown on the combat card (spec 2026-07-24). Nullable:

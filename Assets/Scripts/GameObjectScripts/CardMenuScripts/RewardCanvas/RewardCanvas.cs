@@ -34,12 +34,22 @@ public class RewardCanvas : MonoBehaviour
         }
     }
 
+    // CLOSE BEFORE NOTIFYING, always (mirrors LevelUpModal.Choose). The callback
+    // ends with the RewardQueue's done(), and the queue advances synchronously
+    // inside it — so the NEXT card pick calls Offer() before this frame unwinds.
+    // Closing afterwards tore that successor straight back down: its previews
+    // destroyed, its canvas disabled, its done() never called, which also wedged
+    // the queue for the rest of the run. That is why a 2-card shrine payout only
+    // ever let you pick once (2026-07-31).
+    //
+    // The callback is captured first so Close() can clear the fields it reads.
     private void Choose(CardsSO chosen)
     {
         if (resolved) return;
         resolved = true;
-        onChosen?.Invoke(chosen);
+        var callback = onChosen;
         Close();
+        callback?.Invoke(chosen);
     }
 
     // Wired to the Skip button's OnClick.
@@ -47,13 +57,16 @@ public class RewardCanvas : MonoBehaviour
     {
         if (resolved) return;
         resolved = true;
-        onSkip?.Invoke();
+        var callback = onSkip;
         Close();
+        callback?.Invoke();
     }
 
     private void Close()
     {
         Clear();
+        onChosen = null;
+        onSkip = null;
         GameManager.Instance.cardRewardCanvas.enabled = false;
     }
 

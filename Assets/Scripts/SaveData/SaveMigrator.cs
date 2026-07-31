@@ -74,7 +74,64 @@ namespace ArchonsRise.SaveData
 
             if (file.schemaVersion < 10)
                 file.schemaVersion = 10;
+
+            // v10 -> v11: deckShortfallPending did not exist; absent means false
+            // (bools already default false via JsonUtility) — no forced-rest
+            // carried into the load, which is correct: a pre-v11 save predates
+            // the deck-shortfall buffer entirely.
+            if (file.schemaVersion < 11)
+                file.schemaVersion = 11;
+
+            // v11 -> v12: the bad-roll guardian stopped being a map token and
+            // became shrine state. Two jobs, both guarded on `< 12`:
+            //   1. owedReward is absent in a pre-v12 file, so JsonUtility leaves
+            //      it 0 — which reads as ShrineReward.CardPick. Force -1.
+            //   2. Fold any in-flight guardian's debt back onto its shrine and
+            //      drop the token, so a save taken mid-Guarding still pays out.
+            if (file.schemaVersion < 12)
+            {
+                if (file.run.shrines == null)
+                    file.run.shrines = Array.Empty<ShrineState>();
+                for (int i = 0; i < file.run.shrines.Length; i++)
+                {
+                    var s = file.run.shrines[i];
+                    s.owedReward = -1;
+                    file.run.shrines[i] = s;
+                }
+                FoldGuardiansIntoShrines(file.run);
+                file.schemaVersion = 12;
+            }
             return file;
+        }
+
+        // Moves each legacy guardian's owed reward onto the shrine it was bound
+        // to, then removes it from the spawn list — guardians are not board
+        // entities any more, so a restored token would be an ordinary enemy
+        // carrying a debt nothing can collect.
+        //
+        // A Guarding shrine is always exported (only Live shrines are omitted),
+        // so the entry is there in any well-formed file. If it somehow isn't,
+        // the token is still dropped: the concept it depended on is gone.
+        static void FoldGuardiansIntoShrines(RunState run)
+        {
+            if (run.spawnedEnemies == null || run.spawnedEnemies.Length == 0) return;
+
+            var kept = new System.Collections.Generic.List<SpawnedEnemy>();
+            foreach (var e in run.spawnedEnemies)
+            {
+                if (e.shrineRewardType < 0) { kept.Add(e); continue; }
+
+                for (int i = 0; i < run.shrines.Length; i++)
+                {
+                    var s = run.shrines[i];
+                    if (s.x != e.shrineCellX || s.y != e.shrineCellY) continue;
+                    s.state = 2;                          // Guarding
+                    s.owedReward = e.shrineRewardType;
+                    run.shrines[i] = s;
+                    break;
+                }
+            }
+            run.spawnedEnemies = kept.ToArray();
         }
     }
 }

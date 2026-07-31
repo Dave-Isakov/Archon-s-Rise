@@ -53,6 +53,28 @@ public class ModalQueueCoreTests
         Assert.IsTrue(q.Busy);
     }
 
+    // The queue advances SYNCHRONOUSLY inside done(), so the next modal opens
+    // before the calling job's stack frame unwinds. A modal that notifies first
+    // and closes afterwards therefore tears down its SUCCESSOR — the shrine's
+    // 2-card payout lost its second pick exactly this way (2026-07-31), and the
+    // orphaned job never called done, wedging the queue for the rest of the run.
+    // Pinned here because it is what makes close-before-notify mandatory.
+    [Test]
+    public void NextJob_OpensSynchronouslyInsideDone()
+    {
+        var q = new ModalQueueCore();
+        Action firstDone = null;
+        bool secondOpenedDuringDone = false;
+
+        q.Enqueue(done => { firstDone = done; });
+        q.Enqueue(done => { secondOpenedDuringDone = true; });
+
+        // A correct modal has already closed by the time it reaches this line.
+        firstDone();
+        Assert.IsTrue(secondOpenedDuringDone,
+            "the successor opens within done(), so anything the caller does after done() lands on it");
+    }
+
     [Test]
     public void Flush_DropsPendingJobs()
     {

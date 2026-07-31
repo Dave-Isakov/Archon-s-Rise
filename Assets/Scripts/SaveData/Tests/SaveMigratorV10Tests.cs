@@ -11,7 +11,7 @@ public class SaveMigratorV10Tests
 
         SaveMigrator.Migrate(file);
 
-        Assert.AreEqual(10, file.schemaVersion);
+        Assert.AreEqual(12, file.schemaVersion);
         Assert.IsNotNull(file.run.shrines);
         Assert.AreEqual(0, file.run.shrines.Length);
     }
@@ -32,18 +32,7 @@ public class SaveMigratorV10Tests
         Assert.AreEqual(-1, file.run.spawnedEnemies[0].shrineRewardType);
     }
 
-    [Test]
-    public void V10Spawns_PreserveTheirTag()
-    {
-        var file = new SaveFile { schemaVersion = 10 };
-        file.run.spawnedEnemies = new[]
-        {
-            new SpawnedEnemy { x = 2, y = 2, enemyId = "wraith", shrineRewardType = 1, shrineCellX = 5, shrineCellY = 6 }
-        };
-
-        SaveMigrator.Migrate(file);
-
-        Assert.AreEqual(1, file.run.spawnedEnemies[0].shrineRewardType);
-        Assert.AreEqual(5, file.run.spawnedEnemies[0].shrineCellX);
-    }
+    // A TAGGED v10 spawn no longer survives migration at all: v12 folds its debt
+    // onto its shrine and drops the token (SaveMigratorV12Tests). Only the
+    // untagged default above is still v10's business.
 }

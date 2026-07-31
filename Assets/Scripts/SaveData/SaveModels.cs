@@ -10,7 +10,12 @@ namespace ArchonsRise.SaveData
         // v8: adds RunState.hotspots (crystal-hotspot charge state).
         // v9: adds MapState.aggroedEnemies (which enemy tokens are armed).
         // v10: adds RunState.shrines + the SpawnedEnemy shrine-reward tag.
-        public int schemaVersion = 10;
+        // v11: adds RunState.deckShortfallPending (the one-turn End Turn/End Day
+        // deck-shortfall buffer, spec 2026-07-30).
+        // v12: adds ShrineState.owedReward. The bad-roll guardian stopped being a
+        // map token and became shrine state (2026-07-31), so the debt moved off
+        // SpawnedEnemy's now-legacy shrine tag and onto its shrine.
+        public int schemaVersion = 12;
         public RunState run = new RunState();
     }
 
@@ -56,6 +61,10 @@ namespace ArchonsRise.SaveData
         // positions/SO re-derive from the map seed, shrineId is a restore sanity
         // check (v10). state: 0=Live 1=ConsumedDormant 2=Guarding.
         public ShrineState[] shrines = Array.Empty<ShrineState>();
+        // True if the deck fell short on the last hand refill before save: the
+        // restored turn is the buffer turn whose End Turn will end the round
+        // (v11, spec 2026-07-30).
+        public bool deckShortfallPending;
     }
 
     [Serializable]
@@ -124,9 +133,10 @@ namespace ArchonsRise.SaveData
         public string enemyId;
         public int bonusHP;
         public int bonusAttack;
-        // Shrine-guardian binding (v10): -1 = a normal spawn with no owed reward.
-        // Otherwise the ShrineReward int + the originating shrine's cell, so a
-        // bad-roll guardian pays 2x that reward on defeat across save/reload.
+        // LEGACY shrine-guardian binding (v10, retired in v12): -1 = a normal
+        // spawn. Guardians are no longer map tokens, so nothing writes these any
+        // more — they survive only as input to the v11 -> v12 migration, which
+        // folds a saved guardian's debt back onto its shrine.
         public int shrineRewardType;
         public int shrineCellX;
         public int shrineCellY;
@@ -158,5 +168,8 @@ namespace ArchonsRise.SaveData
         public int y;
         public string shrineId;
         public int state; // 0=Live, 1=ConsumedDormant, 2=Guarding
+        // The (int)ShrineReward a Guarding shrine's guardian owes at 2x on
+        // defeat; -1 on every other state (v12).
+        public int owedReward;
     }
 }

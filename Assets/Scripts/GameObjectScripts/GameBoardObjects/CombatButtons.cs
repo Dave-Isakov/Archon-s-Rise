@@ -60,12 +60,14 @@ public class CombatButtons : MonoBehaviour
         if (player == null) { HideAll(); return; }
 
         var st = CombatPhaseRules.Advance(cc.Phase, player.PlayerSiege, cc.AnySiegeKillable(player.PlayerSiege),
-            player.PlayerDefend, cc.Preview(), player.PlayerToughness);
+            player.PlayerDefend, cc.Preview(), player.PlayerToughness, canCommit: !cc.PreviewOnly);
 
         RenderAdvance(st);
         RenderWithdraw(cc);
 
-        bool siege = cc.Phase == CombatPhase.Siege;
+        // Nothing invites a spend in a preview-only fight, so the Siege/Influence
+        // glows stay dark alongside the buttons they belong to.
+        bool siege = cc.Phase == CombatPhase.Siege && !cc.PreviewOnly;
         cc.SetEnemyActionGlow(siege && player.PlayerSiege > 0, siege && player.PlayerInfluence > 0);
     }
 

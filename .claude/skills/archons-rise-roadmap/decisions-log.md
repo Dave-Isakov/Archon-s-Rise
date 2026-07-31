@@ -721,3 +721,60 @@ Spec: `docs/superpowers/specs/2026-07-28-minimal-place-ui-and-player-log-design.
 
 - **2026-07-29 — Defend is per-enemy blocking with residual soak, and blocking never suppresses
   auras.**
+
+- **2026-07-31 — Elusive does not require `canInfluence`; it may close every wound-free route.**
+  Reverses the 2026-07-29 rule that an Elusive enemy must be authored `canInfluence = true`.
+  _Why:_ sometimes the fight should simply have to be taken — Defend, then Attack, or flee. A
+  guaranteed Influence out on every Elusive enemy turned the trait into a soft redirect between two
+  wound-free removals instead of real pressure. Pairing stays available as a per-enemy identity
+  ("bribe it, don't besiege it"), just not as a blanket rule, which also frees the whole ~30%
+  `canInfluence` budget to sit wherever Influence is most interesting.
+  Decided while fixing the bug where Elusive was inert at the kill path (Siege priced enemies at raw
+  HP, so 4 Siege removed a 4 HP Elusive Undead Soldier).
+
+- **2026-07-31 — The shrine guardian is shrine STATE, not a map token. The sour bargain opens combat
+  immediately; the shrine hosts the fight from then on.** Reverses the 2026-07-27 rule that a bad
+  roll spawns "a persistent tier-3 guardian on a free neighbouring cell."
+  _Why:_ paying the crystals and then watching a monster appear two hexes away read as a
+  disconnected consequence — the gamble's outcome belongs at the shrine, in front of the player, as
+  a choice. Now: Confirm spends the action and the crystals, the coin flips, and a bad roll opens
+  the combat canvas on the spot. Taking that fight costs nothing further (the action is already
+  paid); clicking off walks away with the shrine left `Guarding`. On any later visit the shrine's
+  fan slot is `Assault` instead of `Engage` — free to open, committing that visit's action only on
+  the first Engage/Siege/Influence.
+  **Preview-only combat** falls out of it: with the turn's action already spent, the Assault slot
+  still opens the fight, but `CombatController.PreviewOnly` withholds Engage and the per-card
+  Siege/Influence buttons, so the guardian can be read and not fought. The flag is generic; field
+  tokens still refuse to open at all.
+  **Deleted, not fixed:** `ShrineTracker.SpawnGuardian` / `FindFreeCell` / `ShrineSoAt` and
+  `EnemyToken`'s three shrine fields. `FindFreeCell` used a hard-coded even-row neighbour array with
+  no parity correction (`PlayerPosition.UpdateCompass` flips four of six offsets on odd rows), which
+  is why the guardian landed two hexes out — a bug removed by removing the placement.
+  **Save v12:** `ShrineState.owedReward` carries the debt; the v11 -> v12 migrator folds any
+  in-flight guardian's tag back onto its shrine and drops the token, so a mid-`Guarding` save still
+  pays out. `SpawnedEnemy`'s shrine tag is legacy migration input only.
+  **Also:** shrine payouts were silent — exp and units left no trace and a card pick opened a picker
+  that never named its source. `ShrineRewardMessage` now composes one line through `GameLog`
+  (toast + history) on both the 1x and 2x paths, posted before the picks enqueue.
+
+- **2026-07-31 — Undo is blocked only during the UNCOMMITTED half of a fight, not the whole fight.**
+  Refines the 2026-07-30 gate that disabled Undo for as long as `InCombat` was true.
+  _Why:_ the exploit that gate defends against lives entirely in the free-look window — a cost
+  validated at open and paid at commit, with the pre-fight stack still reversible. After the fight
+  commits there is nothing left to exploit: every commit point (Engage, the counterattack resolve,
+  a kill) calls `ClearStack()` in the same breath as `Commit()`, so the stack is empty the instant
+  `Committed` flips and anything on it afterwards was staged since the last spend.
+  The blanket block had been quietly breaking `BlockCommand`'s shipped contract ("blocks stop being
+  undoable when the advance button commits the counterattack") — a Defend card or a block staged in
+  the Defend window could never be taken back. Now `UndoGate.Undo(stackCount, inCombat, committed)`
+  owns the rule as a pure, tested function, and the disabled button names the real reason instead of
+  claiming "there is nothing to undo" over a card the player just played.
+
+- **2026-07-31 — Queued modals must CLOSE BEFORE calling `done()`.** Standing rule, extracted from a
+  bug: `ModalQueueCore.TryNext` advances synchronously inside `done`, so the successor modal opens
+  before the calling frame unwinds. `RewardCanvas.Choose` notified first and closed after, so its
+  `Close()` landed on the modal that had just replaced it — previews destroyed, canvas disabled,
+  `done` never called, queue wedged for the rest of the run. Any multi-pick payout hit it (the
+  shrine's 2x, a dungeon completion bundle, a level-up granting 2+ cards): the player got one pick
+  and the rest vanished. `LevelUpModal.Choose` already had the right shape and is the reference.
+  Routing through `RewardQueue` is necessary but not sufficient — the ordering is the other half.

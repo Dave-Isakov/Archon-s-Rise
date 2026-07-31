@@ -286,7 +286,7 @@ public class DataManager : MonoBehaviour
         // 2026-07-21). Restore it after DoomClock so any same-round StartRound (dry
         // deck) reads the right band. LoadState also resets the phase to Explore.
         if (TurnPhaseController.Instance != null)
-            TurnPhaseController.Instance.LoadState(run.turn);
+            TurnPhaseController.Instance.LoadState(run.turn, run.deckShortfallPending);
         if (EnemySpawner.Instance != null)
         {
             EnemySpawner.Instance.RoundsSinceSpawn = run.roundsSinceSpawn;
@@ -385,6 +385,7 @@ public class DataManager : MonoBehaviour
         // counter (spec 2026-07-21); reset to Explore on load, so phase isn't saved.
         run.turn  = TurnPhaseController.Instance != null ? TurnPhaseController.Instance.TurnsRemaining
                   : game != null ? game.Turn : 0;
+        run.deckShortfallPending = TurnPhaseController.Instance != null && TurnPhaseController.Instance.DeckShortfallPending;
         run.doom  = DoomClock.Instance != null ? DoomClock.Instance.Doom : 0;
         run.roundsSinceSpawn = EnemySpawner.Instance != null ? EnemySpawner.Instance.RoundsSinceSpawn : 0;
         run.spawnedEnemies   = EnemySpawner.Instance != null ? EnemySpawner.Instance.ExportAlive()

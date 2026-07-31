@@ -17,13 +17,9 @@ MonoBehaviour:
   cardDescription: A skyborne scout astride a gryphon - persuade them to your banner.
   enemyHP: 6
   enemyAttack: 3
-  defeatRewards:
-  - {fileID: 11400000, guid: a1cb957134a14fb40b7e088653b837f6, type: 2}
-  - {fileID: 11400000, guid: 801808a54bf0af149a951360447b236b, type: 2}
-  - {fileID: 11400000, guid: 5707311b4bc7394478310c26d58dfbd5, type: 2}
-  - {fileID: 11400000, guid: f2938072afcf12849ac8627270fc4512, type: 2}
-  - {fileID: 11400000, guid: 5b04350b69bdeb747b132895ad7a86b4, type: 2}
   canInfluence: 1
-  influenceCost: 7
+  influenceCost: 8
   recruitedUnit: {fileID: 11400000, guid: 32856202ef3b67a45bfe137df8f52fc1, type: 2}
   tier: 2
+  traits: 12
+  cardArt: {fileID: 1458650246750848199, guid: 8c2350df33a214a44b701dd60ea2b8dd, type: 3}

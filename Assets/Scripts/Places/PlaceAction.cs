@@ -71,18 +71,21 @@ public readonly struct DungeonActionSnapshot
     }
 }
 
-// isLive rather than ShrineVisualState on purpose: it keeps ArchonsRise.Places
-// independent of ArchonsRise.Shrines, and the rule only cares whether the
-// shrine can still be engaged.
+// Two bools rather than ShrineVisualState on purpose: it keeps
+// ArchonsRise.Places independent of ArchonsRise.Shrines, and the rule only cares
+// whether the shrine can still be engaged and whether a guardian is standing on
+// its bargain. Both false = spent (ConsumedDormant).
 public readonly struct ShrineActionSnapshot
 {
     public readonly bool IsLive;
+    public readonly bool IsGuarded;
     public readonly int CrystalCost;
     public readonly bool VisitCanAct;
 
-    public ShrineActionSnapshot(bool isLive, int crystalCost, bool visitCanAct)
+    public ShrineActionSnapshot(bool isLive, bool isGuarded, int crystalCost, bool visitCanAct)
     {
         IsLive = isLive;
+        IsGuarded = isGuarded;
         CrystalCost = crystalCost;
         VisitCanAct = visitCanAct;
     }

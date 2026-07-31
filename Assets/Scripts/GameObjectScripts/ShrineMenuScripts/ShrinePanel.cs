@@ -73,6 +73,7 @@ public class ShrinePanel : MonoBehaviour
             return;
         }
 
+        var token = current;
         var so = current.shrineSO;
         var cell = current.gridPos;
 
@@ -98,8 +99,16 @@ public class ShrinePanel : MonoBehaviour
         }
         else
         {
-            ShrineTracker.Instance.SpawnGuardian(cell, so, type);
+            // The guardian is shrine state, not a map token (2026-07-31): the
+            // shrine starts guarding and remembers the 2x it owes.
+            ShrineTracker.Instance.SetGuarding(cell, type);
             GameLog.Instance.Post("The shrine's bargain turns sour — a guardian rises!");
+
+            // Straight into the fight. The turn's action and the crystals were
+            // both spent by this Confirm, so taking it now costs nothing further
+            // (onCommit: null) and clicking off to walk away is free — the
+            // guardian keeps the shrine until someone puts it down.
+            token.BeginGuardianFight(previewOnly: false, onCommit: null);
         }
     }
 

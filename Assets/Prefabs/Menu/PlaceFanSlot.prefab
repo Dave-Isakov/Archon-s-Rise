@@ -270,7 +270,6 @@ GameObject:
   - component: {fileID: 9064563744612162583}
   - component: {fileID: 3888883728110133059}
   - component: {fileID: 7835311037790768935}
-  - component: {fileID: -8017945292946649522}
   m_Layer: 5
   m_Name: PlaceFanSlot
   m_TagString: Untagged
@@ -334,15 +333,3 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &-8017945292946649522
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8306625564536833667}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffdfc43941ff66a48b6ae44a0c3d4998, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::FanPreviewTrigger

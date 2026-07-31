@@ -11,8 +11,7 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
     [SerializeField] VoidEvent endTheTurn;
     [SerializeField] VoidEvent onDeckCannotRefillTutorial; // M2.12 one-shot trigger
     [SerializeField] TextMeshProUGUI label; // button caption; auto-found if unassigned
-    DrawVerdict lastVerdict = DrawVerdict.Draw;
-    PlayerDeck deck;
+    bool lastDeckShortfallPending;
     PlayerHand hand;
     Player player;
 
@@ -58,7 +57,6 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
             }
             TurnPhaseController.Instance.EndTurnPressed();
         });
-        deck = FindAnyObjectByType<PlayerDeck>();
         hand = FindAnyObjectByType<PlayerHand>();
         player = FindAnyObjectByType<Player>();
         if (label == null) label = GetComponentInChildren<TextMeshProUGUI>(true);
@@ -66,31 +64,28 @@ public class EndTurnButton : MonoBehaviour, IPointerClickHandler
 
     private void Update()
     {
-        if (deck == null || hand == null || player == null) return;
-        // Deck-empty no longer disables End Turn (it auto-ends the round instead),
-        // but the tutorial still teaches the dry-deck rest, so keep the one-shot
-        // fire off the verdict.
-        var verdict = DrawGate.Evaluate(deck.CardsInDeck.Count, hand.cardsInPlay.Count, player.PlayerHandSize);
-        // Fire once per entry into DeckEmpty — Update polls every frame.
-        if (verdict == DrawVerdict.DeckEmpty && lastVerdict != DrawVerdict.DeckEmpty
-            && onDeckCannotRefillTutorial != null)
+        if (hand == null || player == null || TurnPhaseController.Instance == null) return;
+        bool deckShortfallPending = TurnPhaseController.Instance.DeckShortfallPending;
+        // Fire once on the false->true transition (spec 2026-07-30): the start of
+        // the buffer turn, when the label is about to read "End Day" for a deck
+        // reason (not just a spent budget).
+        if (deckShortfallPending && !lastDeckShortfallPending && onDeckCannotRefillTutorial != null)
             onDeckCannotRefillTutorial.Raise();
-        lastVerdict = verdict;
+        lastDeckShortfallPending = deckShortfallPending;
         // Disabled only mid-fight now.
         endTurnButton.interactable = TurnButtonGate.EndTurn(
             GameManager.Instance.activeCombatant != null
             || (CombatController.Instance != null && CombatController.Instance.InCombat));
-        UpdateLabel(verdict);
+        UpdateLabel();
     }
 
     // The button reads "End Day" when the next press will end the round — the
-    // last turn of the day, or a dry deck that forces the rest (spec 2026-07-21) —
-    // and "End Turn" otherwise. Mirrors RoundRules.IsRoundOver on the press.
-    void UpdateLabel(DrawVerdict verdict)
+    // last turn of the day, or the deck-shortfall buffer turn (spec 2026-07-30) —
+    // and "End Turn" otherwise. Mirrors TurnPhaseController.EndTurnPressed exactly,
+    // since both read the same NextPressEndsRound computation.
+    void UpdateLabel()
     {
         if (label == null || TurnPhaseController.Instance == null) return;
-        int next = RoundRules.NextTurnsRemaining(TurnPhaseController.Instance.TurnsRemaining);
-        bool endsDay = RoundRules.IsRoundOver(next, RoundRules.DeckCanRefill(verdict));
-        label.text = endsDay ? "End Day" : "End Turn";
+        label.text = TurnPhaseController.Instance.NextPressEndsRound ? "End Day" : "End Turn";
     }
 }

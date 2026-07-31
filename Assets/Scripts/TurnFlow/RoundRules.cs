@@ -7,11 +7,16 @@ public static class RoundRules
     public static int NextTurnsRemaining(int turnsRemaining)
         => turnsRemaining > 0 ? turnsRemaining - 1 : 0;
 
-    // The day ends when the budget is spent OR the deck can no longer refill the
-    // hand (a forced rest so a short deck can't strand the player mid-day).
-    public static bool IsRoundOver(int turnsRemainingAfterDecrement, bool deckCanRefill)
-        => turnsRemainingAfterDecrement <= 0 || !deckCanRefill;
+    // The day ends when the budget is spent OR the previous turn's hand refill
+    // already fell short (a one-turn-delayed forced rest so a short deck can't
+    // strand the player mid-day, while still letting the turn that discovers the
+    // shortfall play out normally — spec 2026-07-30).
+    public static bool IsRoundOver(int turnsRemainingAfterDecrement, bool deckShortfallPending)
+        => turnsRemainingAfterDecrement <= 0 || deckShortfallPending;
 
-    public static bool DeckCanRefill(DrawVerdict verdict)
-        => verdict != DrawVerdict.DeckEmpty;
+    // Whether the end-of-turn top-up can fully restore the hand from the deck.
+    // False means this turn's refill falls short, which carries into next turn
+    // as a forced round-end (see IsRoundOver's second argument).
+    public static bool CanFullyRefill(int deckCount, int neededDraws)
+        => deckCount >= neededDraws;
 }

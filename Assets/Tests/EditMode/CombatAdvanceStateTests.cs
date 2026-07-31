@@ -76,6 +76,16 @@ public class CombatAdvanceStateTests
     }
 
     [Test]
+    public void PreviewOnly_HidesEvenWhenTheFightIsOpenable()
+    {
+        // Siege phase with nothing staged would normally offer Engage.
+        var s = CombatPhaseRules.Advance(CombatPhase.Siege, playerSiege: 0, anySiegeKillable: false,
+            defendLeft: 0, preview: P(0), toughness: 1, canCommit: false);
+        Assert.AreEqual(AdvanceKind.Hidden, s.Kind,
+            "a preview-only fight can advance nothing, so the button must not offer it");
+    }
+
+    [Test]
     public void Defend_BlockingEveryone_FlipsToCounterattack()
     {
         var roster = new List<EnemyCombatant>

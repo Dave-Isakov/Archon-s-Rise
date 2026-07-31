@@ -17,12 +17,9 @@ MonoBehaviour:
   cardDescription: "One of the treefolk who succumbed to a mind-rotting fungus.\t"
   enemyHP: 6
   enemyAttack: 2
-  defeatRewards:
-  - {fileID: 11400000, guid: 879d999e9521d88449f93825314e7ac6, type: 2}
-  - {fileID: 11400000, guid: a974a541928f88f468e9ab70e6e1277c, type: 2}
-  - {fileID: 11400000, guid: 5846e3a981fe150408c223103523ecad, type: 2}
-  - {fileID: 11400000, guid: 60082c4714a288346891b5faadba901a, type: 2}
   canInfluence: 0
   influenceCost: 0
   recruitedUnit: {fileID: 0}
   tier: 2
+  traits: 256
+  cardArt: {fileID: 3103344109780903230, guid: 60d32b31f9f7ba94499917ae36aa6298, type: 3}

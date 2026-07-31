@@ -22,6 +22,8 @@ public class ShrineSO : AllCards
     public int largeExp = 15;
     [Tooltip("Tier for the card-pick reward (reuses the Rewards card pools).")]
     public int cardTier = 3;
-    [Tooltip("The tier-3 guardian summoned on the bad roll. Must be in the EnemyDeck pool.")]
+    [Tooltip("The tier-3 guardian summoned on the bad roll. Any enemy asset — it is " +
+             "fought from the shrine and never placed on the map, so EnemyDeck pool " +
+             "membership is irrelevant.")]
     public EnemiesSO summonedEnemy;
 }

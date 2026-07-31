@@ -18,7 +18,8 @@ MonoBehaviour:
   enemyHP: 4
   enemyAttack: 3
   canInfluence: 1
-  influenceCost: 4
+  influenceCost: 5
   recruitedUnit: {fileID: 11400000, guid: 01a9990fd166e094d9b6d2ed4cbe52c7, type: 2}
   tier: 1
+  traits: 0
   cardArt: {fileID: 1615815758522029734, guid: 1dc8676f4320a4631b5ec103b34a56d9, type: 3}

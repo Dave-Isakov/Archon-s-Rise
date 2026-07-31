@@ -23,13 +23,9 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
     // Mid-run spawns are saved explicitly (schema v4); only map-gen tokens
     // use the seed-derived defeatedEnemies cell mechanism.
     public bool isMidRunSpawn;
-    // Shrine-guardian binding (spec 2026-07-24, §3): -1 = an ordinary spawn.
-    // Otherwise the (int)ShrineReward this guardian owes at 2x on defeat, plus
-    // the originating shrine's cell to mark it consumed, and the ShrineSO the
-    // payout draws its pools from.
-    public int shrineRewardType = -1;
-    public Vector3Int shrineCell;
-    public ShrineSO shrineSO;
+    // No shrine binding here any more (2026-07-31): a shrine guardian is never a
+    // map token, so its owed reward lives on the shrine (ShrineLedger) and the
+    // fight opens from the ShrineToken.
     public Vector3Int gridPos;
     private Dictionary<Directions, Vector3Int> compass = new()
     {

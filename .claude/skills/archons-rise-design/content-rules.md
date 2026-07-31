@@ -165,10 +165,12 @@ Starting values: see [balance.md](balance.md).
   one weak aura. Tier 3 — an aura plus a self trait.
 - **Never author Elusive with Armored** (the second is dead text — Elusive already removes Siege
   entirely), and never author Vengeful or Elusive on tier 1.
-- **An Elusive enemy must have `canInfluence = true`.** Elusive removes the Siege option, so without
-  an Influence out it is simply "you will eat the counterattack" — a removed choice, not a redirected
-  one. Pairing them gives Elusive a clear identity ("bribe it, don't besiege it") and spends part of
-  the ~30% `canInfluence` budget deliberately (see [balance.md](balance.md)).
+- **Elusive carries no `canInfluence` requirement** (decided 2026-07-31, reversing the earlier
+  mandatory-pairing rule). Closing the wound-free routes and forcing the fight down the
+  Defend-then-Attack line — or out through a flee — IS the choice Elusive presents; guaranteeing an
+  Influence out on every Elusive enemy made the trait a soft redirect instead of pressure. Pair
+  Elusive with `canInfluence` when a *particular* enemy wants the "bribe it, don't besiege it"
+  identity, never as a blanket rule.
 - **Traits are additive to the tier system, not a replacement** — tier still drives rewards and doom
   gating; traits drive texture.
 - **No trait modifies `influenceCost`.** Influence's balance lever is scarcity, never trait-modified

@@ -13,22 +13,35 @@ public class RoundRulesTests
     [Test]
     public void Round_Over_When_Budget_Spent()
     {
-        Assert.IsTrue(RoundRules.IsRoundOver(0, deckCanRefill: true));
-        Assert.IsFalse(RoundRules.IsRoundOver(1, deckCanRefill: true));
+        Assert.IsTrue(RoundRules.IsRoundOver(0, deckShortfallPending: false));
+        Assert.IsFalse(RoundRules.IsRoundOver(1, deckShortfallPending: false));
     }
 
     [Test]
-    public void Round_Over_When_Deck_Cannot_Refill()
+    public void Round_Over_When_Deck_Shortfall_Pending()
     {
-        // Budget remains but the deck is dry -> forced rest.
-        Assert.IsTrue(RoundRules.IsRoundOver(2, deckCanRefill: false));
+        // Budget remains but last turn's refill already fell short -> forced rest.
+        Assert.IsTrue(RoundRules.IsRoundOver(2, deckShortfallPending: true));
     }
 
     [Test]
-    public void Deck_Can_Refill_Unless_Empty()
+    public void CanFullyRefill_FullHandNeedsNothing_AlwaysTrue()
     {
-        Assert.IsTrue(RoundRules.DeckCanRefill(DrawVerdict.Draw));
-        Assert.IsTrue(RoundRules.DeckCanRefill(DrawVerdict.HandFull));
-        Assert.IsFalse(RoundRules.DeckCanRefill(DrawVerdict.DeckEmpty));
+        // Zero (or negative) needed draws is trivially satisfied regardless of deck size.
+        Assert.IsTrue(RoundRules.CanFullyRefill(deckCount: 0, neededDraws: 0));
+    }
+
+    [Test]
+    public void CanFullyRefill_DeckShortOfNeeded_False()
+    {
+        Assert.IsFalse(RoundRules.CanFullyRefill(deckCount: 0, neededDraws: 2));
+        Assert.IsFalse(RoundRules.CanFullyRefill(deckCount: 3, neededDraws: 4));
+    }
+
+    [Test]
+    public void CanFullyRefill_DeckMeetsOrExceedsNeeded_True()
+    {
+        Assert.IsTrue(RoundRules.CanFullyRefill(deckCount: 5, neededDraws: 5));
+        Assert.IsTrue(RoundRules.CanFullyRefill(deckCount: 4, neededDraws: 3));
     }
 }
