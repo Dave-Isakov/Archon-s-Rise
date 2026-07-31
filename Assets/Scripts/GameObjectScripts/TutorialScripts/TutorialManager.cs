@@ -79,7 +79,7 @@ public class TutorialManager : MonoBehaviour
         Apply(rules.NotifyEvent(eventId));
 
         foreach (var tip in oneShots)
-            if (tip.triggerEventId == eventId && rules.NotifyOneShot(tip.id))
+            if (tip.triggerEventId == eventId && rules.NotifyOneShot(tip.id, tip.immediate))
             {
                 TutorialPrefs.MarkOneShot(tip.id);
                 ShowTip(tip);
@@ -212,5 +212,9 @@ public class TutorialManager : MonoBehaviour
         tipShowing = false;
         banner.HideAll();
         highlight.Hide();
+        // An immediate tip can interrupt a live rail step, so hand the banner back
+        // to it on dismiss. RefreshRailUi is a no-op when the rail is already done,
+        // which is the only case that could happen before immediate tips existed.
+        RefreshRailUi();
     }
 }

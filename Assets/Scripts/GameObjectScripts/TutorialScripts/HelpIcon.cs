@@ -11,6 +11,10 @@ public class HelpIcon : MonoBehaviour
 {
     [SerializeField] HelpEntrySO entry;
     [SerializeField] Graphic pulseTarget; // the ? glyph
+    [Tooltip("Only visible while map mode is open (spec 2026-07-31). Map mode has " +
+             "no panel of its own to sit in the corner of, so its ? rides the HUD " +
+             "and hides itself the rest of the time.")]
+    [SerializeField] bool mapModeOnly;
 
     CanvasGroup group; // hides the whole icon while tips are off
 
@@ -33,9 +37,13 @@ public class HelpIcon : MonoBehaviour
             ? TutorialManager.Instance.TipsEnabled
             : TutorialPrefs.Enabled;
 
-        group.interactable = tipsOn;
-        group.blocksRaycasts = tipsOn;
-        if (!tipsOn)
+        // Same all-or-nothing treatment as the tips toggle: a map-only ? is simply
+        // not there outside map mode, and reappears the frame the map opens.
+        bool visible = tipsOn && (!mapModeOnly || InputContextState.MapOpen);
+
+        group.interactable = visible;
+        group.blocksRaycasts = visible;
+        if (!visible)
         {
             group.alpha = 0f;
             return;

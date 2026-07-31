@@ -105,6 +105,48 @@ public class TutorialRulesTests
         Assert.IsFalse(t.NotifyOneShot("tip.wound")); // now seen
     }
 
+    // A contextual tip (spec 2026-07-31: the map-mode pan tip) explains a screen
+    // the player is looking at RIGHT NOW. Deferring it past the send-off would
+    // deliver the instructions long after the map closed, so immediate tips skip
+    // the queue — the rail step that taught M makes a mid-rail press the norm.
+    [Test]
+    public void ImmediateOneShotFiresDuringTheRail()
+    {
+        var t = Fresh();
+        Assert.IsTrue(t.RailActive);
+        Assert.IsTrue(t.NotifyOneShot("tip.map-pan", true));
+        Assert.IsFalse(t.NotifyOneShot("tip.map-pan", true)); // once per profile still
+    }
+
+    [Test]
+    public void ImmediateOneShotIsNotAlsoQueuedForAfterTheRail()
+    {
+        var t = new TutorialRules(new[] { "" }, true, 0, null, null);
+        Assert.IsTrue(t.NotifyOneShot("tip.map-pan", true));
+        Assert.AreEqual(RailChange.RailCompleted, t.NextPressed());
+        string id;
+        Assert.IsFalse(t.TryDequeuePendingOneShot(out id));
+    }
+
+    [Test]
+    public void ImmediateOneShotStillObeysDisabledAndSkip()
+    {
+        var off = new TutorialRules(Rail, false, 0, null, null);
+        Assert.IsFalse(off.NotifyOneShot("tip.map-pan", true));
+
+        var skipped = Fresh();
+        skipped.Skip(new[] { "tip.map-pan" });
+        Assert.IsFalse(skipped.NotifyOneShot("tip.map-pan", true));
+    }
+
+    // Default stays false so every existing tip keeps deferring.
+    [Test]
+    public void NonImmediateOneShotStillDefersDuringTheRail()
+    {
+        var t = Fresh();
+        Assert.IsFalse(t.NotifyOneShot("tip.wound"));
+    }
+
     [Test]
     public void DisabledMutesRailAndOneShots()
     {

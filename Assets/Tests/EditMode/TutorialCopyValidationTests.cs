@@ -105,6 +105,44 @@ public class TutorialCopyValidationTests
         Assert.IsNull(StepBannerById("fight"), "stale single-shot 'fight' step still present");
     }
 
+    static TutorialOneShotSO OneShotById(string id)
+    {
+        foreach (string guid in AssetDatabase.FindAssets("t:TutorialOneShotSO"))
+        {
+            var so = AssetDatabase.LoadAssetAtPath<TutorialOneShotSO>(AssetDatabase.GUIDToAssetPath(guid));
+            if (so != null && so.id == id) return so;
+        }
+        return null;
+    }
+
+    // Pins the two-beat map-mode teach (spec 2026-07-31): an informational rail
+    // step naming the key, then a contextual tip that must fire the moment the map
+    // opens — mid-rail, hence immediate — plus the always-available ? entry.
+    [Test]
+    public void MapModeIsTaughtInTwoBeatsPlusHelp()
+    {
+        var railStep = StepBannerById("map");
+        Assert.IsNotNull(railStep, "missing rail step id 'map'");
+        Assert.That(railStep, Does.Contain("Press M"), "the rail step must name the M key");
+
+        var tip = OneShotById("map-pan");
+        Assert.IsNotNull(tip, "missing one-shot id 'map-pan'");
+        Assert.AreEqual("map-opened", tip.triggerEventId,
+            "the pan tip must fire off the map opening, not anything else");
+        Assert.IsTrue(tip.immediate,
+            "the pan tip must be immediate — deferred past the rail it would arrive "
+            + "long after the map closed");
+        Assert.That(tip.bannerText, Does.Contain("WASD"));
+
+        bool hasHelp = false;
+        foreach (string guid in AssetDatabase.FindAssets("t:HelpEntrySO"))
+        {
+            var so = AssetDatabase.LoadAssetAtPath<HelpEntrySO>(AssetDatabase.GUIDToAssetPath(guid));
+            if (so != null && so.panelId == "map-mode") hasHelp = true;
+        }
+        Assert.IsTrue(hasHelp, "missing help entry panelId 'map-mode'");
+    }
+
     [Test]
     public void StepAndOneShotIdsAreUniqueAndNonEmpty()
     {

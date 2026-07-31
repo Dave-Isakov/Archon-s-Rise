@@ -13,4 +13,8 @@ public class TutorialOneShotSO : ScriptableObject
     public string highlightTargetId;
     [Tooltip("Event id (plan's event-id contract) that triggers this tip.")]
     public string triggerEventId;
+    [Tooltip("Show immediately even while the guided rail is running, instead of " +
+             "queueing until after the send-off. For tips that explain the screen " +
+             "the player is looking at right now (e.g. map mode's pan controls).")]
+    public bool immediate;
 }

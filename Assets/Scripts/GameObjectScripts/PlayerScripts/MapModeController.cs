@@ -22,6 +22,12 @@ public class MapModeController : MonoBehaviour
     [SerializeField] Tilemap water;
     [SerializeField] Tilemap mountains;
 
+    // Tutorial hook (spec 2026-07-31). Optional: unassigned means no tutorial, not
+    // an error. A VoidListener on the TutorialCanvas turns this into the
+    // "map-opened" event id TutorialManager.NotifyEvent expects, which fires the
+    // immediate pan tip. Closing needs no event — nothing is taught on the way out.
+    [SerializeField] VoidEvent onMapOpened;
+
     // Tuning; adjust in play. None of these are load-bearing.
     [SerializeField] float mapOrthoSize = 8f;
     [SerializeField] float panSpeed = 12f;          // world units per second
@@ -56,6 +62,9 @@ public class MapModeController : MonoBehaviour
         // A fog scout armed by a first click must not survive into map mode,
         // where the confirming second click can never be delivered.
         if (HexInteractor.Instance != null) HexInteractor.Instance.DisarmFogScout();
+        // Last: the tutorial tip this fires draws over the board, so everything
+        // that defines map mode is already true when it appears.
+        if (onMapOpened != null) onMapOpened.Raise();
     }
 
     public void Close()

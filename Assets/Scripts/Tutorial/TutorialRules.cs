@@ -95,11 +95,17 @@ public class TutorialRules
     // rail it defers instead (rail steps outrank one-shots). While tutoring is
     // off it is dropped unrecorded — a later natural trigger can still show it
     // after re-enabling.
-    public bool NotifyOneShot(string id)
+    //
+    // `immediate` opts a tip out of the deferral (spec 2026-07-31). It is for tips
+    // that explain the screen the player is looking at right now — the map-mode pan
+    // tip fires from a rail step that just told them to press M, so queueing it
+    // until after the send-off would deliver the controls long after the map shut.
+    // Everything else keeps deferring; the rail still outranks ambient tips.
+    public bool NotifyOneShot(string id, bool immediate = false)
     {
         if (!Enabled || string.IsNullOrEmpty(id)) return false;
         if (seenOneShots.Contains(id)) return false;
-        if (RailActive)
+        if (RailActive && !immediate)
         {
             if (!pendingOneShots.Contains(id)) pendingOneShots.Add(id);
             return false;
