@@ -72,12 +72,27 @@ The trigger already exists at `EnemyToken.CheckAggro` (the `isAggro` branch). Wh
   `BeginAction` leaves the Explore phase, so the only way to reach that branch is repositioning via a
   teleport card played during the Action phase.
 
-### 3.1 Fix carried in the same change
+### 3.1 Two guards the trigger needs
+
+**The arming cell.** `CheckAggro` records the hex the player stood on when the token armed, and forces
+only when the current cell differs from it. That makes "moved from one adjacent hex to another" literal
+rather than inferred from the event firing, so a repeat raise at the same cell can't manufacture a
+fight. It is deliberately not saved: a restored save's default cell can only differ from wherever the
+player actually is, which is the reading we want anyway.
+
+**One fight at a time.** Every armed token receives the same move event, so a swarm trigger runs
+`StartCombat` on two or three tokens at once — and the combat intro beat means `InCombat` is still
+false while they queue behind it. A static latch on `EnemyToken` lets the first one through and drops
+the rest; they are in its roster regardless.
+
+### 3.2 Fix carried in the same change
 
 `CheckAggro` sets `player.inCombat = true` *before* calling `StartCombat`, which can then bail on the
-`CanInteract` check — leaving the flag set with nothing to clear it (only `FinishEnd` clears it). The
-write moves to where the fight actually opens. `PlayerPosition.inCombat` has no readers in code today;
-it is corrected rather than removed because it is a public field and may be bound in the scene.
+`CanInteract` check — leaving the flag set with nothing to clear it. The write moves to where the fight
+actually opens, and the clear moves to every field-fight close (decline, flee, win) instead of the flee
+path alone, since a won fight used to leave it latched on. `PlayerPosition.inCombat` has no readers in
+code today; it is corrected rather than removed because it is a public field and may be bound in the
+scene.
 
 ## 4. The swarm pull-in — implementation
 

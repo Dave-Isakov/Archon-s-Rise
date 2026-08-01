@@ -27,6 +27,14 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
     // map token, so its owed reward lives on the shrine (ShrineLedger) and the
     // fight opens from the ShrineToken.
     public Vector3Int gridPos;
+    // The hex the player stood on when this token armed. Stepping to a DIFFERENT
+    // adjacent hex is what forces the fight. Deliberately not saved: a restored
+    // save's default cell can only differ from wherever the player actually is,
+    // which is exactly the "you already lingered here" reading we want.
+    Vector3Int aggroCell;
+    // A fight is being opened right now, by whichever token got there first. Static
+    // because the race is BETWEEN tokens, not within one (see StartCombat).
+    static bool opening;
     private Dictionary<Directions, Vector3Int> compass = new()
     {
         {Directions.Northwest, new Vector3Int(-1,1)},
@@ -81,30 +89,31 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
             sr.enabled = visible;
     }
 
+    // Raised for every token on every player move. Arms on the first step into
+    // reach; the SECOND step — one adjacent hex to another adjacent hex — is the
+    // player lingering in reach, and forces an inescapable fight (spec 2026-08-01).
     public void CheckAggro(PlayerPosition player)
     {
-        foreach(Directions direction in Enum.GetValues(typeof(Directions)))
-        {
-            if((gridPos + compass[direction]) == gameboard.LocalToCell(player.transform.position) && !isAggro)
-            {
-                this.isAggro = true;
-                break;
-            }
-            else if((gridPos + compass[direction]) == gameboard.LocalToCell(player.transform.position) && isAggro)
-            {
-                player.inCombat = true;
-                StartCoroutine(StartCombat());
-                break;
-            }
-        }
+        // Fog is absolute: a token the player cannot see neither arms nor forces,
+        // matching OnPointerClick and the glow. It arms normally once fog lifts.
+        if (MapFog.IsHidden(gridPos)) { isAggro = false; return; }
 
-        if(gridPos + compass[Directions.Northwest] != gameboard.LocalToCell(player.transform.position)
-        && gridPos + compass[Directions.Northeast] != gameboard.LocalToCell(player.transform.position)
-        && gridPos + compass[Directions.East] != gameboard.LocalToCell(player.transform.position)
-        && gridPos + compass[Directions.West] != gameboard.LocalToCell(player.transform.position)
-        && gridPos + compass[Directions.Southwest] != gameboard.LocalToCell(player.transform.position)
-        && gridPos + compass[Directions.Southeast] != gameboard.LocalToCell(player.transform.position))
-            this.isAggro = false;
+        var playerCell = gameboard.LocalToCell(player.transform.position);
+
+        bool adjacent = false;
+        foreach (Directions direction in Enum.GetValues(typeof(Directions)))
+            if (gridPos + compass[direction] == playerCell) { adjacent = true; break; }
+
+        if (!adjacent) { isAggro = false; return; }
+
+        // Armed, and this is a DIFFERENT adjacent hex than the one that armed us:
+        // the fight is forced. Comparing cells (rather than trusting the event to
+        // mean "moved") also makes a repeat raise at the same cell a no-op.
+        bool forced = isAggro && playerCell != aggroCell;
+        isAggro = true;
+        aggroCell = playerCell;
+
+        if (forced) StartCoroutine(StartCombat(forced: true));
     }
 
     public void OnPointerClick(PointerEventData eventData)
@@ -119,27 +128,81 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
         // deferred to a hover affordance; only an in-range (aggro) token engages.
         if (!isAggro) return;
 
-        StartCoroutine(StartCombat());
+        StartCoroutine(StartCombat(forced: false));
     }
 
-    IEnumerator StartCombat()
+    // forced: the player was cornered rather than choosing this fight, so it opens
+    // already committed and cannot be clicked off (spec 2026-08-01 §2.1).
+    IEnumerator StartCombat(bool forced)
     {
         // Opening is a free look (spec 2026-07-30 §2.3): still gated on the
         // turn's action being available at all (no point opening a fight you
         // can't commit to), but BeginAction() itself waits for a real commit.
+        // A forced fight is gated the same way — only a teleport card played in
+        // the Action phase can reposition once the action is spent, and the token
+        // simply stays armed for next turn.
         if (TurnPhaseController.Instance != null && !TurnPhaseController.Instance.CanInteract)
         {
             GameLog.Instance.Post("You've already taken your action this turn.");
             yield break;
         }
 
+        // One fight at a time. Every armed token sees the same move, so a swarm
+        // trigger runs this on two or three of them at once — and the intro beat
+        // below means InCombat is still false while they queue up. The first one
+        // through opens the fight; the rest are in its roster anyway.
+        if (opening || (CombatController.Instance != null && CombatController.Instance.InCombat))
+            yield break;
+        opening = true;
+
+        // Never a duel by default: everyone standing next to the player piles in.
+        var participants = Participants();
+
+        if (forced)
+            GameLog.Instance.Post(participants.Count > 1
+                ? $"Cornered! {participants.Count} enemies close in — there is no escape."
+                : "Cornered! You cannot avoid this fight.");
+
+        if (player != null) player.inCombat = true;
         GameManager.Instance.activeCombatant = this;
         yield return GameManager.Instance.PlayCombatIntro();
-        var spawns = new List<CombatController.EnemySpawn>
+
+        var spawns = new List<CombatController.EnemySpawn>(participants.Count);
+        foreach (var t in participants)
+            spawns.Add(new CombatController.EnemySpawn(t.enemy, t.bonusHP, t.bonusAttack));
+
+        CombatController.Instance.OpenFight(spawns, CombatContext.Field, fieldTokens: participants,
+            onCommit: () => { if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.BeginAction(); },
+            forced: forced);
+        opening = false;   // the controller owns the fight from here (InCombat is true)
+    }
+
+    // This token plus every OTHER visible enemy standing next to the player
+    // (spec 2026-08-01 §2.2). Board facts are gathered here; who actually joins is
+    // FieldEncounterRules' call. Sorted by cell so the same board always builds the
+    // same ring — FindObjectsByType promises no order.
+    List<EnemyToken> Participants()
+    {
+        var all = new List<EnemyToken>(FindObjectsByType<EnemyToken>());
+        all.Sort((a, b) => a.gridPos.x != b.gridPos.x
+            ? a.gridPos.x.CompareTo(b.gridPos.x)
+            : a.gridPos.y.CompareTo(b.gridPos.y));
+
+        var neighbours = ExplorationController.Instance != null
+            ? ExplorationController.Instance.PlayerNeighbors()
+            : new Vector3Int[0];
+
+        var adjacent = new List<bool>(all.Count);
+        var hidden = new List<bool>(all.Count);
+        foreach (var t in all)
         {
-            new CombatController.EnemySpawn(enemy, bonusHP, bonusAttack)
-        };
-        CombatController.Instance.OpenFight(spawns, CombatContext.Field, fieldToken: this,
-            onCommit: () => { if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.BeginAction(); });
+            adjacent.Add(Array.IndexOf(neighbours, t.gridPos) >= 0);
+            hidden.Add(MapFog.IsHidden(t.gridPos));
+        }
+
+        var picked = FieldEncounterRules.Participants(all.IndexOf(this), adjacent, hidden);
+        var tokens = new List<EnemyToken>(picked.Count);
+        foreach (int i in picked) tokens.Add(all[i]);
+        return tokens;
     }
 }

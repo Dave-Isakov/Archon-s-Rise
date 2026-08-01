@@ -49,9 +49,6 @@ public class CombatController : MonoBehaviour
     // player". Cached at fight-open; the layout runs once and never re-fans.
     Vector2 layoutCentre;
     float layoutRadius;
-    // The source token's true projected point: where cards fly out of and back
-    // to, unclamped, so the morph still reads as "that icon became this card".
-    Vector2 morphSource;
 
     public CombatPhase Phase { get; private set; }
     public bool CanSiege        => CombatPhaseRules.CanSiege(Phase);
@@ -83,7 +80,14 @@ public class CombatController : MonoBehaviour
     readonly List<EnemyCard> live = new();   // logical set; resolution keys off THIS, not childCount
     CombatContext context;
     TownToken guardianPlace;   // Guardian: the assaulted place
-    EnemyToken fieldToken;     // Field: the map token, destroyed + save-recorded on defeat
+    // Field: a fight is never a duel by default (spec 2026-08-01) — every enemy
+    // standing next to the player joins, so the map tokens are a SET. fieldSource
+    // is the one that started it (clicked, or the one that cornered the player);
+    // cardTokens is what each spawned card came from, which drives the per-token
+    // bookkeeping: board visibility, morph origin, defeat records, flee de-aggro.
+    EnemyToken fieldSource;
+    readonly List<EnemyToken> fieldTokens = new();
+    readonly Dictionary<EnemyCard, EnemyToken> cardTokens = new();
     DungeonToken dungeonToken; // Dungeon: depth/completion tracked on defeat
     ShrineToken shrineToken;   // Shrine: the guarding shrine, retired when its guardian falls
 
@@ -225,21 +229,31 @@ public class CombatController : MonoBehaviour
     }
 
     // Opens a phased fight. The source varies by context — guardianPlace for a
-    // Guardian assault, fieldToken for a Field encounter, dungeonToken for a
-    // Dungeon delve — and drives that context's win bookkeeping (Task 9).
+    // Guardian assault, fieldTokens for a Field encounter (one entry per enemy
+    // dragged in, source first), dungeonToken for a Dungeon delve — and drives
+    // that context's win bookkeeping (Task 9).
+    //
+    // forced: the player was cornered rather than choosing this fight (spec
+    // 2026-08-01 §2.1). Expressed as "committed from the first frame" rather than
+    // as its own flag, so Decline()'s existing Committed gate blocks the click-off
+    // with no second escape gate to keep in sync.
     public void OpenFight(List<EnemySpawn> spawns, CombatContext context,
-        TownToken guardianPlace = null, EnemyToken fieldToken = null, DungeonToken dungeonToken = null,
-        ShrineToken shrineToken = null, System.Action onCommit = null, bool previewOnly = false)
+        TownToken guardianPlace = null, List<EnemyToken> fieldTokens = null, DungeonToken dungeonToken = null,
+        ShrineToken shrineToken = null, System.Action onCommit = null, bool previewOnly = false,
+        bool forced = false)
     {
         this.context = context;
         this.guardianPlace = guardianPlace;
-        this.fieldToken = fieldToken;
         this.dungeonToken = dungeonToken;
         this.shrineToken = shrineToken;
         this.pendingOnCommit = onCommit;
         PreviewOnly = previewOnly;
         Committed = false;
         live.Clear();
+        this.fieldTokens.Clear();
+        cardTokens.Clear();
+        if (fieldTokens != null) this.fieldTokens.AddRange(fieldTokens);
+        fieldSource = this.fieldTokens.Count > 0 ? this.fieldTokens[0] : null;
         pendingShrineType = -1;   // a new fight inherits no owed shrine reward
         pendingShrineSo = null;
 
@@ -266,12 +280,16 @@ public class CombatController : MonoBehaviour
                     : "You cannot see the enemies you are about to confront.";
             GameManager.Instance.combatCanvas.enabled = true;
             SetPhase(CombatPhase.Siege);
-            return; // no cards, nothing to Engage/Siege/Influence against — Decline() is the only exit
+            // No cards, nothing to Engage/Siege/Influence against — Decline() is the
+            // only exit, so a blind fight is NEVER auto-committed even when forced:
+            // that would leave the canvas with no way out at all.
+            return;
         }
 
         var prefab = FindAnyObjectByType<EnemyDeck>().PrefabEnemyCard;
-        foreach (var s in spawns)
+        for (int i = 0; i < spawns.Count; i++)
         {
+            var s = spawns[i];
             var go = Instantiate(prefab, parent);
             var card = go.GetComponent<EnemyCard>();
             card.enemySO = s.so;
@@ -279,20 +297,28 @@ public class CombatController : MonoBehaviour
             card.bonusAttack = s.bonusAttack;
             Normalize((RectTransform)card.transform);
             live.Add(card);
+            // Spawn order mirrors the participant order the caller passed, so this
+            // pairs each card with the map token it came from.
+            if (i < this.fieldTokens.Count && this.fieldTokens[i] != null)
+                cardTokens[card] = this.fieldTokens[i];
         }
 
-        morphSource = OriginLocalPoint(OriginWorld());
         PlaceFight();
         foreach (var card in live)
         {
             var morph = card.GetComponent<EnemyCardMorph>();
-            if (morph != null) morph.MorphIn(morphSource); // fly out from the board spot to the slot
+            if (morph != null) morph.MorphIn(OriginLocalFor(card)); // fly out from ITS board spot
         }
-        if (context == CombatContext.Field && fieldToken != null)
-            fieldToken.SetBoardVisible(false);
+        if (context == CombatContext.Field)
+            foreach (var token in this.fieldTokens)
+                if (token != null) token.SetBoardVisible(false);
 
         GameManager.Instance.combatCanvas.enabled = true;
         SetPhase(CombatPhase.Siege); // CombatButtons (spec 2026-07-24) owns the phase controls now
+
+        // Cornered: spend the turn's action now and hold Committed from the first
+        // frame, which is what makes the fight inescapable (§2.1).
+        if (forced) Commit();
     }
 
     void SetPhase(CombatPhase phase)
@@ -453,10 +479,21 @@ public class CombatController : MonoBehaviour
         return local;
     }
 
+    // Where THIS card flies out of and back to: its own map token, so a swarm
+    // reads as several icons becoming several cards rather than all of them
+    // erupting from one spot. Falls back to the fight's origin for any card with
+    // no token behind it (every non-Field context).
+    Vector2 OriginLocalFor(EnemyCard card)
+    {
+        if (card != null && cardTokens.TryGetValue(card, out var token) && token != null)
+            return OriginLocalPoint(token.transform.position);
+        return OriginLocalPoint(OriginWorld());
+    }
+
     // World position the cards emerge from / return to, per fight context.
     Vector3 OriginWorld()
     {
-        if (context == CombatContext.Field && fieldToken != null) return fieldToken.transform.position;
+        if (context == CombatContext.Field && fieldSource != null) return fieldSource.transform.position;
         if (context == CombatContext.Guardian && guardianPlace != null) return guardianPlace.transform.position;
         if (context == CombatContext.Dungeon && dungeonToken != null) return dungeonToken.transform.position;
         if (context == CombatContext.Shrine && shrineToken != null) return shrineToken.transform.position;
@@ -579,8 +616,16 @@ public class CombatController : MonoBehaviour
         // retirement happen in FinishEnd.
         if (context == CombatContext.Guardian && guardianPlace != null)
             ConquestTracker.Instance.RecordDefeat(guardianPlace.gridPos);
-        else if (context == CombatContext.Field && fieldToken != null)
-            RecordFieldDefeat(fieldToken);
+        else if (context == CombatContext.Field && cardTokens.TryGetValue(card, out var killedToken)
+                 && killedToken != null)
+        {
+            // Only THIS card's token leaves the board; the rest of the swarm is
+            // still standing (and still needs restoring on a later flee).
+            RecordFieldDefeat(killedToken);
+            fieldTokens.Remove(killedToken);
+            cardTokens.Remove(card);
+            if (fieldSource == killedToken) fieldSource = null;
+        }
         else if (context == CombatContext.Dungeon && dungeonToken != null)
             RecordDungeonDefeat(dungeonToken);
 
@@ -655,7 +700,7 @@ public class CombatController : MonoBehaviour
         PreviewOnly = false;
         if (blindState != null) blindState.SetActive(false);
 
-        if (context == CombatContext.Field && fieldToken != null && live.Count > 0)
+        if (context == CombatContext.Field && fieldTokens.Count > 0 && live.Count > 0)
         {
             StartCoroutine(MorphAwayThenClose());
             return;
@@ -665,7 +710,6 @@ public class CombatController : MonoBehaviour
 
     IEnumerator MorphAwayThenClose()
     {
-        Vector2 toLocal = OriginLocalPoint(OriginWorld());
         var cards = new List<EnemyCard>(live);
         int pending = 0;
         foreach (var card in cards)
@@ -675,12 +719,29 @@ public class CombatController : MonoBehaviour
         {
             if (card == null) continue;
             var morph = card.GetComponent<EnemyCardMorph>();
-            if (morph != null) morph.MorphBack(toLocal, () => pending--);
+            if (morph != null) morph.MorphBack(OriginLocalFor(card), () => pending--);
         }
         if (pending > 0) yield return new WaitUntil(() => pending <= 0);
 
-        fieldToken.SetBoardVisible(true);
+        RestoreFieldTokens();
         CloseDeclined();
+    }
+
+    // Every participant that is still on the board gets its icon back — a declined
+    // or fled fight leaves the whole swarm standing, not just the one that started it.
+    void RestoreFieldTokens()
+    {
+        foreach (var token in fieldTokens)
+            if (token != null) token.SetBoardVisible(true);
+    }
+
+    // Released however a field fight ended. Read off the player rather than off a
+    // participant token, because a cleared swarm has no tokens left to ask.
+    void ClearFieldCombatFlag()
+    {
+        if (context != CombatContext.Field) return;
+        var pos = FindAnyObjectByType<PlayerPosition>();
+        if (pos != null) pos.inCombat = false;
     }
 
     void CloseDeclined()
@@ -688,10 +749,13 @@ public class CombatController : MonoBehaviour
         foreach (var card in live)
             if (card != null) Destroy(card.gameObject);
         live.Clear();
+        ClearFieldCombatFlag();
 
         GameManager.Instance.CloseCombatCanvas();
         guardianPlace = null;
-        fieldToken = null;
+        fieldSource = null;
+        fieldTokens.Clear();
+        cardTokens.Clear();
         dungeonToken = null;
         shrineToken = null;
 
@@ -747,7 +811,6 @@ public class CombatController : MonoBehaviour
 
     IEnumerator MorphSurvivorsBackThenFinish()
     {
-        Vector2 toLocal = OriginLocalPoint(OriginWorld());
         var survivors = new List<EnemyCard>(live);
         int pending = 0;
         foreach (var card in survivors)
@@ -757,12 +820,11 @@ public class CombatController : MonoBehaviour
         {
             if (card == null) continue;
             var morph = card.GetComponent<EnemyCardMorph>();
-            if (morph != null) morph.MorphBack(toLocal, () => pending--);
+            if (morph != null) morph.MorphBack(OriginLocalFor(card), () => pending--);
         }
         if (pending > 0) yield return new WaitUntil(() => pending <= 0);
 
-        if (context == CombatContext.Field && fieldToken != null)
-            fieldToken.SetBoardVisible(true);
+        if (context == CombatContext.Field) RestoreFieldTokens();
         FinishEnd(paidFlee: true);
     }
 
@@ -803,17 +865,19 @@ public class CombatController : MonoBehaviour
                 RunEndController.RequestEnd(RunOutcome.Victory);
         }
 
-        // Fleeing a field fight leaves the token on the map; de-aggro it so the
-        // player must step away and back to re-engage (parity with the old Flee).
-        if (paidFlee && context == CombatContext.Field && fieldToken != null)
-        {
-            fieldToken.isAggro = false;
-            if (fieldToken.player != null) fieldToken.player.inCombat = false;
-        }
+        // Fleeing a field fight leaves the survivors on the map; de-aggro EVERY one
+        // that took part, so the player must step away and back to re-engage
+        // (parity with the old Flee) rather than being re-cornered on the next step.
+        if (paidFlee && context == CombatContext.Field)
+            foreach (var token in fieldTokens)
+                if (token != null) token.isAggro = false;
+        ClearFieldCombatFlag();
 
         GameManager.Instance.CloseCombatCanvas();
         guardianPlace = null;
-        fieldToken = null;
+        fieldSource = null;
+        fieldTokens.Clear();
+        cardTokens.Clear();
         dungeonToken = null;
         shrineToken = null;
         PreviewOnly = false;
