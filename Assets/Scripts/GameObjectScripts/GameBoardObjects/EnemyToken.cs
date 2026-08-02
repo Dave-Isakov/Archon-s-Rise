@@ -16,10 +16,11 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
     public bool inCombat;
     bool boardHidden; // true while this token's card is up in combat
     [SerializeField] SpriteRenderer glow; // soft halo child, pulses while the player is adjacent
-    // World size the enemy's own art is fitted to on the board. 1 reproduces the
-    // placeholder's footprint exactly, so swapping in real art changes nothing
-    // about how much of the hex a token covers.
-    [SerializeField] float iconWorldSize = 1f;
+    // World size the enemy's own art is fitted to on the board. 1 reproduced the
+    // placeholder's footprint exactly, but card art carries transparent margin the
+    // placeholder didn't, so fitting to 1 left several enemies reading small in
+    // their hex — hence the overshoot. Per-token dial in the Inspector.
+    [SerializeField] float iconWorldSize = 1.35f;
     // Doom scaling applied at spawn time. Lives on the token — the shared
     // EnemiesSO asset is NEVER mutated.
     public int bonusHP;

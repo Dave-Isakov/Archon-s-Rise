@@ -215,12 +215,10 @@ MonoBehaviour:
   isAggro: 0
   inCombat: 0
   glow: {fileID: 6554748936982731329}
+  iconWorldSize: 1.35
   bonusHP: 0
   bonusAttack: 0
   isMidRunSpawn: 0
-  shrineRewardType: -1
-  shrineCell: {x: 0, y: 0, z: 0}
-  shrineSO: {fileID: 0}
   gridPos: {x: 0, y: 0, z: 0}
 --- !u!114 &-3430368709103311725
 MonoBehaviour:
