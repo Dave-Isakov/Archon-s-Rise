@@ -9,7 +9,6 @@ public class PlayBar : MonoBehaviour
     [SerializeField] CardInspector inspector;
     [SerializeField] Button playButton;
     [SerializeField] TextMeshProUGUI playLabel;
-    [SerializeField] Button backButton;
 
     void OnEnable()  { inspector.Changed += Render; }
     void OnDisable() { inspector.Changed -= Render; }
@@ -17,7 +16,6 @@ public class PlayBar : MonoBehaviour
     void Start()
     {
         playButton.onClick.AddListener(() => inspector.Play());
-        backButton.onClick.AddListener(() => inspector.Close());
     }
 
     void Render()

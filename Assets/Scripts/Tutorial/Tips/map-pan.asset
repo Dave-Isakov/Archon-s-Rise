@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a634fb431100c52409a8988da82e5155, type: 3}
-  m_Name: level-up
+  m_Name: map-pan
   m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialOneShotSO
-  id: level-up
-  bannerText: WASD or the arrow keys move the camera around  the map. Press M to
-    return to the character.
+  id: map-pan
+  bannerText: "evel up! Pick your rewards \u2014 skills recharge when the round ends.
+    See the skill bar's ?."
   highlightTargetId: 
-  triggerEventId: map-opened
-  immediate: 1
+  triggerEventId: level-up
+  immediate: 0
