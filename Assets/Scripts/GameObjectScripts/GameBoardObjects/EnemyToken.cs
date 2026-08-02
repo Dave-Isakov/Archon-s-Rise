@@ -16,6 +16,10 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
     public bool inCombat;
     bool boardHidden; // true while this token's card is up in combat
     [SerializeField] SpriteRenderer glow; // soft halo child, pulses while the player is adjacent
+    // World size the enemy's own art is fitted to on the board. 1 reproduces the
+    // placeholder's footprint exactly, so swapping in real art changes nothing
+    // about how much of the hex a token covers.
+    [SerializeField] float iconWorldSize = 1f;
     // Doom scaling applied at spawn time. Lives on the token — the shared
     // EnemiesSO asset is NEVER mutated.
     public int bonusHP;
@@ -50,6 +54,33 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
         gridPos = gameboard.LocalToCell(transform.position);
         player = FindAnyObjectByType<PlayerPosition>();
         player.UpdateCompass(gridPos, compass);
+        ApplyArt();
+    }
+
+    // Wears its own enemy's art on the board instead of the shared placeholder.
+    // Uses EnemiesSO.cardArt — the same portrait the combat card shows — so the
+    // icon the player walks up to is the thing that then fills the card.
+    //
+    // The renderer is the one on THIS object (the glow is the only child), so no
+    // extra scene reference is involved. Every spawn path assigns `enemy` before
+    // Start runs, whether from map gen, a mid-run spawn, or a save restore.
+    void ApplyArt()
+    {
+        if (enemy == null || enemy.cardArt == null) return; // unauthored: keep the placeholder
+        var icon = GetComponent<SpriteRenderer>();
+        if (icon == null) return;
+
+        icon.sprite = enemy.cardArt;
+        // Card art is authored at portrait resolution, so its native world size is
+        // nothing like a hex. Fit the LARGER axis to iconWorldSize and the token
+        // can never swamp the cell it stands on, whatever the art's aspect or PPU.
+        var size = enemy.cardArt.bounds.size;
+        float largest = Mathf.Max(size.x, size.y);
+        if (largest > 0f)
+        {
+            float s = iconWorldSize / largest;
+            transform.localScale = new Vector3(s, s, 1f);
+        }
     }
 
     void Update()
