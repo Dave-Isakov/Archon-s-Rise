@@ -15,6 +15,15 @@ public class CreateCrystalButtons : MonoBehaviour, IPointerClickHandler
     // eats the next click meant for the board. (Replaces CrystalDismissCatcher.Hide.)
     [SerializeField] ClickOffCatcher dismissCatcher;
 
+    // The pop-out's own open state. PlaceFan.OnSlotClicked dismisses the fan BEFORE
+    // it dispatches, so PlaceFan.IsOpen is already false by the time the fan route
+    // opens the pop-out and can never gate it.
+    static bool popoutOpen;
+
+    // Wired as a second response on the crystal pop-out event, alongside the
+    // per-crystal set_interactable calls.
+    public void OnPopoutOpened() => popoutOpen = true;
+
     public void OnPointerClick(PointerEventData eventData)
     {
         HideAll();
@@ -26,6 +35,7 @@ public class CreateCrystalButtons : MonoBehaviour, IPointerClickHandler
     // The shared ClickOffCatcher now owns dismissal (spec 2026-07-28).
     public static void HideAll()
     {
+        popoutOpen = false;
         foreach (var crystal in FindObjectsByType<CreateCrystalButtons>(FindObjectsInactive.Include))
         {
             crystal.thisButton.interactable = false;
@@ -46,7 +56,7 @@ public class CreateCrystalButtons : MonoBehaviour, IPointerClickHandler
     private void Update()
     {
         if (GameManager.Instance.townCanvas.enabled) return;
-        if (PlaceFan.Instance != null && PlaceFan.Instance.IsOpen) return;
+        if (popoutOpen) return;
         thisButton.interactable = false;
     }
 }
