@@ -414,6 +414,7 @@ public class Player : MonoBehaviour
         var newUnit = Instantiate(unitPrefab, new Vector3(0, 0, 0), Quaternion.identity,
             GameObject.Find("Units").transform);
         newUnit.GetComponent<Unit>().unitSO = so;
+        BarFocusController.Instance?.RelayoutUnits();
     }
 
     // Disband-to-hire: removes one unit to make room at the army cap. A played
@@ -424,6 +425,7 @@ public class Player : MonoBehaviour
     {
         units.Remove(unit.unitSO);
         Destroy(unit.gameObject);
+        BarFocusController.Instance?.RelayoutUnits();
     }
 
     public void RebuildUnits(List<UnitsSO> unitSOs, bool[] exhausted = null)
@@ -444,11 +446,9 @@ public class Player : MonoBehaviour
             var unit = newUnit.GetComponent<Unit>();
             unit.unitSO = so;
             if (exhausted != null && i < exhausted.Length && exhausted[i])
-            {
-                unit.transform.Rotate(0, 0, -90);
                 unit.IsPlayed = true;
-            }
         }
+        BarFocusController.Instance?.RelayoutUnits();
     }
     // Round end: used units stand back up for the new round. Only the exhausted
     // state resets — their stat contribution was already cleared by TurnEnd, so
@@ -462,10 +462,11 @@ public class Player : MonoBehaviour
         }
     }
 
-    // The one rotate/IsPlayed pair, shared by round refresh, unit options, and
-    // the refresh picker so exhaust visuals can never drift apart.
-    void ReadyUnit(Unit unit)   { unit.transform.Rotate(0, 0, 90);  unit.IsPlayed = false; }
-    void ExhaustUnit(Unit unit) { unit.transform.Rotate(0, 0, -90); unit.IsPlayed = true; }
+    // The one IsPlayed pair, shared by round refresh, unit options, and the
+    // refresh picker so exhaust visuals can never drift apart. The tint lives in
+    // Unit.IsPlayed; the relayout refreshes the rail's selectable mask.
+    void ReadyUnit(Unit unit)   { unit.IsPlayed = false; BarFocusController.Instance?.RelayoutUnits(); }
+    void ExhaustUnit(Unit unit) { unit.IsPlayed = true;  BarFocusController.Instance?.RelayoutUnits(); }
 
     bool AnyRefreshable(int budget)
     {

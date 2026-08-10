@@ -11,8 +11,17 @@ public class Unit : MonoBehaviour, IPointerClickHandler, IFanItem
     [SerializeField] public UnitsSO unitSO;
     [SerializeField] TextMeshProUGUI unitLetter;
     [SerializeField] TextMeshProUGUI unitText;
+    [SerializeField] Color exhaustedGrey = new Color(0.55f, 0.55f, 0.55f, 1f);
     private bool isPlayed = false;
-    public bool IsPlayed { get => isPlayed; set => isPlayed = value; }
+
+    // Exhaustion used to be a -90 rotation, which FanLane would overwrite with the
+    // slot tilt on the next relayout. It is now a grey tint — the same language
+    // wounds use — applied here so no caller can drift from it.
+    public bool IsPlayed
+    {
+        get => isPlayed;
+        set { isPlayed = value; ApplyExhaustTint(); }
+    }
 
     CanvasGroup _group;
     public RectTransform Rect => (RectTransform)transform;
@@ -40,8 +49,14 @@ public class Unit : MonoBehaviour, IPointerClickHandler, IFanItem
 
     void Start()
     {
-        image.color = unitSO.color;
         unitLetter.text = unitSO.cardName.ToString();
         unitText.text = unitSO.cardDescription;
+        ApplyExhaustTint();
+    }
+
+    void ApplyExhaustTint()
+    {
+        if (image == null || unitSO == null) return;
+        image.color = isPlayed ? exhaustedGrey : unitSO.color;
     }
 }
