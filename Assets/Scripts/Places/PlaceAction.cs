@@ -32,13 +32,15 @@ public readonly struct TownActionSnapshot
     // subtracts without clamping, so the slot has to gate on this or a broke
     // player can buy into negative influence.
     public readonly int CrystalCost;
+    public readonly bool SellsCards;
+    public readonly int CardCost;
     public readonly bool AnyUnitAffordable;
     public readonly bool VisitCanAct;
     public readonly bool HasMenu;
 
     public TownActionSnapshot(PlaceType placeType, bool conquered, int guardiansRemaining,
-        int influence, int healCost, int crystalCost, bool anyUnitAffordable,
-        bool visitCanAct, bool hasMenu)
+        int influence, int healCost, int crystalCost, bool sellsCards, int cardCost,
+        bool anyUnitAffordable, bool visitCanAct, bool hasMenu)
     {
         PlaceType = placeType;
         Conquered = conquered;
@@ -46,6 +48,8 @@ public readonly struct TownActionSnapshot
         Influence = influence;
         HealCost = healCost;
         CrystalCost = crystalCost;
+        SellsCards = sellsCards;
+        CardCost = cardCost;
         AnyUnitAffordable = anyUnitAffordable;
         VisitCanAct = visitCanAct;
         HasMenu = hasMenu;

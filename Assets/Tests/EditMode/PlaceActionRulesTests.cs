@@ -5,9 +5,10 @@ public class PlaceActionRulesTests
     // A conquered Town with everything affordable and the action unspent.
     static TownActionSnapshot Town(PlaceType type = PlaceType.Town, bool conquered = true,
         int guardiansRemaining = 0, int influence = 99, int healCost = 3, int crystalCost = 2,
+        bool sellsCards = false, int cardCost = 5,
         bool anyUnitAffordable = true, bool visitCanAct = true, bool hasMenu = true)
         => new TownActionSnapshot(type, conquered, guardiansRemaining, influence, healCost,
-            crystalCost, anyUnitAffordable, visitCanAct, hasMenu);
+            crystalCost, sellsCards, cardCost, anyUnitAffordable, visitCanAct, hasMenu);
 
     [Test]
     public void Unconquered_AssaultThenMenuOnly()
@@ -32,12 +33,62 @@ public class PlaceActionRulesTests
     }
 
     [Test]
-    public void ConqueredCastle_IncludesCardsButDisabled()
+    public void SellingTown_ShowsCardsBetweenHealAndCrystal()
     {
-        var actions = PlaceActionRules.ForTown(Town(PlaceType.Castle));
+        var actions = PlaceActionRules.ForTown(Town(sellsCards: true));
+        Assert.AreEqual(5, actions.Count);
+        Assert.AreEqual(PlaceActionId.Recruit, actions[0].Id);
+        Assert.AreEqual(PlaceActionId.Heal, actions[1].Id);
+        Assert.AreEqual(PlaceActionId.Cards, actions[2].Id);
+        Assert.AreEqual(PlaceActionId.Crystal, actions[3].Id);
+        Assert.AreEqual(PlaceActionId.OpenMenu, actions[4].Id);
+    }
+
+    [Test]
+    public void CardsShowsItsInfluenceCostAndUnlocksWhenAffordable()
+    {
+        var actions = PlaceActionRules.ForTown(Town(sellsCards: true, influence: 5, cardCost: 5));
         var cards = actions.Find(a => a.Id == PlaceActionId.Cards);
-        Assert.AreEqual(PlaceActionId.Cards, cards.Id, "Castle must offer the Cards slot");
-        Assert.IsFalse(cards.Enabled, "Cards is an M2 stub and must render locked");
+        Assert.AreEqual(IconConcept.Card, cards.Icon);
+        Assert.AreEqual(IconConcept.Influence, cards.CostIcon);
+        Assert.AreEqual(5, cards.CostAmount);
+        Assert.IsTrue(cards.Enabled);
+    }
+
+    [Test]
+    public void CardsLocksBelowItsCost()
+    {
+        var actions = PlaceActionRules.ForTown(Town(sellsCards: true, influence: 4, cardCost: 5));
+        Assert.IsFalse(actions.Find(a => a.Id == PlaceActionId.Cards).Enabled);
+    }
+
+    [Test]
+    public void CardsLocksOnceTheActionIsSpent()
+    {
+        var actions = PlaceActionRules.ForTown(Town(sellsCards: true, visitCanAct: false));
+        Assert.IsFalse(actions.Find(a => a.Id == PlaceActionId.Cards).Enabled);
+    }
+
+    [Test]
+    public void NoCardList_NoCardsSlot()
+    {
+        foreach (PlaceType type in System.Enum.GetValues(typeof(PlaceType)))
+        {
+            var actions = PlaceActionRules.ForTown(Town(type, sellsCards: false));
+            Assert.AreEqual(0, actions.FindAll(a => a.Id == PlaceActionId.Cards).Count,
+                type + " must not offer Cards without a card list");
+        }
+    }
+
+    [Test]
+    public void AnyPlaceTypeWithAListSellsCards()
+    {
+        foreach (PlaceType type in System.Enum.GetValues(typeof(PlaceType)))
+        {
+            var actions = PlaceActionRules.ForTown(Town(type, sellsCards: true));
+            Assert.AreEqual(1, actions.FindAll(a => a.Id == PlaceActionId.Cards).Count,
+                type + " must offer Cards when it has a card list");
+        }
     }
 
     [Test]
@@ -79,7 +130,7 @@ public class PlaceActionRulesTests
     [Test]
     public void ActionSpent_ServicesLockButMenuStaysOpen()
     {
-        var actions = PlaceActionRules.ForTown(Town(visitCanAct: false));
+        var actions = PlaceActionRules.ForTown(Town(sellsCards: true, visitCanAct: false));
         foreach (var a in actions)
             if (a.Id != PlaceActionId.OpenMenu)
                 Assert.IsFalse(a.Enabled, a.Id + " must lock once the action is spent");

@@ -12,7 +12,7 @@ public static class PlaceRules
         switch (type)
         {
             case PlaceType.Keep: return PlaceService.Recruit | PlaceService.Crystal;
-            case PlaceType.Castle: return PlaceService.Recruit | PlaceService.Heal | PlaceService.Cards | PlaceService.Crystal;
+            case PlaceType.Castle: return PlaceService.Recruit | PlaceService.Heal | PlaceService.Crystal;
             default: return PlaceService.Recruit | PlaceService.Heal | PlaceService.Crystal; // Town
         }
     }

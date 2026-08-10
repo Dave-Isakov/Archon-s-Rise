@@ -17,10 +17,18 @@ public class PlaceRulesTests
     }
 
     [Test]
-    public void AllowedServices_Castle_RecruitHealCardsCrystal()
+    public void AllowedServices_Castle_RecruitHealCrystal()
     {
-        Assert.AreEqual(PlaceService.Recruit | PlaceService.Heal | PlaceService.Cards | PlaceService.Crystal,
+        Assert.AreEqual(PlaceService.Recruit | PlaceService.Heal | PlaceService.Crystal,
             PlaceRules.AllowedServices(PlaceType.Castle));
+    }
+
+    [Test]
+    public void AllowedServices_NoPlaceTypeGrantsCards()
+    {
+        foreach (PlaceType type in System.Enum.GetValues(typeof(PlaceType)))
+            Assert.IsFalse(PlaceRules.AllowedServices(type).HasFlag(PlaceService.Cards),
+                $"{type} must not gate Cards — the card list does");
     }
 
     [Test]

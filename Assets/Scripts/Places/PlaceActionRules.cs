@@ -30,11 +30,10 @@ public static class PlaceActionRules
                     IconConcept.Influence, s.HealCost,
                     s.Influence >= s.HealCost && s.VisitCanAct));
 
-            // M2 stub: the slot is shown so the place reports itself honestly,
-            // but buying is disabled until the purchase economics land.
-            if ((allowed & PlaceService.Cards) != 0)
+            if (s.SellsCards)
                 list.Add(new PlaceAction(PlaceActionId.Cards, IconConcept.Card,
-                    null, 0, false));
+                    IconConcept.Influence, s.CardCost,
+                    s.Influence >= s.CardCost && s.VisitCanAct));
 
             // Which COLORS are available is shown inside the pop-out; the price
             // is per-crystal and identical whatever the colour, so it belongs on
