@@ -7,8 +7,12 @@ public class FanMathTests
     {
         SpreadDegrees = 66f,
         CardSpacing = 120f,
-        ArcDrop = 40f
+        ArcDrop = 40f,
+        MaxWidth = 900f
     };
+
+    static float Span(FanSlot[] slots) =>
+        slots[slots.Length - 1].AnchoredPosition.x - slots[0].AnchoredPosition.x;
 
     [Test]
     public void Empty_ReturnsNoSlots()
@@ -55,5 +59,35 @@ public class FanMathTests
         Assert.AreEqual(0f, slots[1].AnchoredPosition.y, 0.001f);   // centre card at y=0
         Assert.AreEqual(-40f, slots[0].AnchoredPosition.y, 0.001f); // edges drop by ArcDrop
         Assert.AreEqual(-40f, slots[2].AnchoredPosition.y, 0.001f);
+    }
+
+    [Test]
+    public void Span_IsUncappedBelowTheThreshold()
+    {
+        // 8 cards need 7 * 120 = 840 <= 900, so spacing is untouched.
+        Assert.AreEqual(840f, Span(FanMath.Solve(8, Settings())), 0.001f);
+    }
+
+    [Test]
+    public void Span_CompressesAboveTheThreshold()
+    {
+        // 12 cards would need 11 * 120 = 1320; the cap pulls the span back to 900.
+        Assert.AreEqual(900f, Span(FanMath.Solve(12, Settings())), 0.001f);
+    }
+
+    [Test]
+    public void Span_NeverExceedsMaxWidth()
+    {
+        for (int count = 2; count <= 20; count++)
+            Assert.LessOrEqual(Span(FanMath.Solve(count, Settings())), 900.001f,
+                "count " + count + " overran MaxWidth");
+    }
+
+    [Test]
+    public void MaxWidthOfZero_DisablesTheCap()
+    {
+        var s = Settings();
+        s.MaxWidth = 0f;
+        Assert.AreEqual(1320f, Span(FanMath.Solve(12, s)), 0.001f);
     }
 }

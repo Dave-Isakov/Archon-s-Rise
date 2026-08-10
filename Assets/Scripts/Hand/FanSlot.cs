@@ -13,11 +13,12 @@ public readonly struct FanSlot
     }
 }
 
-// Tunable fan geometry. Plain fields so HandFanLayout can serialize it.
+// Tunable fan geometry. Plain fields so FanLane can serialize it.
 [System.Serializable]
 public class FanSettings
 {
     public float SpreadDegrees = 66f; // total fan angle -> edges sit at ±33°
     public float CardSpacing = 120f;  // horizontal px between adjacent card centers
     public float ArcDrop = 40f;       // px the edge cards sit below the center card
+    public float MaxWidth = 900f;     // cap on the centre-to-centre span; <= 0 disables
 }
