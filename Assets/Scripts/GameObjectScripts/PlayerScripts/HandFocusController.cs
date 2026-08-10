@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 // Owns the Board <-> Fan context transitions; CardInspector owns Inspector.
 public class HandFocusController : MonoBehaviour
 {
-    [SerializeField] HandFanLayout layout;
+    [SerializeField] FanLane layout;
     [SerializeField] UnitsLane unitsLane;
 
     enum FocusOwner { None, Mouse, Pad }
@@ -99,13 +99,13 @@ public class HandFocusController : MonoBehaviour
             return;
         }
 
-        var cards = layout.InHand();
-        var wounds = new bool[cards.Count];
+        var cards = layout.InLane();
+        var blocked = new bool[cards.Count];
         for (int i = 0; i < cards.Count; i++)
-            wounds[i] = cards[i].cardSO.cardType == StatType.Wound;
+            blocked[i] = !cards[i].Selectable;
 
         int current = layout.Focused != null ? cards.IndexOf(layout.Focused) : -1;
-        int next = HandNavRules.Step(current, nav.x > 0 ? +1 : -1, wounds);
+        int next = HandNavRules.Step(current, nav.x > 0 ? +1 : -1, blocked);
         if (next < 0) return;
 
         _owner = FocusOwner.Pad;
@@ -128,14 +128,14 @@ public class HandFocusController : MonoBehaviour
     {
         if (!GameControls.Gameplay.Submit.WasPressedThisFrame()) return;
         if (layout.Focused == null) return;
-        layout.Focused.ToggleInspect();
+        layout.Focused.Activate();
     }
 
     // After draw/discard/heal/play the focused card may have left the fan; keep pad
     // focus on the nearest surviving card instead of letting it vanish.
     void KeepPadFocusValid()
     {
-        var cards = layout.InHand();
+        var cards = layout.InLane();
         if (layout.Focused != null && cards.Contains(layout.Focused))
         {
             _lastPadIndex = cards.IndexOf(layout.Focused);
@@ -146,12 +146,12 @@ public class HandFocusController : MonoBehaviour
 
     void RestorePadFocus()
     {
-        var cards = layout.InHand();
-        var wounds = new bool[cards.Count];
+        var cards = layout.InLane();
+        var blocked = new bool[cards.Count];
         for (int i = 0; i < cards.Count; i++)
-            wounds[i] = cards[i].cardSO.cardType == StatType.Wound;
+            blocked[i] = !cards[i].Selectable;
 
-        int next = HandNavRules.ClampAfterChange(_lastPadIndex, wounds);
+        int next = HandNavRules.ClampAfterChange(_lastPadIndex, blocked);
         if (next < 0)
         {
             _owner = FocusOwner.None;

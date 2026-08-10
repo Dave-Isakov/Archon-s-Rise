@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class Unit : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+public class Unit : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, IFanItem
 {
     [SerializeField] Image image;
     [SerializeField] public UnitsSO unitSO;
@@ -13,6 +13,17 @@ public class Unit : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     [SerializeField] TextMeshProUGUI unitText;
     private bool isPlayed = false;
     public bool IsPlayed { get => isPlayed; set => isPlayed = value; }
+
+    CanvasGroup _group;
+    public RectTransform Rect => (RectTransform)transform;
+    public CanvasGroup Group => _group != null ? _group : _group = GetComponent<CanvasGroup>();
+    public bool Selectable => !isPlayed;
+
+    public void Activate()
+    {
+        var inspector = FindAnyObjectByType<UnitInspector>();
+        if (inspector != null) inspector.Open(this);
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {

@@ -13,7 +13,7 @@ public class PlayerHand : MonoBehaviour
     [SerializeField] CardsSO wound;
     [SerializeField] GameObject[] cardPositions;
     [SerializeField] GridLayoutGroup layoutGroup;
-    [SerializeField] HandFanLayout handLayout;
+    [SerializeField] FanLane handLayout;
     private List<Card> healedWounds = new();
     [SerializeField] Vector2 layoutAdjustment = new Vector2(2, 0);
     GameObject playerCard;

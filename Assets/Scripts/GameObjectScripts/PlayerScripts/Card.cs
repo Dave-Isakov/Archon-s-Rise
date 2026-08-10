@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 
 [System.Serializable]
-public class Card : MonoBehaviour, IPointerClickHandler
+public class Card : MonoBehaviour, IPointerClickHandler, IFanItem
 {
     public CardsSO cardSO;
     private bool isPlayed;
@@ -67,6 +67,12 @@ public class Card : MonoBehaviour, IPointerClickHandler
     public bool InDeck { get => inDeck; set => inDeck = value; }
     public bool InHand { get => inHand; set => inHand = value; }
     public bool InDiscard { get => inDiscard; set => inDiscard = value; }
+
+    CanvasGroup _group;
+    public RectTransform Rect => (RectTransform)transform;
+    public CanvasGroup Group => _group != null ? _group : _group = GetComponent<CanvasGroup>();
+    public bool Selectable => cardSO != null && cardSO.cardType != StatType.Wound;
+    public void Activate() => ToggleInspect();
 
     void Start() 
     {
@@ -159,7 +165,7 @@ public class Card : MonoBehaviour, IPointerClickHandler
         var t = card.gameObject.transform;
         Vector3 fromWorld = t.position;
 
-        var hand = GameManager.Instance.playerHand.GetComponentInChildren<HandFanLayout>();
+        var hand = GameManager.Instance.playerHand.GetComponentInChildren<FanLane>();
         t.SetParent(hand.Container, false);
         card.isMaximized = false;
         GameManager.Instance.playerHand.GetComponent<PlayerHand>().Relayout();
