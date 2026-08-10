@@ -1,29 +1,36 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CardButton : TownButtons
 {
-    public override void UpdateButtonText()
+    private void Update()
     {
         if (_town is not null)
         {
-            bool allowed = PlaceRules.AllowedServices(_town.townSO.placeType).HasFlag(PlaceService.Cards);
-            bool open = ConquestTracker.Instance.IsConquered(_town.gridPos);
-            if (allowed && open)
-            {
-                // M2 stub: the Castle card shop is a deferred follow-up. The
-                // button is present so the service slot is visible, but buying
-                // is disabled until the purchase economics land.
-                thisButton.gameObject.SetActive(true);
-                buttonText.text = "Cards (soon)";
+            if (currentPlayerInfluence < _town.townSO.cardLevel || !CanActThisVisit)
                 thisButton.interactable = false;
-                thisButton.onClick.RemoveAllListeners();
-            }
-            else
-            {
-                thisButton.gameObject.SetActive(false);
-            }
+            SyncLock();
         }
+    }
+
+    public override void UpdateButtonText()
+    {
+        if (_town is null) return;
+
+        buttonText.text =
+            $"{IconMarkup.Tag(IconConcept.Card)} Cards — {IconMarkup.Cost(IconConcept.Influence, _town.townSO.cardLevel)}";
+        bool sells = _town.townSO.purchasableCards != null && _town.townSO.purchasableCards.Count > 0;
+        bool open = ConquestTracker.Instance.IsConquered(_town.gridPos);
+        if (sells && open)
+        {
+            thisButton.gameObject.SetActive(true);
+            thisButton.interactable = currentPlayerInfluence >= _town.townSO.cardLevel;
+            thisButton.onClick.RemoveAllListeners();
+            thisButton.onClick.AddListener(() => _town.BuyCards());
+        }
+        else
+        {
+            thisButton.gameObject.SetActive(false);
+        }
+        SyncLock();
     }
 }

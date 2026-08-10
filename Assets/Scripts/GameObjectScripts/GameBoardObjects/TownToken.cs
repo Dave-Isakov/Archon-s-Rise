@@ -52,6 +52,8 @@ public class TownToken : PlaceTokenBase
             influence: influence,
             healCost: townSO.healLevel,
             crystalCost: townSO.resourceLevel,
+            sellsCards: townSO.purchasableCards != null && townSO.purchasableCards.Count > 0,
+            cardCost: townSO.cardLevel,
             anyUnitAffordable: anyUnitAffordable,
             visitCanAct: CanActThisVisit,
             hasMenu: true));
@@ -87,7 +89,8 @@ public class TownToken : PlaceTokenBase
                 break;
 
             case PlaceActionId.Cards:
-                break; // M2 stub: the slot renders locked and does nothing
+                BuyCards();
+                break;
 
             case PlaceActionId.OpenMenu:
                 GameManager.Instance.townCanvas.enabled = true;
@@ -113,5 +116,15 @@ public class TownToken : PlaceTokenBase
         TownMenu.Instance.PrepareButtons();
         if (onClick_GetTownData != null) onClick_GetTownData.Raise(this);
         if (onCrystalButtonClick != null) onCrystalButtonClick.Raise(this);
+    }
+
+    // The charge and the turn's action land BEFORE the picker opens, so skipping
+    // the pick forfeits the influence rather than refunding it.
+    public void BuyCards()
+    {
+        if (PlayerStats != null) PlayerStats.Influence(townSO.cardLevel);
+        if (TurnPhaseController.Instance != null) TurnPhaseController.Instance.CommitVisitAction();
+        var rewards = FindAnyObjectByType<Rewards>(FindObjectsInactive.Include);
+        if (rewards != null) rewards.OfferTownCards(townSO);
     }
 }
