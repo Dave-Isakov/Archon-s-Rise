@@ -28,7 +28,7 @@ public class Unit : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     void Start()
     {
         image.color = unitSO.color;
-        unitLetter.text = unitSO.unitLetter.ToString();
+        unitLetter.text = unitSO.cardName.ToString();
         unitText.text = unitSO.cardDescription;
     }
 

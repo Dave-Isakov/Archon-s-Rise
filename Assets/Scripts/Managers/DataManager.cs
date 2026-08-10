@@ -10,6 +10,15 @@ public class DataManager : MonoBehaviour
 {
     public SaveFile current = new SaveFile();
     public HashSet<Cell> DefeatedEnemies { get; private set; } = new HashSet<Cell>();
+
+    // The one true save location. Must be persistentDataPath, NOT dataPath: on Android/iOS
+    // dataPath points inside the read-only application package, so every write throws and
+    // the game cannot save at all. On desktop this resolves under AppData/LocalLow (Windows)
+    // or ~/Library/Application Support (macOS). The editor tools under Assets/Scripts/Editor
+    // write through this same property so a test save always lands where LoadGame() reads.
+    public static string SaveFilePath =>
+        Path.Combine(Application.persistentDataPath, "Save.json");
+
     public string savePath = "";
     public bool IsLoading { get; private set; }
     public int CurrentSeed { get; set; }
@@ -71,7 +80,7 @@ public class DataManager : MonoBehaviour
             BuildRegistries();
         }
         // playerHandSize = player.PlayerHandSize;
-        savePath = Application.dataPath + Path.AltDirectorySeparatorChar + "Save.json";
+        savePath = SaveFilePath;
         DontDestroyOnLoad(this.gameObject);
     }
 
@@ -188,7 +197,7 @@ public class DataManager : MonoBehaviour
         // A button may target an inactive/duplicate DataManager (its Awake never ran and
         // StartCoroutine fails on it); route to the active singleton.
         if (instance != null && instance != this) { instance.LoadGame(); return; }
-        savePath = Application.dataPath + Path.AltDirectorySeparatorChar + "Save.json";
+        savePath = SaveFilePath;
         if (!File.Exists(savePath))
         {
             Debug.LogWarning($"No save file found at {savePath}");
@@ -534,7 +543,7 @@ public class DataManager : MonoBehaviour
         }
         current = captured;
         string json = SaveSerializer.ToJson(current);
-        savePath = Application.dataPath + Path.AltDirectorySeparatorChar + "Save.json";
+        savePath = SaveFilePath;
         Debug.Log($"Saving data at {savePath}");
         using StreamWriter writer = new StreamWriter(savePath);
         writer.Write(json);
@@ -544,7 +553,7 @@ public class DataManager : MonoBehaviour
     public void DeleteSave()
     {
         if (instance != null && instance != this) { instance.DeleteSave(); return; }
-        savePath = Application.dataPath + Path.AltDirectorySeparatorChar + "Save.json";
+        savePath = SaveFilePath;
         if (File.Exists(savePath)) File.Delete(savePath);
         current = new SaveFile();
     }

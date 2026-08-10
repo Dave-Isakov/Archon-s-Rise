@@ -88,7 +88,7 @@ public static class SwarmSaveTool
         var file = dm.CaptureRunState();
         if (file == null) { Debug.LogError("Swarm Test Save: CaptureRunState returned null."); return; }
         dm.current = file;
-        string path = Application.dataPath + Path.AltDirectorySeparatorChar + "Save.json";
+        string path = DataManager.SaveFilePath;
         File.WriteAllText(path, SaveSerializer.ToJson(file));
 
         Debug.Log($"Swarm Test Save written to {path}\n" +

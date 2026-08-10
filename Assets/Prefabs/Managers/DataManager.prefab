@@ -86,6 +86,7 @@ MonoBehaviour:
       dungeonHighFlagsFired: 0
       hotspots: []
       shrines: []
+      deckShortfallPending: 0
   savePath: 
   allCards:
   - {fileID: 11400000, guid: fc9bc6d5c1c1493680a53217db38434e, type: 2}
@@ -150,6 +151,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 46f5d3a8bf5ea234198cf0f02b227bcf, type: 2}
   - {fileID: 11400000, guid: 0965c728631f4cf4f96a727e56419d2b, type: 2}
   - {fileID: 11400000, guid: 50d37205264f1b54693753f32dde8ef1, type: 2}
+  - {fileID: 11400000, guid: 9e035bd7315514d42ba884d064901bb0, type: 2}
   - {fileID: 11400000, guid: 7ea7f0d9b1bbfb34b90040a327829972, type: 2}
   - {fileID: 11400000, guid: edd833e915b86ba41815cfdcdbc763b1, type: 2}
   - {fileID: 11400000, guid: 9abcb77e941bd0d48bf0c36cccaef4c8, type: 2}

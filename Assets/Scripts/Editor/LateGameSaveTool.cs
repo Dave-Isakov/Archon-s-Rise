@@ -113,7 +113,7 @@ public static class LateGameSaveTool
         var file = dm.CaptureRunState();
         if (file == null) { Debug.LogError("Late-Game Test Save: CaptureRunState returned null."); return; }
         dm.current = file;
-        string path = Application.dataPath + Path.AltDirectorySeparatorChar + "Save.json";
+        string path = DataManager.SaveFilePath;
         File.WriteAllText(path, SaveSerializer.ToJson(file));
 
         Debug.Log($"Late-Game Test Save written to {path}\n" +
