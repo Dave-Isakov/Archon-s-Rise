@@ -93,13 +93,27 @@ public class Rewards : MonoBehaviour
 
         RewardQueue.Instance.Enqueue(done =>
         {
-            var candidates = new List<CardsSO>();
-            for (int i = 0; i < 3; i++)
-                candidates.Add(pool[Random.Range(0, pool.Count)]);
+            var candidates = ShopRules.PickUnique(pool, 3, max => Random.Range(0, max));
 
             rewardCanvas.Offer(candidates,
                 so => { deck.AddCard(so, toTop: true); done(); onClosed?.Invoke(); },
                 () => { done(); onClosed?.Invoke(); });
+        });
+    }
+
+    // Pay-then-pick: the caller has already charged the purchase, so a skip forfeits it.
+    public void OfferTownCards(TownsSO town)
+    {
+        if (town == null) return;
+        var pool = town.purchasableCards;
+        if (pool == null || pool.Count == 0) return;
+
+        RewardQueue.Instance.Enqueue(done =>
+        {
+            var candidates = ShopRules.PickUnique(pool, 3, max => Random.Range(0, max));
+            rewardCanvas.Offer(candidates,
+                so => { deck.AddCard(so, toTop: true); done(); },
+                () => done());
         });
     }
 
