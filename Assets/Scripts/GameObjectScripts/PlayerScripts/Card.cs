@@ -105,10 +105,17 @@ public class Card : MonoBehaviour, IPointerClickHandler, IFanItem
             greenColor, redColor, purpleColor, yellowColor);
     }
 
-    public void OnPointerClick(PointerEventData eventData) => ToggleInspect();
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        // A maximized card has been reparented out of the lane, so it is never
+        // claimed and this still closes the inspector.
+        if (BarFocusController.Instance != null &&
+            BarFocusController.Instance.TryClaimClick(this)) return;
+        ToggleInspect();
+    }
 
     // Device-agnostic inspect entry point: mouse click and gamepad Submit
-    // (HandFocusController) both come through here, so the guards apply equally.
+    // (BarFocusController) both come through here, so the guards apply equally.
     public void ToggleInspect()
     {
         if (GameManager.Instance.cardListCanvas.enabled) return;

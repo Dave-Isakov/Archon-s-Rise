@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class Unit : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, IFanItem
+public class Unit : MonoBehaviour, IPointerClickHandler, IFanItem
 {
     [SerializeField] Image image;
     [SerializeField] public UnitsSO unitSO;
@@ -28,6 +28,8 @@ public class Unit : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
     public void OnPointerClick(PointerEventData eventData)
     {
         if (InputContextState.MapOpen) return; // map mode: look, don't touch
+        if (BarFocusController.Instance != null &&
+            BarFocusController.Instance.TryClaimClick(this)) return;
         if (isPlayed)
         {
             GameLog.Instance.Post($"{unitSO.cardName} has already been played, undo to revert action.");
@@ -42,22 +44,4 @@ public class Unit : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, I
         unitLetter.text = unitSO.cardName.ToString();
         unitText.text = unitSO.cardDescription;
     }
-
-    // Mouse hover shows the same moving outline the controller lane uses (the
-    // token no longer scales). The lane owns the outline; while it's driving
-    // focus with the pad, the mouse leaves it alone.
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-        var lane = FindAnyObjectByType<UnitsLane>();
-        if (lane != null && !lane.IsActive)
-            lane.FocusOutlineOver((RectTransform)transform);
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
-        var lane = FindAnyObjectByType<UnitsLane>();
-        if (lane != null && !lane.IsActive)
-            lane.HideOutline();
-    }
-
 }

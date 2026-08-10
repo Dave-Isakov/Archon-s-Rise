@@ -62,7 +62,7 @@ public class CardInspector : MonoBehaviour
         // and clears its maximized flag. Without this, Back left the card stranded and
         // invisible in the centre until it was clicked again.
         closing?.ReturnToHand();
-        // Default back to Board; HandFocusController promotes to Fan on its next
+        // Default back to Board; BarFocusController promotes to Fan on its next
         // Update if gamepad focus resumes in the hand.
         InputContextState.Current = InputContext.Board;
     }

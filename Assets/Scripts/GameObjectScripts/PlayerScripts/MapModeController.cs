@@ -9,7 +9,7 @@ using UnityEngine.Tilemaps;
 // two literals on close, so "restore" is exact by construction.
 //
 // Movement is impossible while the map is open (see the gates in HexInteractor,
-// the tokens, HandFocusController and TurnFlowShortcuts), so the parent transform
+// the tokens, BarFocusController and TurnFlowShortcuts), so the parent transform
 // is static and a world-space pan is a straight subtraction into local space.
 public class MapModeController : MonoBehaviour
 {

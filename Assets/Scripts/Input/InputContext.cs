@@ -9,8 +9,8 @@ public static class InputContextState
     static InputContext _current = InputContext.Board;
 
     // Map mode is MODAL, and it is the only context that is: while it is open every
-    // board gate reads `Current == Map`, but CardInspector, UnitInspector, UnitsLane
-    // and HandFocusController all write Current unconditionally. A single card click
+    // board gate reads `Current == Map`, but CardInspector, UnitInspector and
+    // BarFocusController all write Current unconditionally. A single card click
     // in map mode ran CardInspector.Open() -> Inspector and Close() -> Board, which
     // silently killed every map gate while the camera was still zoomed out (you could
     // then move, fight and enter places from the map). So writes that would LEAVE Map
