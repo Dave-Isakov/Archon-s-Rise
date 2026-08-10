@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 // Applies FanMath slots to the live items of one lane. Driven by whoever owns
 // the lane's order. Geometry only: focus is WRITTEN by BarFocusController (the
@@ -11,6 +12,16 @@ public class FanLane : MonoBehaviour
     [SerializeField] float focusLift = 40f;
     [SerializeField] float focusScale = 1.3f;
     [SerializeField] float dimBrightness = 0.86f;
+
+    [Header("Lane pose")]
+    [SerializeField] CanvasGroup laneGroup;             // on this container, not the items
+    [SerializeField] Vector2 focusedPos = new Vector2(0f, -300f);
+    [SerializeField] Vector2 parkedPos = new Vector2(520f, -330f);
+    [SerializeField] float parkedScale = 0.55f;
+    [SerializeField] float parkedAlpha = 0.5f;
+    [SerializeField] float poseTween = 0.18f;
+
+    bool _parked;
 
     IFanItem _focused;
     IReadOnlyList<IFanItem> _last;
@@ -31,6 +42,38 @@ public class FanLane : MonoBehaviour
     }
 
     public void ClearFocus() => SetFocus(null);
+
+    public bool IsParked => _parked;
+
+    // The focused lane holds the middle of the bar at full size; the other tucks
+    // to its own edge, scaled and dimmed but still readable and still clickable.
+    // parkedPos.y is its own value because localScale shrinks about the centre
+    // pivot, which lifts a parked lane off the bar baseline unless y compensates.
+    public void SetPose(bool parked, bool instant = false)
+    {
+        if (_parked == parked && !instant) return;
+        _parked = parked;
+
+        var rt = (RectTransform)transform;
+        Vector2 pos = parked ? parkedPos : focusedPos;
+        float scale = parked ? parkedScale : 1f;
+        float alpha = parked ? parkedAlpha : 1f;
+
+        rt.DOKill();
+        if (laneGroup != null) laneGroup.DOKill();
+
+        if (instant || poseTween <= 0f)
+        {
+            rt.anchoredPosition = pos;
+            rt.localScale = Vector3.one * scale;
+            if (laneGroup != null) laneGroup.alpha = alpha;
+            return;
+        }
+
+        rt.DOAnchorPos(pos, poseTween).SetEase(Ease.OutCubic);
+        rt.DOScale(Vector3.one * scale, poseTween).SetEase(Ease.OutCubic);
+        if (laneGroup != null) laneGroup.DOFade(alpha, poseTween).SetEase(Ease.OutCubic);
+    }
 
     public void Relayout(IReadOnlyList<IFanItem> orderedItems)
     {
