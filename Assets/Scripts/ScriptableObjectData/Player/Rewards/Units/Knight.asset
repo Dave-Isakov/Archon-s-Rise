@@ -14,16 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: unit_knight
   cardName: Knight
-  cardDescription: Defend 3 / Defend 6 (1R)
+  cardDescription: "<sprite=\"shield\" index=0> 3\n<sprite=\"shield\" index=0> 6
+    \u2014 <sprite=\"crystal\" index=0>1"
   options:
   - effect: 1
     amount: 3
     grantColor: 0
     crystalCost: 0
+    influenceCost: 0
   - effect: 1
     amount: 6
     grantColor: 0
-    crystalCost: 1
+    crystalCost: 8
+    influenceCost: 0
   influenceCost: 4
   sprite: {fileID: 0}
   color: {r: 0, g: 0, b: 0.9372549, a: 1}

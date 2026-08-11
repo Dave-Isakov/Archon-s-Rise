@@ -153,8 +153,23 @@ public class ExplorationController : MonoBehaviour
             foreach (var ring2 in Neighbors(ring1))
                 toClear.Add(ring2);
         }
+        // Clear the disk, remembering which cells actually came out from under the
+        // fog rather than being clear already.
+        var revealed = new HashSet<Vector3Int>();
         foreach (var c in toClear)
+        {
+            if (fog.HasTile(c)) revealed.Add(c);
             fog.SetTile(c, null);
+        }
+
+        // An enemy that was hiding under that fog is now in plain sight, so if it
+        // stands next to the player it becomes engageable this instant instead of
+        // waiting for a step (spec 2026-08-11). Deliberately limited to the cells
+        // that actually changed: a token that was already visible keeps the arming
+        // state it has, so a fight the player fled stays fled rather than being
+        // re-armed by an unrelated scout.
+        foreach (var token in FindObjectsByType<EnemyToken>())
+            if (revealed.Contains(token.gridPos)) token.RefreshAggro();
 
         GameManager.Instance.commands.ClearStack(); // revealed knowledge can't be undone
     }

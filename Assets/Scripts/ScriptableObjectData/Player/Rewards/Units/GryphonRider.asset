@@ -11,20 +11,23 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9c16f4bff67ec0745984351f5595704b, type: 3}
   m_Name: GryphonRider
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: unit_gryphon_rider
   cardName: Gryphon Rider
-  cardDescription: Explore 3 / Siege 3 (1G)
+  cardDescription: "<sprite=\"scroll\" index=0> 3 \n<sprite=\"siege\" index=0> 5
+    \u2014 <sprite=\"crystal\" index=0 color=#F5D90A> 1"
   options:
   - effect: 2
     amount: 3
     grantColor: 0
     crystalCost: 0
+    influenceCost: 0
   - effect: 4
-    amount: 3
+    amount: 5
     grantColor: 0
-    crystalCost: 4
+    crystalCost: 2
+    influenceCost: 0
   influenceCost: 5
   sprite: {fileID: 0}
-  color: {r: 0.4, g: 0.7, b: 0.9, a: 1}
+  color: {r: 0.9019608, g: 0.65864474, b: 0.40000004, a: 1}
   unitLetter: 71

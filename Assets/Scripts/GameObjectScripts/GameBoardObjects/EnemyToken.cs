@@ -56,6 +56,13 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
         player = FindAnyObjectByType<PlayerPosition>();
         player.UpdateCompass(gridPos, compass);
         ApplyArt();
+
+        // A token can be born already inside the player's reach — the day's spawn
+        // landing beside a player who is standing still. Nothing is going to move
+        // to arm it, so it arms itself here (spec 2026-08-11). A save restore
+        // overwrites this a frame later from the saved armed set, so a token the
+        // player fled before saving stays inert (DataManager.RestoreAggro).
+        RefreshAggro();
     }
 
     // Wears its own enemy's art on the board instead of the shared placeholder.
@@ -126,26 +133,41 @@ public class EnemyToken : MonoBehaviour, IPointerClickHandler
     // player lingering in reach, and forces an inescapable fight (spec 2026-08-01).
     public void CheckAggro(PlayerPosition player)
     {
-        // Fog is absolute: a token the player cannot see neither arms nor forces,
-        // matching OnPointerClick and the glow. It arms normally once fog lifts.
-        if (MapFog.IsHidden(gridPos)) { isAggro = false; return; }
+        Resolve(gameboard.LocalToCell(player.transform.position), AggroTrigger.PlayerMoved);
+    }
 
-        var playerCell = gameboard.LocalToCell(player.transform.position);
+    // Reach can change without the player taking a step: the fog lifting off this
+    // token, or the token spawning beside them (spec 2026-08-11). Movement used to
+    // be the only thing that ever ran this check, so an enemy that arrived either
+    // way sat inert next to the player — no halo, and a click that did nothing.
+    //
+    // Both arm exactly like a step into reach, but neither can force a fight: the
+    // player never chose to stand next to this enemy, so cornering them for it
+    // would be unfair. Safe to call on a token that is already armed.
+    public void RefreshAggro()
+    {
+        if (player == null || gameboard == null) return;
+        Resolve(gameboard.LocalToCell(player.transform.position), AggroTrigger.ReachChanged);
+    }
 
+    void Resolve(Vector3Int playerCell, AggroTrigger trigger)
+    {
         bool adjacent = false;
         foreach (Directions direction in Enum.GetValues(typeof(Directions)))
             if (gridPos + compass[direction] == playerCell) { adjacent = true; break; }
 
-        if (!adjacent) { isAggro = false; return; }
+        // Comparing cells (rather than trusting the event to mean "moved") is what
+        // makes a repeat raise at the player's current hex a no-op.
+        var outcome = AggroRules.Resolve(
+            fogHidden: MapFog.IsHidden(gridPos),
+            adjacent: adjacent,
+            wasArmed: isAggro,
+            playerCellChanged: playerCell != aggroCell,
+            trigger: trigger);
 
-        // Armed, and this is a DIFFERENT adjacent hex than the one that armed us:
-        // the fight is forced. Comparing cells (rather than trusting the event to
-        // mean "moved") also makes a repeat raise at the same cell a no-op.
-        bool forced = isAggro && playerCell != aggroCell;
-        isAggro = true;
-        aggroCell = playerCell;
-
-        if (forced) StartCoroutine(StartCombat(forced: true));
+        isAggro = outcome.Armed;
+        if (outcome.Armed) aggroCell = playerCell;
+        if (outcome.Forced) StartCoroutine(StartCombat(forced: true));
     }
 
     public void OnPointerClick(PointerEventData eventData)

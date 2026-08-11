@@ -16,6 +16,9 @@ MonoBehaviour:
     doomMax: 20
     lowBandMax: 6
     midBandMax: 13
+    lowBandTurns: 6
+    midBandTurns: 5
+    highBandTurns: 4
     lowSpawnInterval: 3
     midSpawnInterval: 2
     highSpawnInterval: 1
@@ -25,3 +28,9 @@ MonoBehaviour:
     zoneMinSpacing: 4
     startSafeRadius: 3
     initialEnemiesPerZone: 2
+    guaranteeStarterEnemy: 1
+    starterEnemyRadius: 5
+    flagsOnMidBand: 1
+    flagsOnHighBand: 1
+    dungeonCompleteRelief: 1
+    flaggedCompleteRelief: 3

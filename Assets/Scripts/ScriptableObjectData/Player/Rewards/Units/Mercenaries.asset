@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: unit_mercenaries
   cardName: Mercenaries
-  cardDescription: Attack 3 / Attack 5 (1R)
+  cardDescription: "<sprite=\"Sword\" index=0> 3 \n<sprite=\"Sword\" index=0> 5 \u2014
+    <sprite=\"gem\" index=0> 2"
   options:
   - effect: 0
     amount: 3
@@ -25,7 +26,7 @@ MonoBehaviour:
     amount: 5
     grantColor: 0
     crystalCost: 0
-    influenceCost: 3
+    influenceCost: 2
   influenceCost: 4
   sprite: {fileID: 0}
   color: {r: 0.7, g: 0.3, b: 0.2, a: 1}

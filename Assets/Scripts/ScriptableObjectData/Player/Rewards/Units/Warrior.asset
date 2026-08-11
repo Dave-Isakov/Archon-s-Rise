@@ -14,16 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: unit_warrior
   cardName: Warrior
-  cardDescription: Attack 2 / Siege 2 (1R)
+  cardDescription: "<sprite=\"Sword\" index=0> 2 \n<sprite=\"siege\" index=0> 3 
+    \u2014 <sprite=\"crystal\" index=0 color=#FF0000>1 "
   options:
   - effect: 0
     amount: 2
     grantColor: 0
     crystalCost: 0
+    influenceCost: 0
   - effect: 4
-    amount: 2
+    amount: 3
     grantColor: 0
     crystalCost: 1
+    influenceCost: 0
   influenceCost: 3
   sprite: {fileID: 0}
   color: {r: 0.990566, g: 0, b: 0, a: 1}

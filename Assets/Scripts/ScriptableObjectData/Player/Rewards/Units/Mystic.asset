@@ -11,20 +11,25 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9c16f4bff67ec0745984351f5595704b, type: 3}
   m_Name: Mystic
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: unit_mystic
   cardName: Mystic
-  cardDescription: Heal 1 / Crystallize Purple (1 any)
+  cardDescription: '<sprite="Heal" index=0> 1
+
+    <sprite="crystal" index=0 color=#522D2D>
+    1'
   options:
   - effect: 5
     amount: 1
     grantColor: 0
     crystalCost: 0
+    influenceCost: 0
   - effect: 6
     amount: 1
-    grantColor: 8
-    crystalCost: 15
-  influenceCost: 5
+    grantColor: -1
+    crystalCost: 0
+    influenceCost: 0
+  influenceCost: 4
   sprite: {fileID: 0}
   color: {r: 0.6, g: 0.3, b: 0.8, a: 1}
   unitLetter: 89

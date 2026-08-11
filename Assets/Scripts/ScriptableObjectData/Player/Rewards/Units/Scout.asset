@@ -14,16 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: unit_scout
   cardName: Scout
-  cardDescription: Explore 2 / Explore 4 (1G)
+  cardDescription: "<sprite=\"scroll\" index=0> 2\n<sprite=\"scroll\" index=0> 5
+    \u2014 <sprite=\"crystal\" index=0 color=#46A758>1"
   options:
   - effect: 2
-    amount: 2
+    amount: 3
     grantColor: 0
     crystalCost: 0
+    influenceCost: 0
   - effect: 2
-    amount: 4
+    amount: 6
     grantColor: 0
     crystalCost: 4
+    influenceCost: 0
   influenceCost: 2
   sprite: {fileID: 0}
   color: {r: 0.13363297, g: 0.8584906, b: 0.19617498, a: 1}

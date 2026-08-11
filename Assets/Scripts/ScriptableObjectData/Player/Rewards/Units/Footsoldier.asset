@@ -11,19 +11,21 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9c16f4bff67ec0745984351f5595704b, type: 3}
   m_Name: Footsoldier
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   id: unit_footsoldier
   cardName: Footsoldier
-  cardDescription: Attack 2 / Defend 2
+  cardDescription: "<sprite=\"Sword\" index=0> 2 \n<sprite=\"shield\" index=0> 2"
   options:
   - effect: 0
     amount: 2
     grantColor: 0
     crystalCost: 0
+    influenceCost: 0
   - effect: 1
     amount: 2
     grantColor: 0
     crystalCost: 0
+    influenceCost: 0
   influenceCost: 3
   sprite: {fileID: 0}
   color: {r: 0.5, g: 0.5, b: 0.55, a: 1}
