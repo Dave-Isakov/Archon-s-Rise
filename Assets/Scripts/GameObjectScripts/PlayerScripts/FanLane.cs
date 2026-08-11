@@ -145,6 +145,13 @@ public class FanLane : MonoBehaviour
             rt.localScale = Vector3.one;
         }
 
+        // anchoredPosition is 2D and leaves localPosition.z alone, so an item
+        // spawned through a world-space Instantiate keeps a stray depth and is
+        // culled by the camera while still drawing in the scene view. The lane
+        // owns placement on all three axes.
+        var lp = rt.localPosition;
+        if (lp.z != 0f) rt.localPosition = new Vector3(lp.x, lp.y, 0f);
+
         var cg = item.Group;
         if (cg != null)
             cg.alpha = (focused || !Alive(_focused)) ? 1f : dimBrightness;

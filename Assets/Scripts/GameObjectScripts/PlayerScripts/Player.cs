@@ -411,8 +411,10 @@ public class Player : MonoBehaviour
     public void AddUnit(UnitsSO so)
     {
         units.Add(so);
-        var newUnit = Instantiate(unitPrefab, new Vector3(0, 0, 0), Quaternion.identity,
-            GameObject.Find("Units").transform);
+        // Parent-only overload, as PlayerHand spawns cards. The world-position
+        // overload placed the token at world origin and left a huge localPosition.z
+        // once parented under the canvas, putting it outside the camera frustum.
+        var newUnit = Instantiate(unitPrefab, GameObject.Find("Units").transform);
         newUnit.GetComponent<Unit>().unitSO = so;
         BarFocusController.Instance?.RelayoutUnits();
     }
@@ -441,8 +443,7 @@ public class Player : MonoBehaviour
             var so = unitSOs[i];
             if (so == null) continue;
             units.Add(so);
-            var newUnit = Instantiate(unitPrefab, new Vector3(0, 0, 0), Quaternion.identity,
-                unitsParent?.transform);
+            var newUnit = Instantiate(unitPrefab, unitsParent?.transform);
             var unit = newUnit.GetComponent<Unit>();
             unit.unitSO = so;
             if (exhausted != null && i < exhausted.Length && exhausted[i])

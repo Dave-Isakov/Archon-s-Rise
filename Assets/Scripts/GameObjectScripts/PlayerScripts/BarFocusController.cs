@@ -29,6 +29,12 @@ public class BarFocusController : MonoBehaviour
         unitLane.SetPose(parked: true, instant: true);
     }
 
+    // Units authored into the scene exist before any army mutation, and a lane
+    // with no Relayout() behind it has a null item list — it lays out nothing and
+    // hit-tests to nothing. Player only calls RelayoutUnits on change, so without
+    // this seed the starting army never fans and never takes focus.
+    void Start() => RelayoutUnits();
+
     void OnDestroy() { if (Instance == this) Instance = null; }
 
     FanLane Lane(BarLane lane) => lane == BarLane.Units ? unitLane : cardLane;
