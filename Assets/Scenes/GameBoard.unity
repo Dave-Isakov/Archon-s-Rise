@@ -1867,7 +1867,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 29400}
+  m_AnchoredPosition: {x: 0, y: 31500}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &146827232
@@ -2411,23 +2411,16 @@ MonoBehaviour:
     SpreadDegrees: 66
     CardSpacing: 120
     ArcDrop: 40
+    MaxWidth: 900
   focusLift: 40
   focusScale: 1.3
   dimBrightness: 0.86
---- !u!114 &218566494
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 218566490}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5e6631644fc244346978b9590bfdf3c2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HandFocusController
-  layout: {fileID: 218566493}
-  unitsLane: {fileID: 1770436281}
+  laneGroup: {fileID: 218566497}
+  focusedPos: {x: 125, y: 0}
+  parkedPos: {x: 0, y: 0}
+  parkedScale: 0.55
+  parkedAlpha: 0.5
+  poseTween: 0.18
 --- !u!114 &218566495
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2441,6 +2434,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialTarget
   targetId: hand
+--- !u!225 &218566497
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 218566490}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &218566498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 218566490}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ee24a8ee56552d4089025b5ddfa26e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BarFocusController
+  unitLane: {fileID: 1770436280}
+  cardLane: {fileID: 218566493}
 --- !u!1 &228269760 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5391653602640429270, guid: 13e87cbb1de3a74438be2883742d8a3e, type: 3}
@@ -4715,7 +4734,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 125}
-  m_SizeDelta: {x: 80, y: 80}
+  m_SizeDelta: {x: 500, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &471343751
 MonoBehaviour:
@@ -4738,7 +4757,7 @@ MonoBehaviour:
   m_StartCorner: 0
   m_StartAxis: 1
   m_CellSize: {x: 40, y: 40}
-  m_Spacing: {x: 0, y: 0}
+  m_Spacing: {x: 20, y: 0}
   m_Constraint: 0
   m_ConstraintCount: 2
 --- !u!1 &473599855
@@ -12261,6 +12280,7 @@ MonoBehaviour:
     SpreadDegrees: 25
     CardSpacing: 135
     ArcDrop: 45
+    MaxWidth: 900
 --- !u!114 &1032078052
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17496,6 +17516,7 @@ MonoBehaviour:
     SpreadDegrees: 30
     CardSpacing: 90
     ArcDrop: 55
+    MaxWidth: 900
 --- !u!114 &1439823270
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17618,7 +17639,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -1054, y: -593}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1445005815
 MonoBehaviour:
@@ -17690,14 +17711,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 0}
-  m_RaycastTarget: 0
+  m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -23533,7 +23554,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -345, y: -280}
+  m_AnchoredPosition: {x: -345, y: -425}
   m_SizeDelta: {x: 690, y: 90}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1770436280
@@ -23545,36 +23566,35 @@ MonoBehaviour:
   m_GameObject: {fileID: 1770436278}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a8695521f0d02e499659fee002a26c2, type: 3}
+  m_Script: {fileID: 11500000, guid: 491ec3de76bee3c4aa306c83e82c85d7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
-  m_Padding:
-    m_Left: 0
-    m_Right: 0
-    m_Top: 0
-    m_Bottom: 0
-  m_ChildAlignment: 3
-  m_StartCorner: 0
-  m_StartAxis: 0
-  m_CellSize: {x: 80, y: 80}
-  m_Spacing: {x: 20, y: 0}
-  m_Constraint: 2
-  m_ConstraintCount: 1
---- !u!114 &1770436281
-MonoBehaviour:
+  m_EditorClassIdentifier: Assembly-CSharp::FanLane
+  fan:
+    SpreadDegrees: 66
+    CardSpacing: 120
+    ArcDrop: 40
+    MaxWidth: 900
+  focusLift: 40
+  focusScale: 1.3
+  dimBrightness: 0.86
+  laneGroup: {fileID: 1770436281}
+  focusedPos: {x: -425, y: -425}
+  parkedPos: {x: -345, y: -425}
+  parkedScale: 0.55
+  parkedAlpha: 0.5
+  poseTween: 0.18
+--- !u!225 &1770436281
+CanvasGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1770436278}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b944c33da58a1d43825cfc7bac08cb6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::UnitsLane
-  hand: {fileID: 218566494}
-  inspector: {fileID: 1480549576}
-  focusOutline: {fileID: 1801678663}
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1782458153
 GameObject:
   m_ObjectHideFlags: 0
@@ -89567,8 +89587,7 @@ PrefabInstance:
       propertyPath: layoutGroup
       value: 
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 1263676702, guid: 276a0d47cca8bae4c9a7f7a0f293df10, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
@@ -89577,10 +89596,13 @@ PrefabInstance:
       addedObject: {fileID: 218566493}
     - targetCorrespondingSourceObject: {fileID: 1263676700, guid: 276a0d47cca8bae4c9a7f7a0f293df10, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 218566494}
+      addedObject: {fileID: 218566495}
     - targetCorrespondingSourceObject: {fileID: 1263676700, guid: 276a0d47cca8bae4c9a7f7a0f293df10, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 218566495}
+      addedObject: {fileID: 218566497}
+    - targetCorrespondingSourceObject: {fileID: 1263676700, guid: 276a0d47cca8bae4c9a7f7a0f293df10, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 218566498}
   m_SourcePrefab: {fileID: 100100000, guid: 276a0d47cca8bae4c9a7f7a0f293df10, type: 3}
 --- !u!1001 &7472646817341011986
 PrefabInstance:
