@@ -25,11 +25,13 @@ public class GuardianAssault : MonoBehaviour
         GameManager.Instance.townCanvas.enabled = false;
         GameManager.Instance.CombatCanvasActive(); // canvas chrome + multi-purpose button, no field banner
 
+        // Resume by identity, not by count: the player can kill any guardian
+        // first (Siege reaches slot 1 as easily as slot 0), so a resumed assault
+        // re-spawns exactly the slots still standing.
         var roster = town.townSO.guardians;
-        int already = ConquestTracker.Instance.DefeatedCount(town.gridPos);
         var spawns = new List<CombatController.EnemySpawn>();
-        for (int i = already; i < roster.Count; i++)
-            spawns.Add(new CombatController.EnemySpawn(roster[i], 0, 0)); // guardians unscaled
+        foreach (int i in ConquestTracker.Instance.RemainingIndices(town.gridPos, roster.Count))
+            spawns.Add(new CombatController.EnemySpawn(roster[i], 0, 0, i)); // guardians unscaled
 
         // Opening the assault is now a free look (spec 2026-07-30 §2.3);
         // assaulting is still the visit's committed action, but only once the

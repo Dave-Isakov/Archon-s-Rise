@@ -101,6 +101,27 @@ namespace ArchonsRise.SaveData
                 FoldGuardiansIntoShrines(file.run);
                 file.schemaVersion = 12;
             }
+
+            // v12 -> v13: conquest progress was a bare count, which silently
+            // assumed guardians die in roster order. Widen each count into the
+            // leading slots — the identities the pre-v13 game would itself have
+            // inferred, so a loaded save behaves no worse than it did before.
+            if (file.schemaVersion < 13)
+            {
+                if (file.run.places == null)
+                    file.run.places = Array.Empty<PlaceConquest>();
+                for (int i = 0; i < file.run.places.Length; i++)
+                {
+                    var p = file.run.places[i];
+                    if (p.defeatedIndices == null || p.defeatedIndices.Length == 0)
+                    {
+                        p.defeatedIndices = new int[p.defeatedCount];
+                        for (int g = 0; g < p.defeatedCount; g++) p.defeatedIndices[g] = g;
+                        file.run.places[i] = p;
+                    }
+                }
+                file.schemaVersion = 13;
+            }
             return file;
         }
 

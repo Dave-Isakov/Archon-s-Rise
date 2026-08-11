@@ -18,7 +18,7 @@ public class SaveMigratorV12Tests
 
         SaveMigrator.Migrate(file);
 
-        Assert.AreEqual(12, file.schemaVersion);
+        Assert.AreEqual(13, file.schemaVersion);
         Assert.AreEqual(-1, file.run.shrines[0].owedReward);
     }
 
@@ -89,7 +89,7 @@ public class SaveMigratorV12Tests
 
         SaveMigrator.Migrate(file);
 
-        Assert.AreEqual(12, file.schemaVersion);
+        Assert.AreEqual(13, file.schemaVersion);
         Assert.AreEqual(2, file.run.shrines[0].owedReward);
     }
 }

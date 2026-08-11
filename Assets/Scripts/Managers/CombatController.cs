@@ -88,6 +88,10 @@ public class CombatController : MonoBehaviour
     EnemyToken fieldSource;
     readonly List<EnemyToken> fieldTokens = new();
     readonly Dictionary<EnemyCard, EnemyToken> cardTokens = new();
+    // Guardian: which roster slot each spawned card is. A resumed assault only
+    // spawns the survivors, so a card's position in the fight says nothing about
+    // its position in the roster — the slot has to be carried, not inferred.
+    readonly Dictionary<EnemyCard, int> cardRosterIndex = new();
     DungeonToken dungeonToken; // Dungeon: depth/completion tracked on defeat
     ShrineToken shrineToken;   // Shrine: the guarding shrine, retired when its guardian falls
 
@@ -206,8 +210,11 @@ public class CombatController : MonoBehaviour
     public struct EnemySpawn
     {
         public EnemiesSO so; public int bonusHP; public int bonusAttack;
-        public EnemySpawn(EnemiesSO so, int bonusHP, int bonusAttack)
-        { this.so = so; this.bonusHP = bonusHP; this.bonusAttack = bonusAttack; }
+        // Guardian only: which slot of the place's roster this is, so a kill is
+        // banked by identity. -1 everywhere else.
+        public int rosterIndex;
+        public EnemySpawn(EnemiesSO so, int bonusHP, int bonusAttack, int rosterIndex = -1)
+        { this.so = so; this.bonusHP = bonusHP; this.bonusAttack = bonusAttack; this.rosterIndex = rosterIndex; }
     }
 
     void Awake() { Instance = this; Phase = CombatPhase.Resolved; }
@@ -252,6 +259,7 @@ public class CombatController : MonoBehaviour
         live.Clear();
         this.fieldTokens.Clear();
         cardTokens.Clear();
+        cardRosterIndex.Clear();
         if (fieldTokens != null) this.fieldTokens.AddRange(fieldTokens);
         fieldSource = this.fieldTokens.Count > 0 ? this.fieldTokens[0] : null;
         pendingShrineType = -1;   // a new fight inherits no owed shrine reward
@@ -297,6 +305,7 @@ public class CombatController : MonoBehaviour
             card.bonusAttack = s.bonusAttack;
             Normalize((RectTransform)card.transform);
             live.Add(card);
+            if (s.rosterIndex >= 0) cardRosterIndex[card] = s.rosterIndex;
             // Spawn order mirrors the participant order the caller passed, so this
             // pairs each card with the map token it came from.
             if (i < this.fieldTokens.Count && this.fieldTokens[i] != null)
@@ -614,8 +623,9 @@ public class CombatController : MonoBehaviour
         // guardian ConquestTracker record used to fire from GuardianAssault.Update).
         // Shrine needs none: nothing of it lives on the board, and its payout +
         // retirement happen in FinishEnd.
-        if (context == CombatContext.Guardian && guardianPlace != null)
-            ConquestTracker.Instance.RecordDefeat(guardianPlace.gridPos);
+        if (context == CombatContext.Guardian && guardianPlace != null
+            && cardRosterIndex.TryGetValue(card, out var slot))
+            ConquestTracker.Instance.RecordDefeat(guardianPlace.gridPos, slot);
         else if (context == CombatContext.Field && cardTokens.TryGetValue(card, out var killedToken)
                  && killedToken != null)
         {
@@ -756,6 +766,7 @@ public class CombatController : MonoBehaviour
         fieldSource = null;
         fieldTokens.Clear();
         cardTokens.Clear();
+        cardRosterIndex.Clear();
         dungeonToken = null;
         shrineToken = null;
 
@@ -878,6 +889,7 @@ public class CombatController : MonoBehaviour
         fieldSource = null;
         fieldTokens.Clear();
         cardTokens.Clear();
+        cardRosterIndex.Clear();
         dungeonToken = null;
         shrineToken = null;
         PreviewOnly = false;

@@ -104,7 +104,7 @@ public static class LateGameSaveTool
         {
             int roster = castle.townSO.guardians != null ? castle.townSO.guardians.Count : 0;
             tracker.Register(castle.gridPos, PlaceType.Castle, roster);
-            for (int i = 0; i < roster; i++) tracker.RecordDefeat(castle.gridPos);
+            for (int i = 0; i < roster; i++) tracker.RecordDefeat(castle.gridPos, i);
             conquered = $"{castle.townSO.cardName} @ {castle.gridPos} ({roster} guardians)";
         }
         else Debug.LogWarning("Late-Game Test Save: no Castle found to pre-conquer this seed.");

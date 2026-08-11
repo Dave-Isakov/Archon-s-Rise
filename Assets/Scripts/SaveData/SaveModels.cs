@@ -15,7 +15,9 @@ namespace ArchonsRise.SaveData
         // v12: adds ShrineState.owedReward. The bad-roll guardian stopped being a
         // map token and became shrine state (2026-07-31), so the debt moved off
         // SpawnedEnemy's now-legacy shrine tag and onto its shrine.
-        public int schemaVersion = 12;
+        // v13: adds PlaceConquest.defeatedIndices. A count alone could not say
+        // WHICH guardians a resumed assault had already killed (2026-08-10).
+        public int schemaVersion = 13;
         public RunState run = new RunState();
     }
 
@@ -35,9 +37,9 @@ namespace ArchonsRise.SaveData
         // Parallel to unitIds: true = the unit was already used this round.
         public bool[] unitExhausted = Array.Empty<bool>();
         public MapState map = new MapState();
-        // One entry per place with defeatedCount > 0; keyed by grid cell.
-        // Guardians die in order and never respawn, so a single count fully
-        // captures a place's conquest state.
+        // One entry per place with any guardian down; keyed by grid cell.
+        // Guardians never respawn but they do NOT die in roster order, so the
+        // entry records which slots fell, not just how many.
         public PlaceConquest[] places = Array.Empty<PlaceConquest>();
         public int round;
         public int turn;
@@ -122,7 +124,11 @@ namespace ArchonsRise.SaveData
     {
         public int x;
         public int y;
+        // Kept in step with defeatedIndices.Length. defeatedIndices is the
+        // authoritative field (v13); the count survives only so a pre-v13 file
+        // still has something for the migrator to widen.
         public int defeatedCount;
+        public int[] defeatedIndices;
     }
 
     [Serializable]

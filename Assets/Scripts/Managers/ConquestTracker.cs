@@ -25,7 +25,11 @@ public class ConquestTracker : MonoBehaviour
 
     public int DefeatedCount(Vector3Int cell) => ledger.DefeatedCount(ToCell(cell));
 
-    public void RecordDefeat(Vector3Int cell) => ledger.RecordDefeat(ToCell(cell));
+    public void RecordDefeat(Vector3Int cell, int rosterIndex)
+        => ledger.RecordDefeat(ToCell(cell), rosterIndex);
+
+    public System.Collections.Generic.List<int> RemainingIndices(Vector3Int cell, int rosterSize)
+        => ledger.RemainingIndices(ToCell(cell), rosterSize);
 
     public bool IsConquered(Vector3Int cell) => ledger.IsConquered(ToCell(cell));
 
@@ -37,7 +41,7 @@ public class ConquestTracker : MonoBehaviour
     {
         if (places == null) return;
         foreach (var p in places)
-            ledger.ApplySavedCount(p.x, p.y, p.defeatedCount);
+            ledger.ApplySaved(p.x, p.y, p.defeatedIndices);
     }
 
     private static Cell ToCell(Vector3Int v) => new Cell(v.x, v.y);
