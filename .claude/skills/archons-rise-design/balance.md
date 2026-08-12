@@ -177,3 +177,12 @@ whole ~30% is free to sit wherever Influence is most interesting. An Elusive ene
 - Cadence: **1 unlock per run win** (drawn from the locked pool), entering the future-run content pool.
 - No power carryover — unlocks only widen variety (pillar 4).
 - _Starting cadence — tune in playtest._ Could grant partial unlocks on strong losses to soften the curve.
+
+## Unit Armor (spec 2026-08-12)
+- `armorClass` scales with recruit price so armor is bought, not free:
+  **cheap (2–3 Influence) → 1**, **standard (3–4) → 2**, **premium (5+) → 3**, **support/caster → 0**.
+- **The army cap is already the stacking limit** — it starts at 1 and rises only on milestone
+  level-ups, so unlimited stacking can never exceed a level-gated resource. No separate soak cap.
+- Toxic makes a unit a **heal-2** problem, which a per-round Field Medic (heal 1) can never clear
+  alone — that is the intended cost, not an oversight.
+- _Starting values — tune in playtest._

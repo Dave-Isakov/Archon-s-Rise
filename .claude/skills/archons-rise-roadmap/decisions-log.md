@@ -778,3 +778,18 @@ Spec: `docs/superpowers/specs/2026-07-28-minimal-place-ui-and-player-log-design.
   shrine's 2x, a dungeon completion bundle, a level-up granting 2+ cards): the player got one pick
   and the rest vanished. `LevelUpModal.Choose` already had the right shape and is the reference.
   Routing through `RewardQueue` is necessary but not sufficient — the ordering is the other half.
+
+## 2026-08-12 — Unit wounds and armor
+- **Unit armor is a flat soak added to Defend**, not a Toughness-style divisor. Reverses
+  `2026-07-29-enemy-traits-and-wound-plumbing-design.md` §6.4. A divisor makes a unit's armor
+  unreadable at a glance; soak means armor and Defend are the same thing, which is the whole design.
+- **Toxic transfers rather than bypasses.** §6.4 planned "Toxic bypasses unit armor"; instead its
+  discard wounds become 0 and each committed unit takes 2. More legible, and it makes Toxic a heal
+  *size* threshold rather than just more of the same.
+- **`WoundDestination.Unit = 2` retired unused.** Units never receive a wound card — the soak happens
+  before the wound math — so the reserved destination was never needed.
+- **Units stack freely**; the army cap is the implicit limit.
+- **Leech reads pre-soak** and is the only trait a unit wall cannot blunt.
+- **Shelter applies to the Defend-phase counterattack only** — not flee wounds, not Vengeful.
+- **Town heal now refuses when nothing is wounded.** It previously spent both the Influence and the
+  visit's action for no effect, unundoably.

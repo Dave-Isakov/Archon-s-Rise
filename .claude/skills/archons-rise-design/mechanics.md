@@ -106,8 +106,10 @@ Level/Influence gate. Exact rosters and castle count are tuning — see [balance
 
 ## Lose — Wounds (tactical)
 Losing a fight (insufficient Defend vs the enemy's Attack) adds **Wound** cards to the **hand**
-(`PlayerHand.AddWound`) — never shuffled into the deck. A trait (Toxic, spec 2026-07-29) can instead
-place a wound into the **discard**; both destinations count toward wound-out. Wounds are dead draws
+(`PlayerHand.AddWound`) — never shuffled into the deck. A trait (Toxic, spec 2026-07-29)
+**additionally** places wounds into the **discard** — it does not divert them from the hand;
+`EnemyTraitRules.HandWounds` is unchanged by Toxic, and the discard copies are extra (pinned by
+`EnemyTraitShelterTests`). Both destinations count toward wound-out. Wounds are dead draws
 that clog the hand/deck; accumulating too many — a count threshold (see [balance.md](balance.md)) —
 ends the run. **Heal/Mend** cards remove Wounds, so wound management is an ongoing tactical cost.
 
@@ -175,6 +177,18 @@ remaining budget show disabled. Unspent budget is **lost** (no banking). If noth
 affordable at play time the effect **fizzles** (so refresh cards pair a small secondary stat to never
 be a dead play). The picker is **not** a reward modal — it opens directly, never through the
 `RewardQueue`. Undo of the play re-exhausts exactly the units it readied.
+
+**Unit armor and wounds** (spec 2026-08-12): each unit carries an `armorClass`. During the Defend
+phase, pressing the advance button opens a picker listing every unwounded unit (exhausted ones
+included — taking a hit is not *using* the unit). Committing units sums their armor into the Defend
+pool before the counterattack comparison runs — **armor is Defend, bought with a unit wound instead
+of a card** — and each committed unit takes **1 wound** (2 if any unblocked enemy is Toxic). A
+wounded unit is unusable until healed, exactly like exhaustion, but persists across rounds. **Unit
+wounds do not count toward wound-out**, which is what makes units a wound sink that trades run-loss
+pressure for army capability. Two traits are exceptions: **Leech** reads the pre-soak number and
+always steals, and **Toxic** transfers — its discard wounds become 0 and each committed unit takes 2.
+The army cap is the implicit stacking limit. Healing routes through the same picker: hand wounds and
+wounded units compete for one budget, and healing a unit is atomic (its full wound count or nothing).
 
 ## Stats
 Eight stat types (the `StatType` flags in code):

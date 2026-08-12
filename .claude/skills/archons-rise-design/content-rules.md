@@ -188,6 +188,10 @@ Starting values: see [balance.md](balance.md).
 | `placeType` | `PlaceType` | Town / Keep / Castle — drives allowed services via `PlaceRules` |
 | `guardians` | List&lt;`EnemiesSO`&gt; | Conquest roster, fought in order; empty for a Town |
 
+**Note:** `healLevel` carries **two** meanings — it is both the Influence price of the heal service
+*and* the heal budget it grants. Coherent as tuning ("1 Influence per wound"), but change one and
+you change the other.
+
 **Rule:** Service availability is computed from `placeType` (`PlaceRules.AllowedServices`), NOT the
 legacy `activity` flags (exception: the Crystal/Resources button still reads `activity`). Town:
 Recruit+Heal, opens unguarded. Keep: Recruit, 1 guardian. Castle: Recruit+Heal+Cards(stub), 2
@@ -200,6 +204,7 @@ guardians. Castles are the win currency — conquering 2 wins the run (M2.5).
 |-------|------|-------|
 | `options` | List&lt;`UnitOption`&gt; | The unit's authored options; the pop-out renders exactly these |
 | `influenceCost` | int | Recruit price at towns (per-unit) |
+| `armorClass` | int | Defend soaked when committed as a shield (spec 2026-08-12). `0` = cannot shield. Clamped ≥ 0 by `OnValidate` |
 | `sprite` | Sprite | Unit art |
 | `color` | Color | Unit tint |
 | `unitLetter` | char | Display letter |
