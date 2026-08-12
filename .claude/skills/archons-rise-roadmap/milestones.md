@@ -39,15 +39,21 @@ grants +1 hand and +1 army; recruit at cap forces disband-to-hire; skills surviv
 (Authored table shifted some rows vs the plan during balancing — army cap now grows at 3/6/9;
 level-up picks queue behind any open card reward canvas. Unified reward arbiter deferred.)
 
-## M2.5 — Win/lose systems
+## M2.5 — Win/lose systems  ✅ DONE
 **Goal:** make a run winnable and losable.
-**Scope:**
-- **Victory** — conquer **2 Castles** (`ConquestTracker.ConqueredCastleCount()`).
-- **Doom Clock** — rises each round; reaching max loses the run.
-- **Wound-out** — lose when Wounds ≥ threshold.
-- **Game-over screen** for both outcomes.
+**Scope (shipped):**
+- **Victory** — conquer **2 Castles** (`RunEndRules.CastlesToWin`, raised from `CombatController`
+  off `ConquestTracker.ConqueredCastleCount()`).
+- **Doom Clock** — rises each round; reaching max raises `DoomLoss` from `DoomClock`.
+- **Wound-out** — lose at 6 total Wounds across deck + hand + discard (`RunEndRules.WoundOutThreshold`),
+  plus **wound-hand**: a full hand of nothing but Wounds is unplayable and loses the run — this closed
+  the deferred wound-hand rule.
+- **`RunEndController`** — one modal canvas for every outcome. Outcomes are *requested* during a frame
+  and applied once in `LateUpdate`, so a victory and a loss on the same frame resolve **win-first**.
+  Ending a run flushes the `RewardQueue`, shuts every other canvas so nothing steals the pointer,
+  deletes the save (a finished run is never resumable), and offers Main Menu.
 
-**Acceptance:** a run can be won by conquering 2 Castles and lost by clock-max or wound-out.
+**Acceptance:** a run can be won by conquering 2 Castles and lost by clock-max, wound-out, or wound-hand. ✅
 
 ## M2.75 — Unit gameplay & recruitment
 **Goal:** units become meaningful, configurable board pieces and recruiting becomes a real choice.

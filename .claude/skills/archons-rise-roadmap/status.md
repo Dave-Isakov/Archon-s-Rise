@@ -55,13 +55,17 @@ Where Archon's Rise stands today. Seeded from the code review (`docs/code-review
 - **Place-type system** — Town/Keep/Castle taxonomy, guardian-conquest assaults (resumable,
   3-wound retreat), services gated by type + conquest, conquest persisted (schema v2). ✅ M2.
 
+- **Win/lose systems** (M2.5) — `RunEndRules` (pure: `IsVictory` at 2 Castles, `IsWoundOut` at 6 wounds,
+  `IsWoundHand`) + `RunEndController`, a scene-placed modal that resolves **win-first** when a victory
+  and a loss land on the same frame. All four outcomes are raised: Victory from `CombatController`,
+  DoomLoss from `DoomClock`, WoundOut/WoundHand from `PlayerHand`. Ending a run deletes the save so it
+  can't be resumed, shuts every other canvas, and offers Main Menu. Closes the deferred wound-hand rule.
+
 ## Stubbed / partial
 - **Leveling rewards** — the even/odd/every-3 rules are commented intent in `Player.cs`, not implemented.
+- **Options button** — present on `MainMenu.prefab` with an empty `m_Calls`; opens nothing.
 
 ## Missing
-- **Win check** (conquer 2 Castles) — milestone M2.5.
-- **Doom Clock** (strategic loss) — milestone M2.5.
-- **Wound-out** loss condition — milestone M2.5.
 - **Run setup / seed** and **meta-unlock pool** — milestone M3.
 - **Important-tier refactors** from `docs/code-review.md`: event-driven updates over per-frame
   `Update()`, decoupling gameplay→UI via events, the apply/revert toggle refactor, assembly
