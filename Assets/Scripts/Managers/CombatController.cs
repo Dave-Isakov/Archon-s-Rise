@@ -539,9 +539,10 @@ public class CombatController : MonoBehaviour
         SetPhase(CombatPhase.Defend);
     }
 
-    // Defend (Defend -> Attack, spec 2026-07-22): resolve the summed survivor
-    // counterattack against whatever Defend the player built during the window —
-    // one HP-bite comparison, wounds for the shortfall — then open the Attack phase.
+    // Defend (Defend -> Attack, spec 2026-07-22, extended 2026-08-12): resolve
+    // the summed survivor counterattack. The player may first commit units to
+    // soak it — armor IS Defend, bought with a unit wound instead of a card —
+    // so this is now two-stage: open the picker, apply in the callback.
     public void ResolveDefend()
     {
         if (Phase != CombatPhase.Defend) return;
@@ -551,18 +552,51 @@ public class CombatController : MonoBehaviour
         int defendLeft = player.PlayerDefend;
         int toughness = player.PlayerToughness;
 
-        int handWounds    = EnemyTraitRules.HandWounds(preview, defendLeft, toughness);
-        int discardWounds = EnemyTraitRules.DiscardWounds(preview, defendLeft, toughness, Tuning);
-        int stolen        = EnemyTraitRules.CrystalsStolen(preview, defendLeft, toughness, Tuning);
+        // Skip the picker when it could not change anything: nothing is coming,
+        // or no unit is eligible to step in.
+        var bare = EnemyTraitRules.Resolve(preview, defendLeft, 0, toughness, Tuning, 0);
+        var picker = FindAnyObjectByType<UnitPickerPanel>();
+        if (bare.HandWounds == 0 || picker == null || !AnyShelterAvailable())
+        {
+            ApplyCounterattack(preview, defendLeft, toughness, new List<Unit>());
+            return;
+        }
 
-        // The placement list is the seam (spec §6.2): today a pure rule produces
-        // it, next phase an interactive picker does. This consumer depends only
-        // on IReadOnlyList<WoundDestination> and never learns what a unit is.
-        var placements = WoundPlacementRules.Place(handWounds, discardWounds);
+        picker.OpenForWounds(preview, defendLeft, toughness, Tuning,
+            committed => ApplyCounterattack(preview, defendLeft, toughness, committed));
+    }
+
+    static bool AnyShelterAvailable()
+    {
+        foreach (var unit in FindObjectsByType<Unit>())
+            if (!unit.IsWounded && unit.ArmorClass > 0) return true;
+        return false;
+    }
+
+    // Stage two: everything the single-stage ResolveDefend used to do, in the
+    // same order, plus the unit wounds the player chose to take.
+    void ApplyCounterattack(CounterattackPreview preview, int defendLeft, int toughness,
+        IReadOnlyList<Unit> committed)
+    {
+        var player = FindAnyObjectByType<Player>();
+
+        int soak = 0;
+        foreach (var u in committed) if (u != null) soak += u.ArmorClass;
+
+        var outcome = EnemyTraitRules.Resolve(preview, defendLeft, soak, toughness,
+                                              Tuning, committed.Count);
+
+        // The placement list is the seam (spec §6.2). Units never receive a wound
+        // CARD — the soak happened before the wound math — so this still produces
+        // only Hand and Discard.
+        var placements = WoundPlacementRules.Place(outcome.HandWounds, outcome.DiscardWounds);
         var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
         foreach (var dest in placements) hand.AddWound(dest);
 
         int wounds = placements.Count;
+
+        foreach (var u in committed)
+            if (u != null) player.WoundUnit(u, outcome.WoundsPerCommittedUnit);
 
         // Taking the group counterattack reads on the avatar (spec D4).
         if (wounds > 0 && PlayerAvatar.Instance != null)
@@ -571,19 +605,27 @@ public class CombatController : MonoBehaviour
         player.PlayerDefend = Mathf.Max(0, player.PlayerDefend - preview.UnblockedThreat);
         GameManager.Instance.commands.ClearStack();   // taking the hit is a commit point
 
+        if (committed.Count > 0)
+        {
+            var names = new List<string>();
+            foreach (var u in committed) if (u != null) names.Add(u.unitSO.cardName);
+            GameLog.Instance.Post(outcome.WoundsPerCommittedUnit > 1
+                ? $"{string.Join(", ", names)} take the blow — and the venom with it."
+                : $"{string.Join(", ", names)} take the blow in your stead.");
+        }
         if (wounds > 0)
             GameLog.Instance.Post($"The enemies strike back! You are wounded {wounds} times.");
-        if (discardWounds > 0)
-            GameLog.Instance.Post($"Venom festers — {discardWounds} wound(s) rot in your discard.");
-        if (stolen > 0)
-            GameLog.Instance.Post($"Leeched! You lose {stolen} crystal(s).");
+        if (outcome.DiscardWounds > 0)
+            GameLog.Instance.Post($"Venom festers — {outcome.DiscardWounds} wound(s) rot in your discard.");
+        if (outcome.CrystalsStolen > 0)
+            GameLog.Instance.Post($"Leeched! You lose {outcome.CrystalsStolen} crystal(s).");
 
-        if (stolen > 0)
+        if (outcome.CrystalsStolen > 0)
         {
             var crystals = FindAnyObjectByType<CrystalInventory>();
             if (crystals != null)
             {
-                int n = Mathf.Min(stolen, crystals.crystalsInInventory.Count);
+                int n = Mathf.Min(outcome.CrystalsStolen, crystals.crystalsInInventory.Count);
                 for (int i = 0; i < n; i++) crystals.crystalsInInventory[0].RemoveCrystal();
             }
         }
