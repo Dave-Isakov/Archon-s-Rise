@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 
 public class HealRulesTests
@@ -39,5 +40,29 @@ public class HealRulesTests
     public void WoundCard_HealsNothing()
     {
         Assert.AreEqual(0, HealRules.HealCount(StatType.Wound, false, 1, 2));
+    }
+
+    [Test]
+    public void HealableCount_SumsHandWoundsAndUnitWounds()
+    {
+        Assert.AreEqual(0, HealRules.HealableCount(0, new int[0]));
+        Assert.AreEqual(4, HealRules.HealableCount(4, new int[0]));
+        Assert.AreEqual(3, HealRules.HealableCount(0, new[] { 1, 2 }));
+        Assert.AreEqual(7, HealRules.HealableCount(4, new[] { 1, 2 }));
+    }
+
+    [Test]
+    public void HealableCount_IgnoresHealthyUnitsAndNullList()
+    {
+        Assert.AreEqual(0, HealRules.HealableCount(0, new[] { 0, 0, 0 }));
+        Assert.AreEqual(2, HealRules.HealableCount(2, null));
+    }
+
+    [Test]
+    public void CanHeal_IsTrueWhenAnythingIsWounded()
+    {
+        Assert.IsFalse(HealRules.CanHeal(0, new[] { 0, 0 }));
+        Assert.IsTrue(HealRules.CanHeal(1, new[] { 0, 0 }));
+        Assert.IsTrue(HealRules.CanHeal(0, new[] { 0, 1 }));
     }
 }
