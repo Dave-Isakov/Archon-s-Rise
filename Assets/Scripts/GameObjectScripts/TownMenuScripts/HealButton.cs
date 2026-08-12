@@ -7,7 +7,7 @@ public class HealButton : TownButtons
     private void Update() {
         if (_town is not null)
         {
-            if(currentPlayerInfluence < _town.townSO.healLevel || !CanActThisVisit)
+            if(currentPlayerInfluence < _town.townSO.healLevel || !CanActThisVisit || !TownToken.AnythingToHeal())
                 thisButton.interactable = false;
             SyncLock();
         }

@@ -37,6 +37,15 @@ public class TownToken : PlaceTokenBase
         }
     }
 
+    public static bool AnythingToHeal()
+    {
+        var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
+        int handWounds = 0;
+        foreach (var c in hand.cardsInPlay)
+            if (c != null && c.cardSO != null && c.cardSO.cardType == StatType.Wound) handWounds++;
+        return HealRules.CanHeal(handWounds, null);
+    }
+
     public override List<PlaceAction> BuildActions()
     {
         int influence = PlayerStats != null ? PlayerStats.playerInfluence : 0;
@@ -55,6 +64,7 @@ public class TownToken : PlaceTokenBase
             sellsCards: townSO.purchasableCards != null && townSO.purchasableCards.Count > 0,
             cardCost: townSO.cardLevel,
             anyUnitAffordable: anyUnitAffordable,
+            anyWoundToHeal: AnythingToHeal(),
             visitCanAct: CanActThisVisit,
             hasMenu: true));
     }
@@ -68,6 +78,11 @@ public class TownToken : PlaceTokenBase
                 break;
 
             case PlaceActionId.Heal:
+                if (!AnythingToHeal())
+                {
+                    GameLog.Instance.Post("You don't require healing — nobody is wounded.");
+                    break;
+                }
                 // Same three effects the old HealButton wired, in the same order.
                 if (healTownEvent != null) healTownEvent.Raise(this);
                 if (healInfluenceCostEvent != null) healInfluenceCostEvent.Raise(townSO.healLevel);
