@@ -226,23 +226,73 @@ public class PlayerHand : MonoBehaviour
         return healWound.gameObject;
     }
 
+    // Per-card assignment record, so undoing a heal restores exactly what THAT
+    // play cleared rather than N arbitrary hand wounds.
+    readonly Dictionary<Card, HealAssignment> healAssignments = new();
+
     public void Heal(Card card)
     {
         var count = HealRules.HealCount(card.cardSO.cardType, card.IsEmpowered,
             card.cardSO.healAmount, card.cardSO.empowerHealAmount);
+        if (count <= 0) return;
 
-        if(card.IsPlayed)
-            for(var i = 0; i < count; i++)
-                HealWound();
-        else
-            for(var i = 0; i < count; i++)
-                RestoreHealedWound();
+        if (card.IsPlayed)
+        {
+            var assignment = new HealAssignment();
+            healAssignments[card] = assignment;
+            OpenHeal(count, assignment);
+        }
+        else if (healAssignments.TryGetValue(card, out var done))
+        {
+            UndoHeal(done);
+            healAssignments.Remove(card);
+        }
     }
 
     public void TownHeal(TownToken town)
-    {  
-        for(var i = 0; i < town.townSO.healLevel; i++)
-            HealWound();
+    {
+        OpenHeal(town.townSO.healLevel, new HealAssignment());
+    }
+
+    public int HandWoundCount()
+    {
+        int n = 0;
+        foreach (var c in cardsInPlay)
+            if (c != null && c.cardSO != null && c.cardSO.cardType == StatType.Wound) n++;
+        return n;
+    }
+
+    // The one heal funnel. Opens the picker with `budget` and records what the
+    // player spent it on into `into`, so the activation can be undone exactly.
+    // Falls back to healing the hand directly when no picker exists in the
+    // scene, so a heal is never silently dropped.
+    public void OpenHeal(int budget, HealAssignment into)
+    {
+        var picker = FindAnyObjectByType<UnitPickerPanel>();
+        if (picker == null)
+        {
+            for (int i = 0; i < budget; i++) { HealWound(); into.RecordHand(); }
+            return;
+        }
+
+        var player = FindAnyObjectByType<Player>();
+        picker.OpenForHeal(budget, HandWoundCount(), target =>
+        {
+            if (target.Unit == null) { HealWound(); into.RecordHand(); }
+            else
+            {
+                player.HealUnit(target.Unit, target.Cost);
+                into.RecordUnit(target.Unit, target.Cost);
+            }
+        });
+    }
+
+    public void UndoHeal(HealAssignment done)
+    {
+        var player = FindAnyObjectByType<Player>();
+        for (int i = 0; i < done.HandWoundsHealed; i++) RestoreHealedWound();
+        foreach (var (unit, wounds) in done.UnitsHealed)
+            if (unit is Unit u && u != null) player.WoundUnit(u, wounds);
     }
 
     //Cleans up wounds that were set inactive during the turn due to healing.

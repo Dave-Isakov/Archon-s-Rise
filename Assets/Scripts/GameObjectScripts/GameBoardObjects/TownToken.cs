@@ -40,9 +40,7 @@ public class TownToken : PlaceTokenBase
     public static bool AnythingToHeal()
     {
         var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
-        int handWounds = 0;
-        foreach (var c in hand.cardsInPlay)
-            if (c != null && c.cardSO != null && c.cardSO.cardType == StatType.Wound) handWounds++;
+        int handWounds = hand.HandWoundCount();
 
         var units = FindObjectsByType<Unit>();
         var unitWounds = new int[units.Length];

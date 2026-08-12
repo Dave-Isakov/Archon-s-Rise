@@ -471,6 +471,9 @@ public class Player : MonoBehaviour
     void ReadyUnit(Unit unit)   { unit.IsPlayed = false; BarFocusController.Instance?.RelayoutUnits(); }
     void ExhaustUnit(Unit unit) { unit.IsPlayed = true;  BarFocusController.Instance?.RelayoutUnits(); }
 
+    // Per-unit-option and per-skill heal assignments, for exact undo.
+    readonly Dictionary<object, HealAssignment> healAssignments = new();
+
     // Wound state gets the same single write path exhaustion has, relayout
     // included — BarFocusController's selectable mask reads Unit.Selectable,
     // which now depends on both.
@@ -536,7 +539,9 @@ public class Player : MonoBehaviour
             case UnitEffect.Heal:
             {
                 var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
-                for (int i = 0; i < option.amount; i++) hand.HealWound();
+                var assignment = new HealAssignment();
+                healAssignments[option] = assignment;
+                hand.OpenHeal(option.amount, assignment);
                 break;
             }
             case UnitEffect.Crystallize:
@@ -585,7 +590,11 @@ public class Player : MonoBehaviour
             case UnitEffect.Heal:
             {
                 var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
-                for (int i = 0; i < option.amount; i++) hand.RestoreHealedWound();
+                if (healAssignments.TryGetValue(option, out var done))
+                {
+                    hand.UndoHeal(done);
+                    healAssignments.Remove(option);
+                }
                 break;
             }
             case UnitEffect.Crystallize:
@@ -635,10 +644,16 @@ public class Player : MonoBehaviour
             case SkillEffect.HealWound:
             {
                 var hand = GameManager.Instance.playerHand.GetComponent<PlayerHand>();
-                for (int i = 0; i < skill.magnitude; i++)
+                if (sign > 0)
                 {
-                    if (sign > 0) hand.HealWound();
-                    else          hand.RestoreHealedWound();
+                    var assignment = new HealAssignment();
+                    healAssignments[skill] = assignment;
+                    hand.OpenHeal(skill.magnitude, assignment);
+                }
+                else if (healAssignments.TryGetValue(skill, out var done))
+                {
+                    hand.UndoHeal(done);
+                    healAssignments.Remove(skill);
                 }
                 break;
             }
