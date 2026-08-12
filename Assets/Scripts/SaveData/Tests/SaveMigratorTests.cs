@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using ArchonsRise.SaveData;
 
 namespace ArchonsRise.SaveData.Tests
@@ -13,7 +13,7 @@ namespace ArchonsRise.SaveData.Tests
 
             var migrated = SaveMigrator.Migrate(v1);
 
-            Assert.AreEqual(13, migrated.schemaVersion);
+            Assert.AreEqual(14, migrated.schemaVersion);
             Assert.IsNotNull(migrated.run.places);
             Assert.AreEqual(0, migrated.run.places.Length);
         }
@@ -26,7 +26,7 @@ namespace ArchonsRise.SaveData.Tests
 
             var migrated = SaveMigrator.Migrate(v2);
 
-            Assert.AreEqual(13, migrated.schemaVersion);
+            Assert.AreEqual(14, migrated.schemaVersion);
             Assert.AreEqual(1, migrated.run.places.Length);
             Assert.AreEqual(1, migrated.run.places[0].defeatedCount);
         }

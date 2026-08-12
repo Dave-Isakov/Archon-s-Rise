@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using ArchonsRise.SaveData;
 
 public class SaveMigratorV11Tests
@@ -10,7 +10,7 @@ public class SaveMigratorV11Tests
 
         SaveMigrator.Migrate(file);
 
-        Assert.AreEqual(13, file.schemaVersion);
+        Assert.AreEqual(14, file.schemaVersion);
         // A pre-v11 save predates the deck-shortfall buffer entirely, so the
         // missing field must default to false (no forced rest carried into load).
         Assert.IsFalse(file.run.deckShortfallPending);
@@ -24,7 +24,7 @@ public class SaveMigratorV11Tests
 
         SaveMigrator.Migrate(file);
 
-        Assert.AreEqual(13, file.schemaVersion);
+        Assert.AreEqual(14, file.schemaVersion);
         Assert.IsTrue(file.run.deckShortfallPending);
     }
 }

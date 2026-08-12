@@ -17,7 +17,10 @@ namespace ArchonsRise.SaveData
         // SpawnedEnemy's now-legacy shrine tag and onto its shrine.
         // v13: adds PlaceConquest.defeatedIndices. A count alone could not say
         // WHICH guardians a resumed assault had already killed (2026-08-10).
-        public int schemaVersion = 13;
+        // v14: adds RunState.unitWounds (unit wound counts, 0-2). Units can now
+        // soak the Defend-phase counterattack and stay wounded until healed
+        // (2026-08-12), which persists across rounds and therefore across saves.
+        public int schemaVersion = 14;
         public RunState run = new RunState();
     }
 
@@ -36,6 +39,9 @@ namespace ArchonsRise.SaveData
         public string[] unitIds = Array.Empty<string>();
         // Parallel to unitIds: true = the unit was already used this round.
         public bool[] unitExhausted = Array.Empty<bool>();
+        // Parallel to unitIds: 0-2 wounds. NOT part of wound-out — unit wounds
+        // trade run-loss pressure for army capability.
+        public int[] unitWounds = Array.Empty<int>();
         public MapState map = new MapState();
         // One entry per place with any guardian down; keyed by grid cell.
         // Guardians never respawn but they do NOT die in roster order, so the

@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using ArchonsRise.SaveData;
 
 public class SaveMigratorV13Tests
@@ -15,7 +15,7 @@ public class SaveMigratorV13Tests
 
         var m = SaveMigrator.Migrate(file);
 
-        Assert.AreEqual(13, m.schemaVersion);
+        Assert.AreEqual(14, m.schemaVersion);
         CollectionAssert.AreEqual(new[] { 0, 1 }, m.run.places[0].defeatedIndices);
         CollectionAssert.AreEqual(new[] { 0 }, m.run.places[1].defeatedIndices);
     }
@@ -31,7 +31,7 @@ public class SaveMigratorV13Tests
 
         var m = SaveMigrator.Migrate(file);
 
-        Assert.AreEqual(13, m.schemaVersion);
+        Assert.AreEqual(14, m.schemaVersion);
         CollectionAssert.AreEqual(new[] { 1 }, m.run.places[0].defeatedIndices);
     }
 
@@ -44,7 +44,7 @@ public class SaveMigratorV13Tests
         var once = SaveMigrator.Migrate(file);
         var twice = SaveMigrator.Migrate(once);
 
-        Assert.AreEqual(13, twice.schemaVersion);
+        Assert.AreEqual(14, twice.schemaVersion);
         CollectionAssert.AreEqual(new[] { 0, 1 }, twice.run.places[0].defeatedIndices);
     }
 }

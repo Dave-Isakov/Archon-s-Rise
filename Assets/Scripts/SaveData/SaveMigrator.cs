@@ -122,6 +122,15 @@ namespace ArchonsRise.SaveData
                 }
                 file.schemaVersion = 13;
             }
+
+            // v13 -> v14: unitWounds did not exist; absent means every unit is
+            // healthy, which is exactly the state a pre-v14 run was in.
+            if (file.schemaVersion < 14)
+            {
+                if (file.run.unitWounds == null)
+                    file.run.unitWounds = Array.Empty<int>();
+                file.schemaVersion = 14;
+            }
             return file;
         }
 

@@ -430,7 +430,7 @@ public class Player : MonoBehaviour
         BarFocusController.Instance?.RelayoutUnits();
     }
 
-    public void RebuildUnits(List<UnitsSO> unitSOs, bool[] exhausted = null)
+    public void RebuildUnits(List<UnitsSO> unitSOs, bool[] exhausted = null, int[] wounds = null)
     {
         // Clear any existing Unit GameObjects (including the placeholder created in Awake) and the list.
         foreach (var existing in FindObjectsByType<Unit>())
@@ -448,6 +448,8 @@ public class Player : MonoBehaviour
             unit.unitSO = so;
             if (exhausted != null && i < exhausted.Length && exhausted[i])
                 unit.IsPlayed = true;
+            if (wounds != null && i < wounds.Length && wounds[i] > 0)
+                unit.WoundCount = wounds[i];
         }
         BarFocusController.Instance?.RelayoutUnits();
     }

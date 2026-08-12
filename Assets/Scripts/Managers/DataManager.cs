@@ -334,7 +334,7 @@ public class DataManager : MonoBehaviour
             EnemySpawner.Instance.RestoreSpawned(run.spawnedEnemies, Enemies);
         }
 
-        player.RebuildUnits(Units.Resolve(run.unitIds), run.unitExhausted);
+        player.RebuildUnits(Units.Resolve(run.unitIds), run.unitExhausted, run.unitWounds);
         player.RebuildSkills(Skills.Resolve(run.player.ownedSkillIds),
             new HashSet<string>(run.player.exhaustedSkillIds));
     }
@@ -398,11 +398,12 @@ public class DataManager : MonoBehaviour
         run.deckCardIds    = CardIds(deck != null ? deck.CardsInDeck : new List<Card>());
         run.handCardIds    = CardIds(hand != null ? hand.cardsInPlay : new List<Card>());
         run.discardCardIds = DiscardIds(discard);
-        // Single-source capture so unitIds[i] and unitExhausted[i] always pair:
-        // both come from the same Unit-object iteration.
+        // Single-source capture so unitIds[i], unitExhausted[i] and unitWounds[i]
+        // always pair: all three come from the same Unit-object iteration.
         var unitObjs = FindObjectsByType<Unit>();
         run.unitIds       = System.Array.ConvertAll(unitObjs, u => u.unitSO.id);
         run.unitExhausted = System.Array.ConvertAll(unitObjs, u => u.IsPlayed);
+        run.unitWounds    = System.Array.ConvertAll(unitObjs, u => u.WoundCount);
         run.player.ownedSkillIds     = SkillIds(player);
         run.player.exhaustedSkillIds = ExhaustedSkillIds();
 

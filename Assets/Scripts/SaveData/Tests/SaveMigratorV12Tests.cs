@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using ArchonsRise.SaveData;
 
 // v11 -> v12: the shrine guardian became shrine state instead of a map token
@@ -10,7 +10,7 @@ public class SaveMigratorV12Tests
     {
         var file = new SaveFile { schemaVersion = 11 };
         // JsonUtility leaves the absent field at 0, which reads as
-        // ShrineReward.CardPick — a dormant shrine would owe a card.
+        // ShrineReward.CardPick â€” a dormant shrine would owe a card.
         file.run.shrines = new[]
         {
             new ShrineState { x = 1, y = 2, shrineId = "gate", state = 1, owedReward = 0 }
@@ -18,7 +18,7 @@ public class SaveMigratorV12Tests
 
         SaveMigrator.Migrate(file);
 
-        Assert.AreEqual(13, file.schemaVersion);
+        Assert.AreEqual(14, file.schemaVersion);
         Assert.AreEqual(-1, file.run.shrines[0].owedReward);
     }
 
@@ -73,7 +73,7 @@ public class SaveMigratorV12Tests
 
         SaveMigrator.Migrate(file);
 
-        // Nothing to fold onto, but the token can't stay either — it would
+        // Nothing to fold onto, but the token can't stay either â€” it would
         // restore as an ordinary enemy carrying a debt nothing can collect.
         Assert.AreEqual(0, file.run.spawnedEnemies.Length);
     }
@@ -89,7 +89,7 @@ public class SaveMigratorV12Tests
 
         SaveMigrator.Migrate(file);
 
-        Assert.AreEqual(13, file.schemaVersion);
+        Assert.AreEqual(14, file.schemaVersion);
         Assert.AreEqual(2, file.run.shrines[0].owedReward);
     }
 }

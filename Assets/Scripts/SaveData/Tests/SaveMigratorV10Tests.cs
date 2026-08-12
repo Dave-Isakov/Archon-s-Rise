@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using ArchonsRise.SaveData;
 
 public class SaveMigratorV10Tests
@@ -11,7 +11,7 @@ public class SaveMigratorV10Tests
 
         SaveMigrator.Migrate(file);
 
-        Assert.AreEqual(13, file.schemaVersion);
+        Assert.AreEqual(14, file.schemaVersion);
         Assert.IsNotNull(file.run.shrines);
         Assert.AreEqual(0, file.run.shrines.Length);
     }
