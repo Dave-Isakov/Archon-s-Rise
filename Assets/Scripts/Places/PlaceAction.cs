@@ -35,12 +35,13 @@ public readonly struct TownActionSnapshot
     public readonly bool SellsCards;
     public readonly int CardCost;
     public readonly bool AnyUnitAffordable;
+    public readonly bool AnyWoundToHeal;
     public readonly bool VisitCanAct;
     public readonly bool HasMenu;
 
     public TownActionSnapshot(PlaceType placeType, bool conquered, int guardiansRemaining,
         int influence, int healCost, int crystalCost, bool sellsCards, int cardCost,
-        bool anyUnitAffordable, bool visitCanAct, bool hasMenu)
+        bool anyUnitAffordable, bool anyWoundToHeal, bool visitCanAct, bool hasMenu)
     {
         PlaceType = placeType;
         Conquered = conquered;
@@ -51,6 +52,7 @@ public readonly struct TownActionSnapshot
         SellsCards = sellsCards;
         CardCost = cardCost;
         AnyUnitAffordable = anyUnitAffordable;
+        AnyWoundToHeal = anyWoundToHeal;
         VisitCanAct = visitCanAct;
         HasMenu = hasMenu;
     }

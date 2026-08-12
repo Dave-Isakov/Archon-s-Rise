@@ -6,9 +6,10 @@ public class PlaceActionRulesTests
     static TownActionSnapshot Town(PlaceType type = PlaceType.Town, bool conquered = true,
         int guardiansRemaining = 0, int influence = 99, int healCost = 3, int crystalCost = 2,
         bool sellsCards = false, int cardCost = 5,
-        bool anyUnitAffordable = true, bool visitCanAct = true, bool hasMenu = true)
+        bool anyUnitAffordable = true, bool anyWoundToHeal = true,
+        bool visitCanAct = true, bool hasMenu = true)
         => new TownActionSnapshot(type, conquered, guardiansRemaining, influence, healCost,
-            crystalCost, sellsCards, cardCost, anyUnitAffordable, visitCanAct, hasMenu);
+            crystalCost, sellsCards, cardCost, anyUnitAffordable, anyWoundToHeal, visitCanAct, hasMenu);
 
     [Test]
     public void Unconquered_AssaultThenMenuOnly()
@@ -99,6 +100,28 @@ public class PlaceActionRulesTests
         Assert.AreEqual(3, heal.CostAmount);
         Assert.AreEqual(IconConcept.Influence, heal.CostIcon);
         Assert.IsFalse(heal.Enabled);
+    }
+
+    [Test]
+    public void Town_HealSlotDisabled_WhenNothingIsWounded()
+    {
+        var actions = PlaceActionRules.ForTown(Town(influence: 10, healCost: 2, anyWoundToHeal: false));
+        var heal = actions.Find(a => a.Id == PlaceActionId.Heal);
+        Assert.IsFalse(heal.Enabled, "heal must be locked when nothing is wounded");
+    }
+
+    [Test]
+    public void Town_HealSlotEnabled_WhenWoundedAndAffordable()
+    {
+        var actions = PlaceActionRules.ForTown(Town(influence: 10, healCost: 2, anyWoundToHeal: true));
+        Assert.IsTrue(actions.Find(a => a.Id == PlaceActionId.Heal).Enabled);
+    }
+
+    [Test]
+    public void Town_HealSlotDisabled_WhenWoundedButBroke()
+    {
+        var actions = PlaceActionRules.ForTown(Town(influence: 1, healCost: 2, anyWoundToHeal: true));
+        Assert.IsFalse(actions.Find(a => a.Id == PlaceActionId.Heal).Enabled);
     }
 
     // The crystal pop-out spends influence with no clamp (Player.Influence), so the

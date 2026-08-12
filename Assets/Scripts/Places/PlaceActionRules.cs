@@ -28,7 +28,7 @@ public static class PlaceActionRules
             if ((allowed & PlaceService.Heal) != 0)
                 list.Add(new PlaceAction(PlaceActionId.Heal, IconConcept.Heal,
                     IconConcept.Influence, s.HealCost,
-                    s.Influence >= s.HealCost && s.VisitCanAct));
+                    s.Influence >= s.HealCost && s.AnyWoundToHeal && s.VisitCanAct));
 
             if (s.SellsCards)
                 list.Add(new PlaceAction(PlaceActionId.Cards, IconConcept.Card,
