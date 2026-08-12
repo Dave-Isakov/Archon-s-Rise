@@ -141,6 +141,26 @@ public static class EnemyTraitRules
     public static int VengefulWounds(EnemyCombatant e, IReadOnlyList<EnemyCombatant> roster, EnemyTraitTuning t)
         => EffectiveTraits(e, roster).HasFlag(EnemyTrait.Vengeful) ? t.vengefulWounds : 0;
 
+    // The whole counterattack in one call. Unit armor IS Defend, so `soak` is
+    // simply added to defendLeft and every existing trait behaviour follows for
+    // free. Exactly two traits are exceptions: Leech reads the PRE-soak number,
+    // and Toxic transfers — its discard copies become 0 and each committed unit
+    // takes 2 wounds instead of 1.
+    public static CounterattackOutcome Resolve(CounterattackPreview p, int defendLeft, int soak,
+        int toughness, EnemyTraitTuning t, int committedUnits)
+    {
+        bool anyToxic = p.ToxicContribution > 0;
+        bool sheltered = committedUnits > 0;
+
+        return new CounterattackOutcome
+        {
+            HandWounds     = HandWounds(p, defendLeft + soak, toughness),
+            DiscardWounds  = sheltered && anyToxic ? 0 : DiscardWounds(p, defendLeft, toughness, t),
+            CrystalsStolen = CrystalsStolen(p, defendLeft, toughness, t),
+            WoundsPerCommittedUnit = anyToxic ? 2 : 1,
+        };
+    }
+
     // Harrying costs hand size on the turn AFTER a flee. Flat, not per-enemy:
     // it is a property of the fight you fled, so two harriers do not cost two
     // cards. Blocked enemies still count — blocking is not killing.
@@ -164,4 +184,14 @@ public struct CounterattackPreview
     public int TotalContribution;
     public int ToxicContribution;
     public int LeechContribution;
+}
+
+// Everything one counterattack does, so CombatController makes a single call
+// instead of four and can never apply three of the four.
+public struct CounterattackOutcome
+{
+    public int HandWounds;
+    public int DiscardWounds;
+    public int CrystalsStolen;
+    public int WoundsPerCommittedUnit;
 }
