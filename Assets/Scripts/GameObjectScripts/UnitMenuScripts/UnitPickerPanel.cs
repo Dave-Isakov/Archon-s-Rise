@@ -112,7 +112,86 @@ public class UnitPickerPanel : MonoBehaviour
         _onConfirm = null;
         _committed.Clear();
         _mode = PickerMode.Refresh;
+        _onHealPick = null;
+        _handWounds = 0;
         Canvas.enabled = false;
+    }
+
+    System.Action<HealTarget> _onHealPick;
+    int _handWounds;
+
+    // Heal mode: one list, so hand wounds and wounded units compete for one
+    // budget and the allocation is an explicit decision every time. Mobilize
+    // semantics otherwise — click-off dismisses and unspent budget is lost.
+    public void OpenForHeal(int budget, int handWounds, System.Action<HealTarget> onPick)
+    {
+        AnyOpen = true;
+        _mode = PickerMode.Heal;
+        _remaining = budget;
+        _handWounds = handWounds;
+        _onHealPick = onPick;
+        Canvas.enabled = true;
+        RebuildHeal();
+    }
+
+    void RebuildHeal()
+    {
+        ClearEntries();
+        if (titleLabel != null)
+            titleLabel.text = $"{IconMarkup.Tag(IconConcept.Heal)} Heal — {_remaining} left";
+
+        bool any = false;
+
+        if (_handWounds > 0)
+        {
+            var go = Instantiate(entryButtonPrefab, entryContainer);
+            bool pickable = _remaining >= 1;
+            go.GetComponentInChildren<TextMeshProUGUI>().text =
+                $"Wounds in hand  x{_handWounds} — {IconMarkup.Cost(IconConcept.Heal, 1)}";
+            var button = go.GetComponent<Button>();
+            button.interactable = pickable;
+            UiLock.Apply(go.GetComponent<CanvasGroup>(), !pickable);
+            if (pickable)
+            {
+                any = true;
+                button.onClick.AddListener(() => PickHeal(new HealTarget(null, 1)));
+            }
+            spawned.Add(go);
+        }
+
+        foreach (var unit in FindObjectsByType<Unit>())
+        {
+            if (!unit.IsWounded) continue;
+
+            // Healing a unit is ATOMIC: its row costs its full WoundCount and
+            // locks when the budget cannot cover it, rather than spending a
+            // point for no state change.
+            int cost = unit.WoundCount;
+            var go = Instantiate(entryButtonPrefab, entryContainer);
+            bool pickable = cost <= _remaining;
+            go.GetComponentInChildren<TextMeshProUGUI>().text =
+                $"{unit.unitSO.cardName} — {IconMarkup.Cost(IconConcept.Heal, cost)}";
+            var button = go.GetComponent<Button>();
+            button.interactable = pickable;
+            UiLock.Apply(go.GetComponent<CanvasGroup>(), !pickable);
+            if (pickable)
+            {
+                any = true;
+                var captured = unit;
+                button.onClick.AddListener(() => PickHeal(new HealTarget(captured, cost)));
+            }
+            spawned.Add(go);
+        }
+
+        if (!any) CloseInternal(); // unspent budget is lost — same as refresh
+    }
+
+    void PickHeal(HealTarget target)
+    {
+        _remaining -= target.Cost;
+        if (target.Unit == null) _handWounds--;
+        _onHealPick?.Invoke(target);
+        RebuildHeal();
     }
 
     // Opens the "who takes this hit?" picker. Every row is a body that can
@@ -210,4 +289,14 @@ public class UnitPickerPanel : MonoBehaviour
         foreach (var go in spawned) if (go != null) Destroy(go);
         spawned.Clear();
     }
+}
+
+// One pick from the heal picker. A null Unit is the "wounds in hand" row —
+// modelling the hand as just another target keeps the panel homogeneous and
+// lets the caller's undo snapshot record both kinds the same way.
+public readonly struct HealTarget
+{
+    public readonly Unit Unit;
+    public readonly int Cost;
+    public HealTarget(Unit unit, int cost) { Unit = unit; Cost = cost; }
 }
