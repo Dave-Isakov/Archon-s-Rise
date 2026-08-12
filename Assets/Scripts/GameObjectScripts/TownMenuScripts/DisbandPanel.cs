@@ -41,7 +41,11 @@ public class DisbandPanel : MonoBehaviour
         foreach (var unit in FindObjectsByType<Unit>())
         {
             var go = Instantiate(entryButtonPrefab, entryContainer);
-            go.GetComponentInChildren<TextMeshProUGUI>().text = unit.unitSO.cardName;
+            // Disband-and-rehire IS the Influence-priced heal channel, so choosing
+            // blind would make the whole channel a guess.
+            go.GetComponentInChildren<TextMeshProUGUI>().text = unit.IsWounded
+                ? $"{unit.unitSO.cardName} — {IconMarkup.Cost(IconConcept.Wound, unit.WoundCount)}"
+                : unit.unitSO.cardName;
             var captured = unit;
             go.GetComponent<Button>().onClick.AddListener(() => DisbandAndContinue(captured));
             spawned.Add(go);

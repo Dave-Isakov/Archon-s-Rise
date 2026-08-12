@@ -10,8 +10,10 @@ public static class RefreshRules
         return influenceCost < 1 ? 1 : influenceCost;
     }
 
-    public static bool CanPick(bool exhausted, int influenceCost, int remaining)
+    // Wounded is a separate axis from exhausted: a wounded unit is out of the run
+    // until healed, so readying it would be a no-op the player paid for.
+    public static bool CanPick(bool exhausted, bool wounded, int influenceCost, int remaining)
     {
-        return exhausted && PickCost(influenceCost) <= remaining;
+        return exhausted && !wounded && PickCost(influenceCost) <= remaining;
     }
 }

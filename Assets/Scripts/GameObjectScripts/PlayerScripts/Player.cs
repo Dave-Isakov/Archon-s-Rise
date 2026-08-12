@@ -469,10 +469,25 @@ public class Player : MonoBehaviour
     void ReadyUnit(Unit unit)   { unit.IsPlayed = false; BarFocusController.Instance?.RelayoutUnits(); }
     void ExhaustUnit(Unit unit) { unit.IsPlayed = true;  BarFocusController.Instance?.RelayoutUnits(); }
 
+    // Wound state gets the same single write path exhaustion has, relayout
+    // included — BarFocusController's selectable mask reads Unit.Selectable,
+    // which now depends on both.
+    public void WoundUnit(Unit unit, int wounds)
+    {
+        unit.WoundCount += wounds;
+        BarFocusController.Instance?.RelayoutUnits();
+    }
+
+    public void HealUnit(Unit unit, int wounds)
+    {
+        unit.WoundCount -= wounds;
+        BarFocusController.Instance?.RelayoutUnits();
+    }
+
     bool AnyRefreshable(int budget)
     {
         foreach (var unit in FindObjectsByType<Unit>())
-            if (RefreshRules.CanPick(unit.IsPlayed, unit.unitSO.influenceCost, budget)) return true;
+            if (RefreshRules.CanPick(unit.IsPlayed, unit.IsWounded, unit.unitSO.influenceCost, budget)) return true;
         return false;
     }
 

@@ -50,12 +50,12 @@ public class UnitPickerPanel : MonoBehaviour
         bool any = false;
         foreach (var unit in FindObjectsByType<Unit>())
         {
-            if (!unit.IsPlayed) continue; // only spent units list
+            if (!unit.IsPlayed || unit.IsWounded) continue; // only spent, unwounded units list
             var go = Instantiate(entryButtonPrefab, entryContainer);
             int cost = RefreshRules.PickCost(unit.unitSO.influenceCost);
             go.GetComponentInChildren<TextMeshProUGUI>().text =
                 $"{unit.unitSO.cardName} — {IconMarkup.Cost(IconConcept.Influence, cost)}";
-            bool pickable = RefreshRules.CanPick(unit.IsPlayed, unit.unitSO.influenceCost, _remaining);
+            bool pickable = RefreshRules.CanPick(unit.IsPlayed, unit.IsWounded, unit.unitSO.influenceCost, _remaining);
             var button = go.GetComponent<Button>();
             button.interactable = pickable;
             UiLock.Apply(go.GetComponent<CanvasGroup>(), !pickable);

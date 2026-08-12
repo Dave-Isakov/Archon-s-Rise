@@ -43,7 +43,12 @@ public class TownToken : PlaceTokenBase
         int handWounds = 0;
         foreach (var c in hand.cardsInPlay)
             if (c != null && c.cardSO != null && c.cardSO.cardType == StatType.Wound) handWounds++;
-        return HealRules.CanHeal(handWounds, null);
+
+        var units = FindObjectsByType<Unit>();
+        var unitWounds = new int[units.Length];
+        for (int i = 0; i < units.Length; i++) unitWounds[i] = units[i].WoundCount;
+
+        return HealRules.CanHeal(handWounds, unitWounds);
     }
 
     public override List<PlaceAction> BuildActions()
