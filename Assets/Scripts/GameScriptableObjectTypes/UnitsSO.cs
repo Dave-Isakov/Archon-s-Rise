@@ -9,12 +9,15 @@ public class UnitsSO : AllCards
     public List<UnitOption> options = new();
     // Recruit price at towns (per-unit, replaces the town's flat recruitLevel).
     public int influenceCost;
+    // Defend soaked when this unit is committed as a shield; 0 = cannot shield.
+    public int armorClass;
     public Sprite sprite;
     public Color color;
     public char unitLetter;
 
     void OnValidate()
     {
+        if (armorClass < 0) armorClass = 0;
         if (options == null) return;
         foreach (var o in options)
             if (o != null && o.crystalCost != EmpowerType.None && o.influenceCost > 0)
