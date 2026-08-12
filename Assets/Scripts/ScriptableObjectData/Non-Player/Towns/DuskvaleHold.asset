@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d54134baae668b8449dcad6f926e2852, type: 3}
+  m_Name: DuskvaleHold
+  m_EditorClassIdentifier: Assembly-CSharp::TownsSO
+  id: town-duskvale-hold
+  cardName: Duskvale Hold
+  cardDescription: A highland seat where the scholars stayed on after the warlords
+    arrived. Both sides still claim the library.
+  townSize: 4
+  activity: 15
+  placeType: 2
+  guardians:
+  - {fileID: 11400000, guid: c194739c47514221aad62eb7e8da43b0, type: 2}
+  - {fileID: 11400000, guid: a35c43e0d83c478e929a177b2938d971, type: 2}
+  recruitableUnits:
+  - {fileID: 11400000, guid: ea8086c45ba792c47b0d4f4208dd79b5, type: 2}
+  - {fileID: 11400000, guid: 35c0f88038060c945ac7a7a5c09873ea, type: 2}
+  - {fileID: 11400000, guid: 32856202ef3b67a45bfe137df8f52fc1, type: 2}
+  purchasableCards:
+  - {fileID: 11400000, guid: a102cb51544b67c4d87d42e30923124b, type: 2}
+  - {fileID: 11400000, guid: 91a2181ed83d82646bf3ca9cbdb55c46, type: 2}
+  - {fileID: 11400000, guid: d523a9b6adc27e84bb4e4bdea4c13626, type: 2}
+  - {fileID: 11400000, guid: 504ab97706ed35f4393a0154b5ca946e, type: 2}
+  - {fileID: 11400000, guid: 5c9cd355c15f4fa296c9d4b0c91f3114, type: 2}
+  cardLevel: 5
+  resourceLevel: 4
+  healLevel: 3

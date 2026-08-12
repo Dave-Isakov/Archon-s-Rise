@@ -10,25 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d54134baae668b8449dcad6f926e2852, type: 3}
-  m_Name: Merchant Village
-  m_EditorClassIdentifier: 
-  id: town-merchant-village
-  cardName: Merchant Village
-  cardDescription: This village was founded by Merchants and continues to prosper.
-  townSize: 1
-  activity: 7
+  m_Name: SunmootCrossing
+  m_EditorClassIdentifier: Assembly-CSharp::TownsSO
+  id: town-sunmoot-crossing
+  cardName: Sunmoot Crossing
+  cardDescription: A market that convenes wherever three caravans meet. Nothing here
+    is given away, least of all a favour.
+  townSize: 0
+  activity: 15
   placeType: 0
   guardians: []
   recruitableUnits:
   - {fileID: 11400000, guid: de77732a8af282e41914baaebaf0909a, type: 2}
-  - {fileID: 11400000, guid: 0314febb45d718743b9a6b059766e06e, type: 2}
+  - {fileID: 11400000, guid: 01a9990fd166e094d9b6d2ed4cbe52c7, type: 2}
   - {fileID: 11400000, guid: bb8b162e03165924ca21a5125bc28756, type: 2}
   purchasableCards:
   - {fileID: 11400000, guid: 1424ca425c474a8e8bad357dfd629943, type: 2}
-  - {fileID: 11400000, guid: 58fe6115ac0eaf345b403e7218efe5c7, type: 2}
-  - {fileID: 11400000, guid: 91a2181ed83d82646bf3ca9cbdb55c46, type: 2}
   - {fileID: 11400000, guid: a1f55bdd13bb33a4d9a800d11785a420, type: 2}
   - {fileID: 11400000, guid: 0f162ca090caa35488a1e97a7071491b, type: 2}
+  - {fileID: 11400000, guid: 58fe6115ac0eaf345b403e7218efe5c7, type: 2}
+  - {fileID: 11400000, guid: 583f413bfa9ca8c4e84c53158dcc4ff8, type: 2}
   cardLevel: 7
-  resourceLevel: 2
+  resourceLevel: 4
   healLevel: 2

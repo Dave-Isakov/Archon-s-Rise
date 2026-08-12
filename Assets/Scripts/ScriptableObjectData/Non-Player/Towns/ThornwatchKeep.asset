@@ -10,26 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d54134baae668b8449dcad6f926e2852, type: 3}
-  m_Name: SteelFistMonastery
-  m_EditorClassIdentifier: 
-  id: town-steel-fist-monastery
-  cardName: Steel Fist Monastery
-  cardDescription: Meditation and training is their specialty but they test any who
-    approach.
+  m_Name: ThornwatchKeep
+  m_EditorClassIdentifier: Assembly-CSharp::TownsSO
+  id: town-thornwatch-keep
+  cardName: Thornwatch Keep
+  cardDescription: A ring-fort grown over with black bramble. The wardens inside have
+    not opened the gate in a generation, and the wood remembers why.
   townSize: 2
-  activity: 7
+  activity: 11
   placeType: 1
   guardians:
-  - {fileID: 11400000, guid: f399ee2a44cbc454fa93885e7fa7511b, type: 2}
+  - {fileID: 11400000, guid: 50d37205264f1b54693753f32dde8ef1, type: 2}
   recruitableUnits:
-  - {fileID: 11400000, guid: ea8086c45ba792c47b0d4f4208dd79b5, type: 2}
   - {fileID: 11400000, guid: 0314febb45d718743b9a6b059766e06e, type: 2}
+  - {fileID: 11400000, guid: 35c0f88038060c945ac7a7a5c09873ea, type: 2}
   purchasableCards:
-  - {fileID: 11400000, guid: 93b1634c88144c2da4e8f9ceb09ab2da, type: 2}
-  - {fileID: 11400000, guid: a102cb51544b67c4d87d42e30923124b, type: 2}
-  - {fileID: 11400000, guid: 8af9cc7d91b76804b846b1a0a9a849d1, type: 2}
+  - {fileID: 11400000, guid: fee3f75200346d140802c0770ce31dbb, type: 2}
   - {fileID: 11400000, guid: 6026b04044c04af8ad8bac7c32b278a0, type: 2}
   - {fileID: 11400000, guid: 815e09b3ff4e4ccdada412c09f980287, type: 2}
+  - {fileID: 11400000, guid: 291db57f64c66dc4db48aa611a5b0326, type: 2}
   cardLevel: 6
   resourceLevel: 3
-  healLevel: 1
+  healLevel: 2

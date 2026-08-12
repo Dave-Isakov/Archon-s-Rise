@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d54134baae668b8449dcad6f926e2852, type: 3}
+  m_Name: Hollowmere
+  m_EditorClassIdentifier: Assembly-CSharp::TownsSO
+  id: town-hollowmere
+  cardName: Hollowmere
+  cardDescription: A stilt-village over a drowned fen. Nobody here has coin, but everybody
+    here owes somebody a favour.
+  townSize: 1
+  activity: 15
+  placeType: 0
+  guardians: []
+  recruitableUnits:
+  - {fileID: 11400000, guid: 0314febb45d718743b9a6b059766e06e, type: 2}
+  - {fileID: 11400000, guid: 89b1af18d3c43da44ba8ca698a2a941d, type: 2}
+  - {fileID: 11400000, guid: de77732a8af282e41914baaebaf0909a, type: 2}
+  purchasableCards:
+  - {fileID: 11400000, guid: d523a9b6adc27e84bb4e4bdea4c13626, type: 2}
+  - {fileID: 11400000, guid: b2dc06c4392945eb9ffb847f5af46af7, type: 2}
+  - {fileID: 11400000, guid: f8eee066478107a4ba7867d3e89b3d64, type: 2}
+  - {fileID: 11400000, guid: 68828276266644389eef08104cf626ff, type: 2}
+  cardLevel: 7
+  resourceLevel: 2
+  healLevel: 3

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d54134baae668b8449dcad6f926e2852, type: 3}
   m_Name: SirensGateKeep
   m_EditorClassIdentifier: Assembly-CSharp::TownsSO
-  id: 
+  id: town-sirens-gate-keep
   cardName: Siren's Gate Keep
   cardDescription: The gate's iconic screeching makes it a chore to open on a regular
     basis. It doesn't open much.

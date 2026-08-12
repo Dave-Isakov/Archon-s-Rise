@@ -10,38 +10,38 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fcbe2ba764a438449dbfbdee3eac1f8, type: 3}
-  m_Name: Teleport
+  m_Name: Assassinate
   m_EditorClassIdentifier: 
-  id: card_teleport
-  cardName: Teleport
-  cardDescription: '<sprite="scroll" index=0> Move to any revealed hex.
+  id: card_assassinate
+  cardName: Assassinate
+  cardDescription: '<sprite="scroll" index=0> 2 <sprite="siege" index=0> 2
 
 
     <sprite="empower"
     index=0>
 
 
-    + <sprite="Heal" index=0> 1'
+    <sprite="scroll" index=0> 4 <sprite="siege" index=0> 4'
   attack: 0
   defend: 0
-  explore: 0
+  explore: 2
   influence: 0
-  siege: 0
+  siege: 2
   healAmount: 0
   numCrystals: 0
   empowerAttack: 0
   empowerDefend: 0
-  empowerExplore: 0
+  empowerExplore: 4
   empowerInfluence: 0
-  empowerSiege: 0
-  empowerHealAmount: 1
+  empowerSiege: 4
+  empowerHealAmount: 0
   empowerNumCrystals: 0
-  cardType: 20
-  empowerType: 2
+  cardType: 133
+  empowerType: 4
   isChoice: 0
   convertTo: 0
   convertFrom: 0
   convertRequiresEmpower: 0
   refresh: 0
   empowerRefresh: 0
-  grantsTeleport: 1
+  grantsTeleport: 0

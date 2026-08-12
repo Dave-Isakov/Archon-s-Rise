@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d54134baae668b8449dcad6f926e2852, type: 3}
   m_Name: CastleBrune
   m_EditorClassIdentifier: Assembly-CSharp::TownsSO
-  id: 
+  id: town-castle-brune
   cardName: Castle Brune
   cardDescription: Seat of a fallen archon, now held by corrupted champions. Whoever
     commands its towers commands the valley below.
@@ -25,6 +25,12 @@ MonoBehaviour:
   recruitableUnits:
   - {fileID: 11400000, guid: 0b10e160bfd81de448cd27690a82ab6b, type: 2}
   - {fileID: 11400000, guid: 32856202ef3b67a45bfe137df8f52fc1, type: 2}
+  purchasableCards:
+  - {fileID: 11400000, guid: 6a0030b41a885b2419098c937175ae8d, type: 2}
+  - {fileID: 11400000, guid: 583f413bfa9ca8c4e84c53158dcc4ff8, type: 2}
+  - {fileID: 11400000, guid: 34487d77aefc9b44d91d98bd2b0fde9e, type: 2}
+  - {fileID: 11400000, guid: 815e09b3ff4e4ccdada412c09f980287, type: 2}
+  - {fileID: 11400000, guid: 6026b04044c04af8ad8bac7c32b278a0, type: 2}
   cardLevel: 5
   resourceLevel: 4
   healLevel: 3

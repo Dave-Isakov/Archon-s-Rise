@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d54134baae668b8449dcad6f926e2852, type: 3}
+  m_Name: VaelportCitadel
+  m_EditorClassIdentifier: Assembly-CSharp::TownsSO
+  id: town-vaelport-citadel
+  cardName: Vaelport Citadel
+  cardDescription: A gate-city of counting houses and sea-cliff towers, taken by
+    an ogre warlord who found the ledgers more useful than the walls.
+  townSize: 4
+  activity: -1
+  placeType: 2
+  guardians:
+  - {fileID: 11400000, guid: 9a49473bd8ef61f44a3854c22571506b, type: 2}
+  - {fileID: 11400000, guid: 9abcb77e941bd0d48bf0c36cccaef4c8, type: 2}
+  recruitableUnits:
+  - {fileID: 11400000, guid: 01a9990fd166e094d9b6d2ed4cbe52c7, type: 2}
+  - {fileID: 11400000, guid: de77732a8af282e41914baaebaf0909a, type: 2}
+  - {fileID: 11400000, guid: 7cfdb099477ce6e45933c02491282419, type: 2}
+  purchasableCards:
+  - {fileID: 11400000, guid: fc9bc6d5c1c1493680a53217db38434e, type: 2}
+  - {fileID: 11400000, guid: 9e2e8678ea3b457b804115ef8dd6afd5, type: 2}
+  - {fileID: 11400000, guid: 8dcef2da0e6b45bcadc2364527ae7000, type: 2}
+  - {fileID: 11400000, guid: 34487d77aefc9b44d91d98bd2b0fde9e, type: 2}
+  - {fileID: 11400000, guid: 6a0030b41a885b2419098c937175ae8d, type: 2}
+  cardLevel: 5
+  resourceLevel: 4
+  healLevel: 3

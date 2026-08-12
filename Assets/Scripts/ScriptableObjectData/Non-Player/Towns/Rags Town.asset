@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d54134baae668b8449dcad6f926e2852, type: 3}
   m_Name: Rags Town
   m_EditorClassIdentifier: 
-  id: 
+  id: town-rags-town
   cardName: Rags Town
   cardDescription: Rundown hovels constantly pillaged by bandits.
   townSize: 0
@@ -22,6 +22,11 @@ MonoBehaviour:
   recruitableUnits:
   - {fileID: 11400000, guid: 0314febb45d718743b9a6b059766e06e, type: 2}
   - {fileID: 11400000, guid: 01a9990fd166e094d9b6d2ed4cbe52c7, type: 2}
+  purchasableCards:
+  - {fileID: 11400000, guid: 58fe6115ac0eaf345b403e7218efe5c7, type: 2}
+  - {fileID: 11400000, guid: fee3f75200346d140802c0770ce31dbb, type: 2}
+  - {fileID: 11400000, guid: 8af9cc7d91b76804b846b1a0a9a849d1, type: 2}
+  - {fileID: 11400000, guid: b12ead6b89a9d744598192c3828d2900, type: 2}
   cardLevel: 7
   resourceLevel: 2
   healLevel: 2

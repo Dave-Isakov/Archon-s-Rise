@@ -36,6 +36,12 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3ed13b013dad59f4d96ebd3e2bafd6eb, type: 2}
   - {fileID: 11400000, guid: 2b5ba391bb99ea74285345bcd830a929, type: 2}
   - {fileID: 11400000, guid: 2ec262473ccd98946840901c8ebec25d, type: 2}
+  - {fileID: 11400000, guid: e17af50ae4044d54bdcf7b185b29d5e7, type: 2}
+  - {fileID: 11400000, guid: 6956a310b0694683894df5abd1d2ec40, type: 2}
+  - {fileID: 11400000, guid: 85ef1ec6a65644e881c48cbaa7c599c6, type: 2}
+  - {fileID: 11400000, guid: 9004ebb84e1e4bb1afa59a09723b480c, type: 2}
+  - {fileID: 11400000, guid: 008f121aad474a4cac0479b9dc8c8e37, type: 2}
+  - {fileID: 11400000, guid: 4d8e33b507d74f939046c9a6d335bff7, type: 2}
   dungeons:
   - {fileID: 11400000, guid: b50fbc6033e5a214990cda54f6d67a2c, type: 2}
   - {fileID: 11400000, guid: 843943e1d0558f2459d1bed3375a8b07, type: 2}
