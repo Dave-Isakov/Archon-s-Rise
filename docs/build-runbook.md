@@ -72,7 +72,41 @@ project's ~58 `Debug.Log` calls land there even in a non-development build.
 - The main menu's **Options** button has an empty `m_Calls` and opens nothing. Hide it or wire it
   before shipping to anyone who isn't you.
 
+## Packaging for distribution
+
+Drop a `README.txt` beside the `.exe` first — the build does not generate one, so it must be copied
+in after every build. Keep it covering: extract the whole folder, the SmartScreen click-through, the
+save location, and how to send back `Player.log`.
+
+Then zip the folder. **Do not use `Compress-Archive` or .NET's `ZipFile.CreateFromDirectory` on
+Windows PowerShell 5.1** — .NET Framework writes `\` as the path separator, which violates the ZIP
+spec (entry names must use `/`). Windows Explorer tolerates it; macOS and Linux `unzip` do not, and
+produce a pile of files with literal backslashes in their names instead of a folder tree.
+
+Build entry names explicitly instead:
+
+```powershell
+Add-Type -AssemblyName System.IO.Compression, System.IO.Compression.FileSystem
+$src = "C:\Builds\ArchonsRise-<version>"; $dst = "$src.zip"; $root = "ArchonsRise-<version>"
+$bs = [char]92; $fs = [char]47
+$zip = [System.IO.Compression.ZipFile]::Open($dst, 'Create')
+foreach ($f in Get-ChildItem -LiteralPath $src -Recurse -File) {
+  $rel = $f.FullName.Substring($src.Length + 1).Replace($bs, $fs)
+  [void][System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $f.FullName, "$root$fs$rel", 'Optimal')
+}
+$zip.Dispose()
+```
+
+Zipping the folder (not its contents) matters: it stops extraction from dumping eight loose items
+into the tester's Downloads, and keeps the `.exe` beside `Archon's Rise_Data`, without which the
+game will not launch.
+
+Verify before sending: exactly one top-level entry, zero entries containing a backslash, and a
+round-trip extract whose file count and total bytes match the source. 0.1.0-alpha packed 161MB of
+build into a **49MB** zip (222 files).
+
 ## Re-releasing
 
-For a routine version bump: change **Version** only, rebuild, re-run the smoke test. Every other
-field above is already correct and should stay put.
+For a routine version bump: change **Version** only, rebuild, re-run the smoke test, then repackage
+per the section above (README copy included — a rebuild does not carry it over). Every other field
+in the settings table is already correct and should stay put.

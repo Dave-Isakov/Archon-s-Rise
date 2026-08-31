@@ -87,4 +87,82 @@ public static class SpawnRules
         result = open[rng(open.Count)];
         return true;
     }
+
+    // --- Starter isolation (spec 2026-08-13) ---
+    //
+    // Note these use REAL hex adjacency, unlike Spacing/the caller-supplied offsets
+    // above: those are a deliberate approximation for spreading zones around, where
+    // being a cell out costs nothing. Isolation is different — it has to agree with
+    // the adjacency combat actually resolves against, or it protects the wrong cells.
+
+    // Parity-correct neighbours on the odd-r offset grid, mirroring
+    // PlayerPosition.UpdateCompass (including its sign behaviour on negative rows,
+    // so an off-map cell resolves the same way here as it does in the scene).
+    public static List<Cell> HexNeighbors(Cell c)
+    {
+        bool oddRow = c.y % 2 != 0;
+        return oddRow
+            ? new List<Cell>
+            {
+                new Cell(c.x, c.y + 1),     // NW
+                new Cell(c.x + 1, c.y + 1), // NE
+                new Cell(c.x + 1, c.y),     // E
+                new Cell(c.x + 1, c.y - 1), // SE
+                new Cell(c.x, c.y - 1),     // SW
+                new Cell(c.x - 1, c.y)      // W
+            }
+            : new List<Cell>
+            {
+                new Cell(c.x - 1, c.y + 1),
+                new Cell(c.x, c.y + 1),
+                new Cell(c.x + 1, c.y),
+                new Cell(c.x, c.y - 1),
+                new Cell(c.x - 1, c.y - 1),
+                new Cell(c.x - 1, c.y)
+            };
+    }
+
+    // True when a single cell touches both — i.e. a hex the player could stand on
+    // that would drag BOTH into one field encounter (FieldEncounterRules).
+    // A cell never packs with itself.
+    public static bool SharesApproachHex(Cell a, Cell b)
+    {
+        if (a.Equals(b)) return false;
+        var na = new HashSet<Cell>(HexNeighbors(a));
+        foreach (var n in HexNeighbors(b))
+            if (na.Contains(n)) return true;
+        return false;
+    }
+
+    // Every cell within `radius` hex steps of `origin`, the origin included, by
+    // breadth-first walk over real adjacency. Off-map cells come back too — callers
+    // that care about map bounds filter them, since this layer knows no map.
+    public static List<Cell> CellsWithin(Cell origin, int radius)
+    {
+        var seen = new HashSet<Cell> { origin };
+        var result = new List<Cell> { origin };
+        var frontier = new List<Cell> { origin };
+        for (int step = 0; step < radius; step++)
+        {
+            var next = new List<Cell>();
+            foreach (var c in frontier)
+                foreach (var n in HexNeighbors(c))
+                    if (seen.Add(n)) { result.Add(n); next.Add(n); }
+            frontier = next;
+        }
+        return result;
+    }
+
+    // Every cell that must stay empty for `starter` to be fightable one-on-one.
+    //
+    // Falls out of the definition: b shares an approach hex with `starter` exactly
+    // when b is a neighbour of one of `starter`'s neighbours — which is the radius-2
+    // disk. Minus the starter's own cell, that is 18 cells.
+    public static List<Cell> StarterQuarantine(Cell starter)
+    {
+        var result = new List<Cell>();
+        foreach (var c in CellsWithin(starter, 2))
+            if (!c.Equals(starter)) result.Add(c);
+        return result;
+    }
 }

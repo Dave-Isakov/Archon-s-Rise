@@ -46,9 +46,11 @@ public class TutorialManager : MonoBehaviour
 
     void Start() => RefreshRailUi();
 
-    // Modal interplay (spec): everything tutorial hides while a queued modal
+    // Modal interplay (spec): the banner and highlight hide while a queued modal
     // or a picker canvas is open, and permanently on the terminal run-end
-    // screen — and reappears after.
+    // screen — and reappear after. The help popup opts out of this group and of
+    // this canvas's sorting order (see HelpPopup.Awake), since ? icons live
+    // inside those very surfaces.
     static bool Suppressed =>
         RunEndController.HasEnded
         || RewardQueue.Instance.Busy
@@ -183,7 +185,7 @@ public class TutorialManager : MonoBehaviour
         if (rules.RailActive)
         {
             var step = railSteps[rules.RailStep];
-            banner.ShowStep(step.bannerText, rules.CurrentStepIsInformational);
+            banner.ShowStep(step.bannerText, rules.CurrentStepIsInformational, step.bannerSide);
             highlight.Show(step.highlightTargetId);
         }
         else if (!tipShowing)
@@ -203,7 +205,7 @@ public class TutorialManager : MonoBehaviour
     {
         if (tip == null) return;
         tipShowing = true;
-        banner.ShowTip(tip.bannerText);
+        banner.ShowTip(tip.bannerText, tip.bannerSide);
         highlight.Show(tip.highlightTargetId);
     }
 

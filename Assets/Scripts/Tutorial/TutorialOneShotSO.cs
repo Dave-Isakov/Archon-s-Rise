@@ -17,4 +17,7 @@ public class TutorialOneShotSO : ScriptableObject
              "queueing until after the send-off. For tips that explain the screen " +
              "the player is looking at right now (e.g. map mode's pan controls).")]
     public bool immediate;
+    [Tooltip("Which edge the banner anchors to for this tip. Flip it to Right when " +
+             "the left-hand pose would cover what the tip is pointing at.")]
+    public BannerSide bannerSide = BannerSide.Left;
 }

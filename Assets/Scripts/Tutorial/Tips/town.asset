@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: town
   m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialOneShotSO
   id: town
-  bannerText: Towns sell services for <sprite="gem" index=0> Influence. Defeat their
-    guardians to conquer them for permanent rewards.
+  bannerText: Towns sell services for <sprite="gem" index=0> Influence. Some are
+    defended. Defeat their guardians to conquer them and to gain access to any services
+    a place may offer.
   highlightTargetId: 
   triggerEventId: town-entered
+  immediate: 0

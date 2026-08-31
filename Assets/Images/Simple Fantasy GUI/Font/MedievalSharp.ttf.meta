@@ -19,3 +19,10 @@ TrueTypeFontImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 99451
+  packageName: SIMPLE FANTASY GUI
+  packageVersion: 1.0
+  assetPath: Assets/Images/Simple Fantasy GUI/Font/MedievalSharp.ttf
+  uploadId: 204814

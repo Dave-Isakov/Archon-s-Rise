@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: enemy
   m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialStepSO
   id: enemy
-  bannerText: An enemy is near. Hover it to preview its strength, then move beside
-    it and click it to fight.
+  bannerText: An enemy is near. Move beside it and click it to open up the combat
+    screen, you may preview the enemy freely in this screen.
   highlightTargetId: starter-enemy
   completionEventId: combat-started
+  bannerSide: 0

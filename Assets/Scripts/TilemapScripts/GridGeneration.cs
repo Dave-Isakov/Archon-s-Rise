@@ -36,6 +36,12 @@ public class GridGeneration : MonoBehaviour
     [SerializeField] int shrineCount = 3;          // tuning; TBD in playtest
     [SerializeField] int shrineMinSpacing = 4;     // tuning; TBD in playtest
     [SerializeField] List<ShrineSO> shrinePool = new();
+    // Opening comfort radius (spec 2026-08-13). Inside this many hex steps of the
+    // start, desert/water/mountain rolls are remapped to plains/forest so the first
+    // few moves are 1s and 2s rather than 3-5s. The start sits in the map's corner
+    // and has only two on-map exits, so a single mountain roll there used to wall a
+    // new player in. 0 disables.
+    [SerializeField] int gentleStartRadius = 2;
     [SerializeField] DoomTuningSO doomTuning;
     [SerializeField] EnemySpawner spawner;
     // Spawn zones seeded this generation — deterministic over the map seed,
@@ -56,6 +62,10 @@ public class GridGeneration : MonoBehaviour
         var rngSource = new System.Random(DataManager.Instance.CurrentSeed);
         int Rng(int minInclusive, int maxExclusive) => rngSource.Next(minInclusive, maxExclusive);
         var player = FindAnyObjectByType<PlayerPosition>();
+        // Real hex steps, not a Chebyshev box, so "2 hexes away" means what it means
+        // on the board. The start is the map's corner, so this is a 6-cell sliver.
+        var gentleStart = new HashSet<ArchonsRise.SaveData.Cell>(
+            SpawnRules.CellsWithin(new ArchonsRise.SaveData.Cell(0, 0), gentleStartRadius));
         for(int x = 0; x < 20; x++)
         {
             for(int y = 0; y < 20; y++)
@@ -68,6 +78,11 @@ public class GridGeneration : MonoBehaviour
                 else
                 {
                     var rng = Rng(0,100);
+                    // Kept because the desert pass below reuses `rng` as scratch, and
+                    // the gentle-start remap needs the ORIGINAL terrain roll to know
+                    // what it is overriding.
+                    int terrainRoll = rng;
+                    bool gentle = gentleStart.Contains(new ArchonsRise.SaveData.Cell(x, y));
                     if(rng.IsBetween(0,45))
                     {
                         ground.SetTile(tilePos, tiles[0]);
@@ -86,7 +101,10 @@ public class GridGeneration : MonoBehaviour
                         // Only border water (the map's outer ring) is always visible; interior
                         // water stays fogged until explored.
                         bool onMapEdge = x == 0 || x == 19 || y == 0 || y == 19;
-                        if (fog != null && onMapEdge) fog.SetTile(tilePos, null);
+                        // A gentle-start cell is about to stop being water, so it must
+                        // not keep water's border reveal — that would leave one hex
+                        // permanently uncovered for no reason the player can see.
+                        if (fog != null && onMapEdge && !gentle) fog.SetTile(tilePos, null);
                     }
                     else if(rng.IsBetween(95,99))
                     {
@@ -109,6 +127,23 @@ public class GridGeneration : MonoBehaviour
                                 }
                             }
                         }
+                    }
+
+                    // Gentle start (spec 2026-08-13): ease the opening by keeping the
+                    // harsh terrain out of the player's first couple of steps. Desert
+                    // (3) becomes plains (1); water (5) and mountain (4), which are the
+                    // rolls that can wall the corner start in outright, become forest (2).
+                    // Plains and forest rolls are left exactly as they fell.
+                    //
+                    // Deliberately applied AFTER the desert pass and off the roll already
+                    // taken, so this consumes no rng of its own: every cell outside the
+                    // radius keeps the terrain its seed has always produced, and the
+                    // change stays provably local to the opening.
+                    if (gentle && terrainRoll >= 76)
+                    {
+                        water.SetTile(tilePos, null);
+                        mountains.SetTile(tilePos, null);
+                        ground.SetTile(tilePos, terrainRoll <= 89 ? tiles[0] : tiles[1]);
                     }
 
 
@@ -355,9 +390,11 @@ public class GridGeneration : MonoBehaviour
 
         var placedEnemyCells = new List<ArchonsRise.SaveData.Cell>();
 
-        // The rail's fight step highlights this token (id "starter-enemy").
-        EnemyToken nearestStarter = null;
-        int nearestStarterDist = int.MaxValue;
+        // The rail's fight step highlights this token (id "starter-enemy"). It is the
+        // FIRST enemy to land inside the starter radius rather than the nearest one,
+        // because that is the enemy we can prove is isolated — see the quarantine
+        // below, which stops anything else getting closer anyway.
+        EnemyToken starterEnemy = null;
 
         foreach (var zone in ZoneCells)
         {
@@ -382,13 +419,21 @@ public class GridGeneration : MonoBehaviour
                 if (idx < 0) break;
                 var token = deck.GetNewEnemyToken(new Vector3Int(cell.x, cell.y), ground, idx);
                 placedEnemyCells.Add(cell);
-                int startDist = SpawnRules.Spacing(cell, start);
-                if (startDist <= tuning.starterEnemyRadius && startDist < nearestStarterDist)
-                {
-                    nearestStarterDist = startDist;
-                    nearestStarter = token;
-                }
                 blocked.Add(cell);
+
+                // Starter isolation (spec 2026-08-13). A field encounter drags in
+                // EVERY enemy adjacent to the player (FieldEncounterRules), so an
+                // opening pack meant the rail's first fight was routinely a 2v1 —
+                // the near-start zone drops its whole pack inside one radius-1
+                // footprint, which almost always leaves a hex touching both.
+                // Quarantining the cells that share an approach hex with the
+                // starter costs this zone its second enemy through the existing
+                // "skip, never force-place" path, and pushes every later zone clear.
+                if (starterEnemy == null && SpawnRules.Spacing(cell, start) <= tuning.starterEnemyRadius)
+                {
+                    starterEnemy = token;
+                    foreach (var q in SpawnRules.StarterQuarantine(cell)) blocked.Add(q);
+                }
             }
         }
 
@@ -408,27 +453,29 @@ public class GridGeneration : MonoBehaviour
                         || ground.GetTile(pos) == dungeonTile || ground.GetTile(pos) == hotspotTile || ground.GetTile(pos) == shrineTile) continue;
                     starterCandidates.Add(new ArchonsRise.SaveData.Cell(x, y));
                 }
+            // Isolation again, from the other side. This path runs only when nothing
+            // landed within the starter radius, but "outside the radius" still allows
+            // an enemy one hex beyond it — so the back-stop must avoid every cell that
+            // shares an approach hex with an already-placed enemy rather than merely
+            // avoiding their cells.
+            foreach (var placed in placedEnemyCells)
+                foreach (var q in SpawnRules.StarterQuarantine(placed)) blocked.Add(q);
+
             if (SpawnRules.TryPickStarterCell(starterCandidates, start, tuning.starterEnemyRadius,
                 blocked, max => Rng(0, max), out var starterCell))
             {
                 int idx = SpawnRules.PickEnemyIndex(tiers, DoomRules.MaxTier(0, tuning), max => Rng(0, max));
                 if (idx >= 0)
                 {
-                    var token = deck.GetNewEnemyToken(new Vector3Int(starterCell.x, starterCell.y), ground, idx);
+                    starterEnemy = deck.GetNewEnemyToken(new Vector3Int(starterCell.x, starterCell.y), ground, idx);
                     placedEnemyCells.Add(starterCell);
                     blocked.Add(starterCell);
-                    int startDist = SpawnRules.Spacing(starterCell, start);
-                    if (startDist < nearestStarterDist)
-                    {
-                        nearestStarterDist = startDist;
-                        nearestStarter = token;
-                    }
                 }
             }
         }
 
-        if (nearestStarter != null)
-            TutorialTarget.Attach(nearestStarter.gameObject, "starter-enemy");
+        if (starterEnemy != null)
+            TutorialTarget.Attach(starterEnemy.gameObject, "starter-enemy");
 
         if (spawner != null) spawner.SetZones(ZoneCells);
     }

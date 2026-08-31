@@ -793,3 +793,50 @@ Spec: `docs/superpowers/specs/2026-07-28-minimal-place-ui-and-player-log-design.
 - **Shelter applies to the Defend-phase counterattack only** — not flee wounds, not Vengeful.
 - **Town heal now refuses when nothing is wounded.** It previously spent both the Influence and the
   visit's action for no effect, unundoably.
+
+## 2026-08-13 — Starter enemy isolation
+- **The opening fight is guaranteed a duel; the rest of the map is not.** Playtesters wounded out
+  inside three combats because the force-inserted near-start spawn zone dropped its whole
+  `initialEnemiesPerZone` pack into one radius-1 footprint, and `FieldEncounterRules` drags in every
+  adjacent enemy. Measured: a double-pull hex existed on 98.3% of near-start placements, and the
+  rail's own highlighted target could be a 2v1 on 99.0% of full maps.
+- **Isolation is stated as the combat rule, not a distance.** `SpawnRules.SharesApproachHex` asks
+  whether one cell touches both enemies — the exact condition `FieldEncounterRules` resolves against
+  — so the placement guard cannot drift from the mechanic it protects. The quarantine falls out of
+  it: neighbours-of-neighbours minus the centre, 18 cells.
+- **No new tuning knob, no special-casing of zone 0.** With the quarantine in `blocked`, the zone's
+  second enemy has nowhere legal to go and the existing "skip, never force-place" path handles it.
+  Map enemy count drops 14.00 → 12.87; deliberately not compensated elsewhere.
+- **`starter-enemy` now tags the FIRST enemy inside `starterEnemyRadius`, not the nearest.** That is
+  the one proven isolated, and the quarantine stops anything else getting closer anyway.
+- **Real hex adjacency only inside the isolation helpers.** `SpawnRules.Spacing` and the
+  caller-supplied offsets stay the deliberate Chebyshev/fixed-parity approximation they always were —
+  changing them would move every existing seed. `SpawnRules.HexNeighbors` mirrors
+  `PlayerPosition.UpdateCompass` for the isolation checks only.
+- **Deferred, known-open:** `EnemySpawner.BuildBlockedSet` has the same blind spot mid-run — it
+  blocks occupied cells but not approach-sharing ones, so a day-3 spawn can still land beside the
+  starter while a slow tutorial player is still walking up to it. Scoped out deliberately (map-gen
+  fix only); revisit if playtesters still report crowded openings.
+
+## 2026-08-13 — Gentle start terrain + per-step banner side
+- **The opening terrain is eased inside 2 hex steps of the start.** Desert becomes plains, water and
+  mountain become forest. The start is the map's *corner* with only two on-map exits, so the flat 24%
+  harsh-roll rate understated the pain badly: on 1% of maps both exits rolled cost 4–5. Average cost
+  of the opening cells drops 1.93 → 1.40.
+- **The remap consumes no rng.** It runs after the desert pass and reuses the roll already taken, so
+  for any given seed only those ≤6 cells change and every other cell keeps the terrain it always had.
+  Everything downstream (towns from x,y ≥ 3; dungeons/hotspots/shrines/zones via `startSafeRadius` 3)
+  already excludes the radius, so nothing else moves. Worth preserving even though the starter
+  quarantine had already broken seed compatibility for enemies — it keeps this change auditable.
+- **`SpawnRules.CellsWithin` is now the one hex-disk primitive**, with `StarterQuarantine` expressed
+  in terms of it. Two BFS copies had appeared within a day of each other.
+- **Banner side is authored per rail step / per tip** (`BannerSide` on `TutorialStepSO` and
+  `TutorialOneShotSO`), not inferred from the highlight target. `Left = 0` so existing assets keep
+  their placement; `play-card` is the first `Right`, because the left pose covers the Improvise
+  buttons that step is about.
+- **Only the left pose is authored; the right is mirrored from it** about the parent's centre. Two
+  hand-placed poses would drift the first time either was nudged.
+- **Known-open: changing map generation invalidates in-progress saves.** The map is regenerated from
+  `map.seed` on load, so a save made before the starter-quarantine change reloads with enemies in
+  different cells and its `defeatedEnemies` records no longer line up. Playtesters must start fresh
+  runs. No schema bump was made — revisit if saves ever need to survive a generation change.

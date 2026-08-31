@@ -28,7 +28,7 @@ public class ArmyHud : MonoBehaviour
         int count = player.Units.Count;
         int cap = player.ArmyCap;
 
-        label.text = $"{IconMarkup.Tag(IconConcept.Army)} {count}/{cap}";
+        label.text = $"{count}/{cap}";
         // Same predicate the recruit flow uses to decide whether hiring opens the
         // disband picker, so the HUD and that flow can never disagree.
         label.color = ArmyRules.NeedsDisband(count, cap) ? atCapColor : normalColor;

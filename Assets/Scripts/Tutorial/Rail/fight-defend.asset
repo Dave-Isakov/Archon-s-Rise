@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: fight-defend
   m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialStepSO
   id: fight-defend
-  bannerText: 'Defend phase: play cards to build <sprite="shield" index=0> Defend,
-    then press Defend to take the counterattack. Each point of enemy <sprite="Sword"
-    index=0> Attack past your <sprite="shield" index=0> Defend becomes a <sprite="wound"
-    index=0> Wound.'
+  bannerText: 'Defend phase: play cards to build <sprite="shield" index=0> Defend
+    against the enemy attack. Each point of enemy <sprite="Sword" index=0> Attack
+    past your <sprite="shield" index=0> Defend becomes a <sprite="wound" index=0>
+    Wound mitigated by your <sprite="toughness" index=0>. The button will show you
+    how many wounds you will take if you do not have enough <sprite="shield" index=0>.'
   highlightTargetId: combat-button
   completionEventId: combat-attack
+  bannerSide: 1

@@ -19,6 +19,12 @@ public class Card : MonoBehaviour, IPointerClickHandler, IFanItem
     // the per-pool amounts the play actually moved so undo restores exactly.
     [System.NonSerialized] public bool ConvertOn;
     [System.NonSerialized] public int[] ConvertMoved;
+    // Direction of the in-flight raise. PlayCommand raises the SAME event for
+    // Execute and Undo, and the stat listeners tell them apart via IsPlayed —
+    // but IsPlayed is flipped by one of those listeners, so its value depends on
+    // listener registration order. This flag is set before the raise, so the
+    // presentation listeners (icon pulses) can read the direction unambiguously.
+    [System.NonSerialized] public bool IsUndoingPlay;
     // Units this play readied (spec 2026-07-14) so undo re-exhausts exactly them.
     public readonly List<Unit> RefreshedUnits = new();
     private bool isMaximized;

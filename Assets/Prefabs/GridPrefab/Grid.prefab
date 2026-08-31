@@ -2754,5 +2754,6 @@ MonoBehaviour:
   shrineCount: 3
   shrineMinSpacing: 4
   shrinePool: []
+  gentleStartRadius: 2
   doomTuning: {fileID: 0}
   spawner: {fileID: 0}

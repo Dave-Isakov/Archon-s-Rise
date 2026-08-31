@@ -19,3 +19,4 @@ MonoBehaviour:
     will attack.
   highlightTargetId: combat-button
   completionEventId: combat-defend
+  bannerSide: 1

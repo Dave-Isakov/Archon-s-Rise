@@ -15,10 +15,10 @@ MonoBehaviour:
   id: enemy-mercenary-band
   cardName: Mercenary Band
   cardDescription: A band of sellswords who fight for coin - and can be bought.
-  enemyHP: 4
+  enemyHP: 3
   enemyAttack: 3
   canInfluence: 1
-  influenceCost: 5
+  influenceCost: 4
   recruitedUnit: {fileID: 11400000, guid: 01a9990fd166e094d9b6d2ed4cbe52c7, type: 2}
   tier: 1
   traits: 0

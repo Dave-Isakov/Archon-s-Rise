@@ -31,6 +31,67 @@ fields on `DoomTuning`):
 The day also ends early if the deck can't refill the hand (forced rest). _Starting values — tune in
 playtest._ Set them on the `DoomTuning.asset` (new fields default to 0 on existing assets).
 
+## Terrain & the Opening Walk
+Per-cell terrain roll (`GridGeneration`), with `exploreCost` in brackets:
+
+| Terrain | Roll | Cost |
+|---|---|---|
+| Plains | 0–45 (46%) | **1** |
+| Forest | 46–75 (30%) | **2** |
+| Desert | 76–89 (14%) | **3** |
+| Water | 90–94 (5%) | **5** |
+| Mountain | 95–99 (5%) | **4** |
+
+### Gentle start (spec 2026-08-13)
+The start is the map's **corner** `(0,0)`, so it has only **two on-map exits** — `(0,1)` and `(1,0)`.
+That makes a harsh roll there far costlier than the flat 24% suggests: on 1% of maps *both* exits
+rolled water/mountain, so a new player's first step cost 4–5 explore.
+
+Inside `gentleStartRadius` (**2** hex steps, a 6-cell sliver once clipped to the corner) harsh rolls
+are remapped: **desert → plains, water/mountain → forest**. Plains and forest rolls are untouched.
+
+| | before | after |
+|---|---|---|
+| Avg explore cost of the opening cells | 1.93 | **1.40** |
+| Cost-3-or-worse hexes | 24.1% | **0%** |
+| Both exits at cost 4–5 | 1.01% | **0%** |
+| Total cost to cross the opening | 11.6 | **8.4** |
+
+Applied *after* the desert pass and off the roll already taken, so it **consumes no rng of its own** —
+every cell outside the radius keeps the terrain its seed has always produced. Every other placement
+system (towns from x,y ≥ 3; dungeons/hotspots/shrines/zones via `startSafeRadius` 3) already excludes
+everything inside the radius, so for a given seed the change is provably confined to those 6 cells.
+_Raise `gentleStartRadius` to 3 for an 11-cell opening; 0 disables._
+
+## Map Spawns & the Opening Fight
+- **6 spawn zones** (`spawnZoneCount`), min spacing **4** Chebyshev (`zoneMinSpacing`), seeded outside
+  the **start safe radius 3** (`startSafeRadius`). A 7th zone is force-inserted at the nearest valid
+  land ring from d=2 so the opening always has a reachable threat.
+- **2 enemies per zone** at map gen (`initialEnemiesPerZone`), tier 1 with no stat bonus (doom is 0).
+
+### Starter isolation (spec 2026-08-13)
+A field encounter drags in **every** enemy adjacent to the player (`FieldEncounterRules`), so a
+two-enemy pack next to the start made the tutorial's first fight a 2v1 on ~99% of maps — measured
+cause of testers wounding out inside three combats.
+
+The first enemy placed within `starterEnemyRadius` (5) of the start is the **starter**, and the cells
+that share an approach hex with it are quarantined from all later placement
+(`SpawnRules.StarterQuarantine` — the radius-2 disk minus the centre, 18 cells):
+
+> **No other enemy may share an approach hex with the starter — no single cell may touch both.**
+
+Consequences, measured over 3000 simulated maps:
+
+| | before | after |
+|---|---|---|
+| Starter fight can be 2v1 | 99.0% | **0.0%** |
+| Enemies placed at map gen | 14.00 | 12.87 |
+
+The near-start zone loses its second enemy through the existing "skip, never force-place" path, so
+this needs no separate tuning knob. **Packs elsewhere on the map are untouched** — the swarm rule is a
+pillar of field combat, and only the opening is protected. _Tune via `starterEnemyRadius`; the
+quarantine radius itself is fixed by the combat rule and is not a balance knob._
+
 ## Dungeons (M2.9)
 - **6 dungeons per map** (`dungeonCount`), min spacing **4** Chebyshev (`dungeonMinSpacing`), never
   on towns or within the start safe radius (3).

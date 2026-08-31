@@ -12,14 +12,21 @@ public class PlayCommand : ICommands
         playCardEvent = cardEvent;
         _card = card;
     }
+    // Execute and Undo raise the SAME event — the stat listeners are toggles that
+    // add or subtract off Card.IsPlayed. Presentation listeners have no such
+    // toggle, so the direction is stamped on the card before each raise; without
+    // it, undoing a play replayed the stat's increase animation.
     public void Execute()
     {
+        _card.IsUndoingPlay = false;
         playCardEvent.Raise(_card);
     }
 
     public void Undo()
     {
+        _card.IsUndoingPlay = true;
         playCardEvent.Raise(_card);
+        _card.IsUndoingPlay = false;
     }
 
     // Called when the command can no longer be undone (the stack is cleared at a commit

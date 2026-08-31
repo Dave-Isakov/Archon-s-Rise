@@ -14,4 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: ArchonsRise.Tutorial::HelpEntrySO
   panelId: place-menu
   title: Towns & Places
-  body: 'This place offers services for <sprite="gem" index=0> Influence: heal <sprite="Heal" index=0> wounds, buy <sprite="crystal" index=0> crystals, recruit <sprite="army" index=0> units. Assault its guardians to conquer it for a permanent reward — conquering 2 <sprite="castle" index=0> Castles wins the run.'
+  body: "This place offers services for <sprite=\"gem\" index=0> Influence: heal
+    <sprite=\"Heal\" index=0> wounds, buy <sprite=\"crystal\" index=0> crystals,
+    recruit <sprite=\"army\" index=0> units. \n\nIf a guardian is defending this
+    place, defeat the guardian to gain access to all town services available here.
+    Conquiering 2 <sprite=\"castle\" index=0> Castles wins the run."

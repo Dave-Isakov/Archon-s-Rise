@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: pick-card
   m_EditorClassIdentifier: ArchonsRise.Tutorial::TutorialStepSO
   id: pick-card
-  bannerText: Your hand drives every turn. Click a card to inspect it.
+  bannerText: 'Your cards are your main source of power, each card will have symbols
+    that show what boons they will grant you. Some cards will also grant you crystals,
+    heal and more. Click a card to inspect it. '
   highlightTargetId: hand
   completionEventId: card-inspected
+  bannerSide: 0

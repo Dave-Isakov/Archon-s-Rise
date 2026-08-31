@@ -14,4 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: ArchonsRise.Tutorial::HelpEntrySO
   panelId: enemy-preview
   title: Enemy Preview
-  body: '<sprite="Sword" index=0> is the enemy''s attack, <sprite="hp" index=0> its toughness. Defeating it needs Attack at least equal to <sprite="hp" index=0>; a weak <sprite="shield" index=0> Defend takes <sprite="wound" index=0> Wounds. <sprite="siege" index=0> Siege wins without a counterattack. Some enemies accept <sprite="gem" index=0> Influence and leave peacefully.'
+  body: "<sprite=\"Sword\" index=0> is the enemy's attack, <sprite=\"hp\" index=0>
+    its toughness. Defeating it requires your <sprite=\"Sword\" index=0> at least
+    equal to <sprite=\"hp\" index=0>.\n\nYour played <sprite=\"shield\" index=0>
+    and your <sprite=\"toughness\" index=0> mitigate <sprite=\"wound\" index=0> Wounds.
+    \n\n<sprite=\"siege\" index=0> Siege wins without a counterattack. Some enemies
+    accept <sprite=\"gem\" index=0> Influence and leave peacefully. Some may even
+    be swayed to join you."

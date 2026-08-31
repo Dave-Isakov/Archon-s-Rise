@@ -15,6 +15,8 @@ MonoBehaviour:
   id: fight-attack
   bannerText: 'Attack phase: the counterattack is over. Spend <sprite="Sword" index=0>
     Attack to defeat each survivor (<sprite="Sword" index=0> at least its <sprite="hp"
-    index=0> HP), or Withdraw to flee.'
+    index=0> HP), or clik the flee button to withdraw. Fleeing will cause you to
+    take <sprite="wound" index=0>. '
   highlightTargetId: fight-button
   completionEventId: enemy-resolved
+  bannerSide: 1

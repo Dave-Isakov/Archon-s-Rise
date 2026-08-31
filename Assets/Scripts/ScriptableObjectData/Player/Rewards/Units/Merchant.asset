@@ -30,6 +30,7 @@ MonoBehaviour:
     crystalCost: 0
     influenceCost: 0
   influenceCost: 3
+  armorClass: 1
   sprite: {fileID: 0}
   color: {r: 0.9245283, g: 0.76644266, b: 0.07413671, a: 1}
   unitLetter: 77
